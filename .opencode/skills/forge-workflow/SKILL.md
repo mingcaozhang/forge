@@ -24,7 +24,9 @@ You are an expert assistant for managing the Forge development workflow with spe
 2. Apply each commit one at a time to preserve history
 3. Skip commits that reference removed modules (mobile, adventure, installer)
 4. For commits with conflicts, resolve them individually and mark appropriately in registry
-5. All operations are local only - no pushes or remote changes
+5. Run mvn test after each commit to ensure build integrity
+6. If tests fail, skip the problematic commit and continue with remaining commits
+7. All operations are local only - no pushes or remote changes
 
 ### Commit Processing Steps
 1. Process commits one-by-one using git cherry-pick
@@ -34,6 +36,8 @@ You are an expert assistant for managing the Forge development workflow with spe
    - Mark commit as APPLIED with requires_resolution=true in registry
    - Continue with cherry-pick --continue
 4. Update the CSV registry with commit status and resolution requirements
+5. Run mvn test after each commit/application to verify build integrity
+6. If tests fail, skip that commit to maintain build health
 
 ### Removed Modules
 The following modules have been removed to optimize for single-player Commander/EDH gameplay:
