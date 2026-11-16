@@ -3,6 +3,27 @@
 # Sync upstream changes to your fork's master branch
 # This script helps automate the process of cherry-picking upstream commits 
 # while being more selective about what conflicts to skip
+# Always backs up before making changes to prevent data loss
+
+# Create backup of current state
+echo "Creating backup of current git state..."
+if [ -d ".git_backup" ]; then
+    rm -rf .git_backup
+fi
+cp -r .git .git_backup
+echo "Backup created: .git_backup"
+
+# Function to restore from backup if something goes wrong
+restore_from_backup() {
+    echo "Restoring from backup due to error..."
+    rm -rf .git
+    cp -r .git_backup .git
+    echo "Restored from backup. Exiting."
+    exit 1
+}
+
+# Set up error handling
+trap restore_from_backup ERR
 
 echo "Fetching upstream changes..."
 git fetch upstream
@@ -83,5 +104,9 @@ cat "$TEMP_FILE"
 rm "$TEMP_FILE"
 
 echo ""
-echo "Sync process completed."
+echo "Sync process completed successfully."
 echo "Review the summary above for any commits that were skipped or need manual review."
+
+# Remove backup after successful completion
+rm -rf .git_backup
+echo "Backup removed (not needed after successful sync)."
