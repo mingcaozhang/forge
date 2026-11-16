@@ -33,7 +33,7 @@ echo "Commits to apply:"
 echo "$COMMITS_TO_APPLY"
 
 # Initialize skipped commits registry if it doesn't exist
-SKIPPED_COMMITS_FILE=".git/sync_commit_registry.csv"
+SKIPPED_COMMITS_FILE="sync_commit_registry.csv"
 
 # Initialize CSV with header if it doesn't exist
 if [ ! -f "$SKIPPED_COMMITS_FILE" ]; then
