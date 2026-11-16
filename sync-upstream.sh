@@ -52,23 +52,26 @@ echo "$COMMITS_TO_APPLY"
 
 # Create a temporary file to store results
 TEMP_FILE=$(mktemp)
-SKIPPED_COMMITS_FILE=".git/skipped_commits_registry.txt"
+SKIPPED_COMMITS_FILE=".git/sync_commit_registry.csv"
 
 # Initialize skipped commits registry if it doesn't exist
 if [ ! -f "$SKIPPED_COMMITS_FILE" ]; then
-    touch "$SKIPPED_COMMITS_FILE"
+    echo "commit_hash,commit_message,status" > "$SKIPPED_COMMITS_FILE"
 fi
 
 # Process each commit
 for commit in $(git log --format="%H" $LOCAL_COMMIT..$UPSTREAM_COMMIT); do
     echo "Processing commit: $(git log --oneline -1 $commit)"
     
-    # Check if this commit has already been skipped
-    if grep -q "^$commit " "$SKIPPED_COMMITS_FILE" 2>/dev/null; then
-        echo "⚠ Commit $commit was previously skipped. Skipping again to avoid reprocessing."
-        echo "SKIPPED: $commit - previously skipped" >> "$TEMP_FILE"
+    # Check if this commit has already been processed (skipped or applied)
+    if grep -q "^$commit," "$SKIPPED_COMMITS_FILE" 2>/dev/null; then
+        echo "⚠ Commit $commit was previously processed. Skipping again to avoid reprocessing."
+        echo "SKIPPED: $commit - previously processed" >> "$TEMP_FILE"
         continue
     fi
+    
+    # Get commit message (truncated to 100 chars)
+    COMMIT_MESSAGE=$(git log --oneline -1 $commit | cut -d' ' -f2- | cut -c1-100)
     
     # Check if this commit touches any of our removed modules
     # Get list of files changed in this commit
@@ -92,7 +95,7 @@ for commit in $(git log --format="%H" $LOCAL_COMMIT..$UPSTREAM_COMMIT); do
     
     if [ "$HAS_REMOVED_MODULES" = true ]; then
         echo "⚠ Commit $commit references removed modules. Skipping."
-        echo "$commit - references removed modules" >> "$SKIPPED_COMMITS_FILE"
+        echo "$commit,\"$COMMIT_MESSAGE\",SKIPPED" >> "$SKIPPED_COMMITS_FILE"
         echo "SKIPPED: $commit - references removed modules" >> "$TEMP_FILE"
     else
         # Try to cherry-pick the commit
@@ -100,12 +103,13 @@ for commit in $(git log --format="%H" $LOCAL_COMMIT..$UPSTREAM_COMMIT); do
             # If successful, add it to safe commits
             echo "✓ Commit $commit applied successfully" >> "$TEMP_FILE"
             git commit -m "Sync: $(git log --oneline -1 $commit)"
+            echo "$commit,\"$COMMIT_MESSAGE\",APPLIED" >> "$SKIPPED_COMMITS_FILE"
         else
             # Check if it's a conflict due to removed modules or legitimate conflict
             if git diff --name-only --diff-filter=U | grep -q -E "(forge-gui-mobile|forge-gui-ios|forge-gui-android|forge-gui-mobile-dev|adventure-editor|forge-installer|forge-lda)"; then
                 # Conflict due to removed modules - skip and record
                 echo "⚠ Commit $commit had conflicts due to removed modules. Skipping."
-                echo "$commit - conflicts due to removed modules" >> "$SKIPPED_COMMITS_FILE"
+                echo "$commit,\"$COMMIT_MESSAGE\",SKIPPED" >> "$SKIPPED_COMMITS_FILE"
                 echo "SKIPPED: $commit - conflicts due to removed modules" >> "$TEMP_FILE"
                 git cherry-pick --abort 2>/dev/null || true
             else
@@ -119,6 +123,7 @@ for commit in $(git log --format="%H" $LOCAL_COMMIT..$UPSTREAM_COMMIT); do
                     echo "✓ Automatic resolution successful for commit $commit"
                     echo "AUTO-RESOLVED: $commit" >> "$TEMP_FILE"
                     git commit -m "Sync: $(git log --oneline -1 $commit)"
+                    echo "$commit,\"$COMMIT_MESSAGE\",APPLIED" >> "$SKIPPED_COMMITS_FILE"
                 fi
             fi
         fi
