@@ -61,8 +61,8 @@ find_failing_commit() {
     echo "Identifying failing commit using binary search between $start_commit and $end_commit"
     
     # This will call the binary search script from the failure-identifier skill
-    if [ -x "./binary-search-test.sh" ]; then
-        ./binary-search-test.sh "$start_commit" "$end_commit"
+    if [ -x "scripts/binary-search-test.sh" ]; then
+        scripts/binary-search-test.sh "$start_commit" "$end_commit"
         return $?
     else
         echo "Binary search script not found, skipping binary search"
