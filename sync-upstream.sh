@@ -40,7 +40,37 @@ if [ ! -f "$SKIPPED_COMMITS_FILE" ]; then
     echo "commit_hash,commit_message,status,requires_resolution" > "$SKIPPED_COMMITS_FILE"
 fi
 
+# Function to run tests and return status
+run_tests() {
+    echo "Running mvn test to verify build integrity..."
+    if mvn test 2>/dev/null; then
+        echo "✓ Tests passed successfully"
+        return 0
+    else
+        echo "✗ Tests failed"
+        return 1
+    fi
+}
+
+# Function to perform binary search for failing commit
+find_failing_commit() {
+    local start_commit=$1
+    local end_commit=$2
+    local last_good_commit=$3
+    
+    if [ "$start_commit" = "$end_commit" ]; then
+        echo "Failing commit identified: $start_commit"
+        return 1
+    fi
+    
+    # For simplicity, we'll just skip the problematic commit for now
+    echo "Binary search not fully implemented in this version - skipping problematic commit"
+    return 0
+}
+
 # Process each commit individually using cherry-pick for full control
+echo "Processing commits and running tests after each application..."
+PROCESSING_COMMITS=()
 for commit in $(git log --format="%H" $LOCAL_COMMIT..$UPSTREAM_COMMIT); do
     echo ""
     echo "Processing commit: $(git log --oneline -1 $commit)"
@@ -87,6 +117,18 @@ for commit in $(git log --format="%H" $LOCAL_COMMIT..$UPSTREAM_COMMIT); do
             # If successful, record it as applied without resolution needed
             echo "✓ Commit $commit applied successfully"
             echo "$commit,\"$COMMIT_MESSAGE\",APPLIED,false" >> "$SKIPPED_COMMITS_FILE"
+            
+            # Run tests after applying commit
+            echo "Running tests after applying commit $commit..."
+            if ! run_tests; then
+                echo "⚠ Tests failed after applying commit $commit"
+                echo "This commit will be skipped to maintain build integrity"
+                git reset --hard HEAD~1
+                echo "$commit,\"$COMMIT_MESSAGE\",SKIPPED,true" >> "$SKIPPED_COMMITS_FILE"
+                echo "SKIPPED: $commit - tests failed, build integrity maintained"
+            else
+                echo "✓ Tests passed after applying commit $commit"
+            fi
         } || {
             # If it fails due to conflict, check if it's due to removed modules
             if git diff --name-only --diff-filter=U | grep -q -E "(forge-gui-mobile|forge-gui-ios|forge-gui-android|forge-gui-mobile-dev|adventure-editor|forge-installer|forge-lda)"; then
@@ -106,6 +148,18 @@ for commit in $(git log --format="%H" $LOCAL_COMMIT..$UPSTREAM_COMMIT); do
                 git cherry-pick --continue 2>/dev/null && {
                     echo "✓ Commit $commit applied successfully with conflict resolution"
                     echo "$commit,\"$COMMIT_MESSAGE\",APPLIED,true" >> "$SKIPPED_COMMITS_FILE"
+                    
+                    # Run tests after applying commit with resolution
+                    echo "Running tests after applying commit $commit with resolution..."
+                    if ! run_tests; then
+                        echo "⚠ Tests failed after applying commit $commit with resolution"
+                        echo "This commit will be skipped to maintain build integrity"
+                        git reset --hard HEAD~1
+                        echo "$commit,\"$COMMIT_MESSAGE\",SKIPPED,true" >> "$SKIPPED_COMMITS_FILE"
+                        echo "SKIPPED: $commit - tests failed, build integrity maintained"
+                    else
+                        echo "✓ Tests passed after applying commit $commit with resolution"
+                    fi
                 } || {
                     echo "✗ Failed to resolve conflicts for commit $commit. Manual intervention needed."
                     git cherry-pick --abort 2>/dev/null || true
@@ -118,6 +172,15 @@ for commit in $(git log --format="%H" $LOCAL_COMMIT..$UPSTREAM_COMMIT); do
 done
 
 echo ""
-echo "Sync process completed successfully."
+echo "Sync process completed."
 echo "Review the commit registry (.git/sync_commit_registry.csv) for detailed status."
 echo "Note: No changes were pushed to remote repositories."
+
+# Run final test to ensure build integrity
+echo ""
+echo "Running final test suite to ensure build integrity..."
+if run_tests; then
+    echo "✓ Final test suite passed - build is healthy"
+else
+    echo "⚠ Final test suite failed - build integrity issues detected"
+fi
