@@ -161,10 +161,24 @@ else
     
     # Get the range of applied commits
     if [ -f "$SKIPPED_COMMITS_FILE" ]; then
-        # Find the last successful commit before failures
-        # For simplicity, we'll just use the last commit in our process
-        # In a real implementation, we would track which commits were applied successfully
-        echo "Please manually identify which commit introduced the failure, or use the binary search tool."
+        # Find the last commit that was processed (this will be the one that caused the failure)
+        # In a simplified approach, we'll mark the last processed commit as SKIPPED due to test failure
+        # For a real implementation, we'd use binary search to identify the exact failing commit
+        if [ -s "$SKIPPED_COMMITS_FILE" ]; then
+            # Get the last commit that was processed (not the header)
+            LAST_COMMIT_LINE=$(tail -n 1 "$SKIPPED_COMMITS_FILE")
+            if [ -n "$LAST_COMMIT_LINE" ] && [[ "$LAST_COMMIT_LINE" != "commit_hash,"* ]]; then
+                # Extract the commit hash from the last line
+                LAST_COMMIT=$(echo "$LAST_COMMIT_LINE" | cut -d',' -f1)
+                echo "Last processed commit: $LAST_COMMIT"
+                
+                # Update the registry to mark that commit as SKIPPED due to test failure
+                # Remove the last line and add it with proper status
+                echo "Marking last commit $LAST_COMMIT as SKIPPED due to test failure"
+                sed -i '$d' "$SKIPPED_COMMITS_FILE"
+                echo "$LAST_COMMIT,\"$(git log --oneline -1 $LAST_COMMIT | cut -d' ' -f2- | cut -c1-100)\",SKIPPED,true" >> "$SKIPPED_COMMITS_FILE"
+            fi
+        fi
     fi
 fi
 
