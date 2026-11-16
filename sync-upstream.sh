@@ -1,46 +1,27 @@
 #!/bin/bash
 
-# Sync upstream changes to your fork's master branch
+# Sync upstream changes to your fork's dev branch
 # This script helps automate the process of cherry-picking upstream commits 
 # while being more selective about what conflicts to skip
-# Always backs up before making changes to prevent data loss
-
-# Create backup of current state
-echo "Creating backup of current git state..."
-if [ -d ".git_backup" ]; then
-    rm -rf .git_backup
-fi
-cp -r .git .git_backup
-echo "Backup created: .git_backup"
-
-# Function to restore from backup if something goes wrong
-restore_from_backup() {
-    echo "Restoring from backup due to error..."
-    rm -rf .git
-    cp -r .git_backup .git
-    echo "Restored from backup. Exiting."
-    exit 1
-}
-
-# Set up error handling - only for major failures, not normal cherry-pick conflicts
-# We want to handle conflicts gracefully without restoring backup
-trap restore_from_backup ERR
+# This script is designed for local-only operations - no pushes or remote changes
 
 echo "Fetching upstream changes..."
 git fetch upstream
 
-echo "Checking for new upstream commits..."
+# Get current dev branch commit
+LOCAL_COMMIT=$(git rev-parse dev)
+
+# Get upstream master commit
 UPSTREAM_COMMIT=$(git rev-parse upstream/master)
-LOCAL_COMMIT=$(git rev-parse master)
 
 if [ "$UPSTREAM_COMMIT" = "$LOCAL_COMMIT" ]; then
-    echo "Upstream and local are already in sync."
+    echo "Upstream and local dev are already in sync."
     exit 0
 fi
 
 echo "New upstream commits found. Starting cherry-pick process..."
 
-# Get the list of commits to be applied
+# Get the list of commits to be applied (upstream commits that are not on dev)
 COMMITS_TO_APPLY=$(git log --oneline $LOCAL_COMMIT..$UPSTREAM_COMMIT)
 
 if [ -z "$COMMITS_TO_APPLY" ]; then
@@ -115,18 +96,11 @@ for commit in $(git log --format="%H" $LOCAL_COMMIT..$UPSTREAM_COMMIT); do
                 echo "SKIPPED: $commit - conflicts due to removed modules" >> "$TEMP_FILE"
                 git cherry-pick --abort 2>/dev/null || true
             else
-                # Legitimate conflict - try to resolve automatically or prompt user
-                echo "⚠ Commit $commit had conflicts but not due to removed modules. Attempting automatic resolution..."
-                if git diff --name-only --diff-filter=U > /dev/null; then
-                    echo "Manual review needed for commit $commit"
-                    echo "MANUAL REVIEW NEEDED: $commit" >> "$TEMP_FILE"
-                    git cherry-pick --abort 2>/dev/null || true
-                else
-                    echo "✓ Automatic resolution successful for commit $commit"
-                    echo "AUTO-RESOLVED: $commit" >> "$TEMP_FILE"
-                    git commit -m "Sync: $(git log --oneline -1 $commit)"
-                    echo "$commit,\"$COMMIT_MESSAGE\",APPLIED" >> "$SKIPPED_COMMITS_FILE"
-                fi
+                # Legitimate conflict - for this workflow, we'll leave it for manual resolution
+                # This is where the skill would be invoked to help resolve conflicts
+                echo "⚠ Commit $commit had conflicts but not due to removed modules. Manual review needed."
+                echo "MANUAL REVIEW NEEDED: $commit" >> "$TEMP_FILE"
+                git cherry-pick --abort 2>/dev/null || true
             fi
         }
     fi
@@ -143,7 +117,4 @@ rm "$TEMP_FILE"
 echo ""
 echo "Sync process completed successfully."
 echo "Review the summary above for any commits that were skipped or need manual review."
-
-# Remove backup after successful completion
-rm -rf .git_backup
-echo "Backup removed (not needed after successful sync)."
+echo "Note: No changes were pushed to remote repositories. Review conflicted files manually if needed."
