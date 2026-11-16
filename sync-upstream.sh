@@ -22,7 +22,8 @@ restore_from_backup() {
     exit 1
 }
 
-# Set up error handling
+# Set up error handling - only for major failures, not normal cherry-pick conflicts
+# We want to handle conflicts gracefully without restoring backup
 trap restore_from_backup ERR
 
 echo "Fetching upstream changes..."
@@ -99,13 +100,14 @@ for commit in $(git log --format="%H" $LOCAL_COMMIT..$UPSTREAM_COMMIT); do
         echo "SKIPPED: $commit - references removed modules" >> "$TEMP_FILE"
     else
         # Try to cherry-pick the commit
-        if git cherry-pick -n "$commit" 2>/dev/null; then
+        # Use a subshell to handle errors gracefully without triggering global trap
+        (git cherry-pick -n "$commit" 2>/dev/null) && {
             # If successful, add it to safe commits
             echo "✓ Commit $commit applied successfully" >> "$TEMP_FILE"
             git commit -m "Sync: $(git log --oneline -1 $commit)"
             echo "$commit,\"$COMMIT_MESSAGE\",APPLIED" >> "$SKIPPED_COMMITS_FILE"
-        else
-            # Check if it's a conflict due to removed modules or legitimate conflict
+        } || {
+            # If it fails, check if it's due to removed modules or legitimate conflict
             if git diff --name-only --diff-filter=U | grep -q -E "(forge-gui-mobile|forge-gui-ios|forge-gui-android|forge-gui-mobile-dev|adventure-editor|forge-installer|forge-lda)"; then
                 # Conflict due to removed modules - skip and record
                 echo "⚠ Commit $commit had conflicts due to removed modules. Skipping."
@@ -126,7 +128,7 @@ for commit in $(git log --format="%H" $LOCAL_COMMIT..$UPSTREAM_COMMIT); do
                     echo "$commit,\"$COMMIT_MESSAGE\",APPLIED" >> "$SKIPPED_COMMITS_FILE"
                 fi
             fi
-        fi
+        }
     fi
 done
 
