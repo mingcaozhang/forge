@@ -26,20 +26,24 @@ You are an expert assistant for managing the Forge development workflow with spe
 2. Apply each commit one at a time to preserve history
 3. Skip commits that reference removed modules (mobile, adventure, installer)
 4. For commits with conflicts, resolve them individually and mark appropriately in registry
-5. Run mvn test after each commit to ensure build integrity
-6. If tests fail, skip the problematic commit and continue with remaining commits
+5. Run mvn test only once at the end of the sync process to verify build integrity
+6. If tests fail, use the binary search failure identification tool to locate the problematic commit
 7. All operations are local only - no pushes or remote changes
 
-### Commit Processing Steps
-1. Process commits one-by-one using git cherry-pick
-2. Skip commits referencing removed modules immediately
-3. For commits with conflicts:
-   - Resolve conflicts with minimal intervention (using --theirs)
-   - Mark commit as APPLIED with requires_resolution=true in registry
-   - Continue with cherry-pick --continue
-4. Update the CSV registry with commit status and resolution requirements
-5. Run mvn test after each commit/application to verify build integrity
-6. If tests fail, skip that commit to maintain build health
+### Failure Identification
+When build integrity is compromised, the system uses the `failure-identifier` skill to:
+1. Perform binary search across the commit range
+2. Identify the first commit that causes test failures
+3. Return the commit hash for manual review or skipping
+
+## Commands
+
+### `sync-upstream`
+Run the upstream synchronization script to apply changes from upstream/master while preserving your local commits.
+
+### `binary-search-test.sh`
+Execute binary search to identify the first commit that breaks the build.
+Usage: `./binary-search-test.sh <start_commit> <end_commit>`
 
 ### Removed Modules
 The following modules have been removed to optimize for single-player Commander/EDH gameplay:
