@@ -32,23 +32,22 @@ fi
 echo "Commits to apply:"
 echo "$COMMITS_TO_APPLY"
 
-# Create a temporary file to store results
-TEMP_FILE=$(mktemp)
+# Initialize skipped commits registry if it doesn't exist
 SKIPPED_COMMITS_FILE=".git/sync_commit_registry.csv"
 
-# Initialize skipped commits registry if it doesn't exist
+# Initialize CSV with header if it doesn't exist
 if [ ! -f "$SKIPPED_COMMITS_FILE" ]; then
-    echo "commit_hash,commit_message,status" > "$SKIPPED_COMMITS_FILE"
+    echo "commit_hash,commit_message,status,requires_resolution" > "$SKIPPED_COMMITS_FILE"
 fi
 
-# Process each commit
+# Process each commit individually using cherry-pick for full control
 for commit in $(git log --format="%H" $LOCAL_COMMIT..$UPSTREAM_COMMIT); do
+    echo ""
     echo "Processing commit: $(git log --oneline -1 $commit)"
     
     # Check if this commit has already been processed (skipped or applied)
     if grep -q "^$commit," "$SKIPPED_COMMITS_FILE" 2>/dev/null; then
         echo "⚠ Commit $commit was previously processed. Skipping again to avoid reprocessing."
-        echo "SKIPPED: $commit - previously processed" >> "$TEMP_FILE"
         continue
     fi
     
@@ -77,44 +76,48 @@ for commit in $(git log --format="%H" $LOCAL_COMMIT..$UPSTREAM_COMMIT); do
     
     if [ "$HAS_REMOVED_MODULES" = true ]; then
         echo "⚠ Commit $commit references removed modules. Skipping."
-        echo "$commit,\"$COMMIT_MESSAGE\",SKIPPED" >> "$SKIPPED_COMMITS_FILE"
-        echo "SKIPPED: $commit - references removed modules" >> "$TEMP_FILE"
+        echo "$commit,\"$COMMIT_MESSAGE\",SKIPPED,false" >> "$SKIPPED_COMMITS_FILE"
+        echo "SKIPPED: $commit - references removed modules"
     else
-        # Try to cherry-pick the commit
-        # Use a subshell to handle errors gracefully without triggering global trap
-        (git cherry-pick -n "$commit" 2>/dev/null) && {
-            # If successful, add it to safe commits
-            echo "✓ Commit $commit applied successfully" >> "$TEMP_FILE"
-            git commit -m "Sync: $(git log --oneline -1 $commit)"
-            echo "$commit,\"$COMMIT_MESSAGE\",APPLIED" >> "$SKIPPED_COMMITS_FILE"
+        # Try to cherry-pick the commit individually
+        echo "Attempting to cherry-pick commit $commit..."
+        
+        # Use git cherry-pick without -n to process commit one-by-one
+        git cherry-pick "$commit" 2>/dev/null && {
+            # If successful, record it as applied without resolution needed
+            echo "✓ Commit $commit applied successfully"
+            echo "$commit,\"$COMMIT_MESSAGE\",APPLIED,false" >> "$SKIPPED_COMMITS_FILE"
         } || {
-            # If it fails, check if it's due to removed modules or legitimate conflict
+            # If it fails due to conflict, check if it's due to removed modules
             if git diff --name-only --diff-filter=U | grep -q -E "(forge-gui-mobile|forge-gui-ios|forge-gui-android|forge-gui-mobile-dev|adventure-editor|forge-installer|forge-lda)"; then
                 # Conflict due to removed modules - skip and record
                 echo "⚠ Commit $commit had conflicts due to removed modules. Skipping."
-                echo "$commit,\"$COMMIT_MESSAGE\",SKIPPED" >> "$SKIPPED_COMMITS_FILE"
-                echo "SKIPPED: $commit - conflicts due to removed modules" >> "$TEMP_FILE"
+                echo "$commit,\"$COMMIT_MESSAGE\",SKIPPED,false" >> "$SKIPPED_COMMITS_FILE"
                 git cherry-pick --abort 2>/dev/null || true
             else
-                # Legitimate conflict - for this workflow, we'll leave it for manual resolution
-                # This is where the skill would be invoked to help resolve conflicts
-                echo "⚠ Commit $commit had conflicts but not due to removed modules. Manual review needed."
-                echo "MANUAL REVIEW NEEDED: $commit" >> "$TEMP_FILE"
-                git cherry-pick --abort 2>/dev/null || true
+                # Legitimate conflict - resolve it by accepting upstream changes (--theirs)
+                echo "⚠ Commit $commit had conflicts. Resolving with --theirs (upstream changes)..."
+                
+                # Resolve conflicts by accepting upstream changes
+                git checkout --theirs .
+                git add .
+                
+                # Continue with cherry-pick after resolving conflicts
+                git cherry-pick --continue 2>/dev/null && {
+                    echo "✓ Commit $commit applied successfully with conflict resolution"
+                    echo "$commit,\"$COMMIT_MESSAGE\",APPLIED,true" >> "$SKIPPED_COMMITS_FILE"
+                } || {
+                    echo "✗ Failed to resolve conflicts for commit $commit. Manual intervention needed."
+                    git cherry-pick --abort 2>/dev/null || true
+                    # Record it as needing manual review
+                    echo "$commit,\"$COMMIT_MESSAGE\",MANUAL_REVIEW,false" >> "$SKIPPED_COMMITS_FILE"
+                }
             fi
         }
     fi
 done
 
-# Show the results
-echo ""
-echo "Summary:"
-cat "$TEMP_FILE"
-
-# Clean up
-rm "$TEMP_FILE"
-
 echo ""
 echo "Sync process completed successfully."
-echo "Review the summary above for any commits that were skipped or need manual review."
-echo "Note: No changes were pushed to remote repositories. Review conflicted files manually if needed."
+echo "Review the commit registry (.git/sync_commit_registry.csv) for detailed status."
+echo "Note: No changes were pushed to remote repositories."
