@@ -2,7 +2,7 @@
 
 Join the **Forge community** on [Discord](https://discord.gg/HcPJNyD66a)!
 
-[![Test build](https://github.com/Card-Forge/forge/actions/workflows/test-build.yaml/badge.svg)](https://github.com/Card-Forge/forge/actions/workflows/test-build.yaml)
+[![Test build](https://github.com/mingcaozhang/forge/actions/workflows/test-build.yaml/badge.svg)](https://github.com/mingcaozhang/forge/actions/workflows/test-build.yaml)
 
 ---
 
@@ -17,6 +17,7 @@ Join the **Forge community** on [Discord](https://discord.gg/HcPJNyD66a)!
 - **🌐 Cross-Platform Support:** Play on **Windows, Mac, Linux,** and **Android**.
 - **🔧 Extensible Architecture:** Built in **Java**, Forge encourages developers to contribute by adding features and cards.
 - **🎮 Versatile Gameplay:** Dive into single-player modes or challenge opponents online!
+- **🧩 Optimized for Commander/EDH:** Streamlined for single-player Commander/EDH gameplay with bot opponents (mobile, adventure, and installer modules removed)
 
 ---
 
@@ -26,8 +27,9 @@ Join the **Forge community** on [Discord](https://discord.gg/HcPJNyD66a)!
 1. **Latest Releases:** Download the latest version [here](https://github.com/Card-Forge/forge/releases/latest).
 2. **Snapshot Build:** For the latest development version, grab the `forge-gui-desktop` tarball from our [Snapshot Build](https://github.com/Card-Forge/forge/releases/tag/daily-snapshots).
    - **Tip:** Extract to a new folder to prevent version conflicts.
-3. **User Data Management:** Previous players’ data is preserved during upgrades.
+3. **User Data Management:** Previous players' data is preserved during upgrades.
 4. **Java Requirement:** Ensure you have **Java 17 or later** installed.
+5. **Optimized Build:** This build is optimized for single-player Commander/EDH gameplay with bot opponents (mobile, adventure, and installer modules removed)
 
 ### 📱 Android
 - _(Note: **Android 11** is the minimum requirement with at least **6GB RAM** to run smoothly. You need to enable **"Install unknown apps"** for Forge to initialize and update itself)_
@@ -48,6 +50,8 @@ Embark on a thrilling single-player journey where you can:
 - Explore an overworld map.
 - Challenge diverse AI opponents.
 - Collect cards and items to boost your abilities.
+
+> **Note:** Adventure mode has been removed in this optimized build to focus on single-player Commander/EDH gameplay.
 
 <img width="1282" height="752" alt="Shandalar World" src="https://github.com/user-attachments/assets/9af31471-d688-442f-9418-9807d8635b72" />
 
