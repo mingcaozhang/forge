@@ -2,7 +2,7 @@
 
 Join the **Forge community** on [Discord](https://discord.gg/HcPJNyD66a)!
 
-[![Test build](https://github.com/Ming-Zhang-2002/forge/actions/workflows/test-build.yaml/badge.svg)](https://github.com/Ming-Zhang-2002/forge/actions/workflows/test-build.yaml)
+[![Test build](https://github.com/mingcaozhang/forge/actions/workflows/test-build.yaml/badge.svg)](https://github.com/mingcaozhang/forge/actions/workflows/test-build.yaml)
 
 ---
 
