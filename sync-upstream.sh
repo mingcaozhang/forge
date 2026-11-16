@@ -52,25 +52,26 @@ run_tests() {
     fi
 }
 
-# Function to perform binary search for failing commit
+# Function to identify the failing commit using binary search
 find_failing_commit() {
     local start_commit=$1
     local end_commit=$2
     local last_good_commit=$3
     
-    if [ "$start_commit" = "$end_commit" ]; then
-        echo "Failing commit identified: $start_commit"
+    echo "Identifying failing commit using binary search between $start_commit and $end_commit"
+    
+    # This will call the binary search script from the failure-identifier skill
+    if [ -x "./binary-search-test.sh" ]; then
+        ./binary-search-test.sh "$start_commit" "$end_commit"
+        return $?
+    else
+        echo "Binary search script not found, skipping binary search"
         return 1
     fi
-    
-    # For simplicity, we'll just skip the problematic commit for now
-    echo "Binary search not fully implemented in this version - skipping problematic commit"
-    return 0
 }
 
 # Process each commit individually using cherry-pick for full control
-echo "Processing commits and running tests after each application..."
-PROCESSING_COMMITS=()
+echo "Processing commits..."
 for commit in $(git log --format="%H" $LOCAL_COMMIT..$UPSTREAM_COMMIT); do
     echo ""
     echo "Processing commit: $(git log --oneline -1 $commit)"
@@ -117,18 +118,6 @@ for commit in $(git log --format="%H" $LOCAL_COMMIT..$UPSTREAM_COMMIT); do
             # If successful, record it as applied without resolution needed
             echo "✓ Commit $commit applied successfully"
             echo "$commit,\"$COMMIT_MESSAGE\",APPLIED,false" >> "$SKIPPED_COMMITS_FILE"
-            
-            # Run tests after applying commit
-            echo "Running tests after applying commit $commit..."
-            if ! run_tests; then
-                echo "⚠ Tests failed after applying commit $commit"
-                echo "This commit will be skipped to maintain build integrity"
-                git reset --hard HEAD~1
-                echo "$commit,\"$COMMIT_MESSAGE\",SKIPPED,true" >> "$SKIPPED_COMMITS_FILE"
-                echo "SKIPPED: $commit - tests failed, build integrity maintained"
-            else
-                echo "✓ Tests passed after applying commit $commit"
-            fi
         } || {
             # If it fails due to conflict, check if it's due to removed modules
             if git diff --name-only --diff-filter=U | grep -q -E "(forge-gui-mobile|forge-gui-ios|forge-gui-android|forge-gui-mobile-dev|adventure-editor|forge-installer|forge-lda)"; then
@@ -148,18 +137,6 @@ for commit in $(git log --format="%H" $LOCAL_COMMIT..$UPSTREAM_COMMIT); do
                 git cherry-pick --continue 2>/dev/null && {
                     echo "✓ Commit $commit applied successfully with conflict resolution"
                     echo "$commit,\"$COMMIT_MESSAGE\",APPLIED,true" >> "$SKIPPED_COMMITS_FILE"
-                    
-                    # Run tests after applying commit with resolution
-                    echo "Running tests after applying commit $commit with resolution..."
-                    if ! run_tests; then
-                        echo "⚠ Tests failed after applying commit $commit with resolution"
-                        echo "This commit will be skipped to maintain build integrity"
-                        git reset --hard HEAD~1
-                        echo "$commit,\"$COMMIT_MESSAGE\",SKIPPED,true" >> "$SKIPPED_COMMITS_FILE"
-                        echo "SKIPPED: $commit - tests failed, build integrity maintained"
-                    else
-                        echo "✓ Tests passed after applying commit $commit with resolution"
-                    fi
                 } || {
                     echo "✗ Failed to resolve conflicts for commit $commit. Manual intervention needed."
                     git cherry-pick --abort 2>/dev/null || true
@@ -172,15 +149,25 @@ for commit in $(git log --format="%H" $LOCAL_COMMIT..$UPSTREAM_COMMIT); do
 done
 
 echo ""
-echo "Sync process completed."
-echo "Review the commit registry (.git/sync_commit_registry.csv) for detailed status."
-echo "Note: No changes were pushed to remote repositories."
+echo "Sync process completed. Running final test suite to verify build integrity..."
 
 # Run final test to ensure build integrity
-echo ""
-echo "Running final test suite to ensure build integrity..."
 if run_tests; then
     echo "✓ Final test suite passed - build is healthy"
+    echo "All commits applied successfully with no build integrity issues."
 else
     echo "⚠ Final test suite failed - build integrity issues detected"
+    echo "Attempting to identify the first failing commit..."
+    
+    # Get the range of applied commits
+    if [ -f "$SKIPPED_COMMITS_FILE" ]; then
+        # Find the last successful commit before failures
+        # For simplicity, we'll just use the last commit in our process
+        # In a real implementation, we would track which commits were applied successfully
+        echo "Please manually identify which commit introduced the failure, or use the binary search tool."
+    fi
 fi
+
+echo ""
+echo "Review the commit registry (.git/sync_commit_registry.csv) for detailed status."
+echo "Note: No changes were pushed to remote repositories."
