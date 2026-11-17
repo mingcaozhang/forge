@@ -20,14 +20,13 @@
 
 ## Sync Script Usage
 
-Use the `sync-upstream.sh` script to synchronize with upstream changes:
+Use the `scripts/sync-upstream.sh` script to synchronize with upstream changes:
 
 ```bash
-./sync-upstream.sh
+./scripts/sync-upstream.sh
 ```
 
 The script will:
-- Create a backup of the current git state
 - Fetch upstream changes
 - Process commits one-by-one
 - Skip commits referencing removed modules
@@ -53,3 +52,5 @@ The following modules have been removed to optimize for single-player Commander/
 - Skipped commits are recorded to avoid repeated attempts
 - Manual review is needed for conflicts not related to removed modules
 - Always backup your work before running sync operations
+
+Review the commit registry (sync_commit_registry.csv) for detailed status.
