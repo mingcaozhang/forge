@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Binary search script to identify the first failing commit
+# Binary search script to identify the first failing commit in a range
 # Usage: ./binary-search-test.sh <start_commit> <end_commit>
 
 START_COMMIT=$1
@@ -8,107 +8,103 @@ END_COMMIT=$2
 
 # Function to run tests and return status
 run_tests() {
-    echo "Running mvn test for commit $1..."
-    if mvn test 2>/dev/null; then
-        echo "✓ Tests passed for commit $1"
+    echo "Running mvn test..."
+    if mvn test > /dev/null 2>&1; then
+        echo "✓ Tests passed"
         return 0
     else
-        echo "✗ Tests failed for commit $1"
+        echo "✗ Tests failed"
         return 1
     fi
 }
 
 # Binary search function to find the first failing commit
 find_first_failing_commit() {
-    local left=$1
-    local right=$2
+    local start=$1
+    local end=$2
     
-    echo "Starting binary search between commits $left and $right"
+    # Get the list of commits in the range in chronological order
+    # We use rev-list --reverse to get them from oldest to newest
+    local commits=($(git rev-list --reverse "$start..$end"))
+    local count=${#commits[@]}
     
-    # Get the list of commits in range
-    local commits=($(git log --format="%H" $left..$right))
-    
-    # If there's only one commit, check it directly
-    if [ ${#commits[@]} -eq 1 ]; then
-        if run_tests "${commits[0]}"; then
-            echo "No failing commit found in range"
-            return 1
-        else
-            echo "${commits[0]}"
-            return 0
-        fi
+    if [ "$count" -eq 0 ]; then
+        echo "No commits found in range $start..$end"
+        return 1
     fi
+
+    echo "Starting binary search on $count commits..."
     
-    # Binary search
-    while [ $left != $right ]; do
-        local mid=$(( ( $(git rev-list --count $left..$right) + 1 ) / 2 + $(git rev-list --count $left..$left) ))
+    local low=0
+    local high=$((count - 1))
+    local first_failing_index=-1
+
+    while [ $low -le $high ]; do
+        local mid=$(( (low + high) / 2 ))
+        local mid_commit=${commits[$mid]}
         
-        # Get the middle commit
-        local mid_commit=$(git log --format="%H" -n 1 $left..$right | head -n $mid | tail -n 1)
+        echo "Checking midpoint commit: $mid_commit (index $mid/$((count-1)))"
         
-        echo "Checking commit $mid_commit (midpoint)"
+        # Create a temporary branch to test the state up to this commit
+        git checkout -q -b temp_test_branch "$start"
         
-        # Create a temporary branch for testing
-        git checkout -b temp_test_branch $left
-        
-        # Cherry-pick commits up to the midpoint
-        local commit_index=0
-        for commit in $(git log --format="%H" $left..$mid_commit); do
-            if git cherry-pick "$commit" 2>/dev/null; then
-                echo "✓ Cherry-picked commit $commit"
-            else
-                echo "✗ Failed to cherry-pick commit $commit"
-                git cherry-pick --abort 2>/dev/null || true
-                git checkout $left
-                git branch -D temp_test_branch 2>/dev/null || true
-                echo "Failed to cherry-pick commits up to $mid_commit"
-                return 1
+        # Apply commits from start up to the mid commit
+        local success=true
+        for (( i=0; i<=$mid; i++ )); do
+            local c=${commits[$i]}
+            if ! git cherry-pick --quiet "$c" 2>/dev/null; then
+                echo "✗ Failed to cherry-pick commit $c"
+                success=false
+                break
             fi
-            ((commit_index++))
         done
         
-        # Run tests
-        if run_tests "$mid_commit"; then
-            # Tests pass, so the failure is after this point
-            left=$mid_commit
-            echo "Tests passed, moving search to right half"
+        if [ "$success" = true ]; then
+            if run_tests; then
+                # Tests passed, failure must be after this commit
+                low=$((mid + 1))
+            else
+                # Tests failed, this could be the first failing commit
+                first_failing_index=$mid
+                high=$((mid - 1))
+            fi
         else
-            # Tests fail, so this is our first failing commit (or we need to search left)
-            right=$mid_commit
-            echo "Tests failed, searching left half"
+            echo "✗ Critical error: Could not reconstruct commit state. Aborting."
+            git checkout -q "$start"
+            git branch -D temp_test_branch 2>/dev/null
+            return 1
         fi
         
-        # Cleanup
-        git checkout $left
-        git branch -D temp_test_branch 2>/dev/null || true
-        
-        # Check if we've narrowed down to 1 commit
-        if [ "$left" == "$right" ]; then
-            break
-        fi
+        # Cleanup for next iteration
+        git checkout -q "$start"
+        git branch -D temp_test_branch 2>/dev/null
     done
-    
-    echo "$left"
-    return 0
+
+    if [ $first_failing_index -ne -1 ]; then
+        echo "${commits[$first_failing_index]}"
+        return 0
+    else
+        echo "No failing commit found in range"
+        return 1
+    fi
 }
 
 # Check if we have valid arguments
 if [ -z "$START_COMMIT" ] || [ -z "$END_COMMIT" ]; then
     echo "Usage: $0 <start_commit> <end_commit>"
-    echo "Example: $0 abc123def456 def789abc123"
     exit 1
 fi
 
 # Validate commits exist
-if ! git rev-parse --quiet $START_COMMIT >/dev/null; then
+if ! git rev-parse --quiet "$START_COMMIT" >/dev/null; then
     echo "Error: Start commit $START_COMMIT does not exist"
     exit 1
 fi
 
-if ! git rev-parse --quiet $END_COMMIT >/dev/null; then
+if ! git rev-parse --quiet "$END_COMMIT" >/dev/null; then
     echo "Error: End commit $END_COMMIT does not exist"
     exit 1
 fi
 
 # Run binary search
-find_first_failing_commit $START_COMMIT $END_COMMIT
+find_first_failing_commit "$START_COMMIT" "$END_COMMIT"
