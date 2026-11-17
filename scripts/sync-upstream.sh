@@ -110,42 +110,56 @@ for commit in $(git rev-list --reverse $LOCAL_COMMIT..$UPSTREAM_COMMIT); do
         echo "⚠ Commit $commit references removed modules. Skipping."
         echo "$commit,\"$COMMIT_MESSAGE\",SKIPPED,false" >> "$SKIPPED_COMMITS_FILE"
         echo "SKIPPED: $commit - references removed modules"
-    else
-        # Try to cherry-pick the commit individually
-        echo "Attempting to cherry-pick commit $commit..."
-        
-        # Use git cherry-pick without -n to process commit one-by-one
-        git cherry-pick "$commit" 2>/dev/null && {
-            # If successful, record it as applied without resolution needed
-            echo "✓ Commit $commit applied successfully"
+        continue
+    fi
+
+    # Merge commits cannot be cherry-picked; their changes arrive via the individual commits
+    PARENT_COUNT=$(git cat-file -p "$commit" | grep -c "^parent ")
+    if [ "$PARENT_COUNT" -gt 1 ]; then
+        echo "⚠ Commit $commit is a merge commit. Skipping (changes arrive via individual commits)."
+        echo "$commit,\"$COMMIT_MESSAGE\",SKIPPED,false" >> "$SKIPPED_COMMITS_FILE"
+        continue
+    fi
+
+    # Try to cherry-pick the commit individually
+    echo "Attempting to cherry-pick commit $commit..."
+
+    if git cherry-pick "$commit" 2>/dev/null; then
+        echo "✓ Commit $commit applied successfully"
+        echo "$commit,\"$COMMIT_MESSAGE\",APPLIED,false" >> "$SKIPPED_COMMITS_FILE"
+    elif git rev-parse -q --verify CHERRY_PICK_HEAD >/dev/null; then
+        # Cherry-pick is in progress (conflict or empty result)
+        CONFLICTED_FILES=$(git diff --name-only --diff-filter=U)
+        if [ -z "$CONFLICTED_FILES" ]; then
+            # No conflicts: the pick is empty (changes already present on dev)
+            git cherry-pick --abort 2>/dev/null || true
+            echo "✓ Commit $commit is empty (changes already present). Recorded as applied."
             echo "$commit,\"$COMMIT_MESSAGE\",APPLIED,false" >> "$SKIPPED_COMMITS_FILE"
-        } || {
-            # If it fails due to conflict, check if it's due to removed modules
-            if git diff --name-only --diff-filter=U | grep -q -E "(forge-gui-mobile|forge-gui-ios|forge-gui-android|forge-gui-mobile-dev|adventure-editor|forge-installer|forge-lda)"; then
-                # Conflict due to removed modules - skip and record
-                echo "⚠ Commit $commit had conflicts due to removed modules. Skipping."
-                echo "$commit,\"$COMMIT_MESSAGE\",SKIPPED,false" >> "$SKIPPED_COMMITS_FILE"
-                git cherry-pick --abort 2>/dev/null || true
+        elif echo "$CONFLICTED_FILES" | grep -q -E "(forge-gui-mobile|forge-gui-ios|forge-gui-android|forge-gui-mobile-dev|adventure-editor|forge-installer|forge-lda)"; then
+            # Conflict due to removed modules - skip and record
+            echo "⚠ Commit $commit had conflicts due to removed modules. Skipping."
+            echo "$commit,\"$COMMIT_MESSAGE\",SKIPPED,false" >> "$SKIPPED_COMMITS_FILE"
+            git cherry-pick --abort 2>/dev/null || true
+        else
+            # Legitimate conflict - resolve by accepting upstream changes (--theirs)
+            # Only touch the conflicted files so the index is never polluted
+            # with unrelated files (e.g. the commit registry)
+            echo "⚠ Commit $commit had conflicts. Resolving with --theirs (upstream changes)..."
+            echo "$CONFLICTED_FILES" | xargs -r git checkout --theirs --
+            echo "$CONFLICTED_FILES" | xargs -r git add --
+            if git cherry-pick --continue 2>/dev/null; then
+                echo "✓ Commit $commit applied successfully with conflict resolution"
+                echo "$commit,\"$COMMIT_MESSAGE\",APPLIED,true" >> "$SKIPPED_COMMITS_FILE"
             else
-                # Legitimate conflict - resolve it by accepting upstream changes (--theirs)
-                echo "⚠ Commit $commit had conflicts. Resolving with --theirs (upstream changes)..."
-                
-                # Resolve conflicts by accepting upstream changes
-                git checkout --theirs .
-                git add .
-                
-                # Continue with cherry-pick after resolving conflicts
-                git cherry-pick --continue 2>/dev/null && {
-                    echo "✓ Commit $commit applied successfully with conflict resolution"
-                    echo "$commit,\"$COMMIT_MESSAGE\",APPLIED,true" >> "$SKIPPED_COMMITS_FILE"
-                } || {
-                    echo "✗ Failed to resolve conflicts for commit $commit. Manual intervention needed."
-                    git cherry-pick --abort 2>/dev/null || true
-                    # Record it as needing manual review
-                    echo "$commit,\"$COMMIT_MESSAGE\",MANUAL_REVIEW,false" >> "$SKIPPED_COMMITS_FILE"
-                }
+                echo "✗ Failed to resolve conflicts for commit $commit. Manual intervention needed."
+                git cherry-pick --abort 2>/dev/null || true
+                echo "$commit,\"$COMMIT_MESSAGE\",MANUAL_REVIEW,false" >> "$SKIPPED_COMMITS_FILE"
             fi
-        }
+        fi
+    else
+        # Cherry-pick was rejected before starting (e.g. dirty index)
+        echo "✗ Commit $commit could not be applied. Manual intervention needed."
+        echo "$commit,\"$COMMIT_MESSAGE\",MANUAL_REVIEW,false" >> "$SKIPPED_COMMITS_FILE"
     fi
 done
 
