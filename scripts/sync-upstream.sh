@@ -56,23 +56,24 @@ run_tests() {
 find_failing_commit() {
     local start_commit=$1
     local end_commit=$2
-    local last_good_commit=$3
-    
-    echo "Identifying failing commit using binary search between $start_commit and $end_commit"
-    
+
+    echo "Identifying failing commit using binary search between $start_commit and $end_commit" >&2
+
     # This will call the binary search script from the failure-identifier skill
+    # The script prints progress to stderr and the failing commit hash to stdout
     if [ -x "scripts/binary-search-test.sh" ]; then
         scripts/binary-search-test.sh "$start_commit" "$end_commit"
         return $?
     else
-        echo "Binary search script not found, skipping binary search"
+        echo "Binary search script not found, skipping binary search" >&2
         return 1
     fi
 }
 
 # Process each commit individually using cherry-pick for full control
+# Use rev-list --reverse to apply commits in chronological order (oldest first)
 echo "Processing commits..."
-for commit in $(git log --format="%H" $LOCAL_COMMIT..$UPSTREAM_COMMIT); do
+for commit in $(git rev-list --reverse $LOCAL_COMMIT..$UPSTREAM_COMMIT); do
     echo ""
     echo "Processing commit: $(git log --oneline -1 $commit)"
     
@@ -82,8 +83,8 @@ for commit in $(git log --format="%H" $LOCAL_COMMIT..$UPSTREAM_COMMIT); do
         continue
     fi
     
-    # Get commit message (truncated to 100 chars)
-    COMMIT_MESSAGE=$(git log --oneline -1 $commit | cut -d' ' -f2- | cut -c1-100)
+    # Get commit message (truncated to 100 chars, quotes escaped for CSV)
+    COMMIT_MESSAGE=$(git log --oneline -1 $commit | cut -d' ' -f2- | cut -c1-100 | sed 's/"/""/g')
     
     # Check if this commit touches any of our removed modules
     # Get list of files changed in this commit
@@ -158,27 +159,42 @@ if run_tests; then
 else
     echo "⚠ Final test suite failed - build integrity issues detected"
     echo "Attempting to identify the first failing commit..."
-    
-    # Get the range of applied commits
-    if [ -f "$SKIPPED_COMMITS_FILE" ]; then
-        # Find the last commit that was processed (this will be the one that caused the failure)
-        # In a simplified approach, we'll mark the last processed commit as SKIPPED due to test failure
-        # For a real implementation, we'd use binary search to identify the exact failing commit
-        if [ -s "$SKIPPED_COMMITS_FILE" ]; then
-            # Get the last commit that was processed (not the header)
-            LAST_COMMIT_LINE=$(tail -n 1 "$SKIPPED_COMMITS_FILE")
-            if [ -n "$LAST_COMMIT_LINE" ] && [[ "$LAST_COMMIT_LINE" != "commit_hash,"* ]]; then
-                # Extract the commit hash from the last line
-                LAST_COMMIT=$(echo "$LAST_COMMIT_LINE" | cut -d',' -f1)
-                echo "Last processed commit: $LAST_COMMIT"
-                
-                # Update the registry to mark that commit as SKIPPED due to test failure
-                # Remove the last line and add it with proper status
-                echo "Marking last commit $LAST_COMMIT as SKIPPED due to test failure"
-                sed -i '$d' "$SKIPPED_COMMITS_FILE"
-                echo "$LAST_COMMIT,\"$(git log --oneline -1 $LAST_COMMIT | cut -d' ' -f2- | cut -c1-100)\",SKIPPED,true" >> "$SKIPPED_COMMITS_FILE"
+
+    LAST_GOOD_COMMIT=$LOCAL_COMMIT
+    HEAD_COMMIT=$(git rev-parse HEAD)
+
+    if FAILING_COMMIT=$(find_failing_commit "$LAST_GOOD_COMMIT" "$HEAD_COMMIT"); then
+        if git rev-parse --quiet --verify "$FAILING_COMMIT" >/dev/null; then
+            echo "First failing commit: $FAILING_COMMIT ($(git log --oneline -1 "$FAILING_COMMIT"))"
+
+            # Revert the failing commit to restore build health
+            if git revert --no-edit --quiet "$FAILING_COMMIT"; then
+                echo "✓ Reverted failing commit to restore build health"
+            else
+                echo "✗ Failed to revert commit $FAILING_COMMIT. Manual intervention needed."
+                git revert --abort 2>/dev/null || true
             fi
+
+            # Map the failing cherry-picked commit back to its upstream hash via the registry
+            FAILING_SUBJECT=$(git log --format="%s" -1 "$FAILING_COMMIT")
+            FAILING_SUBJECT_CSV=$(echo "$FAILING_SUBJECT" | sed 's/"/""/g')
+            REGISTRY_LINE=$(grep -F "\"$FAILING_SUBJECT\"" "$SKIPPED_COMMITS_FILE" 2>/dev/null | head -n 1)
+            if [ -n "$REGISTRY_LINE" ]; then
+                UPSTREAM_HASH=$(echo "$REGISTRY_LINE" | cut -d',' -f1)
+                awk -v h="$UPSTREAM_HASH" -v msg="$FAILING_SUBJECT_CSV" '
+                    index($0, h ",") == 1 { print h "," "\"" msg "\",SKIPPED,true"; next }
+                    { print }
+                ' "$SKIPPED_COMMITS_FILE" > "$SKIPPED_COMMITS_FILE.tmp" && mv "$SKIPPED_COMMITS_FILE.tmp" "$SKIPPED_COMMITS_FILE"
+                echo "Registry updated: upstream commit $UPSTREAM_HASH marked as SKIPPED (test failure)"
+            else
+                echo "$FAILING_COMMIT,\"$FAILING_SUBJECT_CSV\",SKIPPED,true" >> "$SKIPPED_COMMITS_FILE"
+                echo "Registry updated: commit $FAILING_COMMIT marked as SKIPPED (test failure)"
+            fi
+        else
+            echo "✗ Binary search did not identify a valid failing commit"
         fi
+    else
+        echo "✗ Could not identify failing commit. Manual intervention needed."
     fi
 fi
 

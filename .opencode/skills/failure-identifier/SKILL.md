@@ -18,13 +18,17 @@ Run the binary search test script to identify the first commit that breaks the b
 
 Usage:
 ```
-./binary-search-test.sh <start_commit> <end_commit>
+./scripts/binary-search-test.sh <start_commit> <end_commit>
 ```
 
 The script will:
-1. Perform binary search on the commit range
-2. Test each commit selection with `mvn test`
-3. Return the hash of the first commit that causes test failures
+1. Perform binary search on the commit range (applying commits oldest-first on a temporary branch)
+2. Test each midpoint with `mvn test`
+3. Print the hash of the first commit that causes test failures to stdout (progress goes to stderr)
+4. Return exit code 0 when a failing commit is found, 1 otherwise
+
+Note: `scripts/sync-upstream.sh` calls this automatically when the final test suite fails,
+then reverts the failing commit and records it as `SKIPPED` in `sync_commit_registry.csv`.
 
 ## Workflow
 

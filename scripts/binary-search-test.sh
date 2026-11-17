@@ -1,19 +1,30 @@
 #!/bin/bash
 
 # Binary search script to identify the first failing commit in a range
-# Usage: ./binary-search-test.sh <start_commit> <end_commit>
+# Usage: ./scripts/binary-search-test.sh <start_commit> <end_commit>
+#
+# Prints progress to stderr and the first failing commit hash to stdout.
+# Returns 0 if a failing commit was found, 1 otherwise.
 
 START_COMMIT=$1
 END_COMMIT=$2
 
+ORIG_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+cleanup() {
+    git checkout -q "$ORIG_BRANCH" 2>/dev/null || true
+    git branch -D temp_test_branch 2>/dev/null || true
+}
+trap cleanup EXIT
+
 # Function to run tests and return status
 run_tests() {
-    echo "Running mvn test..."
+    echo "Running mvn test..." >&2
     if mvn test > /dev/null 2>&1; then
-        echo "✓ Tests passed"
+        echo "✓ Tests passed" >&2
         return 0
     else
-        echo "✗ Tests failed"
+        echo "✗ Tests failed" >&2
         return 1
     fi
 }
@@ -22,19 +33,19 @@ run_tests() {
 find_first_failing_commit() {
     local start=$1
     local end=$2
-    
+
     # Get the list of commits in the range in chronological order
     # We use rev-list --reverse to get them from oldest to newest
     local commits=($(git rev-list --reverse "$start..$end"))
     local count=${#commits[@]}
-    
+
     if [ "$count" -eq 0 ]; then
-        echo "No commits found in range $start..$end"
+        echo "No commits found in range $start..$end" >&2
         return 1
     fi
 
-    echo "Starting binary search on $count commits..."
-    
+    echo "Starting binary search on $count commits..." >&2
+
     local low=0
     local high=$((count - 1))
     local first_failing_index=-1
@@ -42,23 +53,23 @@ find_first_failing_commit() {
     while [ $low -le $high ]; do
         local mid=$(( (low + high) / 2 ))
         local mid_commit=${commits[$mid]}
-        
-        echo "Checking midpoint commit: $mid_commit (index $mid/$((count-1)))"
-        
+
+        echo "Checking midpoint commit: $mid_commit (index $mid/$((count-1)))" >&2
+
         # Create a temporary branch to test the state up to this commit
         git checkout -q -b temp_test_branch "$start"
-        
+
         # Apply commits from start up to the mid commit
         local success=true
-        for (( i=0; i<=$mid; i++ )); do
+        for (( i=0; i<=mid; i++ )); do
             local c=${commits[$i]}
             if ! git cherry-pick --quiet "$c" 2>/dev/null; then
-                echo "✗ Failed to cherry-pick commit $c"
+                echo "✗ Failed to cherry-pick commit $c" >&2
                 success=false
                 break
             fi
         done
-        
+
         if [ "$success" = true ]; then
             if run_tests; then
                 # Tests passed, failure must be after this commit
@@ -69,14 +80,12 @@ find_first_failing_commit() {
                 high=$((mid - 1))
             fi
         else
-            echo "✗ Critical error: Could not reconstruct commit state. Aborting."
-            git checkout -q "$start"
-            git branch -D temp_test_branch 2>/dev/null
+            echo "✗ Critical error: Could not reconstruct commit state. Aborting." >&2
             return 1
         fi
-        
+
         # Cleanup for next iteration
-        git checkout -q "$start"
+        git checkout -q "$ORIG_BRANCH"
         git branch -D temp_test_branch 2>/dev/null
     done
 
@@ -84,25 +93,25 @@ find_first_failing_commit() {
         echo "${commits[$first_failing_index]}"
         return 0
     else
-        echo "No failing commit found in range"
+        echo "No failing commit found in range" >&2
         return 1
     fi
 }
 
 # Check if we have valid arguments
 if [ -z "$START_COMMIT" ] || [ -z "$END_COMMIT" ]; then
-    echo "Usage: $0 <start_commit> <end_commit>"
+    echo "Usage: $0 <start_commit> <end_commit>" >&2
     exit 1
 fi
 
 # Validate commits exist
 if ! git rev-parse --quiet "$START_COMMIT" >/dev/null; then
-    echo "Error: Start commit $START_COMMIT does not exist"
+    echo "Error: Start commit $START_COMMIT does not exist" >&2
     exit 1
 fi
 
 if ! git rev-parse --quiet "$END_COMMIT" >/dev/null; then
-    echo "Error: End commit $END_COMMIT does not exist"
+    echo "Error: End commit $END_COMMIT does not exist" >&2
     exit 1
 fi
 
