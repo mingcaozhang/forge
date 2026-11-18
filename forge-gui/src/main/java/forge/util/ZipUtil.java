@@ -63,9 +63,6 @@ public class ZipUtil {
         if (fileToZip.isFile() && isClassic && "Forge".equalsIgnoreCase(fileToZip.getParentFile().getName()))
             return;
         if (fileToZip.isDirectory()) {
-            //skip adventure since we don't want to overwrite it and adventure has its own backup method
-            if (isClassic && "adventure".equalsIgnoreCase(fileToZip.getName()) && "Forge".equalsIgnoreCase(fileToZip.getParentFile().getName()))
-                return;
             if (fileName.endsWith("/")) {
                 zipOut.putNextEntry(new ZipEntry(fileName));
                 zipOut.closeEntry();

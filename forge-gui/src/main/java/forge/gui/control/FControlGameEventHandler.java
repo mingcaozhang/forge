@@ -30,7 +30,6 @@ public class FControlGameEventHandler extends IGameEventVisitor.Base<Void> {
     private final Set<CardView> cardsUpdate = new HashSet<>();
     private final Set<CardView> cardsRefreshDetails = new HashSet<>();
     private final Set<PlayerView> livesUpdate = new HashSet<>();
-    private final Set<PlayerView> shardsUpdate = new HashSet<>();
     private final Set<PlayerView> manaPoolUpdate = new HashSet<>();
     private final PlayerZoneUpdates zonesUpdate = new PlayerZoneUpdates();
     private final Map<PlayerView, Object> playersWithValidTargets = Maps.newHashMap();
@@ -75,12 +74,6 @@ public class FControlGameEventHandler extends IGameEventVisitor.Base<Void> {
                 if (!livesUpdate.isEmpty()) {
                     matchController.updateLives(livesUpdate);
                     livesUpdate.clear();
-                }
-            }
-            synchronized (shardsUpdate) {
-                if (!shardsUpdate.isEmpty()) {
-                    matchController.updateShards(shardsUpdate);
-                    shardsUpdate.clear();
                 }
             }
             synchronized (manaPoolUpdate) {
@@ -325,7 +318,6 @@ public class FControlGameEventHandler extends IGameEventVisitor.Base<Void> {
         if (gv != null) {
             for (final PlayerView p : gv.getPlayers()) {
                 synchronized (livesUpdate) { livesUpdate.add(p); }
-                synchronized (shardsUpdate) { shardsUpdate.add(p); }
                 synchronized (manaPoolUpdate) { manaPoolUpdate.add(p); }
                 for (final ZoneType z : ZoneType.values()) {
                     synchronized (zonesUpdate) { zonesUpdate.add(new PlayerZoneUpdate(p, z)); }
@@ -541,11 +533,6 @@ public class FControlGameEventHandler extends IGameEventVisitor.Base<Void> {
     @Override
     public Void visit(final GameEventPlayerLivesChanged event) {
         return processPlayer(event.player(), livesUpdate);
-    }
-
-    @Override
-    public Void visit(final GameEventPlayerShardsChanged event) {
-        return processPlayer(event.player(), shardsUpdate);
     }
 
     @Override

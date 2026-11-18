@@ -742,8 +742,7 @@ public class LimitedPlayer {
     }
 
     public void addSingleBoosterPack() {
-        // if this is just a normal draft, allow picking a pack from any set
-        // If this is adventure or quest or whatever then we should limit it to something
+        // allow picking a pack from any set
         List<CardEdition> possibleEditions = FModel.getMagicDb().getEditions().stream()
                 .filter(CardEdition.Predicates.CAN_MAKE_BOOSTER)
                 .collect(Collectors.toList());

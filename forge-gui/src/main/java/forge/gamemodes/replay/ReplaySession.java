@@ -1,7 +1,6 @@
 package forge.gamemodes.replay;
 
 import forge.game.Game;
-import forge.game.GameType;
 import forge.game.player.PlayerView;
 import forge.gamemodes.net.server.HostingServer;
 import forge.gui.control.GameEventForwarder;
@@ -39,13 +38,12 @@ public final class ReplaySession implements IHasForgeLog {
 
     /**
      * Starts recording {@code game} from the point of view of its local players, or returns null when replays are
-     * off or not wanted for this kind of game (no human playing, or Adventure which runs its own match flow).
+     * off or not wanted for this kind of game (no human playing).
      */
     public static ReplaySession begin(final Game game, final List<PlayerControllerHuman> humans) {
         try {
             final boolean wanted = FModel.getPreferences().getPrefBoolean(FPref.UI_RECORD_REPLAYS);
-            final GameType type = game.getRules().getGameType();
-            if (!wanted || humans.isEmpty() || type == GameType.Adventure || type == GameType.AdventureEvent) {
+            if (!wanted || humans.isEmpty()) {
                 return null;
             }
             // Local games only: one person at this device, nobody connected over the network. A replay is shown from
