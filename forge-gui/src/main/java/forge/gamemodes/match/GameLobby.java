@@ -19,7 +19,6 @@ import forge.game.GameView;
 import forge.game.IHasGameType;
 import forge.game.player.Player;
 import forge.game.player.RegisteredPlayer;
-import forge.gamemodes.net.NetworkEventView;
 import forge.gamemodes.net.event.UpdateLobbyPlayerEvent;
 import forge.gui.GuiBase;
 import forge.gui.interfaces.IGuiGame;
@@ -748,7 +747,6 @@ public abstract class GameLobby implements IHasGameType {
 
         private final Set<GameType> appliedVariants = EnumSet.noneOf(GameType.class);
         private final List<LobbySlot> slots = Lists.newArrayList();
-        private NetworkEventView eventView;
         private boolean limitedMode;
         private String activeEventId;
         private boolean activeConformance;
@@ -764,12 +762,6 @@ public abstract class GameLobby implements IHasGameType {
         public GameLobbyData() {
         }
 
-        public NetworkEventView getEventView() {
-            return eventView;
-        }
-        public void setEventView(final NetworkEventView view) {
-            this.eventView = view;
-        }
         public boolean isLimitedMode() {
             return limitedMode;
         }

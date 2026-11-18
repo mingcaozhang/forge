@@ -22,8 +22,6 @@ import forge.card.mana.ManaCost;
 import forge.deck.DeckProxy;
 import forge.deck.io.DeckPreferences;
 import forge.game.GameFormat;
-import forge.gamemodes.limited.CardRanker;
-import forge.gamemodes.net.EventFormat;
 import forge.gui.card.CardPreferences;
 import forge.item.IPaperCard;
 import forge.item.InventoryItem;
@@ -35,8 +33,6 @@ import forge.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -447,14 +443,7 @@ public enum ColumnDef {
     }
 
     private static Double toRanking(final InventoryItem i, boolean truncate) {
-        if (i instanceof PaperCard) {
-            PaperCard cp = (PaperCard) i;
-            double ranking = CardRanker.getRawScore(cp);
-            if (truncate) {
-                return new BigDecimal(ranking).setScale(4, RoundingMode.HALF_UP).doubleValue();
-            }
-            return ranking;
-        }
+        // Draft ranking removed with limited modes; column retained for layout compatibility.
         return 500D;
     }
 
@@ -470,15 +459,7 @@ public enum ColumnDef {
     }
 
     private static String eventFormatDisplay(final String rawFormat) {
-        if (rawFormat.isEmpty()) return "";
-        Localizer localizer = Localizer.getInstance();
-        if (EventFormat.BOOSTER_DRAFT.name().equals(rawFormat)) {
-            return localizer.getMessage("lblDraft");
-        }
-        if (EventFormat.SEALED.name().equals(rawFormat)) {
-            return localizer.getMessage("lblSealed");
-        }
-        return rawFormat;
+        return rawFormat == null ? "" : rawFormat;
     }
 
     private static ColorSet toDeckColor(final InventoryItem i) {

@@ -8,7 +8,6 @@ import forge.gamemodes.net.NetworkLogConfig;
 import forge.util.IHasForgeLog;
 import forge.gamemodes.net.ReplyPool;
 import forge.gamemodes.net.event.*;
-import forge.gui.interfaces.IDraftEventHandler;
 import forge.gui.interfaces.IGuiGame;
 import forge.interfaces.ILobbyListener;
 import io.netty.bootstrap.Bootstrap;
@@ -60,7 +59,6 @@ public class FGameClient implements IToServer, IHasForgeLog {
     private final Integer port;
     private final String username;
     private final List<ILobbyListener> lobbyListeners = Lists.newArrayList();
-    private IDraftEventHandler draftHandler;
     private final ReplyPool replies = new ReplyPool();
     private volatile boolean disconnectSimulated;
     private volatile Channel channel;
@@ -261,10 +259,6 @@ public class FGameClient implements IToServer, IHasForgeLog {
 
     public void addLobbyListener(final ILobbyListener listener) {
         lobbyListeners.add(listener);
-    }
-
-    public void setDraftHandler(final IDraftEventHandler handler) {
-        this.draftHandler = handler;
     }
 
     void setGameControllers(final Iterable<PlayerView> myPlayers) {
@@ -495,9 +489,6 @@ public class FGameClient implements IToServer, IHasForgeLog {
                 for (final ILobbyListener listener : lobbyListeners) {
                     listener.update(event.getState(), event.getSlot());
                 }
-            } else if (msg instanceof NetEvent netEvent && draftHandler != null
-                    && draftHandler.dispatch(netEvent)) {
-                return;
             }
             super.channelRead(ctx, msg);
         }

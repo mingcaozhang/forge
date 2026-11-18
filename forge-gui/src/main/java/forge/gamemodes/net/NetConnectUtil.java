@@ -95,7 +95,6 @@ public class NetConnectUtil {
                 return null;
             }
         });
-        server.setDraftHandler(view.getDraftHandler());
         chatInterface.setGameClient(new IRemote() {
             @Override
             public void send(final NetEvent event) {
@@ -209,7 +208,6 @@ public class NetConnectUtil {
                 return lobby;
             }
         });
-        client.setDraftHandler(view.getDraftHandler());
         view.setPlayerChangeListener((index, event) -> client.send(event));
 
         NetworkLogConfig.activateNetworkLogging();

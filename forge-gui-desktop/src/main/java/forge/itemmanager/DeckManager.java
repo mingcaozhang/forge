@@ -20,14 +20,12 @@ import org.apache.commons.lang3.StringUtils;
 import forge.Singletons;
 import forge.deck.Deck;
 import forge.deck.DeckBase;
-import forge.deck.DeckGroup;
 import forge.deck.DeckFormat;
 import forge.deck.DeckProxy;
 import forge.deck.io.DeckPreferences;
 import forge.game.GameFormat;
 import forge.game.GameType;
 import forge.game.IHasGameType;
-import forge.gamemodes.limited.CommanderDraftUtil;
 import forge.gui.GuiUtils;
 import forge.gui.UiCommand;
 import forge.gui.framework.FScreen;
@@ -41,9 +39,7 @@ import forge.model.FModel;
 import forge.screens.deckeditor.CDeckEditorUI;
 import forge.screens.deckeditor.SEditorIO;
 import forge.screens.deckeditor.controllers.ACEditorBase;
-import forge.screens.deckeditor.controllers.CEditorCommanderDraftLimited;
 import forge.screens.deckeditor.controllers.CEditorConstructed;
-import forge.screens.deckeditor.controllers.CEditorLimited;
 import forge.screens.common.DialogChooseFormats;
 import forge.screens.common.DialogChooseSets;
 import forge.screens.match.controllers.CDetailPicture;
@@ -353,13 +349,6 @@ public final class DeckManager extends ItemManager<DeckProxy> implements IHasGam
         ACEditorBase<? extends InventoryItem, ? extends DeckBase> editorCtrl = null;
         FScreen screen = null;
 
-        if (deck != null && DeckProxy.getEventTag(deck.getDeck(), "eventFormat") != null) {
-            screen = CEditorLimited.networkEventEditorScreen(deck.getDeck());
-            editorCtrl = new CEditorLimited<>(FModel.getDecks().getNetworkEventDecks(), Deck::new, screen, getCDetailPicture());
-            openEditor(deck, screen, editorCtrl);
-            return;
-        }
-
         switch (this.gameType) {
             case Constructed:
                 screen = FScreen.DECK_EDITOR_CONSTRUCTED;
@@ -385,23 +374,6 @@ public final class DeckManager extends ItemManager<DeckProxy> implements IHasGam
                 screen = FScreen.DECK_EDITOR_CONSTRUCTED;  // re-use "Deck Editor", rather than creating a new top level tab
                 DeckPreferences.setTinyLeadersDeck((deck != null) ? deck.toString() : "");
                 editorCtrl = new CEditorConstructed(getCDetailPicture(), this.gameType);
-                break;
-            case Sealed:
-                screen = FScreen.DECK_EDITOR_SEALED;
-                editorCtrl = new CEditorLimited<>(FModel.getDecks().getSealed(), DeckGroup::new, screen, getCDetailPicture());
-                break;
-            case Draft:
-                screen = FScreen.DECK_EDITOR_DRAFT;
-                if (deck != null && CommanderDraftUtil.isCommanderDraftDeck(deck.getDeck())) {
-                    editorCtrl = new CEditorCommanderDraftLimited(FModel.getDecks().getDraft(),
-                            screen, getCDetailPicture(), null);
-                } else {
-                    editorCtrl = new CEditorLimited<>(FModel.getDecks().getDraft(), DeckGroup::new, screen, getCDetailPicture());
-                }
-                break;
-            case Winston:
-                screen = FScreen.DECK_EDITOR_DRAFT;
-                editorCtrl = new CEditorLimited<>(FModel.getDecks().getWinston(), DeckGroup::new, screen, getCDetailPicture());
                 break;
 
             default:
