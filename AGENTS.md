@@ -30,7 +30,8 @@
 - Execute strictly one unchecked `- [ ]` phase at a time from `PLAN.md`.
 - Always `grep` for all references before deleting classes, enums, or packages.
 - Never stop after explaining your next step; invoke tools continuously until the current phase compiles (`mvn test-compile -T 1C` exits 0) and is committed to `dev`.
-- Only stop and output `TASK_COMPLETE` when every phase in `PLAN.md` is marked `[x]` and `mvn package -DskipTests -T 1C` exits 0.
+- Stage and commit the updated `PLAN.md` (`- [x]`) alongside your code changes in each phase commit so subsequent runs track progress accurately.
+- On the final phase of `PLAN.md`, run both `mvn package -DskipTests -T 1C` and `mvn test -T 1C` before marking `[x]` and committing.
 
 
 ## Available Skills & Sync Test Compatibility
