@@ -38,7 +38,6 @@ public class CardCollections {
     private IStorage<DeckGroup> draft;
     private IStorage<DeckGroup> sealed;
     private IStorage<DeckGroup> winston;
-    private IStorage<Deck> cube;
     private IStorage<Deck> scheme;
     private IStorage<Deck> plane;
     private IStorage<Deck> commander;
@@ -84,14 +83,6 @@ public class CardCollections {
                     new DeckGroupSerializer(new File(ForgeConstants.DECK_WINSTON_DIR), ForgeConstants.DECK_BASE_DIR));
         }
         return winston;
-    }
-
-    public final IStorage<Deck> getCubes() {
-        if (cube == null) {
-            cube = new StorageImmediatelySerialized<>("Cubes",
-                    new DeckStorage(new File(ForgeConstants.DECK_CUBE_DIR), ForgeConstants.RES_DIR));
-        }
-        return cube;
     }
 
     public IStorage<Deck> getScheme() {
