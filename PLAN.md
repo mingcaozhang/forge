@@ -114,7 +114,7 @@ Findings baseline (from exploration):
     `mvn package -DskipTests -T 1C`.
 
 ## Phase 5 — Orphaned resources/preferences + final verification
-- [ ] Resource/prefs purge:
+- [x] Resource/prefs purge:
   - `grep` for res-path constants (`ForgeConstants` `*Dir`, skin `FSkinProp`) then delete
     `forge-gui/res/adventure/`, `res/quest/`, `res/conquest/`, `res/puzzle/`, `res/draft/`,
     `res/sealed/`, `res/cube/`, `res/tutorial/` (~207 MB). Keep `cardsfolder`, `languages`, `skins`,
@@ -125,3 +125,19 @@ Findings baseline (from exploration):
   - Final gates before marking `[x]`: `mvn package -DskipTests -T 1C` then `mvn test -T 1C`
     (both exit 0); manual smoke: launch desktop, import a `.dck`/Moxfield deck, start a Commander
     match vs AI, use deck editor.
+  - DONE (~205 MB reclaimed): deleted `res/{adventure,conquest,puzzle,draft,sealed,cube}` and
+    quest-mode subdirs `res/quest/{world,bazaar,duels,challenges,booster-prices.txt}`. Removed
+    now-orphaned `ForgeConstants` dirs (`DRAFT_DIR`/`DRAFT_RANKINGS_FOLDER`/`SEALED_DIR`/
+    `DECK_CUBE_DIR`/`PUZZLE_DIR`/`QUEST_WORLD_DIR`/`PRICES_BOOSTER_FILE`/`BAZAAR_*`/
+    `DEFAULT_DUELS_DIR`/`DEFAULT_CHALLENGES_DIR`/`CONQUEST_*`/`USER_QUEST_WORLD_DIR`/
+    `USER_CONQUEST_DIR`/`CONQUEST_SAVE_DIR`/`QUEST_PREFS_FILE`/`CONQUEST_PREFS_FILE`), the dead
+    `CardCollections.getCubes()` (zero callers), and 3 definition-only adventure `FPref` keys.
+  - KEPT after grep (still live — deleting would break commander/import/tutorial): `res/tutorial`
+    + `TUTORIAL_DIR` (used by kept `HowToPlay` tutorial, per Phase 4); `res/quest/{precons,
+    commanderprecons,themes}` + `QUEST_DIR`/`QUEST_PRECON_DIR`/`COMMANDER_PRECON_DIR`/`THEMES_DIR`
+    (commander precon deck chooser + deck generation); `QUEST_SAVE_DIR`/`USER_QUEST_DIR` (user-dir
+    import handler); `DRAFTRANKS`/`PLANAR_CONQUEST`/`ADV_BUTTONS`/`ADVENTURE` skin props +
+    `SPRITE_*` (referenced by `FSkin`/`FCardImageRenderer`); `IMAGE_LIST_QUEST_*` (referenced by
+    `ImageFetcher`/downloaders, point at kept `res/lists`). No FSkinProp/PropType edits needed.
+  - Verified: `mvn test-compile -T 1C`, `mvn test -Dtest=*Commander*,*Deck* ...`,
+    `mvn package -DskipTests -T 1C`, and `mvn test -T 1C` (2704 tests, 0 failures/errors) all exit 0.

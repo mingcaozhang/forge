@@ -187,7 +187,6 @@ public class ForgePreferences extends AbstractPreferences<ForgePreferences.FPref
         UI_VIBRATE_ON_LIFE_LOSS("true"),
         UI_VIBRATE_ON_LONG_PRESS("true"),
         UI_VIBRATE_ON_ENEMY_ENCOUNTER("true"),
-        UI_VIBRATE_ON_ADVENTURE_REWARD("true"),
         UI_VIBRATE_ON_SHOP_ACTION("true"),
 
         UI_LANGUAGE("en-US"),
@@ -247,7 +246,6 @@ public class ForgePreferences extends AbstractPreferences<ForgePreferences.FPref
         DECKGEN_MAXIMUM_COMMANDER_BRACKET("5"),
 
         PROMPT_FOR_AUTOSELL ("true"),
-        ADV_COMMANDER_AUTOSELL_VARIANT("true"),
 
         PHASE_AI_UPKEEP ("false"),
         PHASE_AI_DRAW ("false"),
@@ -360,9 +358,7 @@ public class ForgePreferences extends AbstractPreferences<ForgePreferences.FPref
         SHORTCUT_PANELTABS("17 84"),
         SHORTCUT_CARDOVERLAYS("17 79"),
 
-        LAST_IMPORTED_CUBE_ID(""),
-
-        ADV_DISPLAY_PRICE_IN_REWARD_SCREEN("true");
+        LAST_IMPORTED_CUBE_ID("");
 
         private final String strDefaultVal;
 

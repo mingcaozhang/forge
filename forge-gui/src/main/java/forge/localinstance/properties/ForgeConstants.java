@@ -87,38 +87,25 @@ public final class ForgeConstants {
     public static final String LICENSE_FILE                 = ASSETS_DIR + "LICENSE.txt";
     public static final String HOWTO_FILE                   = RES_DIR + "howto.txt";
 
-    public static final String DRAFT_DIR                    = RES_DIR + "draft" + PATH_SEPARATOR;
-    public static final String DRAFT_RANKINGS_FOLDER        = DRAFT_DIR + "rankings/";
-    public static final String SEALED_DIR                   = RES_DIR + "sealed" + PATH_SEPARATOR;
     public static final String CARD_DATA_DIR                = RES_DIR + "cardsfolder" + PATH_SEPARATOR;
     public static final String TOKEN_DATA_DIR               = RES_DIR + "tokenscripts" + PATH_SEPARATOR;
     public static final String EDITIONS_DIR                 = RES_DIR + "editions" + PATH_SEPARATOR;
     public static final String BLOCK_DATA_DIR               = RES_DIR + "blockdata" + PATH_SEPARATOR;
     public static final String FORMATS_DATA_DIR             = RES_DIR + "formats" + PATH_SEPARATOR;
-    public static final String DECK_CUBE_DIR                = RES_DIR + "cube" + PATH_SEPARATOR;
     public static final String AI_PROFILE_DIR               = RES_DIR + "ai" + PATH_SEPARATOR;
     public static final String SOUND_DIR                    = "sound" + PATH_SEPARATOR;
     public static final String MUSIC_DIR                    = "music" + PATH_SEPARATOR;
     public static final String SKIN_DIR                     = "skin" + PATH_SEPARATOR;
     public static final String LANG_DIR                     = RES_DIR + "languages" + PATH_SEPARATOR;
     public static final String EFFECTS_DIR                  = RES_DIR + "effects" + PATH_SEPARATOR;
-    public static final String PUZZLE_DIR                   = RES_DIR + "puzzle" + PATH_SEPARATOR;
     public static final String TUTORIAL_DIR                 = RES_DIR + "tutorial" + PATH_SEPARATOR;
     public static final String DECK_GEN_DIR                 = RES_DIR + "deckgendecks" + PATH_SEPARATOR;
     public static final String GENETIC_AI_DECK_DIR          = RES_DIR + "geneticaidecks" + PATH_SEPARATOR;
 
     private static final String QUEST_DIR                   = RES_DIR + "quest" + PATH_SEPARATOR;
-    public static final String QUEST_WORLD_DIR              = QUEST_DIR + "world" + PATH_SEPARATOR;
     public static final String QUEST_PRECON_DIR             = QUEST_DIR + "precons" + PATH_SEPARATOR;
-    public static final String PRICES_BOOSTER_FILE          = QUEST_DIR + "booster-prices.txt";
-    public static final String BAZAAR_DIR                   = QUEST_DIR + "bazaar" + PATH_SEPARATOR;
-    public static final String BAZAAR_INDEX_FILE            = BAZAAR_DIR + "index.xml";
-    public static final String DEFAULT_DUELS_DIR            = QUEST_DIR + "duels";
-    public static final String DEFAULT_CHALLENGES_DIR       = QUEST_DIR + "challenges";
     public static final String THEMES_DIR                   = QUEST_DIR + "themes";
 
-    private static final String CONQUEST_DIR                = RES_DIR + "conquest" + PATH_SEPARATOR;
-    public static final String CONQUEST_PLANES_DIR          = CONQUEST_DIR + "planes" + PATH_SEPARATOR;
     public static final String BASE_SKINS_DIR               = RES_DIR + "skins" + PATH_SEPARATOR;
     public static final String COMMON_FONTS_DIR             = RES_DIR + "fonts" + PATH_SEPARATOR;
     public static final String DEFAULT_SKINS_DIR            = BASE_SKINS_DIR + "default" + PATH_SEPARATOR;
@@ -226,8 +213,6 @@ public final class ForgeConstants {
     // data that is only in the profile dirs
     public static final String CACHE_CDN_UUID_DIR         = CACHE_DIR + "cdn_uuid" + PATH_SEPARATOR;
     public static final String USER_QUEST_DIR             = USER_DIR + "quest" + PATH_SEPARATOR;
-    public static final String USER_QUEST_WORLD_DIR       = USER_QUEST_DIR + "world" + PATH_SEPARATOR;
-    public static final String USER_CONQUEST_DIR          = USER_DIR + "conquest" + PATH_SEPARATOR;
     public static final String USER_PREFS_DIR             = USER_DIR + "preferences" + PATH_SEPARATOR;
     public static final String USER_GAMES_DIR             = USER_DIR + "games" + PATH_SEPARATOR;
     public static final String USER_REPLAYS_DIR           = USER_DIR + "replays" + PATH_SEPARATOR;
@@ -253,15 +238,12 @@ public final class ForgeConstants {
     public static final String DECK_NET_ARCHIVE_DIR       = DECK_BASE_DIR + "archive" + PATH_SEPARATOR;
     public static final String DECK_NET_EVENT_DIR         = DECK_BASE_DIR + "network-events" + PATH_SEPARATOR;
     public static final String QUEST_SAVE_DIR             = USER_QUEST_DIR + "saves" + PATH_SEPARATOR;
-    public static final String CONQUEST_SAVE_DIR          = USER_CONQUEST_DIR + "saves" + PATH_SEPARATOR;
     public static final String DECK_TINY_LEADERS_DIR      = DECK_BASE_DIR + "tiny_leaders" + PATH_SEPARATOR;
     public static final String DECK_BRAWL_DIR             = DECK_BASE_DIR + "brawl" + PATH_SEPARATOR;
     public static final String MAIN_PREFS_FILE            = USER_PREFS_DIR + "forge.preferences";
     public static final String SERVER_PREFS_FILE          = USER_PREFS_DIR + "server.preferences";
     public static final String CARD_PREFS_FILE            = USER_PREFS_DIR + "card.preferences";
     public static final String DECK_PREFS_FILE            = USER_PREFS_DIR + "deck.preferences";
-    public static final String QUEST_PREFS_FILE           = USER_PREFS_DIR + "quest.preferences";
-    public static final String CONQUEST_PREFS_FILE        = USER_PREFS_DIR + "conquest.preferences";
     public static final String ITEM_VIEW_PREFS_FILE       = USER_PREFS_DIR + "item_view.preferences";
 
     public static final String CLOSE_CONN_COMMAND         = "<<_EM_ESOLC_<<";
