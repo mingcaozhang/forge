@@ -81,7 +81,7 @@ public class VLobby implements ILobbyView {
     private final VariantCheckBox vntVanguard = Iterables.find(vntBoxes, vcb -> vcb.variant == GameType.Vanguard);
 
     private final FComboBoxPanel<Object> cboFormatPanel =
-            new FComboBoxPanel<>(Localizer.getInstance().getMessage("lblFormat") + ":", FormatChoices.get(true));
+            new FComboBoxPanel<>(Localizer.getInstance().getMessage("lblFormat") + ":", FormatChoices.getCommanderOnly());
     private boolean suppressFormatListener = false;
 
     // Player frame elements

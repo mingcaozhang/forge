@@ -81,6 +81,17 @@ public final class FormatChoices {
     }
 
     /**
+     * The Commander game types only, for single-player Commander/EDH New Game dialogs.
+     * The deck editor still offers the full {@link #get(boolean)} list.
+     */
+    public static List<Object> getCommanderOnly() {
+        final List<Object> choices = new ArrayList<>();
+        choices.add(new ListHeading(Localizer.getInstance().getMessage("lblCommander")));
+        choices.addAll(COMMANDER_GAME_TYPES);
+        return choices;
+    }
+
+    /**
      * The archived formats under a heading for each folder their files are in, newest first in each folder. Formats
      * in no folder follow under Other.
      */

@@ -18,7 +18,6 @@ import javax.swing.text.JTextComponent;
 import forge.Singletons;
 import forge.gamemodes.replay.ReplayLauncher;
 import forge.gui.GuiUtils;
-import forge.screens.home.online.OnlineMenu;
 import forge.screens.match.menus.DisplayMenu;
 import forge.util.Localizer;
 
@@ -79,7 +78,6 @@ public final class ForgeMenu {
         add(new AudioMenu().getMenu());
         add(HelpMenu.getMenu());
         addSeparator();
-        add(OnlineMenu.getMenu());
         add(getMenuItem_Replays());
         addSeparator();
         add(getMenuItem_Restart());

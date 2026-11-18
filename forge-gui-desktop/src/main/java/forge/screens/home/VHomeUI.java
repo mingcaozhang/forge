@@ -22,8 +22,10 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -42,8 +44,6 @@ import forge.gui.framework.IVTopLevelUI;
 import forge.localinstance.properties.ForgePreferences.FPref;
 import forge.localinstance.skin.FSkinProp;
 import forge.model.FModel;
-import forge.screens.home.online.VSubmenuOnlineDecks;
-import forge.screens.home.online.VSubmenuOnlineLobby;
 import forge.screens.home.sanctioned.VSubmenuConstructed;
 import forge.screens.home.settings.VSubmenuAchievements;
 import forge.screens.home.settings.VSubmenuAvatars;
@@ -113,12 +113,10 @@ public enum VHomeUI implements IVTopLevelUI {
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         // Add new menu items here (order doesn't matter).
+        // Single-player Commander/EDH only: the multiplayer/online submenus (VSubmenuOnlineLobby,
+        // VSubmenuOnlineDecks) are intentionally not surfaced here. Their classes remain because the
+        // match screen's network reconnect path still references them.
         allSubmenus.add(VSubmenuConstructed.SINGLETON_INSTANCE);
-        //allSubmenus.add(VSubmenuWinston.SINGLETON_INSTANCE);
-
-        allSubmenus.add(VSubmenuOnlineLobby.SINGLETON_INSTANCE);
-        allSubmenus.add(VSubmenuOnlineDecks.SINGLETON_INSTANCE);
-
 
         allSubmenus.add(VSubmenuPreferences.SINGLETON_INSTANCE);
         allSubmenus.add(VSubmenuAchievements.SINGLETON_INSTANCE);
@@ -126,9 +124,15 @@ public enum VHomeUI implements IVTopLevelUI {
         allSubmenus.add(VSubmenuDownloaders.SINGLETON_INSTANCE);
         allSubmenus.add(VSubmenuReleaseNotes.SINGLETON_INSTANCE);
 
-        // For each group: init its panel
+        // Only render groups that actually contain menu items, so removed sections leave no empty header.
+        final Set<EMenuGroup> populatedGroups = new LinkedHashSet<>();
+        for (final IVSubmenu<? extends ICDoc> item : allSubmenus) {
+            populatedGroups.add(item.getGroupEnum());
+        }
+
+        // For each populated group: init its panel
         final SortedMap<EMenuGroup, JPanel> allGroupPanels = new TreeMap<>();
-        for (final EMenuGroup e : EMenuGroup.values()) {
+        for (final EMenuGroup e : populatedGroups) {
             allGroupPanels.put(e, new PnlGroup());
             allGroupPanels.get(e).setVisible(false);
             allGroupPanels.get(e).setLayout(new MigLayout("insets 0, gap 0, wrap"));
