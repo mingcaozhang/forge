@@ -2,6 +2,7 @@
 
 ## Workflow & Branch Rules
 - Always load and follow the `forge-workflow` skill (`.opencode/skills/forge-workflow/SKILL.md`).
+- Never run `git push`; leave all commits local on `dev` for user review.
 - Work exclusively on the `dev` branch. Never touch `master`, `sync_commit_registry.csv`, or `scripts/sync-upstream.sh`.
 - Make small, atomic commits after each passing phase (`refactor(commander): <phase summary>`) so `scripts/sync-upstream.sh` can cleanly rebase future upstream card updates.
 
