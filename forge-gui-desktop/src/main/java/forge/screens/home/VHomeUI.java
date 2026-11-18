@@ -45,8 +45,6 @@ import forge.model.FModel;
 import forge.screens.home.online.VSubmenuOnlineDecks;
 import forge.screens.home.online.VSubmenuOnlineLobby;
 import forge.screens.home.sanctioned.VSubmenuConstructed;
-import forge.screens.home.sanctioned.VSubmenuDraft;
-import forge.screens.home.sanctioned.VSubmenuSealed;
 import forge.screens.home.settings.VSubmenuAchievements;
 import forge.screens.home.settings.VSubmenuAvatars;
 import forge.screens.home.settings.VSubmenuDownloaders;
@@ -116,8 +114,6 @@ public enum VHomeUI implements IVTopLevelUI {
 
         // Add new menu items here (order doesn't matter).
         allSubmenus.add(VSubmenuConstructed.SINGLETON_INSTANCE);
-        allSubmenus.add(VSubmenuDraft.SINGLETON_INSTANCE);
-        allSubmenus.add(VSubmenuSealed.SINGLETON_INSTANCE);
         //allSubmenus.add(VSubmenuWinston.SINGLETON_INSTANCE);
 
         allSubmenus.add(VSubmenuOnlineLobby.SINGLETON_INSTANCE);

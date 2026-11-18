@@ -36,9 +36,6 @@ import forge.game.card.CardUtil;
 import forge.game.spellability.Spell;
 import forge.gui.GuiBase;
 import forge.gui.download.CdnUuidCache;
-import forge.gamemodes.limited.LimitedMatch;
-import forge.gamemodes.limited.ThemedChaosDraft;
-import forge.gamemodes.tournament.TournamentData;
 import forge.gui.FThreads;
 import forge.gui.card.CardPreferences;
 import forge.gui.interfaces.IProgressBar;
@@ -107,16 +104,12 @@ public final class FModel {
         return a;
     });
 
-    private static TournamentData tournamentData;
-    private static final Supplier<LimitedMatch> limitedMatch = Suppliers.memoize(LimitedMatch::new);
-
     private static final Supplier<CardCollections> decks = Suppliers.memoize(CardCollections::new);
 
     private static final Supplier<IStorage<CardBlock>> blocks = Suppliers.memoize(
             () -> (IStorage<CardBlock>) new StorageBase<CardBlock>("Block definitions", new CardBlock.Reader(
                     ForgeConstants.BLOCK_DATA_DIR + "blocks.txt", getMagicDb().getEditions())));
     private static final Supplier<IStorage<CardBlock>> fantasyBlocks = Suppliers.memoize(() -> new StorageBase<>("Custom blocks", new CardBlock.Reader(ForgeConstants.BLOCK_DATA_DIR + "fantasyblocks.txt", getMagicDb().getEditions())));
-    private static final Supplier<IStorage<ThemedChaosDraft>> themedChaosDrafts = Suppliers.memoize(() -> new StorageBase<>("Themed Chaos Drafts", new ThemedChaosDraft.Reader(ForgeConstants.BLOCK_DATA_DIR + "chaosdraftthemes.txt")));
     private static final Supplier<GameFormat.Collection> formats = Suppliers.memoize(() -> new GameFormat.Collection(new GameFormat.Reader( new File(ForgeConstants.FORMATS_DATA_DIR), new File(ForgeConstants.USER_FORMATS_DIR), getPreferences().getPrefBoolean(FPref.LOAD_ARCHIVED_FORMATS))));
     private static final Supplier<ItemPool<PaperCard>> allCards = Suppliers.memoize(() -> ItemPool.createFrom(getMagicDb().getCommonCards().getAllCards(), PaperCard.class));
     private static final Supplier<ItemPool<PaperCard>> planechaseCards = Suppliers.memoize(() -> ItemPool.createFrom(getMagicDb().getVariantCards().getAllCards(PaperCardPredicates.fromRules(CardRulesPredicates.IS_PLANE_OR_PHENOMENON)), PaperCard.class));
@@ -409,10 +402,6 @@ public final class FModel {
         return blocks.get();
     }
 
-    public static LimitedMatch getLimitedMatch() {
-        return limitedMatch.get();
-    }
-
     public static CardCollections getDecks() {
         return decks.get();
     }
@@ -424,12 +413,4 @@ public final class FModel {
     public static IStorage<CardBlock> getFantasyBlocks() {
         return fantasyBlocks.get();
     }
-
-    public static IStorage<ThemedChaosDraft> getThemedChaosDrafts() {
-        return themedChaosDrafts.get();
-    }
-
-    public static TournamentData getTournamentData() { return tournamentData; }
-
-    public static void setTournamentData(TournamentData tournamentData0) { tournamentData = tournamentData0;  }
 }

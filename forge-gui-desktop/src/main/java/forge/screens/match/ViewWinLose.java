@@ -82,12 +82,6 @@ public class ViewWinLose implements IWinLoseView<FButton> {
         // a recording only shows what happened: no rewards, no saving results, no next game
         final boolean replay = matchUI.isReplay();
         switch (replay ? GameType.Constructed : game0.getGameType()) {
-            case Draft, CommanderDraft, Sealed:
-                if (!FModel.getLimitedMatch().isGauntletRound(game0)) {
-                    break;
-                }
-                control = new LimitedWinLose(this, game0, matchUI);
-                break;
             default: // will catch it after switch
                 break;
         }

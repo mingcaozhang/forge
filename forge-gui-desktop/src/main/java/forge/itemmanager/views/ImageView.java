@@ -7,7 +7,6 @@ import forge.deck.DeckProxy;
 import forge.deck.io.DeckPreferences;
 import forge.game.card.Card;
 import forge.game.card.CardView;
-import forge.gamemodes.limited.CardRanker;
 import forge.gui.GuiBase;
 import forge.gui.framework.ILocalRepaint;
 import forge.item.IPaperCard;
@@ -1240,33 +1239,6 @@ public class ImageView<T extends InventoryItem> extends ItemView<T> {
                 // Draw key card indicator if applicable
                 if (paperCard instanceof PaperCard pc) {
                     drawKeyCardIndicator(g, pc, bounds);
-                }
-
-                //draw draft ranking
-                if (showRanking && FModel.getPreferences().getPrefBoolean(ForgePreferences.FPref.UI_OVERLAY_DRAFT_RANKING)) {
-                    double score = CardRanker.getRawScore((PaperCard) item);
-                    int draftRank = score <= 0 ? 0 : score > 99 ? 99 : (int) Math.round(CardRanker.getRawScore((PaperCard) item));
-                    String value = String.valueOf(draftRank);
-                    g.setColor(Color.white);
-                    Shape clip = g.getClip();
-                    g.setClip(bounds);
-                    int scale = (int)(g.getFontMetrics().getHeight()*3.5f);
-                    int h = (int)(g.getFontMetrics().getHeight()/3.5f);
-                    int w = g.getFontMetrics().stringWidth(value);
-                    int x = (int)(bounds.x+bounds.width/2);
-                    int y = (int)(bounds.y+bounds.height/2);
-                    if (draftRank >= 90)
-                        FSkin.drawImage(g, FSkin.getImage(FSkinProp.IMG_DRAFTRANK_S), x-scale/2, y-h-scale/2, scale, scale);
-                    else if (draftRank >= 80 && draftRank <= 89)
-                        FSkin.drawImage(g, FSkin.getImage(FSkinProp.IMG_DRAFTRANK_A), x-scale/2, y-h-scale/2, scale, scale);
-                    else if (draftRank >= 60 && draftRank <= 79)
-                        FSkin.drawImage(g, FSkin.getImage(FSkinProp.IMG_DRAFTRANK_B), x-scale/2, y-h-scale/2, scale, scale);
-                    else if (draftRank >= 25 && draftRank <= 59)
-                        FSkin.drawImage(g, FSkin.getImage(FSkinProp.IMG_DRAFTRANK_C), x-scale/2, y-h-scale/2, scale, scale);
-                    else
-                        FSkin.drawImage(g, FSkin.getImage(FSkinProp.IMG_DRAFTRANK_D), x-scale/2, y-h-scale/2, scale, scale);
-                    g.drawString(value, x-w/2, y);
-                    g.setClip(clip);
                 }
             }
         }

@@ -14,13 +14,10 @@ import forge.gamemodes.net.server.HostingServer.AfkTimeout;
 import forge.gamemodes.net.ChatMessage;
 import forge.gamemodes.net.CompatibleObjectDecoder;
 import forge.gamemodes.net.CompatibleObjectEncoder;
-import forge.gamemodes.net.EventPhase;
 import forge.gamemodes.net.NetworkLogConfig;
-import forge.gamemodes.net.draft.BoosterDraftHost;
 import forge.util.IHasForgeLog;
 import forge.gamemodes.net.event.*;
 import forge.gui.GuiBase;
-import forge.gui.interfaces.IDraftEventHandler;
 import forge.gui.interfaces.IGuiGame;
 import forge.gui.util.SOptionPane;
 import forge.interfaces.IGameController;
@@ -153,7 +150,6 @@ public final class FServerManager implements IHasForgeLog, HostingServer.Server 
     private UpnpService upnpService = null;
     private ServerGameLobby localLobby;
     private ILobbyListener lobbyListener;
-    private IDraftEventHandler draftHandler;
     private int port;
     private static final Localizer localizer = Localizer.getInstance();
     private final Thread shutdownHook = new Thread(() -> {
@@ -370,8 +366,6 @@ public final class FServerManager implements IHasForgeLog, HostingServer.Server 
             if (lobbyListener != null) {
                 lobbyListener.message(e.getSource(), e.getMessage(), e.getType());
             }
-        } else if (draftHandler != null) {
-            draftHandler.dispatch(event);
         }
     }
 
@@ -495,10 +489,6 @@ public final class FServerManager implements IHasForgeLog, HostingServer.Server 
 
     public void setLobbyListener(final ILobbyListener listener) {
         this.lobbyListener = listener;
-    }
-
-    public void setDraftHandler(final IDraftEventHandler handler) {
-        this.draftHandler = handler;
     }
 
     /**
@@ -1101,21 +1091,7 @@ public final class FServerManager implements IHasForgeLog, HostingServer.Server 
 
                     resumeAndResync(disconnected);
 
-                    // Draft-side resync: re-send the current pack and clear grace state.
-                    // The draft host broadcasts its own reconnect message, so suppress
-                    // the generic one below to avoid double-firing.
-                    final boolean draftInProgress = localLobby != null
-                            && localLobby.getCurrentEvent() != null
-                            && localLobby.getCurrentEvent().getPhase() == EventPhase.DRAFTING;
-                    if (draftInProgress) {
-                        final int seat = localLobby.findSeatForLobbySlot(disconnected.getIndex());
-                        final BoosterDraftHost host = localLobby.getDraftHost();
-                        if (seat >= 0 && host != null) {
-                            host.onSeatReconnected(seat);
-                        }
-                    } else {
-                        broadcast(new MessageEvent(String.format("%s has reconnected.", username)));
-                    }
+                    broadcast(new MessageEvent(String.format("%s has reconnected.", username)));
                     netLog.info("[Reconnect] Player reconnected: {}", username);
                 } else if (isMatchActive()) {
                     // Match is in progress and this user isn't on the disconnected list —
@@ -1189,11 +1165,6 @@ public final class FServerManager implements IHasForgeLog, HostingServer.Server 
                     broadcastReadyState(client.getUsername(), event.getReady());
                 }
                 return;
-            } else if (msg instanceof DraftPickEvent pickEvent) {
-                if (localLobby != null) {
-                    localLobby.handleDraftPick(pickEvent, client.getIndex());
-                }
-                return;
             }
             // Note: MessageEvent is handled by MessageHandler, not here
             // to avoid duplicate display on host's chat
@@ -1235,10 +1206,6 @@ public final class FServerManager implements IHasForgeLog, HostingServer.Server 
 
             netLog.info("[Disconnect] Client disconnected: index={}, username={}", playerIndex, username);
 
-            final boolean draftInProgress = localLobby != null
-                    && localLobby.getCurrentEvent() != null
-                    && localLobby.getCurrentEvent().getPhase() == EventPhase.DRAFTING;
-
             if (isMatchActive() && client.hasValidSlot()) {
                 // Match is active — pause, store for reconnect, run 5-minute reclaim timer.
                 pauseRemoteClientGuiGame(client);
@@ -1266,17 +1233,6 @@ public final class FServerManager implements IHasForgeLog, HostingServer.Server 
                     String.format("%s disconnected. Waiting %s for reconnect...", username, formatTime(RECONNECT_TIMEOUT_SECONDS))));
                 lobbyListener.message(null, "(Host can use /skipreconnect to replace disconnected player with AI, or /skiptimeout to wait indefinitely.)", ChatMessage.MessageType.SYSTEM);
                 netLog.info("[Disconnect] Player disconnected mid-game: {} (slot {}). Waiting for reconnect.", username, playerIndex);
-            } else if (draftInProgress && client.hasValidSlot()) {
-                // Draft is in progress — let the draft host own the grace window and
-                // chat announcements. Keep the client in disconnectedClients so the
-                // reconnect handshake can find them; no 5-minute slot-reclaim timer.
-                final int seat = localLobby.findSeatForLobbySlot(playerIndex);
-                final BoosterDraftHost host = localLobby.getDraftHost();
-                if (seat >= 0 && host != null) {
-                    host.onSeatDisconnected(seat);
-                }
-                disconnectedClients.put(username, client);
-                netLog.info("[Disconnect] Draft client disconnected: {} (slot {}). Grace started.", username, playerIndex);
             } else if (client.hasValidSlot()) {
                 // Peer completed registration but match isn't active (or slot was freed earlier)
                 localLobby.disconnectPlayer(playerIndex);

@@ -69,7 +69,7 @@ Findings baseline (from exploration):
     `mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C` (no mode tests to delete).
 
 ## Phase 3 — Limited modes (draft / sealed / booster / cube) + tournament engine + gauntlet tests
-- [ ] Delete limited/tournament code:
+- [x] Delete limited/tournament code:
   - `forge-gui`: `forge/gamemodes/limited/` (BoosterDraft, DraftPack, LimitedPlayer, CardRanker, …),
     `forge/gamemodes/tournament/` (last main-source users removed in Phase 2).
   - `forge-gui-desktop`: `screens/home/DraftPicksSelector.java`; draft/sealed entries in home UI,

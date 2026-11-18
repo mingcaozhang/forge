@@ -100,10 +100,6 @@ public final class Main {
 
         // command line startup here
         switch (mode) {
-            case "sim":
-                SimulateMatch.simulate(args);
-                break;
-
             case "parse":
                 CardReaderExperiments.parseAllCards(args);
                 break;

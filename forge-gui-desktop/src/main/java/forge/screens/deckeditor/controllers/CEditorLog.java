@@ -16,8 +16,6 @@ public enum CEditorLog implements ICDoc {
     SINGLETON_INSTANCE;
 
     /** */
-    CEditorDraftingProcess draftingProcess;
-
     private final VEditorLog view;
 
     CEditorLog() {
