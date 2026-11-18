@@ -55,12 +55,6 @@ public class HeadlessGuiDesktop extends GuiDesktop implements IHasForgeLog {
         return new HeadlessNetworkGuiGame();
     }
 
-    @Override
-    public void showSpellShop() { }
-
-    @Override
-    public void showBazaar() { }
-
     // The overrides below duplicate GuiDesktop's headless guards on purpose. Those guards key off
     // GraphicsEnvironment.isHeadless(), which is false when the suite runs under Xvfb with a real
     // DISPLAY — as CI does — so without these a test could open a genuine modal dialog and hang.

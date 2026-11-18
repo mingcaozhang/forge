@@ -6,16 +6,12 @@ import forge.Singletons;
 import forge.localinstance.properties.FileLocation;
 import forge.localinstance.properties.ForgeConstants;
 import forge.localinstance.skin.FSkinProp;
-import forge.screens.bazaar.CBazaarUI;
-import forge.screens.bazaar.VBazaarUI;
 import forge.screens.deckeditor.CDeckEditorUI;
 import forge.screens.deckeditor.VDeckEditorUI;
 import forge.screens.home.CHomeUI;
 import forge.screens.home.VHomeUI;
 import forge.screens.match.CMatchUI;
 import forge.screens.match.VMatchUI;
-import forge.screens.workshop.CWorkshopUI;
-import forge.screens.workshop.VWorkshopUI;
 import forge.toolbox.FOptionPane;
 import forge.toolbox.FSkin;
 import forge.toolbox.FSkin.SkinImage;
@@ -34,15 +30,6 @@ public class FScreen {
             false,
             "lblExitForge",
             null,
-            false);
-    public static final FScreen WORKSHOP_SCREEN = new FScreen(
-            VWorkshopUI.SINGLETON_INSTANCE,
-            CWorkshopUI.SINGLETON_INSTANCE,
-            "lblWorkshop",
-            FSkin.getIcon(FSkinProp.ICO_SETTINGS), //TODO: Create icon for workshop screen
-            false,
-            "lblBacktoHome",
-            ForgeConstants.WORKSHOP_LAYOUT_FILE,
             false);
     public static final FScreen DECK_EDITOR_CONSTRUCTED = new FScreen(
             VDeckEditorUI.SINGLETON_INSTANCE,
@@ -99,33 +86,6 @@ public class FScreen {
             ForgeConstants.EDITOR_LAYOUT_FILE,
             false);
 
-    public static final FScreen DECK_EDITOR_QUEST = new FScreen(
-            VDeckEditorUI.SINGLETON_INSTANCE,
-            CDeckEditorUI.SINGLETON_INSTANCE,
-            "lblQuestDeckEditor",
-            FSkin.getImage(FSkinProp.IMG_PACK),
-            true,
-            "lblCloseEditor",
-            ForgeConstants.EDITOR_LAYOUT_FILE,
-            false);
-    public static final FScreen DECK_EDITOR_QUEST_TOURNAMENT = new FScreen(
-            VDeckEditorUI.SINGLETON_INSTANCE,
-            CDeckEditorUI.SINGLETON_INSTANCE,
-            "lblQuestTournamentDeckEditor",
-            FSkin.getImage(FSkinProp.IMG_PACK),
-            true,
-            "lblCloseEditor",
-            ForgeConstants.EDITOR_LAYOUT_FILE,
-            false);
-    public static final FScreen QUEST_CARD_SHOP = new FScreen(
-            VDeckEditorUI.SINGLETON_INSTANCE,
-            CDeckEditorUI.SINGLETON_INSTANCE,
-            "lblSpellShop",
-            FSkin.getIcon(FSkinProp.ICO_QUEST_BOOK),
-            true,
-            "lblLeaveShop",
-            ForgeConstants.EDITOR_LAYOUT_FILE,
-            false);
     public static final FScreen DRAFTING_PROCESS = new FScreen(
             VDeckEditorUI.SINGLETON_INSTANCE,
             CDeckEditorUI.SINGLETON_INSTANCE,
@@ -134,15 +94,6 @@ public class FScreen {
             true,
             "lblLeaveDraft",
             ForgeConstants.EDITOR_LAYOUT_FILE,
-            false);
-    public static final FScreen QUEST_BAZAAR = new FScreen(
-            VBazaarUI.SINGLETON_INSTANCE,
-            CBazaarUI.SINGLETON_INSTANCE,
-            "lblBazaar",
-            FSkin.getIcon(FSkinProp.ICO_QUEST_BOTTLES),
-            true,
-            "lblLeaveBazaar",
-            null,
             false);
 
     private final IVTopLevelUI view;

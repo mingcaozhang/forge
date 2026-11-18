@@ -40,7 +40,6 @@ import forge.gui.framework.SLayoutConstants;
 import forge.gui.framework.SLayoutIO;
 import forge.localinstance.properties.ForgeConstants;
 import forge.localinstance.skin.FSkinProp;
-import forge.screens.bazaar.VBazaarUI;
 import forge.screens.deckeditor.VDeckEditorUI;
 import forge.screens.home.VHomeUI;
 import forge.screens.home.settings.DialogDownloadCardImages;
@@ -420,7 +419,6 @@ public enum FView {
 	private static void cacheUIStates() {
 		VHomeUI.SINGLETON_INSTANCE.instantiate();
 		VDeckEditorUI.SINGLETON_INSTANCE.instantiate();
-		VBazaarUI.SINGLETON_INSTANCE.instantiate();
 	}
 
 	public void incrementSplashProgessBar(final int value) {

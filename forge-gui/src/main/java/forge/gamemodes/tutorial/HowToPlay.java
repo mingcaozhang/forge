@@ -6,7 +6,7 @@ import forge.game.GameType;
 import forge.game.GameView;
 import forge.game.player.RegisteredPlayer;
 import forge.gamemodes.match.HostedMatch;
-import forge.gamemodes.puzzle.Puzzle;
+// moved to tutorial package
 import forge.gui.FThreads;
 import forge.gui.GuiBase;
 import forge.gui.util.SOptionPane;

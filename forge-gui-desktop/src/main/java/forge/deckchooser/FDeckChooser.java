@@ -5,10 +5,6 @@ import forge.deck.*;
 import forge.game.GameFormat;
 import forge.game.GameType;
 import forge.game.player.RegisteredPlayer;
-import forge.gamemodes.quest.QuestController;
-import forge.gamemodes.quest.QuestEvent;
-import forge.gamemodes.quest.QuestEventChallenge;
-import forge.gamemodes.quest.QuestUtil;
 import forge.gui.FThreads;
 import forge.gui.UiCommand;
 import forge.item.PaperCard;
@@ -224,15 +220,11 @@ public class FDeckChooser extends JPanel implements IDecksComboBoxListener {
     }
 
     private void updatePrecons() {
-        updateDecks(DeckProxy.getAllPreconstructedDecks(QuestController.getPrecons()), ItemManagerConfig.PRECON_DECKS);
+        updateDecks(DeckProxy.getAllPreconstructedDecks(DeckgenUtil.getPrecons()), ItemManagerConfig.PRECON_DECKS);
     }
 
     private void updateCommanderPrecons() {
         updateDecks(DeckProxy.getAllCommanderPreconDecks(), ItemManagerConfig.COMMANDER_DECKS);
-    }
-
-    private void updateQuestEvents() {
-        updateDecks(DeckProxy.getAllQuestEventAndChallenges(), ItemManagerConfig.QUEST_EVENT_DECKS);
     }
 
     private void updateRandom() {
@@ -349,17 +341,6 @@ public class FDeckChooser extends JPanel implements IDecksComboBoxListener {
     /** Generates deck from current list selection(s). */
     public RegisteredPlayer getPlayer() {
         if (lstDecks.getSelectedIndex() < 0) { return null; }
-
-        // Special branch for quest events
-        if (selectedDeckType == DeckType.QUEST_OPPONENT_DECK) {
-            final QuestEvent event = DeckgenUtil.getQuestEvent(lstDecks.getSelectedItem().getName());
-            final RegisteredPlayer result = new RegisteredPlayer(event.getEventDeck());
-            if (event instanceof QuestEventChallenge qec) {
-                result.setStartingLife(qec.getAiLife());
-            }
-            result.addExtraCardsOnBattlefield(QuestUtil.getComputerStartingCards(event));
-            return result;
-        }
 
         return new RegisteredPlayer(getDeck());
     }
@@ -760,9 +741,6 @@ public class FDeckChooser extends JPanel implements IDecksComboBoxListener {
                 break;
             case THEME_DECK:
                 updateThemes();
-                break;
-            case QUEST_OPPONENT_DECK:
-                updateQuestEvents();
                 break;
             case PRECONSTRUCTED_DECK:
                 updatePrecons();

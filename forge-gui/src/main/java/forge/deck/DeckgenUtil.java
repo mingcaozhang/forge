@@ -1,5 +1,6 @@
 package forge.deck;
 
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import forge.StaticData;
 import forge.card.CardDb;
@@ -14,25 +15,25 @@ import forge.game.GameFormat;
 import forge.game.GameType;
 import forge.gamemodes.limited.ArchetypeDeckBuilder;
 import forge.gamemodes.limited.CardThemedCommanderDeckBuilder;
-import forge.gamemodes.limited.CardThemedConquestDeckBuilder;
 import forge.gamemodes.limited.CardThemedDeckBuilder;
-import forge.gamemodes.quest.QuestController;
-import forge.gamemodes.quest.QuestEvent;
-import forge.gamemodes.quest.QuestEventChallenge;
-import forge.gamemodes.quest.QuestEventDuel;
 import forge.gui.util.SOptionPane;
 import forge.item.PaperCard;
 import forge.item.PaperCardPredicates;
+import forge.item.PreconDeck;
 import forge.itemmanager.IItemManager;
+import forge.localinstance.properties.ForgeConstants;
 import forge.localinstance.properties.ForgePreferences;
 import forge.localinstance.properties.ForgePreferences.FPref;
 import forge.model.FModel;
 import forge.util.*;
 import forge.util.storage.IStorage;
+import forge.util.storage.StorageBase;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.io.File;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /** 
  * Utility collection for various types of decks.
@@ -69,50 +70,11 @@ public class DeckgenUtil {
         }
     }
 
-    public static Deck buildPlanarConquestDeck(PaperCard card, GameFormat format, DeckFormat deckFormat){
-        return buildPlanarConquestDeck(card, null, format, deckFormat, false);
-    }
+    private static final Supplier<IStorage<PreconDeck>> precons = Suppliers.memoize(
+            () -> new StorageBase<>("Preconstructed decks", new PreconDeck.Reader(new File(ForgeConstants.QUEST_PRECON_DIR))))::get;
 
-    public static Deck buildPlanarConquestCommanderDeck(PaperCard card, GameFormat format, DeckFormat deckFormat){
-        Deck deck = buildPlanarConquestDeck(card, null, format, deckFormat, true);
-        deck.getMain().removeAll(card);
-        deck.getOrCreate(DeckSection.Commander).add(card);
-        return deck;
-    }
-
-    public static Deck buildPlanarConquestCommanderDeck(PaperCard card, PaperCard secondKeycard, GameFormat format, DeckFormat deckFormat){
-        Deck deck = buildPlanarConquestDeck(card, secondKeycard, format, deckFormat, true);
-        deck.getMain().removeAll(card);
-        deck.getOrCreate(DeckSection.Commander).add(card);
-        return deck;
-    }
-
-    public static Deck buildPlanarConquestDeck(PaperCard card, PaperCard secondKeycard, GameFormat format, DeckFormat deckFormat, boolean forCommander){
-        final boolean isForAI = true;
-        Set<String> uniqueCards = new HashSet<>();
-        List<PaperCard> selectedCards = new ArrayList<>();
-        List<List<Pair<String, Double>>> cardArchetypes = CardArchetypeLDAGenerator.ldaPools.get(FModel.getFormats().getStandard().getName()).get(card.getName());
-        for(List<Pair<String, Double>> archetype:cardArchetypes){
-            for(Pair<String, Double> cardPair:archetype){
-                String cardName = cardPair.getLeft();
-                uniqueCards.add(cardName);
-            }
-        }
-        for(String cardName:uniqueCards){
-            selectedCards.add(StaticData.instance().getCommonCards().getUniqueByName(cardName));
-        }
-
-        //build deck from combined list
-        CardThemedDeckBuilder dBuilder;
-
-        if(forCommander){
-            dBuilder = new CardThemedConquestDeckBuilder(card, selectedCards, format ,isForAI, deckFormat);
-        }else{
-            dBuilder = new CardThemedDeckBuilder(card,secondKeycard, selectedCards,format,isForAI, deckFormat);
-        }
-
-        Deck deck = dBuilder.buildDeck();
-        return deck;
+    public static IStorage<PreconDeck> getPrecons() {
+        return precons.get();
     }
 
     public static Deck buildCardGenDeck(PaperCard card, GameFormat format, boolean isForAI){
@@ -378,18 +340,6 @@ public class DeckgenUtil {
         return buildColorDeck(selection, formatFilter, forAi); //try again if previous color deck couldn't be generated
     }
 
-    public static QuestEvent getQuestEvent(final String name) {
-        QuestController qCtrl = FModel.getQuest();
-        for (QuestEventChallenge challenge : qCtrl.getChallenges()) {
-            if (challenge.getTitle().equals(name)) {
-                return challenge;
-            }
-        }
-
-        QuestEventDuel duel = IterableUtil.find(qCtrl.getDuelsManager().getAllDuels(), in -> in.getName().equals(name));
-        return duel;
-    }
-
     /** @return {@link forge.deck.Deck} */
     public static Deck getRandomColorDeck(Predicate<PaperCard> formatFilter, boolean forAi) {
         final int[] colorCount = new int[] {1, 2, 3};
@@ -438,11 +388,10 @@ public class DeckgenUtil {
         final List<String> selection = new ArrayList<>();
         Deck deck = null;
         if (advPrecons.isEmpty()) {
-            advPrecons.addAll(DeckProxy.getAllPreconstructedDecks(QuestController.getPrecons()));
+            advPrecons.addAll(DeckProxy.getAllPreconstructedDecks(getPrecons()));
         }
         if (advThemes.isEmpty()) {
-            advThemes.addAll(DeckProxy.getAllPreconstructedDecks(QuestController.getPrecons()));
-            advThemes.addAll(DeckProxy.getNonEasyQuestDuelDecks());
+            advThemes.addAll(DeckProxy.getAllPreconstructedDecks(getPrecons()));
         }
         if (geneticAI.isEmpty()) {
             geneticAI.addAll(DeckProxy.getAllGeneticAIDecks());
@@ -489,7 +438,7 @@ public class DeckgenUtil {
 
     /** @return {@link forge.deck.Deck} */
     public static Deck getRandomPreconDeck() {
-        final List<DeckProxy> allDecks = DeckProxy.getAllPreconstructedDecks(QuestController.getPrecons());
+        final List<DeckProxy> allDecks = DeckProxy.getAllPreconstructedDecks(getPrecons());
         final int rand = (int) (Math.floor(MyRandom.getRandom().nextDouble() * allDecks.size()));
         return allDecks.get(rand).getDeck();
     }
@@ -505,22 +454,6 @@ public class DeckgenUtil {
         final List<DeckProxy> allDecks = DeckProxy.getAllThemeDecks();
         final int rand = (int) (Math.floor(MyRandom.getRandom().nextDouble() * allDecks.size()));
         return allDecks.get(rand).getDeck();
-    }
-
-    public static Deck getRandomQuestDeck() {
-        final List<Deck> allQuestDecks = new ArrayList<>();
-        QuestController qCtrl = FModel.getQuest();
-
-        for (final QuestEvent e : qCtrl.getDuelsManager().getAllDuels()) {
-            allQuestDecks.add(e.getEventDeck());
-        }
-
-        for (final QuestEvent e : qCtrl.getChallenges()) {
-            allQuestDecks.add(e.getEventDeck());
-        }
-
-        final int rand = (int) (Math.floor(MyRandom.getRandom().nextDouble() * allQuestDecks.size()));
-        return allQuestDecks.get(rand);
     }
 
     public static void randomSelectColors(final IItemManager<DeckProxy> deckManager) {

@@ -7,7 +7,7 @@ import java.util.Set;
 import forge.game.GameFormat;
 import forge.item.PaperCard;
 import forge.itemmanager.ItemManager;
-import forge.screens.home.quest.DialogChooseSets;
+import forge.screens.common.DialogChooseSets;
 
 /**
  * TODO: Write javadoc for this type.

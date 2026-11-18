@@ -21,7 +21,6 @@ import forge.game.player.RegisteredPlayer;
 import forge.gamemodes.net.NetworkGameEventListener;
 import forge.gamemodes.net.server.HostingServer;
 import forge.gamemodes.replay.ReplaySession;
-import forge.gamemodes.quest.QuestController;
 import forge.gui.FThreads;
 import forge.gui.GuiBase;
 import forge.gui.control.*;
@@ -169,16 +168,6 @@ public class HostedMatch {
         game.AI_FLAT_MONTE_CARLO_LITE = forge.gui.GuiBase.isMobile();
 
         StaticData.instance().setSourceImageForClone(FModel.getPreferences().getPrefBoolean(FPref.UI_CLONE_MODE_SOURCE));
-
-        if (game.getRules().getGameType() == GameType.Quest) {
-            final QuestController qc = FModel.getQuest();
-            // Reset new list when the Match round starts, not when each game starts
-            if (game.getMatch().getOutcomes().isEmpty()) {
-                qc.getCards().resetNewList();
-            }
-            qc.setActiveGame(game);
-            game.subscribeToEvents(qc); // this one listens to player's mulligans ATM
-        }
 
         // SoundSystem receives GameEvents via handleGameEvent() on each GUI,
         // so it doesn't need a direct event bus subscription here.
