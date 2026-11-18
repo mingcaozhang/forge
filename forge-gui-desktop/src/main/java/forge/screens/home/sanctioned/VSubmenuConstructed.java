@@ -3,6 +3,7 @@ package forge.screens.home.sanctioned;
 import javax.swing.JPanel;
 
 import forge.deckchooser.FDeckChooser;
+import forge.game.GameType;
 import forge.gamemodes.match.GameLobby;
 import forge.gamemodes.match.LocalLobby;
 import forge.gui.framework.DragCell;
@@ -32,6 +33,9 @@ public enum VSubmenuConstructed implements IVSubmenu<CSubmenuConstructed> {
     private final VLobby vLobby = new VLobby(lobby);
     VSubmenuConstructed() {
         lobby.restoreSetup();
+        // Single-player Commander/EDH: the New Game dialog defaults to Commander. The format dropdown
+        // only offers Commander-family game types (see FormatChoices.getCommanderOnly()).
+        lobby.setFormatChoice(GameType.Commander);
         lobby.setListener(vLobby);
 
         vLobby.setPlayerChangeListener(lobby::applyToSlot);

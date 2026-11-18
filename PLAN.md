@@ -87,7 +87,7 @@ Findings baseline (from exploration):
     `mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C`.
 
 ## Phase 4 — Prune non-Commander constructed screens/tabs; streamline home screen
-- [ ] Home screen / menu streamlining:
+- [x] Home screen / menu streamlining:
   - `forge-gui-desktop`: simplify `screens/home/CHomeUI.java`, `VHomeUI.java`, `EMenuGroup.java`
     to a Commander-first menu (Play Commander / New & Import Deck / Deck Editor / Settings);
     delete `screens/home/sanctioned/` and `screens/home/online/` tabs + `CLobby.java`/`VLobby.java`
@@ -101,6 +101,12 @@ Findings baseline (from exploration):
     (only if truly orphaned; otherwise keep).
   - Keep untouched: `screens/match/**`, `deckchooser/**`, deck editor core, `forge/deck/io` importers,
     `gamesimulationtests` helpers (`GameType.Constructed` test infra).
+  - KEPT (not orphaned after grep): `screens/home/online/` tabs + `CLobby`/`VLobby` (local Commander
+    play uses `LocalLobby`/`VLobby`; `CMatchUI` calls `VSubmenuOnlineLobby.closeConn`), `gamemodes/net`
+    (+ trackers/deps), and `gamemodes/tutorial` (used by `ViewWinLose`, `TutorialOverlayPanel`,
+    `CMatchUI`, `IGuiBase`). Home menu drops the online tabs and skips empty groups; New Game format
+    dropdown now uses `FormatChoices.getCommanderOnly()` and the local lobby defaults to
+    `GameType.Commander`.
   - Decoupling point: home menu model (`EMenuGroup`/`IVSubmenu`/`LblMenuItem`) and `GuiDesktop`
     screen registry; New Game dialog format dropdown source list (filter in GUI layer, not in
     forge-game `GameFormat`).
