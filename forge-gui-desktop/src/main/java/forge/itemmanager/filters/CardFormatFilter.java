@@ -7,7 +7,7 @@ import forge.game.GameFormat;
 import forge.item.PaperCard;
 import forge.itemmanager.ItemManager;
 import forge.itemmanager.SFilterUtil;
-import forge.screens.home.quest.DialogChooseFormats;
+import forge.screens.common.DialogChooseFormats;
 
 public class CardFormatFilter extends FormatFilter<PaperCard> {
     public CardFormatFilter(ItemManager<? super PaperCard> itemManager0) {

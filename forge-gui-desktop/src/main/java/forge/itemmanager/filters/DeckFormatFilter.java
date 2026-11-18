@@ -4,7 +4,7 @@ import forge.deck.DeckProxy;
 import forge.game.GameFormat;
 import forge.itemmanager.ItemManager;
 import forge.itemmanager.SFilterUtil;
-import forge.screens.home.quest.DialogChooseFormats;
+import forge.screens.common.DialogChooseFormats;
 
 import java.util.function.Predicate;
 

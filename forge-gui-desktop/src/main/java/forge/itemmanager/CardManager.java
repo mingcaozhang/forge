@@ -6,16 +6,14 @@ import com.google.common.collect.Multimaps;
 import forge.StaticData;
 import forge.card.CardEdition;
 import forge.game.GameFormat;
-import forge.gamemodes.quest.QuestWorld;
-import forge.gamemodes.quest.data.QuestPreferences;
 import forge.gui.GuiUtils;
 import forge.gui.download.CdnUuidCache;
 import forge.item.PaperCard;
 import forge.itemmanager.filters.*;
 import forge.localinstance.properties.ForgePreferences;
 import forge.model.FModel;
-import forge.screens.home.quest.DialogChooseFormats;
-import forge.screens.home.quest.DialogChooseSets;
+import forge.screens.common.DialogChooseFormats;
+import forge.screens.common.DialogChooseSets;
 import forge.screens.match.controllers.CDetailPicture;
 import forge.util.Localizer;
 
@@ -191,14 +189,7 @@ public class CardManager extends ItemManager<PaperCard> {
         itemManager.addFilter(new CardColorFilter(itemManager));
         itemManager.addFilter(new CardTypeFilter(itemManager));
         itemManager.addFilter(new CardCMCFilter(itemManager));
-        if (FModel.getQuestPreferences()
-                .getPrefInt(QuestPreferences.QPref.FOIL_FILTER_DEFAULT) == 1) {
-            itemManager.addFilter(new CardFoilFilter(itemManager));
-        }
-        if (FModel.getQuestPreferences()
-                .getPrefInt(QuestPreferences.QPref.RATING_FILTER_DEFAULT) == 1) {
-            itemManager.addFilter(new CardRatingFilter(itemManager));
-        }
+        itemManager.addFilter(new CardFoilFilter(itemManager));
     }
 
     public static ItemFilter<PaperCard> createSearchFilter(final ItemManager<? super PaperCard> itemManager) {
@@ -249,14 +240,6 @@ public class CardManager extends ItemManager<PaperCard> {
             }
         });
 
-        JMenu world = GuiUtils.createMenu(localizer.getMessage("lblQuestWorld"));
-        for (final QuestWorld w : FModel.getWorlds()) {
-            GuiUtils.addMenuItem(world, w.getName(), null, () -> itemManager.addFilter(new CardQuestWorldFilter(itemManager, w)),
-                    CardQuestWorldFilter.canAddQuestWorld(w, itemManager.getFilter(CardQuestWorldFilter.class))
-            );
-        }
-        menu.add(world);
-
         if (FModel.getPreferences().getPrefBoolean(ForgePreferences.FPref.LOAD_ARCHIVED_FORMATS)) {
             JMenu blocks = GuiUtils.createMenu(localizer.getMessage("lblBlock"));
             final Iterable<GameFormat> blockFormats = FModel.getFormats().getBlockList();
@@ -298,11 +281,6 @@ public class CardManager extends ItemManager<PaperCard> {
                 itemManager.getFilter(CardFoilFilter.class) == null
         );
 
-        if (QuestMode) {
-            GuiUtils.addMenuItem(menu, localizer.getMessage("lblPersonalRating"), null, () -> itemManager.addFilter(new CardRatingFilter(itemManager)),
-                    itemManager.getFilter(CardRatingFilter.class) == null
-            );
-        }
 
         GuiUtils.addSeparator(menu);
 

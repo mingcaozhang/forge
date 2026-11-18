@@ -82,21 +82,11 @@ public class ViewWinLose implements IWinLoseView<FButton> {
         // a recording only shows what happened: no rewards, no saving results, no next game
         final boolean replay = matchUI.isReplay();
         switch (replay ? GameType.Constructed : game0.getGameType()) {
-            case Quest:
-                control = new QuestWinLose(this, game0, matchUI);
-                break;
-            case QuestDraft:
-                control = new QuestDraftWinLose(this, game0, matchUI);
-                break;
             case Draft, CommanderDraft, Sealed:
                 if (!FModel.getLimitedMatch().isGauntletRound(game0)) {
                     break;
                 }
                 control = new LimitedWinLose(this, game0, matchUI);
-                break;
-            case CommanderGauntlet:
-            case Gauntlet:
-                control = new GauntletWinLose(this, game0, matchUI);
                 break;
             default: // will catch it after switch
                 break;
@@ -289,7 +279,7 @@ public class ViewWinLose implements IWinLoseView<FButton> {
 
     @Override
     public void showCards(final String title, final List<PaperCard> cards) {
-        final QuestWinLoseCardViewer cv = new QuestWinLoseCardViewer(cards);
+        final WinLoseCardViewer cv = new WinLoseCardViewer(cards);
         getPnlCustom().add(new TitleLabel(title), CONSTRAINTS_TITLE);
         if (FModel.getPreferences().getPrefBoolean(FPref.UI_LARGE_CARD_VIEWERS)) {
             getPnlCustom().add(cv, CONSTRAINTS_CARDS_LARGE);

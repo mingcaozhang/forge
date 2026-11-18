@@ -100,9 +100,6 @@ public interface IGuiBase {
     IAudioMusic createAudioMusic(String filename);
     void startAltSoundSystem(String filename, boolean isSynchronized);
 
-    void showSpellShop();
-    void showBazaar();
-
     IGuiGame getNewGuiGame();
     HostedMatch hostMatch();
 

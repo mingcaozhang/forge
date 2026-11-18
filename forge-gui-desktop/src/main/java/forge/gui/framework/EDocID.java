@@ -10,18 +10,8 @@ import com.google.common.collect.ObjectArrays;
 
 import forge.game.zone.ZoneType;
 import forge.screens.deckeditor.views.*;
-import forge.screens.home.gauntlet.*;
 import forge.screens.home.online.VSubmenuOnlineDecks;
 import forge.screens.home.online.VSubmenuOnlineLobby;
-import forge.screens.home.puzzle.VSubmenuPuzzleCreate;
-import forge.screens.home.puzzle.VSubmenuPuzzleSolve;
-import forge.screens.home.quest.VSubmenuChallenges;
-import forge.screens.home.quest.VSubmenuDuels;
-import forge.screens.home.quest.VSubmenuQuestDecks;
-import forge.screens.home.quest.VSubmenuQuestDraft;
-import forge.screens.home.quest.VSubmenuQuestLoadData;
-import forge.screens.home.quest.VSubmenuQuestPrefs;
-import forge.screens.home.quest.VSubmenuQuestStart;
 import forge.screens.home.sanctioned.VSubmenuConstructed;
 import forge.screens.home.sanctioned.VSubmenuDraft;
 import forge.screens.home.sanctioned.VSubmenuSealed;
@@ -31,9 +21,6 @@ import forge.screens.home.settings.VSubmenuAvatars;
 import forge.screens.home.settings.VSubmenuDownloaders;
 import forge.screens.home.settings.VSubmenuPreferences;
 import forge.screens.home.settings.VSubmenuReleaseNotes;
-import forge.screens.workshop.views.VCardDesigner;
-import forge.screens.workshop.views.VCardScript;
-import forge.screens.workshop.views.VWorkshopCatalog;
 
 /**
  * These are the identifiers for tabs found in the drag layout.
@@ -57,29 +44,10 @@ public enum EDocID {
     EDITOR_OATHBREAKER (VOathbreakerDecks.SINGLETON_INSTANCE),
     EDITOR_LOG(VEditorLog.SINGLETON_INSTANCE),
 
-    WORKSHOP_CATALOG (VWorkshopCatalog.SINGLETON_INSTANCE),
-    WORKSHOP_CARDDESIGNER (VCardDesigner.SINGLETON_INSTANCE),
-    WORKSHOP_CARDSCRIPT (VCardScript.SINGLETON_INSTANCE),
-
-    HOME_QUESTSTART (VSubmenuQuestStart.SINGLETON_INSTANCE),
-    HOME_QUESTLOADDATA(VSubmenuQuestLoadData.SINGLETON_INSTANCE),
-    HOME_QUESTDRAFTS (VSubmenuQuestDraft.SINGLETON_INSTANCE),
-    HOME_QUESTCHALLENGES (VSubmenuChallenges.SINGLETON_INSTANCE),
-    HOME_QUESTDUELS (VSubmenuDuels.SINGLETON_INSTANCE),
-    HOME_QUESTDECKS (VSubmenuQuestDecks.SINGLETON_INSTANCE),
-    HOME_QUESTPREFS (VSubmenuQuestPrefs.SINGLETON_INSTANCE),
-    HOME_GAUNTLETBUILD (VSubmenuGauntletBuild.SINGLETON_INSTANCE),
-    HOME_GAUNTLETLOAD (VSubmenuGauntletLoad.SINGLETON_INSTANCE),
-    HOME_GAUNTLETQUICK (VSubmenuGauntletQuick.SINGLETON_INSTANCE),
-    HOME_GAUNTLETCOMMANDERQUICK (VSubmenuGauntletCommanderQuick.SINGLETON_INSTANCE),
-    HOME_GAUNTLETCOMMANDERBUILD (VSubmenuGauntletCommanderBuild.SINGLETON_INSTANCE),
-    HOME_GAUNTLETCONTESTS (VSubmenuGauntletContests.SINGLETON_INSTANCE),
     HOME_PREFERENCES (VSubmenuPreferences.SINGLETON_INSTANCE),
     HOME_ACHIEVEMENTS (VSubmenuAchievements.SINGLETON_INSTANCE),
     HOME_AVATARS (VSubmenuAvatars.SINGLETON_INSTANCE),
     HOME_UTILITIES (VSubmenuDownloaders.SINGLETON_INSTANCE),
-    HOME_PUZZLE_CREATE(VSubmenuPuzzleCreate.SINGLETON_INSTANCE),
-    HOME_PUZZLE_SOLVE(VSubmenuPuzzleSolve.SINGLETON_INSTANCE),
     HOME_CONSTRUCTED (VSubmenuConstructed.SINGLETON_INSTANCE),
     HOME_DRAFT (VSubmenuDraft.SINGLETON_INSTANCE),
     HOME_SEALED (VSubmenuSealed.SINGLETON_INSTANCE),

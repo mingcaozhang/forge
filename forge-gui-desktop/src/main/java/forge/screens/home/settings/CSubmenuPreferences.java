@@ -144,7 +144,6 @@ public enum CSubmenuPreferences implements ICDoc {
         lstControls.add(Pair.of(view.getCbUseSentry(), FPref.USE_SENTRY));
         lstControls.add(Pair.of(view.getCbCheckSnapshot(), FPref.CHECK_SNAPSHOT_AT_STARTUP));
         lstControls.add(Pair.of(view.getCbPauseWhileMinimized(), FPref.UI_PAUSE_WHILE_MINIMIZED));
-        lstControls.add(Pair.of(view.getCbWorkshopSyntax(), FPref.DEV_WORKSHOP_SYNTAX));
 
         lstControls.add(Pair.of(view.getCbCompactPrompt(), FPref.UI_COMPACT_PROMPT));
         lstControls.add(Pair.of(view.getCbHideReminderText(), FPref.UI_HIDE_REMINDER_TEXT));
@@ -186,7 +185,6 @@ public enum CSubmenuPreferences implements ICDoc {
 
         view.getBtnDeleteEditorUI().setCommand((UiCommand) CSubmenuPreferences.this::resetDeckEditorLayout);
 
-        view.getBtnDeleteWorkshopUI().setCommand((UiCommand) CSubmenuPreferences.this::resetWorkshopLayout);
 
         view.getBtnDeleteMatchUI().setCommand((UiCommand) CSubmenuPreferences.this::resetMatchScreenLayout);
 
@@ -310,15 +308,6 @@ public enum CSubmenuPreferences implements ICDoc {
         if (FOptionPane.showConfirmDialog(userPrompt, localizer.getMessage("TresetDeckEditorLayout"))) {
             if (FScreen.DECK_EDITOR_CONSTRUCTED.deleteLayoutFile()) {
                 FOptionPane.showMessageDialog(localizer.getMessage("OKresetDeckEditorLayout"));
-            }
-        }
-    }
-
-    private void resetWorkshopLayout() {
-        final String userPrompt =localizer.getMessage("AresetWorkshopLayout");
-        if (FOptionPane.showConfirmDialog(userPrompt, localizer.getMessage("TresetWorkshopLayout"))) {
-            if (FScreen.WORKSHOP_SCREEN.deleteLayoutFile()) {
-                FOptionPane.showMessageDialog(localizer.getMessage("OKresetWorkshopLayout"));
             }
         }
     }

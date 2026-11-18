@@ -193,8 +193,6 @@ public final class ForgeMatrixWriter {
         @Override public IAudioClip createAudioClip(String filename) { return null; }
         @Override public IAudioMusic createAudioMusic(String filename) { return null; }
         @Override public void startAltSoundSystem(String filename, boolean isSynchronized) { }
-        @Override public void showSpellShop() { }
-        @Override public void showBazaar() { }
         @Override public IGuiGame getNewGuiGame() { return null; }
         @Override public HostedMatch hostMatch() { return null; }
         @Override public UpnpServiceConfiguration getUpnpPlatformService() { return null; }

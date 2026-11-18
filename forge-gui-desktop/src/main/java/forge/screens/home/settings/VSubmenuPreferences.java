@@ -55,7 +55,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
     private final FLabel btnReset = new FLabel.Builder().opaque(true).hoverable(true).text(localizer.getMessage("btnReset")).build();
     private final FLabel btnDeleteMatchUI = new FLabel.Builder().opaque(true).hoverable(true).text(localizer.getMessage("btnDeleteMatchUI")).build();
     private final FLabel btnDeleteEditorUI = new FLabel.Builder().opaque(true).hoverable(true).text(localizer.getMessage("btnDeleteEditorUI")).build();
-    private final FLabel btnDeleteWorkshopUI = new FLabel.Builder().opaque(true).hoverable(true).text(localizer.getMessage("btnDeleteWorkshopUI")).build();
     private final FLabel btnUserProfileUI = new FLabel.Builder().opaque(true).hoverable(true).text(localizer.getMessage("btnUserProfileUI")).build();
     private final FLabel btnContentDirectoryUI = new FLabel.Builder().opaque(true).hoverable(true).text(localizer.getMessage("btnContentDirectoryUI")).build();
     private final FLabel btnClearImageCache = new FLabel.Builder().opaque(true).hoverable(true).text(localizer.getMessage("btnClearImageCache")).build();
@@ -81,7 +80,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
     private final JCheckBox cbDevMode = new OptionsCheckBox(localizer.getMessage("cbDevMode"));
     private final JCheckBox cbLoadCardsLazily = new OptionsCheckBox(localizer.getMessage("cbLoadCardsLazily"));
     private final JCheckBox cbLoadArchivedFormats = new OptionsCheckBox(localizer.getMessage("cbLoadArchivedFormats"));
-    private final JCheckBox cbWorkshopSyntax = new OptionsCheckBox(localizer.getMessage("cbWorkshopSyntax"));
     private final JCheckBox cbEnforceDeckLegality = new OptionsCheckBox(localizer.getMessage("cbEnforceDeckLegality"));
     private final JCheckBox cbExperimentalRestore = new OptionsCheckBox(localizer.getMessage("cbExperimentalRestore"));
     private final JCheckBox cbPerformanceMode = new OptionsCheckBox(localizer.getMessage("cbPerformanceMode"));
@@ -192,7 +190,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
         pnlPrefs.add(btnReset, twoButtonConstraints1);
         pnlPrefs.add(btnDeleteMatchUI, twoButtonConstraints2);
         pnlPrefs.add(btnDeleteEditorUI, twoButtonConstraints1);
-        pnlPrefs.add(btnDeleteWorkshopUI, twoButtonConstraints2);
         pnlPrefs.add(btnUserProfileUI, twoButtonConstraints1);
         pnlPrefs.add(btnContentDirectoryUI, twoButtonConstraints2);
         pnlPrefs.add(btnClearImageCache, twoButtonConstraints1);
@@ -366,9 +363,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
 
         pnlPrefs.add(cbDevMode, titleConstraints);
         pnlPrefs.add(new NoteLabel(localizer.getMessage("nlDevMode")), descriptionConstraints);
-
-        pnlPrefs.add(cbWorkshopSyntax, titleConstraints);
-        pnlPrefs.add(new NoteLabel(localizer.getMessage("nlWorkshopSyntax")), descriptionConstraints);
 
         pnlPrefs.add(cbpGameLogEntryType, comboBoxConstraints);
         pnlPrefs.add(new NoteLabel(localizer.getMessage("nlGameLogEntryType")), descriptionConstraints);
@@ -911,10 +905,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
         return cbLoadArchivedFormats;
     }
 
-    public JCheckBox getCbWorkshopSyntax() {
-        return cbWorkshopSyntax;
-    }
-
     public FComboBoxPanel<String> getCbpMulliganRule() {
         return cbpMulliganRule;
     }
@@ -1148,10 +1138,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
 
     public final FLabel getBtnDeleteEditorUI() {
         return btnDeleteEditorUI;
-    }
-
-    public final FLabel getBtnDeleteWorkshopUI() {
-        return btnDeleteWorkshopUI;
     }
 
     public final FLabel getBtnContentDirectoryUI() { return btnContentDirectoryUI; }

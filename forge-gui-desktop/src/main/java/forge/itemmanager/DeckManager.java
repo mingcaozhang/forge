@@ -28,7 +28,6 @@ import forge.game.GameFormat;
 import forge.game.GameType;
 import forge.game.IHasGameType;
 import forge.gamemodes.limited.CommanderDraftUtil;
-import forge.gamemodes.quest.QuestWorld;
 import forge.gui.GuiUtils;
 import forge.gui.UiCommand;
 import forge.gui.framework.FScreen;
@@ -45,9 +44,8 @@ import forge.screens.deckeditor.controllers.ACEditorBase;
 import forge.screens.deckeditor.controllers.CEditorCommanderDraftLimited;
 import forge.screens.deckeditor.controllers.CEditorConstructed;
 import forge.screens.deckeditor.controllers.CEditorLimited;
-import forge.screens.deckeditor.controllers.CEditorQuest;
-import forge.screens.home.quest.DialogChooseFormats;
-import forge.screens.home.quest.DialogChooseSets;
+import forge.screens.common.DialogChooseFormats;
+import forge.screens.common.DialogChooseSets;
 import forge.screens.match.controllers.CDetailPicture;
 import forge.toolbox.FOptionPane;
 import forge.toolbox.FSkin;
@@ -304,13 +302,6 @@ public final class DeckManager extends ItemManager<DeckProxy> implements IHasGam
             }
         });
 
-        final JMenu world = GuiUtils.createMenu(localizer.getMessage("lblQuestWorld"));
-        for (final QuestWorld w : FModel.getWorlds()) {
-            GuiUtils.addMenuItem(world, w.getName(), null, () -> addFilter(new DeckQuestWorldFilter(DeckManager.this, w)),
-                    DeckQuestWorldFilter.canAddQuestWorld(w, getFilter(DeckQuestWorldFilter.class))
-            );
-        }
-        menu.add(world);
 
         if (FModel.getPreferences().getPrefBoolean(ForgePreferences.FPref.LOAD_ARCHIVED_FORMATS)) {
             JMenu blocks = GuiUtils.createMenu(localizer.getMessage("lblBlock"));
@@ -370,10 +361,6 @@ public final class DeckManager extends ItemManager<DeckProxy> implements IHasGam
         }
 
         switch (this.gameType) {
-            case Quest:
-                screen = FScreen.DECK_EDITOR_QUEST;
-                editorCtrl = new CEditorQuest(FModel.getQuest(), getCDetailPicture());
-                break;
             case Constructed:
                 screen = FScreen.DECK_EDITOR_CONSTRUCTED;
                 DeckPreferences.setCurrentDeck((deck != null) ? deck.toString() : "");
@@ -463,10 +450,6 @@ public final class DeckManager extends ItemManager<DeckProxy> implements IHasGam
             case Draft:
             case Sealed:
                 deck.deleteFromStorage();
-                break;
-            case Quest:
-                deck.deleteFromStorage();
-                FModel.getQuest().save();
                 break;
             default:
                 throw new UnsupportedOperationException("Delete not implemented for game type = " + gameType.toString());

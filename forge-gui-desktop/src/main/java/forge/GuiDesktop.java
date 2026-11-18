@@ -36,16 +36,12 @@ import forge.gui.CardListChooser;
 import forge.gui.FThreads;
 import forge.gui.GuiChoose;
 import forge.gui.download.GuiDownloadService;
-import forge.gui.framework.FScreen;
 import forge.gui.interfaces.IGuiBase;
 import forge.gui.interfaces.IGuiGame;
 import forge.item.PaperCard;
 import forge.localinstance.properties.ForgeConstants;
 import forge.localinstance.skin.FSkinProp;
 import forge.localinstance.skin.ISkinImage;
-import forge.model.FModel;
-import forge.screens.deckeditor.CDeckEditorUI;
-import forge.screens.deckeditor.controllers.CEditorQuestCardShop;
 import forge.screens.match.CMatchUI;
 import forge.sound.AltSoundSystem;
 import forge.sound.AudioClip;
@@ -372,20 +368,6 @@ public class GuiDesktop implements IGuiBase {
     public void clearImageCache() {
         ImageCache.clear();
         ImageKeys.clearMissingCards();
-    }
-
-    @Override
-    public void showSpellShop() {
-        Singletons.getControl().setCurrentScreen(FScreen.QUEST_CARD_SHOP);
-        CDeckEditorUI.SINGLETON_INSTANCE.setEditorController(
-                new CEditorQuestCardShop(FModel.getQuest(), CDeckEditorUI.SINGLETON_INSTANCE.getCDetailPicture()));
-    }
-
-    @Override
-    public void showBazaar() {
-        Singletons.getControl().setCurrentScreen(FScreen.QUEST_BAZAAR);
-        FScreen.QUEST_BAZAAR.getController().update();
-        Singletons.getView().getFrame().validate();
     }
 
     /** The match screen most recently created; the tutorial draws its note and outline on it. */

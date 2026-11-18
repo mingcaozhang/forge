@@ -24,7 +24,6 @@ import forge.item.PaperCard;
 import forge.screens.deckeditor.CDeckEditorUI;
 import forge.screens.deckeditor.menus.DeckFileMenu;
 import forge.screens.deckeditor.views.VCurrentDeck;
-import forge.screens.home.gauntlet.*;
 import forge.screens.home.sanctioned.VSubmenuConstructed;
 import forge.util.ItemPool;
 import forge.util.Localizer;
@@ -335,11 +334,6 @@ public class DeckController<T extends DeckBase> {
         setSaved(true);
 
         VSubmenuConstructed.SINGLETON_INSTANCE.getLobby().updateDeckPanel();
-        VSubmenuGauntletBuild.SINGLETON_INSTANCE.updateDeckPanel();
-        VSubmenuGauntletQuick.SINGLETON_INSTANCE.updateDeckPanel();
-        VSubmenuGauntletContests.SINGLETON_INSTANCE.updateDeckPanel();
-        VSubmenuGauntletCommanderQuick.SINGLETON_INSTANCE.updateDeckPanel();
-        VSubmenuGauntletCommanderBuild.SINGLETON_INSTANCE.updateDeckPanel();
     }
 
     /**

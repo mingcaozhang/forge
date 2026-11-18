@@ -16,7 +16,6 @@ import forge.screens.deckeditor.views.VCardCatalog;
 import forge.screens.deckeditor.views.VCurrentDeck;
 import forge.screens.deckeditor.views.VDeckgen;
 import forge.screens.deckeditor.views.VProbabilities;
-import forge.screens.home.quest.CSubmenuQuestDecks;
 import forge.screens.match.controllers.CDetailPicture;
 import forge.util.Localizer;
 
@@ -139,7 +138,6 @@ public class CEditorTokenViewer extends ACEditorBase<PaperToken, DeckBase> {
      */
     @Override
     public boolean canSwitchAway(boolean isClosing) {
-        FModel.getQuest().save();
         return true;
     }
 
@@ -148,7 +146,6 @@ public class CEditorTokenViewer extends ACEditorBase<PaperToken, DeckBase> {
      */
     @Override
     public void resetUIChanges() {
-        CSubmenuQuestDecks.SINGLETON_INSTANCE.update();
 
 
         this.getCatalogManager().getPnlButtons().add(this.getBtnAdd4());

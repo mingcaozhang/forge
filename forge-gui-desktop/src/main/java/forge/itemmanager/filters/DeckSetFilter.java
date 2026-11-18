@@ -8,7 +8,7 @@ import java.util.function.Predicate;
 import forge.deck.DeckProxy;
 import forge.game.GameFormat;
 import forge.itemmanager.ItemManager;
-import forge.screens.home.quest.DialogChooseSets;
+import forge.screens.common.DialogChooseSets;
 
 
 public class DeckSetFilter extends DeckFormatFilter {

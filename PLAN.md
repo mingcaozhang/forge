@@ -48,7 +48,7 @@ Findings baseline (from exploration):
     Also deferred: `GuiDesktop` has no adventure startup code (no edit needed).
 
 ## Phase 2 — quest / puzzle / conquest / gauntlet modes + desktop tabs
-- [ ] Delete mode packages (all `src/main/java`):
+- [x] Delete mode packages (all `src/main/java`):
   - `forge-gui`: `forge/gamemodes/quest/` (entire, ~31 files incl. QuestDraftUtils,
     QuestTournamentController), `forge/gamemodes/puzzle/`, `forge/gamemodes/planarconquest/`,
     `forge/gamemodes/gauntlet/`.
@@ -62,8 +62,9 @@ Findings baseline (from exploration):
     quest/puzzle/gauntlet/conquest keys in `ForgeConstants`/`ForgePreferences`; `ForgeMenu.java`
     quest/puzzle entries; `screens/deckeditor` quest/puzzle hooks.
   - Do NOT touch `GameType` (Quest/Puzzle/PlanarConquest/Gauntlet values stay in forge-game);
-    do NOT delete `forge/gamemodes/tournament` yet (Phase 3) — `planarconquestgenerate` tests and
-    `DeckFormat.PlanarConquest` must still compile here.
+  - Note: the `planarconquestgenerate` test generators were deleted in Phase 2 (not Phase 3)
+    since they depend on the removed `DeckgenUtil` conquest builders; `DeckFormat.PlanarConquest`
+    and `forge/gamemodes/tournament/` remain untouched for Phase 3.
   - Verify: `mvn test-compile -T 1C` then
     `mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C` (no mode tests to delete).
 
