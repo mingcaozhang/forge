@@ -19,7 +19,7 @@ Findings baseline (from exploration):
   sealed, cube, tutorial} (~207 MB), bundled by desktop OSX profiles from `../forge-gui/res`.
 
 ## Phase 1 — Adventure runtime leftovers (most isolated)
-- [ ] Remove adventure hooks in shared GUI code (no functional Commander behavior affected):
+- [x] Remove adventure hooks in shared GUI code (no functional Commander behavior affected):
   - `forge-gui`: `localinstance/achievements/AdventureAchievements.java` (delete) +
     registration in `AchievementCollection.java`; `gui/GuiBase.java:12-13,36-39`
     (adventure dir/cache fields+accessors); `gui/interfaces/IGuiGame.java` adventure members;
@@ -36,9 +36,16 @@ Findings baseline (from exploration):
     adventure entries (expect none/one; remove any).
   - Decoupling point: `GuiBase` static adventure directories (only set by `GuiDesktop`) +
     `AchievementCollection` wiring + `ForgePreferences` load/save keys.
-  - Verify: `mvn test-compile -T 1C` then
+  -     Verify: `mvn test-compile -T 1C` then
     `mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C`  (keep the 3 test files that
     mention "Adventure" card names — they are card-keyword tests, not mode tests).
+  - Deferred to Phase 5 (keep compile-safe until all consumers gone): `ForgePreferences.FPref`
+    `UI_VIBRATE_ON_ADVENTURE_REWARD`, `ADV_COMMANDER_AUTOSELL_VARIANT`,
+    `ADV_DISPLAY_PRICE_IN_REWARD_SCREEN`; `FSkinProp` `ADV_CLR_*`/`IMG_ADV_BTN_*`/`ICO_ADV*` entries
+    and `PropType.ADV_BUTTONS`/`PropType.ADVENTURE` + their backing constants
+    `ForgeConstants.SPRITE_ADV_BUTTONS_FILE`/`SPRITE_ADVENTURE_FILE`; `CardDetailUtil` and
+    `FCardImageRenderer` adventure alternate-card-face rendering (card-side rules, not mode).
+    Also deferred: `GuiDesktop` has no adventure startup code (no edit needed).
 
 ## Phase 2 — quest / puzzle / conquest / gauntlet modes + desktop tabs
 - [ ] Delete mode packages (all `src/main/java`):

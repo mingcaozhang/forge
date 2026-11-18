@@ -40,9 +40,6 @@ public final class ForgeConstants {
     public static final String PROFILE_TEMPLATE_FILE            = PROFILE_FILE + ".example";
 
     public static final String RES_DIR                      = ASSETS_DIR + "res" + PATH_SEPARATOR;
-    public static final String ADVENTURE_DIR                = RES_DIR + "adventure" + PATH_SEPARATOR;
-    public static final String ADVENTURE_COMMON_DIR         = ADVENTURE_DIR + "common" + PATH_SEPARATOR;
-    public static final String ADVENTURE_COMMON_LIST_DIR   = ADVENTURE_COMMON_DIR  + "list" + PATH_SEPARATOR;
     public static final String LISTS_DIR                    = RES_DIR + "lists" + PATH_SEPARATOR;
     public static final String SETLOOKUP_DIR                = RES_DIR + "setlookup" + PATH_SEPARATOR;
     public static final String KEYWORD_LIST_FILE                     = LISTS_DIR + "NonStackingKWList.txt";
@@ -84,7 +81,6 @@ public final class ForgeConstants {
     public static final String COMMANDER_BRACKET_MASS_LAND_DENIAL_FILE = LISTS_DIR + "mass-land-denial.txt";
     public static final String COMMANDER_BRACKET_EXTRA_TURNS_FILE    = LISTS_DIR + "extra-turns.txt";
     public static final String COMMANDER_BRACKET_CHAINED_EXTRA_TURNS_FILE = LISTS_DIR + "chained-extra-turns.txt";
-    public static final String ADVENTURE_BOOSTER_PRICE_FILE 		 = ADVENTURE_COMMON_LIST_DIR + "adventure-booster-price.txt";
 
     public static final String CHANGES_FILE                 = ASSETS_DIR + "README.txt";
     public static final String CHANGES_FILE_NO_RELEASE      = ASSETS_DIR + "CHANGES.txt";
@@ -104,7 +100,6 @@ public final class ForgeConstants {
     public static final String SOUND_DIR                    = "sound" + PATH_SEPARATOR;
     public static final String MUSIC_DIR                    = "music" + PATH_SEPARATOR;
     public static final String SKIN_DIR                     = "skin" + PATH_SEPARATOR;
-    public static final String ADVENTURE_COMMON_MUSIC_DIR   = ADVENTURE_COMMON_DIR + "music" + PATH_SEPARATOR;
     public static final String LANG_DIR                     = RES_DIR + "languages" + PATH_SEPARATOR;
     public static final String EFFECTS_DIR                  = RES_DIR + "effects" + PATH_SEPARATOR;
     public static final String PUZZLE_DIR                   = RES_DIR + "puzzle" + PATH_SEPARATOR;
@@ -160,25 +155,10 @@ public final class ForgeConstants {
     public static final String MATCH_BG_FILE                = "bg_match.jpg";
     public static final String MATCH_BG_DAY_FILE            = "bg_day.jpg";
     public static final String MATCH_BG_NIGHT_FILE          = "bg_night.jpg";
-    public static final String ADV_MATCH_BG_FILE            = "adv_bg_match.jpg";
-    public static final String ADV_MATCH_BG_DAY_FILE        = "adv_bg_match_day.jpg";
-    public static final String ADV_MATCH_BG_NIGHT_FILE      = "adv_bg_match_nigh.jpg";
-    public static final String ADV_TEXTURE_BG_FILE          = "adv_bg_texture.jpg";
     public static final String TEXTURE_BG_FILE              = "bg_texture.jpg";
     public static final String SPACE_BG_FILE                = "bg_space.png";
     public static final String CHAOS_WHEEL_IMG_FILE         = "bg_chaos_wheel.png";
     public static final String DRAFT_DECK_IMG_FILE          = "bg_draft_deck.png";
-    //Adventure locations
-    public static final String ADV_BG_SWAMP_FILE            = "adv_bg_swamp.jpg";
-    public static final String ADV_BG_FOREST_FILE           = "adv_bg_forest.jpg";
-    public static final String ADV_BG_MOUNTAIN_FILE         = "adv_bg_mountain.jpg";
-    public static final String ADV_BG_ISLAND_FILE           = "adv_bg_island.jpg";
-    public static final String ADV_BG_PLAINS_FILE           = "adv_bg_plains.jpg";
-    public static final String ADV_BG_WASTE_FILE            = "adv_bg_waste.jpg";
-    public static final String ADV_BG_COMMON_FILE           = "adv_bg_common.jpg";
-    public static final String ADV_BG_CAVE_FILE             = "adv_bg_cave.jpg";
-    public static final String ADV_BG_DUNGEON_FILE          = "adv_bg_dungeon.jpg";
-    public static final String ADV_BG_CASTLE_FILE           = "adv_bg_castle.jpg";
 
     //CARD BG
     public static final String IMG_CARDBG_A           = "IMG_CARDBG_A.png";
@@ -261,8 +241,6 @@ public final class ForgeConstants {
     public static final String USER_CUSTOM_TOKENS_DIR     = USER_CUSTOM_DIR + "tokens" + PATH_SEPARATOR;
     public static final String USER_FORMATS_DIR           = USER_CUSTOM_DIR + "formats" + PATH_SEPARATOR;
     public static final String CUSTOM_STARTER_DECK_DIR    = USER_CUSTOM_DIR + "starterdecks" + PATH_SEPARATOR;
-    public static final String USER_ADVENTURE_DIR         = USER_DIR + "adventure" + PATH_SEPARATOR;
-    public static final String USER_ADVENTURE_BACKUP_DIR  = USER_DIR + "adventure_backups" + PATH_SEPARATOR;
     public static final String DECK_DRAFT_DIR             = DECK_BASE_DIR + "draft" + PATH_SEPARATOR;
     public static final String DECK_WINSTON_DIR           = DECK_BASE_DIR + "winston" + PATH_SEPARATOR;
     public static final String DECK_SEALED_DIR            = DECK_BASE_DIR + "sealed" + PATH_SEPARATOR;
@@ -397,7 +375,7 @@ public final class ForgeConstants {
     // Set boolean constant for landscape mode for gdx port
     public static final boolean isGdxPortLandscape = FileUtil.doesFileExist(ASSETS_DIR + "switch_orientation.ini");
 
-    // Supported video mode names and dimensions (currently used in Adventure Mode)
+    // Supported video mode names and dimensions
     public static final String[] VIDEO_MODES = {"720p", "768p", "900p", "1080p", "1440p", "2160p"};
 
     public static Map<String, String> getUPnPPreferenceMapping() {

@@ -12,7 +12,7 @@ import forge.player.GamePlayerUtil;
 
 /**
  * Centralized vibration with preference toggles and intensity scaling.
- * Match events are received via EventBus; adventure/UI events call
+ * Match events are received via EventBus; UI events call
  * the static {@link #vibrate} method directly.
  *
  * Vibration is routed to either the device or a connected controller

@@ -30,7 +30,6 @@ public class JVMOptions {
             sb = new StringBuilder();
             sb.append("Forge failed to initialize JVM arguments.\n")
                     .append("Use forge.exe | forge.sh | forge.cmd for Desktop UI.\n")
-                    .append("Use forge-adventure.exe | forge-adventure.sh | forge-adventure.cmd for Mobile UI.\n")
                     .append("Alternatively, add all these JVM Options in your Command line: \n");
             for (String arg : mandatoryArgs)
                 sb.append(arg.replace("=", " ")).append("\n");

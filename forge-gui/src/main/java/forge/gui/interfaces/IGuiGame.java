@@ -144,9 +144,6 @@ public interface IGuiGame {
     default void updateManaPool(Iterable<PlayerView> manaPoolUpdate) {}
     default void updateLives(Iterable<PlayerView> livesUpdate) {}
 
-    // adventure only
-    default void updateShards(Iterable<PlayerView> shardsUpdate) {}
-
     default void updateDependencies() {}
 
     void setPanelSelection(CardView hostCard);

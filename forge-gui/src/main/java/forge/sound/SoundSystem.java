@@ -349,30 +349,16 @@ public class SoundSystem {
     /**
      * Returns a list of audio resource directories, in order of overrides. The subPath parameter is usually either
      * `music/` or `sound/`. The fallback order used here is:
-     * <li>The user's override of the current adventure directory, if in adventure mode.</li>
-     * <li>The user's override of the common adventure directory, if in adventure mode.</li>
-     * <li>The current adventure directory, if in adventure mode.</li>
-     * <li>The common adventure directory if in adventure mode.</li>
      * <li>The current user audio profile directory.</li>
      * <li>The common resource directory.</li>
      *
      * User overrides and profiles are searched for first in the custom directory, and then the cache directory.
      */
     private static List<String> getSoundResourceDirectoryFallbacks(String profileName, String subPath) {
-        String adventureDirectory = GuiBase.getAdventureDirectory();
-        int cacheKey = Objects.hash(profileName, subPath, adventureDirectory);
+        int cacheKey = Objects.hash(profileName, subPath);
         if(soundResourceDirectoryCache.containsKey(cacheKey))
             return soundResourceDirectoryCache.get(cacheKey);
         List<String> out = new ArrayList<>(5);
-        if (adventureDirectory != null) {
-            //Check user folders for matching music folder. Last path part should be the plane name.
-            String directoryName = new File(adventureDirectory).getName();
-            for(String path : SOUND_RESOURCE_PATHS) {
-                out.add(path + subPath + directoryName + ForgeConstants.PATH_SEPARATOR);
-            }
-            out.add(adventureDirectory + subPath);
-            out.add(ForgeConstants.ADVENTURE_COMMON_DIR + subPath);
-        }
         if(profileName != null && !"Default".equals(profileName)) {
             for (String path : SOUND_RESOURCE_PATHS) {
                 out.add(path + subPath + profileName + ForgeConstants.PATH_SEPARATOR);
@@ -415,9 +401,8 @@ public class SoundSystem {
      * Returns null if the file does not exist in any sound directory.
      */
     public File getSoundResource(String filename) {
-        String adventureDirectory = GuiBase.getAdventureDirectory();
         String profileName = FModel.getPreferences().getPref(FPref.UI_CURRENT_SOUND_SET);
-        int cacheKey = Objects.hash(filename, adventureDirectory, profileName);
+        int cacheKey = Objects.hash(filename, profileName);
         if(soundResourceAssetCache.containsKey(cacheKey) && soundResourceAssetCache.get(cacheKey).isFile())
             return soundResourceAssetCache.get(cacheKey);
         FilenameFilter nameFilter = (dir, name) -> name.equals(filename) || (name.startsWith(filename + ".") && PLAYABLE_AUDIO.accept(dir, name));

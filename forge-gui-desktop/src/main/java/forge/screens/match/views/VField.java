@@ -39,7 +39,6 @@ import javax.swing.border.LineBorder;
 
 import forge.deck.CommanderBracketCalculator;
 import forge.deck.Deck;
-import forge.game.GameType;
 import forge.game.card.CounterEnumType;
 import forge.game.GameView;
 import forge.game.player.PlayerView;
@@ -516,10 +515,6 @@ public class VField implements IVDoc<CField> {
 
         commanderBracketTooltipCalculated = true;
         if (matchUI == null || matchUI.getGameView() == null || !matchUI.getGameView().isCommander()) {
-            return null;
-        }
-        final GameType gameType = matchUI.getGameView().getGameType();
-        if (gameType == GameType.Adventure || gameType == GameType.AdventureEvent) {
             return null;
         }
         final int maximumBracket = matchUI.getMaximumCommanderBracket();
