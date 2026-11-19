@@ -662,7 +662,13 @@ mvn test -T 1C
       Zone frames opened via `CMatchUI` build their chrome in `FloatingZone`/`FloatingCardArea`/`FDialog`;
       added opt-in `FDialog.setFloatingFrameAccent` + `CardPanel.getZoneAccentColor` and trimmed the zone
       window's outer hairline and prompt callout to the zone accent. Border insets (3px) and resize grab-area unchanged.
-- [ ] Redesign `VPrompt.java` Arena-style prompt bar; keep all pref toggles.
+- [x] Redesign `VPrompt.java` Arena-style prompt bar; keep all pref toggles.
+      Wrapped the prompt body in a rounded `PromptBar` gradient panel with a header row
+      (game-info pill + `Show Stack` chip), grew the message scroller, and replaced
+      sprite-based OK/Cancel with a flat `PromptButton` that renders an accent-gradient
+      primary fill and outlined secondary fill. `UI_COMPACT_PROMPT`, `UI_ALLOW_ESC_TO_END_TURN`,
+      `UI_TOUCHSCREEN_OPTIMIZE` behavior preserved; `UI_REVERSE_PROMPT_BUTTON` is now wired
+      on desktop to swap the button order.
 - [ ] Audit hot paint loops (`CardPanel.java`, `VField.java`, `VMatchUI.java`):
       no `new` inside `paintComponent`; reuse fields.
 - [ ] Add `forge-gui-desktop/src/test/java/forge/view/arcane/util/UIAnimatorIdleTest.java`
