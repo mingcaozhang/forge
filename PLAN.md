@@ -411,7 +411,7 @@ mvn test-compile -T 1C
 mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C
 ```
 
-- [ ] Implement `HomeTile.java`, `RecentDecksCarousel.java`,
+- [x] Implement `HomeTile.java`, `RecentDecksCarousel.java`,
       `LastMatchTile.java` under `forge-gui-desktop/src/main/java/forge/screens/home/tiles/`.
 - [ ] Refactor `VHomeUI.java` to lay out hero tiles + recent decks carousel.
 - [ ] Update `CHomeUI.java` so tile clicks dispatch through existing
