@@ -157,6 +157,17 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
 - [x] Wire hover enter/exit through `CardPanelContainer.java` so detail
        previews animate in/out smoothly.
 - [x] Replace hand fan/rise in `HandArea.java` with `UIAnimator` tweens.
+- [ ] **Context & Refactor Audit (`forge-gui` now permitted):** Execution was
+      paused to relax the previous restriction against modifying `forge-gui`.
+      Before continuing Phase 2, inspect the Phase 1 and Phase 2 commits on `dev`
+      (`git log --oneline d34202b5c2f^..HEAD`) to check whether any change was
+      compromised or placed awkwardly in `forge-gui-desktop` solely to avoid
+      editing `forge-gui` (for example, shared UI/theme helpers, preference
+      plumbing, or `CardTextureCache`/`UIAnimator` hooks). If a cleaner, more
+      optimal design is now possible with `forge-gui` edits allowed (while
+      keeping `forge-core`, `forge-game`, and `forge-ai` strictly untouched),
+      refactor it cleanly and commit atomically on `dev` before proceeding to
+      `CardDetailUtil.java`.
 - [ ] Tune `CardDetailUtil.java` typography constants (UI-only, no logic).
 - [ ] Add `forge-gui-desktop/src/test/java/forge/view/arcane/util/UIAnimatorTest.java`
       asserting a submitted tween reaches 100% in its declared duration
