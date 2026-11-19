@@ -1,5 +1,6 @@
 package forge.toolbox.special;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -9,6 +10,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 
 import javax.swing.JLabel;
@@ -34,6 +36,8 @@ public class PhaseLabel extends JLabel {
     private boolean hover = false;
     private boolean yieldMarked = false;
     private boolean pressed = false;
+    private boolean unified = false;
+    private boolean pillEdge = false;
     private final Timer pressTimer;
     private Runnable onToggled;
     private Runnable onRightClick;
@@ -89,6 +93,22 @@ public class PhaseLabel extends JLabel {
                 PhaseLabel.this.repaintOnlyThisLabel();
             }
         });
+    }
+
+    /**
+     * Switches between the classic separated-chip look and the Arena-style
+     * "unified pill" segment look used when {@code UI_UNIFIED_PHASE_LABEL} is on.
+     */
+    public void setUnified(final boolean b) {
+        if (this.unified != b) {
+            this.unified = b;
+            repaintOnlyThisLabel();
+        }
+    }
+
+    /** True for the segments at the capsule's rounded ends (set once by {@link PhaseIndicator}). */
+    public void setPillEdge(final boolean b) {
+        this.pillEdge = b;
     }
 
     public boolean isYieldMarked() {
@@ -158,6 +178,15 @@ public class PhaseLabel extends JLabel {
 
     @Override
     public void paintComponent(final Graphics g) {
+        if (this.unified) {
+            paintUnifiedSegment(g);
+        } else {
+            paintLegacyChip(g);
+        }
+    }
+
+    /** Classic per-chip look: raised gradient button with a 5px corner radius. */
+    private void paintLegacyChip(final Graphics g) {
         final int w = this.getWidth();
         final int h = this.getHeight();
 
@@ -198,6 +227,86 @@ public class PhaseLabel extends JLabel {
             drawChevron(g, w, h);
         } else {
             super.paintComponent(g);
+        }
+    }
+
+    /**
+     * Arena-style "unified pill" look: this label is one flat segment of the
+     * shared capsule that {@link PhaseIndicator} paints behind all segments.
+     * Only the current phase gets a filled thumb + accent ring, so the whole
+     * strip reads as a single segmented control. Toggle/hover/yield/pressed
+     * feedback is preserved.
+     */
+    private void paintUnifiedSegment(final Graphics graphics) {
+        final int w = this.getWidth();
+        final int h = this.getHeight();
+        if (w <= 0 || h <= 0) {
+            return;
+        }
+        final Graphics2D g2 = (Graphics2D) graphics.create();
+        try {
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            // Thumb inset so the fill never bleeds into the capsule's rounded ends.
+            final int ix = this.pillEdge ? 2 : 0;
+            final int iy = 2;
+            final int arc = Math.max(4, h - iy * 2);
+            final RoundRectangle2D thumb = new RoundRectangle2D.Float(
+                    ix, iy, w - ix * 2, h - iy * 2, arc, arc);
+
+            if (this.active) {
+                if (this.enabled) {
+                    g2.setPaint(new GradientPaint(0, iy,
+                            FSkin.getColor(FSkin.Colors.CLR_PHASE_ACTIVE_ENABLED).getColor(),
+                            0, h - iy,
+                            FSkin.getColor(FSkin.Colors.CLR_PHASE_ACTIVE_ENABLED).stepColor(-14).getColor()));
+                } else {
+                    g2.setColor(FSkin.getColor(FSkin.Colors.CLR_PHASE_ACTIVE_DISABLED).alphaColor(200).getColor());
+                }
+                g2.fill(thumb);
+                // Accent ring identifies the current phase inside the capsule.
+                g2.setStroke(new BasicStroke(Math.min(2f, Math.max(1f, h / 18f))));
+                FSkin.setGraphicsColor(g2,
+                        FSkin.getColor(FSkin.Colors.CLR_PHASE_ACTIVE_ENABLED).getContrastColor(60));
+                g2.draw(thumb);
+            }
+            else if (this.enabled) {
+                // "Play stops here" segment: subtle raised fill, no bevel (flat pill style).
+                FSkin.setGraphicsColor(g2, FSkin.getColor(FSkin.Colors.CLR_PHASE_INACTIVE_ENABLED).alphaColor(165));
+                g2.fill(thumb);
+            }
+            else {
+                // "Play runs through this phase" segment: recessed/dimmed fill.
+                FSkin.setGraphicsColor(g2, FSkin.getColor(FSkin.Colors.CLR_PHASE_INACTIVE_DISABLED).alphaColor(190));
+                g2.fill(thumb);
+            }
+
+            if (this.yieldMarked) {
+                g2.setColor(YIELD_MARKER_COLOR);
+                g2.fill(thumb);
+            }
+            if (this.hover) {
+                FSkin.setGraphicsColor(g2, FSkin.getColor(FSkin.Colors.CLR_HOVER).alphaColor(150));
+                g2.fill(thumb);
+            }
+            if (this.pressed) {
+                drawPressOverlay(g2, w, h);
+            }
+
+            // Hairline separators between neighbouring segments (not at the pill ends).
+            if (!this.pillEdge) {
+                FSkin.setGraphicsColor(g2,
+                        FSkin.getColor(FSkin.Colors.CLR_BORDERS).getContrastColor(20).alphaColor(120));
+                g2.fill(new Rectangle2D.Float(-0.5f, iy, 1f, h - iy * 2));
+            }
+
+            if (this.yieldMarked) {
+                drawChevron(g2, w, h);
+            } else {
+                super.paintComponent(g2);
+            }
+        } finally {
+            g2.dispose();
         }
     }
 

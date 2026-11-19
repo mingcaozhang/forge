@@ -652,7 +652,11 @@ mvn test -T 1C
 ```
 
 - [x] Restyle player panels / life counters in `VMatchUI.java`.
-- [ ] Style unified phase label pill (existing `UI_UNIFIED_PHASE_LABEL`).
+- [x] Style unified phase label pill (existing `UI_UNIFIED_PHASE_LABEL`).
+      → Implemented in `PhaseIndicator.java` / `PhaseLabel.java` (the pill lives there, not `VMatchUI`):
+      the pref is now read (default `true`) and drives an Arena-style segmented capsule with an
+      accent ring on the current phase; `false` restores the classic separated-chip look.
+      Click-toggle, right-click yield, tooltips, hover/pressed feedback and tutorial spotlight unchanged.
 - [ ] Slim zone tab strip and stack/log column in `VMatchUI.java`.
 - [ ] Restyle floating zone frames in `CMatchUI.java` (no behavior change).
 - [ ] Redesign `VPrompt.java` Arena-style prompt bar; keep all pref toggles.
