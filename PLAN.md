@@ -443,8 +443,23 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
        `IVSubmenu` (`getGroupEnum`/`getMenuTitle`/`getItemEnum`/`populate`) untouched. Verified
        `mvn test-compile -T 1C` (exit 0) and `mvn test -Dtest=*Commander*,*Deck* ... -T 1C`
        (165 pass). Diff confined to `forge-gui-desktop` (zero diff in `forge-core`/`forge-game`/`forge-ai`).
-- [ ] Preserve screen-reader / accessibility path: if
+- [x] Preserve screen-reader / accessibility path: if
       `FPref.UI_SCREENREADER_OPTIMIZE == true`, fall back to list layout.
+      **Implemented** (UI-only in `forge-gui-desktop`). Added
+      `VHomeUI.isAccessibilityLayout()` (Throwable-guarded `FPref.UI_SCREENREADER_OPTIMIZE`
+      read, so startup is never broken) and centralized the clamp in the single
+      dashboard-show chokepoint `VHomeUI.PnlDisplayArea.showDashboard`, which now
+      forces the tile dashboard hidden whenever screen-reader optimization is on —
+      the classic `LblMenuItem` submenu list (always live in `pnlMenu`) becomes the
+      only navigation, and `isDashboardVisible()` can never report `true` in that
+      mode. `CHomeUI.itemClick` additionally skips the re-click dashboard-toggle
+      (and its `refreshDashboard()` work) in accessibility mode so re-selecting the
+      active menu item is a no-op and the submenu stays put. Tiles remain built but
+      never shown (hidden components stay out of screen-reader focus traversal);
+      `IVSubmenu`/`EDocID.HOME_*` navigation and the fade+slide transition are
+      unchanged for the normal path. ZERO diff to `forge-core`/`forge-game`/`forge-ai`.
+      Verified `mvn test-compile -T 1C` (exit 0; checkstyle clean) and
+      `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (165 pass).
 - [ ] Add `forge-gui-desktop/src/test/java/forge/screens/home/HomeNavigationRegistryTest.java`
       asserting that the set of `EDocID` values surfaced by the new
       dashboard tiles is exactly the same as the set returned by

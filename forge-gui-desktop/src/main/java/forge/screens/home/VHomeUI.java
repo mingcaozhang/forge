@@ -280,10 +280,28 @@ public enum VHomeUI implements IVTopLevelUI {
      * Shows or hides the dashboard over the submenu display area, animating the swap
      * with a fade+slide tween (snapped when animations are disabled).
      *
+     * <p>When {@link FPref#UI_SCREENREADER_OPTIMIZE} is enabled the request is
+     * always treated as {@code false}, so screen-reader users keep the classic
+     * submenu list layout instead of the Arena-style tile dashboard.</p>
+     *
      * @param visible0 whether the dashboard should be visible
      */
     public void setDashboardVisible(final boolean visible0) {
         pnlDisplayArea.showDashboard(visible0);
+    }
+
+    /**
+     * @return {@code true} when screen-reader optimization is enabled, which
+     *         makes the home screen fall back to the classic submenu list
+     *         layout and never surface the tile dashboard
+     */
+    public static boolean isAccessibilityLayout() {
+        try {
+            return FModel.getPreferences().getPrefBoolean(FPref.UI_SCREENREADER_OPTIMIZE);
+        } catch (final Throwable t) {
+            // Preferences not ready or unreadable: default to the normal layout.
+            return false;
+        }
     }
 
     /**
@@ -384,13 +402,16 @@ public enum VHomeUI implements IVTopLevelUI {
         }
 
         void showDashboard(final boolean show0) {
-            if (dashboardVisible == show0) {
+            // Accessibility fallback: with screen-reader optimization on, the tile
+            // dashboard is never shown and navigation stays in the submenu list.
+            final boolean show = show0 && !isAccessibilityLayout();
+            if (dashboardVisible == show) {
                 return;
             }
-            dashboardVisible = show0;
+            dashboardVisible = show;
 
-            final Component outgoing = show0 ? display : dashboard;
-            final Component incoming = show0 ? dashboard : display;
+            final Component outgoing = show ? display : dashboard;
+            final Component incoming = show ? dashboard : display;
 
             if (UIAnimator.currentMode() == UIAnimator.Mode.OFF) {
                 clearSnapshot();
@@ -411,7 +432,7 @@ public enum VHomeUI implements IVTopLevelUI {
             snapshot = outgoingImage;
             snapshotAlpha = 1f;
 
-            final int maxSlide = Math.max(MIN_SLIDE_PX, getWidth() / SLIDE_DIVISOR) * (show0 ? -1 : 1);
+            final int maxSlide = Math.max(MIN_SLIDE_PX, getWidth() / SLIDE_DIVISOR) * (show ? -1 : 1);
             UIAnimator.start(TRANSITION_MILLIS, TWEEN_ID, new UIAnimator.Tween() {
                 @Override
                 public void onFrame(final float easedProgress) {

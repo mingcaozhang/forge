@@ -37,12 +37,16 @@ public enum CHomeUI implements ICDoc, IMenuProvider {
         final boolean dashboardVisible = VHomeUI.SINGLETON_INSTANCE.isDashboardVisible();
 
         // Re-selecting the active item toggles between its submenu and the dashboard,
-        // driving the fade+slide transition in either direction.
+        // driving the fade+slide transition in either direction. With screen-reader
+        // optimization on the layout falls back to the classic submenu list, so the
+        // toggle is skipped and the current submenu stays visible.
         if (id0 == currentDocID) {
-            if (!dashboardVisible) {
-                VHomeUI.SINGLETON_INSTANCE.refreshDashboard();
+            if (!VHomeUI.isAccessibilityLayout()) {
+                if (!dashboardVisible) {
+                    VHomeUI.SINGLETON_INSTANCE.refreshDashboard();
+                }
+                VHomeUI.SINGLETON_INSTANCE.setDashboardVisible(!dashboardVisible);
             }
-            VHomeUI.SINGLETON_INSTANCE.setDashboardVisible(!dashboardVisible);
             return;
         }
 
