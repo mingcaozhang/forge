@@ -17,11 +17,13 @@
  */
 package forge.screens.home;
 
-import java.awt.CardLayout;
+import java.awt.AlphaComposite;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -64,6 +66,7 @@ import forge.toolbox.FSkin.SkinColor;
 import forge.toolbox.FSkin.SkinnedPanel;
 import forge.util.Localizer;
 import forge.view.FView;
+import forge.view.arcane.util.UIAnimator;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -211,9 +214,9 @@ public enum VHomeUI implements IVTopLevelUI {
         pnlDashboard.add(pnlRecentDecks, "w 100%!, pushy, growy");
 
         pnlDisplayArea.addCards(pnlDisplay, pnlDashboard);
-        // CardLayout starts on the submenu display so existing navigation is unchanged. CHomeUI
-        // wires every hero tile's click through CHomeUI.itemClick(...); surfacing the dashboard
-        // (with the fade/slide transition) is deferred to a later phase.
+        // Both panels share one area; the submenu display stays live so existing navigation and
+        // getPnlDisplay() callers are unchanged. CHomeUI toggles the dashboard with a fade+slide
+        // tween (re-clicking the active menu item opens it; tile or menu clicks return to it).
     }
 
     /**
@@ -274,16 +277,13 @@ public enum VHomeUI implements IVTopLevelUI {
     }
 
     /**
-     * Shows or hides the dashboard over the submenu display area.
+     * Shows or hides the dashboard over the submenu display area, animating the swap
+     * with a fade+slide tween (snapped when animations are disabled).
      *
      * @param visible0 whether the dashboard should be visible
      */
     public void setDashboardVisible(final boolean visible0) {
-        if (isDashboardVisible() == visible0) {
-            return;
-        }
         pnlDisplayArea.showDashboard(visible0);
-        pnlDisplayArea.repaint();
     }
 
     /**
@@ -340,31 +340,154 @@ public enum VHomeUI implements IVTopLevelUI {
      * that existing submenu code can keep using {@link #getPnlDisplay()} unchanged.
      */
     private static final class PnlDisplayArea extends JPanel {
-        private static final String CARD_DISPLAY = "display";
-        private static final String CARD_DASHBOARD = "dashboard";
-        private final CardLayout cardLayout = new CardLayout();
+        /** Key used to coalesce/cancel the in-flight display transition tween. */
+        private static final String TWEEN_ID = "home-display-transition";
+        /** Duration of the fade+slide transition in milliseconds (clamped by {@link UIAnimator}). */
+        private static final int TRANSITION_MILLIS = 220;
+        /** Slide distance as a fraction of the area width (outgoing panel slides off). */
+        private static final int SLIDE_DIVISOR = 8;
+        /** Minimum slide distance in pixels so the motion reads on narrow layouts. */
+        private static final int MIN_SLIDE_PX = 48;
+
+        private Component display;
         private Component dashboard;
+        private boolean dashboardVisible;
+
+        // Live transition state, painted on top of the incoming panel each frame.
+        private BufferedImage snapshot;
+        private float snapshotAlpha;
+        private int snapshotDx;
 
         private PnlDisplayArea() {
-            setLayout(cardLayout);
+            setLayout(null);
             setOpaque(false);
         }
 
         private void addCards(final Component display0, final Component dashboard0) {
+            this.display = display0;
             this.dashboard = dashboard0;
-            add(display0, CARD_DISPLAY);
-            add(dashboard0, CARD_DASHBOARD);
-            cardLayout.show(this, CARD_DISPLAY);
+            add(display0);
+            add(dashboard0);
+            applyVisibility();
         }
 
-        private void showDashboard(final boolean show0) {
-            cardLayout.show(this, show0 ? CARD_DASHBOARD : CARD_DISPLAY);
+        @Override
+        public void doLayout() {
+            final int w = getWidth();
+            final int h = getHeight();
+            if (display != null) {
+                display.setBounds(0, 0, w, h);
+            }
+            if (dashboard != null) {
+                dashboard.setBounds(0, 0, w, h);
+            }
         }
 
-        private boolean isDashboardShown() {
-            return dashboard != null && dashboard.isVisible();
+        void showDashboard(final boolean show0) {
+            if (dashboardVisible == show0) {
+                return;
+            }
+            dashboardVisible = show0;
+
+            final Component outgoing = show0 ? display : dashboard;
+            final Component incoming = show0 ? dashboard : display;
+
+            if (UIAnimator.currentMode() == UIAnimator.Mode.OFF) {
+                clearSnapshot();
+                applyVisibility();
+                repaint();
+                return;
+            }
+
+            // Capture the outgoing panel while it is still live, then switch the live
+            // panel immediately so the incoming one is hit-testable during the tween.
+            final BufferedImage outgoingImage = snapshotOf(outgoing);
+            clearSnapshot();
+            applyVisibility();
+            if (outgoingImage == null) {
+                repaint();
+                return;
+            }
+            snapshot = outgoingImage;
+            snapshotAlpha = 1f;
+
+            final int maxSlide = Math.max(MIN_SLIDE_PX, getWidth() / SLIDE_DIVISOR) * (show0 ? -1 : 1);
+            UIAnimator.start(TRANSITION_MILLIS, TWEEN_ID, new UIAnimator.Tween() {
+                @Override
+                public void onFrame(final float easedProgress) {
+                    snapshotAlpha = 1f - easedProgress;
+                    snapshotDx = Math.round(maxSlide * easedProgress);
+                    PnlDisplayArea.this.repaint();
+                }
+
+                @Override
+                public void onEnd() {
+                    clearSnapshot();
+                    PnlDisplayArea.this.repaint();
+                }
+            });
+        }
+
+        boolean isDashboardShown() {
+            return dashboardVisible;
+        }
+
+        private void applyVisibility() {
+            if (display != null) {
+                display.setVisible(!dashboardVisible);
+            }
+            if (dashboard != null) {
+                dashboard.setVisible(dashboardVisible);
+            }
+            revalidate();
+        }
+
+        private void clearSnapshot() {
+            snapshot = null;
+            snapshotAlpha = 0f;
+            snapshotDx = 0;
+        }
+
+        private static BufferedImage snapshotOf(final Component c0) {
+            final int w = c0.getWidth();
+            final int h = c0.getHeight();
+            if (w <= 0 || h <= 0) {
+                return null;
+            }
+            final BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+            final Graphics2D g2d = image.createGraphics();
+            try {
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                        RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                c0.paint(g2d);
+            }
+            finally {
+                g2d.dispose();
+            }
+            return image;
+        }
+
+        @Override
+        public void paint(final Graphics g) {
+            super.paint(g);
+            final BufferedImage image = snapshot;
+            if (image == null || snapshotAlpha <= 0f) {
+                return;
+            }
+            final Graphics2D g2d = (Graphics2D) g.create();
+            try {
+                g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                        RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, snapshotAlpha));
+                g2d.drawImage(image, snapshotDx, 0, null);
+            }
+            finally {
+                g2d.dispose();
+            }
         }
     }
+
 
     /** */
     public class PnlDisplay extends SkinnedPanel implements ILocalRepaint {

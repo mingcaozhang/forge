@@ -34,6 +34,18 @@ public enum CHomeUI implements ICDoc, IMenuProvider {
     /** Programatically selects a menu item.
      *  @param id0 {@link forge.gui.framework.EDocID} */
     public void itemClick(final EDocID id0) {
+        final boolean dashboardVisible = VHomeUI.SINGLETON_INSTANCE.isDashboardVisible();
+
+        // Re-selecting the active item toggles between its submenu and the dashboard,
+        // driving the fade+slide transition in either direction.
+        if (id0 == currentDocID) {
+            if (!dashboardVisible) {
+                VHomeUI.SINGLETON_INSTANCE.refreshDashboard();
+            }
+            VHomeUI.SINGLETON_INSTANCE.setDashboardVisible(!dashboardVisible);
+            return;
+        }
+
         final ForgePreferences prefs = FModel.getPreferences();
 
         if (lblSelected != null) {
@@ -59,6 +71,9 @@ public enum CHomeUI implements ICDoc, IMenuProvider {
         prefs.save();
 
         previousDoc = id0.getDoc().getLayoutControl();
+
+        // Slide back from the dashboard (no-op unless it is currently shown).
+        VHomeUI.SINGLETON_INSTANCE.setDashboardVisible(false);
     }
 
     public EDocID getCurrentDocID() {

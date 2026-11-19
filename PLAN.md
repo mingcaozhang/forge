@@ -428,8 +428,21 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
       navigation is unchanged today. Also corrected the now-stale comment in `VHomeUI`
       that described the wiring as a future step. Verified `mvn test-compile -T 1C`
       (exit 0) and `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (165 pass).
-- [ ] Add smooth transition (`UIAnimator` fade+slide) between dashboard and
-      submenus without breaking `IVSubmenu` contract.
+ - [x] Add smooth transition (`UIAnimator` fade+slide) between dashboard and
+       submenus without breaking `IVSubmenu` contract.
+       **Implemented** (UI-only in `forge-gui-desktop`). Replaced the `CardLayout`-backed
+       `VHomeUI.PnlDisplayArea` with a null-layout stack that overlaps `pnlDisplay` and
+       `pnlDashboard` (both sized to the full area via `doLayout`). `showDashboard(boolean)`
+       snapshots the outgoing panel to a `BufferedImage`, switches the live panel immediately
+       (so the incoming one stays hit-testable and `getPnlDisplay()` callers are unaffected),
+       then runs one keyed `UIAnimator.start(220, "home-display-transition", ...)` tween that
+       fades + slides the outgoing snapshot over the live incoming panel; `paint` draws the
+       overlay above the children. Honors `UIAnimator.Mode.OFF` (snaps, no tween). Both
+       directions are reachable via `CHomeUI.itemClick`: re-clicking the active menu item
+       toggles dashboard/submenu, and navigating to a different doc slides back to the display.
+       `IVSubmenu` (`getGroupEnum`/`getMenuTitle`/`getItemEnum`/`populate`) untouched. Verified
+       `mvn test-compile -T 1C` (exit 0) and `mvn test -Dtest=*Commander*,*Deck* ... -T 1C`
+       (165 pass). Diff confined to `forge-gui-desktop` (zero diff in `forge-core`/`forge-game`/`forge-ai`).
 - [ ] Preserve screen-reader / accessibility path: if
       `FPref.UI_SCREENREADER_OPTIMIZE == true`, fall back to list layout.
 - [ ] Add `forge-gui-desktop/src/test/java/forge/screens/home/HomeNavigationRegistryTest.java`
