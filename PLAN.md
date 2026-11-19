@@ -63,7 +63,7 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C
 ```
 
 - [x] Add `com.formdev:flatlaf` dependency to `forge-gui-desktop/pom.xml`.
-- [ ] In `forge-gui-desktop/src/main/java/forge/view/Main.java`, set
+- [x] In `forge-gui-desktop/src/main/java/forge/view/Main.java`, set
       `sun.java2d.opengl=true` (guarded), `awt.useSystemAAFontSettings=lcd`,
       and `swing.aatext=true` before `GuiBase.setInterface(new GuiDesktop())`.
 - [ ] In `FSkin.java` `ForgeLookAndFeel.setMetalLookAndFeel`, install

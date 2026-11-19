@@ -17,6 +17,8 @@
  */
 package forge.view;
 
+import java.awt.GraphicsEnvironment;
+
 import forge.GuiDesktop;
 import forge.Singletons;
 import forge.error.ExceptionHandler;
@@ -79,8 +81,25 @@ public final class Main {
         //Turn off the Java 2D system's use of Direct3D to improve rendering speed (particularly when Full Screen)
         System.setProperty("sun.java2d.d3d", "false");
 
-        //Turn on OpenGl acceleration to improve performance
-        //System.setProperty("sun.java2d.opengl", "True");
+        //Turn on OpenGL acceleration to improve performance. Only where it is safe to do so: never in
+        //headless/command-line mode (no display to accelerate), never over an explicit user choice, and
+        //never when the user has already opted out of native acceleration via -Dsun.java2d.noddraw=true,
+        //which is the documented fallback when the Java2D pipeline misbehaves. isHeadless() only reads the
+        //cached flag set above, so this does not initialize the Toolkit before the property is applied.
+        if (!GraphicsEnvironment.isHeadless()
+                && System.getProperty("sun.java2d.opengl") == null
+                && !"true".equalsIgnoreCase(System.getProperty("sun.java2d.noddraw"))) {
+            System.setProperty("sun.java2d.opengl", "true");
+        }
+
+        //Crisp, anti-aliased text: LCD sub-pixel rendering for menus/labels plus AA for text components.
+        //Honored only when the user has not supplied an explicit override on the command line.
+        if (System.getProperty("awt.useSystemAAFontSettings") == null) {
+            System.setProperty("awt.useSystemAAFontSettings", "lcd");
+        }
+        if (System.getProperty("swing.aatext") == null) {
+            System.setProperty("swing.aatext", "true");
+        }
 
         //setup GUI interface
         GuiBase.setInterface(new GuiDesktop());
