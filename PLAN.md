@@ -71,7 +71,7 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C
       `UIManager.put(...)` tokens so skin colors keep working.
 - [x] Re-apply FlatLaf + token overrides in `FSkin.changeSkin` (line 1139–1142)
       so skin swaps remain consistent.
-- [ ] Verify `ForgeMenu.java` and `LayoutMenu.java` actions, accelerators,
+- [x] Verify `ForgeMenu.java` and `LayoutMenu.java` actions, accelerators,
       mnemonics, and keyboard shortcuts all work unchanged.
 - [ ] Add `UI_ANIMATION_MODE` and `UI_UI_THEME` FPref values to
       `ForgePreferences.java`; add matching controls in

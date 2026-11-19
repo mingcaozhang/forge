@@ -1868,6 +1868,9 @@ public class FSkin {
             UIManager.put("Component.borderColor", new ColorUIResource(borderColor));
             UIManager.put("Component.focusColor", new ColorUIResource(accent));
             UIManager.put("Component.accentColor", new ColorUIResource(accent));
+            // Metal always showed mnemonic underlines; FlatLaf hides them until Alt is held.
+            // Keep them visible so ForgeMenu / LayoutMenu mnemonics look and behave unchanged.
+            UIManager.put("Component.hideMnemonics", false);
 
             // Text components.
             for (String prefix : new String[] {"TextField", "TextArea", "EditorPane", "FormattedTextField"}) {
