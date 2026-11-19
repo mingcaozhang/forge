@@ -191,7 +191,7 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
       `PerfPatchFollowUpRulesTest` markup assertions stay intact). Verified
       `mvn test-compile -T 1C` (exit 0) and
       `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (237 pass).
-- [ ] Add `forge-gui-desktop/src/test/java/forge/view/arcane/util/UIAnimatorTest.java`
+- [x] Add `forge-gui-desktop/src/test/java/forge/view/arcane/util/UIAnimatorTest.java`
       asserting a submitted tween reaches 100% in its declared duration
       and that the shared Swing `Timer` reports `isRunning() == false`
       once the active set drains to empty; add
@@ -199,6 +199,22 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
       configured cap and that a `clearCache()` call forces recompute;
       run
       `mvn test -Dtest=UIAnimatorTest,CardTextureCacheTest -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C`.
+      **Implemented** (test-only, plus one observability accessor). `UIAnimatorTest`
+      (3 methods): a `Normal`-mode tween animates through intermediate frames,
+      lands exactly on `1.0`, fires `onEnd` once, never finishes faster than its
+      declared duration; the shared timer is `isRunning()` while active and reports
+      `false` (with an empty active set) after drain via an EDT-ordered check; `Off`
+      snaps to end without ever entering the active set or starting the timer.
+      `CardTextureCacheTest` (3 methods): LRU evicts the eldest entries at the
+      configured cap (size never exceeds it, strong refs kept so only the LRU
+      policy evicts), `clearCache()` empties the cache and forces exactly one
+      recompute via `getOrCompute`, and `textureKey` is stable/parameter-sensitive.
+      Added a minimal `UIAnimator.isTimerRunning()` observability accessor (read on
+      the EDT) so the required idle-Timer assertion — and Phase 6's
+      `UIAnimatorIdleTest` — can observe the real shared `Timer` state.
+      Verified `mvn test-compile -T 1C` (exit 0),
+      `mvn test -Dtest=UIAnimatorTest,CardTextureCacheTest ... -T 1C` (6 pass), and
+      `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (165 pass).
 
 Commit message: `refactor(commander): add UIAnimator + CardTextureCache, tactile card hover/glow/preview`
 

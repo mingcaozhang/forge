@@ -209,6 +209,18 @@ public abstract class UIAnimator {
     }
 
     /**
+     * Reports whether the single shared Swing {@link Timer} is currently
+     * running. Observability hook for idle-state guards and tests; it must be
+     * read on the event dispatch thread, which is the only thread that starts
+     * and stops the timer.
+     *
+     * @return {@code true} when the shared timer is running
+     */
+    public static boolean isTimerRunning() {
+        return sharedTimer != null && sharedTimer.isRunning();
+    }
+
+    /**
      * Snaps and completes every in-flight tween immediately.
      */
     public static void cancelAll() {
