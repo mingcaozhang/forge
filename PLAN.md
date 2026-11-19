@@ -348,7 +348,7 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
       `Timer`, no layout/hit-test change, ZERO diff to `forge-core`/`forge-game`/
       `forge-ai`. Verified `mvn test-compile -T 1C` (exit 0) and
       `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (exit 0).
-- [ ] Add `forge-gui-desktop/src/test/java/forge/view/arcane/util/AnimationModeTest.java`
+- [x] Add `forge-gui-desktop/src/test/java/forge/view/arcane/util/AnimationModeTest.java`
       asserting `UIAnimator` snaps to end for mode `Off`, halves duration
       for `Fast`, and uses full duration for `Normal`; plus
       `forge-gui-desktop/src/test/java/forge/view/arcane/effects/EffectsLifecycleTest.java`
@@ -356,6 +356,22 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
       leaves the active effect list empty and the `UIAnimator` timer stopped
       after its full duration has elapsed; run
       `mvn test -Dtest=AnimationModeTest,EffectsLifecycleTest -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C`.
+      **Implemented** (test-only, ZERO production diff). `AnimationModeTest`
+      (2 methods): `Off` snaps to `1.0`, fires `onEnd` once, and never enters the
+      animator active set or starts the shared timer (snap asserted by sampling
+      `activeCount()`/`isTimerRunning()` from inside `onEnd`); `Normal` runs the
+      full declared duration (never faster) while `Fast` runs in ~half — proven by
+      measuring both back-to-back so any constant EDT/scheduling latency cancels
+      out of the `fast/normal` ratio (≤0.8), with both animating intermediate
+      frames and landing on `1.0`. `EffectsLifecycleTest` (4 methods): each of
+      `HitFlashOverlay`/`DamagePopup`/`CastGlow` schedules exactly one animator
+      tween while active, then drains to `activeCount()==0` (effects and tweens)
+      with the shared timer stopped after its full duration; plus one test
+      scheduling all three and confirming the full drain. Effects use a `null`
+      paint target so all checks stay headless-safe. Verified
+      `mvn test-compile -T 1C` (exit 0; checkstyle clean),
+      `mvn test -Dtest=AnimationModeTest,EffectsLifecycleTest ... -T 1C` (6 pass), and
+      `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (165 pass).
 
 Commit message: `feat(commander): tactile cast/draw/tap/attack/damage feedback`
 
