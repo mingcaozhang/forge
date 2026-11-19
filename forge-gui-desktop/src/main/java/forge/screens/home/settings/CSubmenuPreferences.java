@@ -705,7 +705,7 @@ public enum CSubmenuPreferences implements ICDoc {
     }
 
     private void initializeUiThemeComboBox() {
-        final String[] themes = {"Dark", "Light"};
+        final String[] themes = {"ArenaDark", "Light"};
         final FPref userSetting = FPref.UI_UI_THEME;
         final FComboBoxPanel<String> panel = this.view.getCbpUiThemeComboBoxPanel();
         final FComboBox<String> comboBox = createComboBox(themes, userSetting);
@@ -714,7 +714,7 @@ public enum CSubmenuPreferences implements ICDoc {
     }
 
     private void initializeAnimationModeComboBox() {
-        final String[] modes = {"Full", "Reduced", "None"};
+        final String[] modes = {"Normal", "Reduced", "None"};
         final FPref userSetting = FPref.UI_ANIMATION_MODE;
         final FComboBoxPanel<String> panel = this.view.getCbpAnimationModeComboBoxPanel();
         final FComboBox<String> comboBox = createComboBox(modes, userSetting);
