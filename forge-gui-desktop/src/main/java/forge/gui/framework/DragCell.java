@@ -53,6 +53,7 @@ public final class DragCell extends JPanel implements ILocalRepaint {
     private final JLabel lblHandle = new DragHandle();
     private final JLabel lblOverflow = new JLabel();
     private IVDoc<? extends ICDoc> docSelected = null;
+    private boolean modernChrome = false;
 
     public DragCell() {
         super(new MigLayout("insets 0, gap 0, wrap 2"));
@@ -124,6 +125,23 @@ public final class DragCell extends JPanel implements ILocalRepaint {
     /** @return {@link javax.swing.JPanel} */
     public JPanel getBody() {
         return DragCell.this.pnlBody;
+    }
+
+    /**
+     * Enables the modern (deck editor) chrome: rounded body panel and modern
+     * tab strip. Opt-in only (defaults off) so shared match-screen cells are
+     * unaffected. Purely visual; layout, sizing and drag behavior are unchanged.
+     *
+     * @param modernChrome0 whether to render modern editor chrome
+     */
+    public void setModernChrome(final boolean modernChrome0) {
+        modernChrome = modernChrome0;
+        pnlBody.setCornerDiameter(modernChrome ? 6 : 0);
+        for (final IVDoc<? extends ICDoc> doc : allDocs) {
+            doc.getTabLabel().setModernChrome(modernChrome);
+        }
+        pnlBody.repaint();
+        repaintSelf();
     }
 
     /** @return {@link javax.swing.JPanel} */
@@ -269,6 +287,7 @@ public final class DragCell extends JPanel implements ILocalRepaint {
         if (doc0 instanceof VEmptyDoc) { return; }
         allDocs.add(doc0);
         doc0.setParentCell(this);
+        doc0.getTabLabel().setModernChrome(modernChrome);
         pnlHead.add(doc0.getTabLabel(), "h 100%!, gap " + tabPaddingPx + "px " + tabPaddingPx + "px 0 0", allDocs.size() - 1);
 
         // Ensure that a tab is selected

@@ -3,9 +3,11 @@ package forge.screens.deckeditor;
 import javax.swing.SwingUtilities;
 
 import forge.Singletons;
+import forge.gui.framework.DragCell;
 import forge.gui.framework.FScreen;
 import forge.gui.framework.IVTopLevelUI;
 import forge.screens.deckeditor.views.VCardCatalog;
+import forge.view.FView;
 
 /** 
 /** 
@@ -33,7 +35,20 @@ public enum VDeckEditorUI implements IVTopLevelUI {
      */
     @Override
     public void populate() {
+        applyModernChrome();
         SwingUtilities.invokeLater(() -> VCardCatalog.SINGLETON_INSTANCE.getItemManager().focus());
+    }
+
+    /**
+     * Applies the modern deck-editor chrome (modern tab strip + rounded panels)
+     * to every drag cell currently hosting editor tabs. The editor layout file
+     * ({@code editor.xml}) is untouched; this only toggles visual styling that
+     * defaults off elsewhere, so the shared match-screen look is unchanged.
+     */
+    private void applyModernChrome() {
+        for (final DragCell cell : FView.SINGLETON_INSTANCE.getDragCells()) {
+            cell.setModernChrome(true);
+        }
     }
 
     /* (non-Javadoc)

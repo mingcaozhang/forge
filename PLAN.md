@@ -536,7 +536,7 @@ mvn test-compile -T 1C
 mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C
 ```
 
-- [ ] Restyle `VDeckEditorUI.java` tabs/panels; keep `editor.xml` layout IDs.
+- [x] Restyle `VDeckEditorUI.java` tabs/panels; keep `editor.xml` layout IDs.
 - [ ] Modernize `ItemManager.java` toolbar, search, and view-switch UI.
 - [ ] Restyle `ItemListView.java` table (zebra rows, slim scrollbars, header).
 - [ ] Upgrade `ImageView.java` card tiles with hover scale/glow via cache.

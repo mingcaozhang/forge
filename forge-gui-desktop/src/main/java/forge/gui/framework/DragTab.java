@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GradientPaint;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 
@@ -20,6 +21,7 @@ import forge.toolbox.FSkin.SkinnedLabel;
 @SuppressWarnings("serial")
 public final class DragTab extends SkinnedLabel implements ILocalRepaint {
     private boolean selected = false;
+    private boolean modernChrome = false;
     private int priority = 10;
     private float flashIntensity = 0f;
     private float bumpScale = 1f;
@@ -46,6 +48,17 @@ public final class DragTab extends SkinnedLabel implements ILocalRepaint {
     /** @param isSelected0 &emsp; boolean */
     public void setSelected(final boolean isSelected0) {
         selected = isSelected0;
+        repaintSelf();
+    }
+
+    /**
+     * Enables the modern (deck editor) tab chrome. Opt-in only: when false the
+     * tab paints exactly as before, so shared match-screen chrome is unaffected.
+     *
+     * @param modernChrome0 whether to render the modern flat/gradient tab look
+     */
+    public void setModernChrome(final boolean modernChrome0) {
+        modernChrome = modernChrome0;
         repaintSelf();
     }
 
@@ -104,7 +117,25 @@ public final class DragTab extends SkinnedLabel implements ILocalRepaint {
 
     @Override
     public void paintComponent(final Graphics g) {
-        if (!selected) {
+        final int w = getWidth() - 1;
+        final int h = getHeight() * 2;
+
+        if (modernChrome) {
+            final Graphics2D g2 = (Graphics2D) g;
+            if (selected) {
+                final Color top = FSkin.getColor(FSkin.Colors.CLR_ACTIVE).brighter().getColor();
+                final Color bottom = FSkin.getColor(FSkin.Colors.CLR_ACTIVE).getColor();
+                g2.setPaint(new GradientPaint(0f, 0f, top, 0f, h * 0.6f, bottom));
+                g2.fillRoundRect(0, 0, w, h, 8, 8);
+                g2.setColor(FSkin.getColor(FSkin.Colors.CLR_BORDERS).getContrastColor(30).getColor());
+                g2.drawRoundRect(0, 0, w, h, 8, 8);
+            }
+            else {
+                g2.setColor(FSkin.getColor(FSkin.Colors.CLR_ACTIVE).alphaColor(40).getColor());
+                g2.fillRoundRect(0, 0, w, h, 8, 8);
+            }
+        }
+        else if (!selected) {
             FSkin.setGraphicsColor(g, FSkin.getColor(FSkin.Colors.CLR_INACTIVE));
             g.fillRoundRect(0, 0, getWidth() - 1, getHeight() * 2, 6, 6);
             FSkin.setGraphicsColor(g, FSkin.getColor(FSkin.Colors.CLR_BORDERS));
