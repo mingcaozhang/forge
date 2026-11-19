@@ -27,10 +27,13 @@ import forge.toolbox.FSkin.SkinImage;
 import forge.toolbox.special.CardZoomer;
 import forge.util.Localizer;
 import forge.view.arcane.CardPanel;
+import forge.view.arcane.util.CardTextureCache;
+import forge.view.arcane.util.UIAnimator;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
 import java.util.ArrayList;
@@ -50,6 +53,14 @@ public class ImageView<T extends InventoryItem> extends ItemView<T> {
     private static final int GROUP_HEADER_GLYPH_WIDTH = 6;
     private static final int MIN_COLUMN_COUNT = 1;
     private static final int MAX_COLUMN_COUNT = 10;
+
+    private static final int HOVER_ANIMATION_MILLIS = 160;
+    private static final float HOVER_SCALE = 0.05f;
+    private static final float HOVER_GLOW_PAD_RATIO = 0.055f;
+    private static final int HOVER_GLOW_MAX_ALPHA = 95;
+    private static final Color HOVER_GLOW_COLOR = new Color(150, 255, 180);
+    private static final String GLOW_TEXTURE_ID = "itemview-tile-glow";
+    private static final CardTextureCache TILE_TEXTURES = new CardTextureCache();
 
     private final CardViewDisplay display;
     private final List<Integer> selectedIndices = new ArrayList<>();
@@ -751,7 +762,10 @@ public class ImageView<T extends InventoryItem> extends ItemView<T> {
         }
 
         if (hoveredItem == item) { return false; }
+        final ItemInfo previousItem = hoveredItem;
         hoveredItem = item;
+        animateHover(previousItem, 0f);
+        animateHover(item, 1f);
         if (item != null) {
             final CDetailPicture cDetailPicture = itemManager.getCDetailPicture();
             if (cDetailPicture != null) {
@@ -760,6 +774,24 @@ public class ImageView<T extends InventoryItem> extends ItemView<T> {
             showHoveredItem(item.item);
         }
         return true;
+    }
+
+    private void animateHover(final ItemInfo item, final float target) {
+        if (item == null || item.hover == target) { return; }
+        final float from = item.hover;
+        UIAnimator.start(HOVER_ANIMATION_MILLIS, item.hoverTweenId, new UIAnimator.Tween() {
+            @Override
+            public void onFrame(final float easedProgress) {
+                item.hover = from + (target - from) * easedProgress;
+                display.repaintSelf();
+            }
+
+            @Override
+            public void onEnd() {
+                item.hover = target;
+                display.repaintSelf();
+            }
+        });
     }
 
     protected void showHoveredItem(final T item) {
@@ -956,6 +988,8 @@ public class ImageView<T extends InventoryItem> extends ItemView<T> {
     }
     private class ItemInfo extends DisplayArea implements Entry<InventoryItem, Integer> {
         private final T item;
+        private final Object hoverTweenId = new Object();
+        private float hover;
         private int index;
         private boolean selected;
         private boolean alt;
@@ -1125,6 +1159,64 @@ public class ImageView<T extends InventoryItem> extends ItemView<T> {
         }
 
         private void drawItemImage(Graphics2D g, ItemInfo itemInfo) {
+            final float hover = itemInfo.hover;
+            if (hover <= 0f) {
+                drawTile(g, itemInfo);
+                return;
+            }
+
+            final Rectangle bounds = itemInfo.getBounds();
+            final int glowPad = Math.max(2, Math.round(bounds.width * HOVER_GLOW_PAD_RATIO));
+            final BufferedImage glow = resolveGlowTexture(bounds.width, bounds.height, glowPad);
+            final Graphics2D g2 = (Graphics2D) g.create();
+            try {
+                if (glow != null) {
+                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, hover));
+                    g2.drawImage(glow, bounds.x - glowPad, bounds.y - glowPad,
+                            bounds.width + 2 * glowPad, bounds.height + 2 * glowPad, null);
+                    g2.setComposite(AlphaComposite.SrcOver);
+                }
+                final float scale = 1f + HOVER_SCALE * hover;
+                final double centerX = bounds.getCenterX();
+                final double centerY = bounds.getCenterY();
+                final AffineTransform transform = AffineTransform.getTranslateInstance(centerX, centerY);
+                transform.scale(scale, scale);
+                transform.translate(-centerX, -centerY);
+                g2.transform(transform);
+                drawTile(g2, itemInfo);
+            } finally {
+                g2.dispose();
+            }
+        }
+
+        private BufferedImage resolveGlowTexture(final int width, final int height, final int pad) {
+            final String key = CardTextureCache.textureKey(GLOW_TEXTURE_ID, width + 2 * pad, height + 2 * pad, true, true, 0);
+            return TILE_TEXTURES.getOrCompute(key, () -> buildGlowTexture(width, height, pad));
+        }
+
+        private static BufferedImage buildGlowTexture(final int width, final int height, final int pad) {
+            final int glowWidth = width + 2 * pad;
+            final int glowHeight = height + 2 * pad;
+            final BufferedImage img = new BufferedImage(glowWidth, glowHeight, BufferedImage.TYPE_INT_ARGB);
+            final Graphics2D g = img.createGraphics();
+            try {
+                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                final int arc = Math.max(4, Math.round(width * CardPanel.ROUNDED_CORNER_SIZE)) + 2 * pad;
+                g.setStroke(new BasicStroke(2f));
+                for (int i = 0; i < pad; i++) {
+                    final float ratio = (float) i / (float) pad;
+                    final int alpha = Math.round(HOVER_GLOW_MAX_ALPHA * ratio * ratio);
+                    g.setColor(new Color(HOVER_GLOW_COLOR.getRed(), HOVER_GLOW_COLOR.getGreen(),
+                            HOVER_GLOW_COLOR.getBlue(), alpha));
+                    g.drawRoundRect(i, i, glowWidth - 1 - i, glowHeight - 1 - i, arc - 2 * i, arc - 2 * i);
+                }
+            } finally {
+                g.dispose();
+            }
+            return img;
+        }
+
+        private void drawTile(Graphics2D g, ItemInfo itemInfo) {
             Rectangle bounds = itemInfo.getBounds();
             final int itemWidth = bounds.width;
             final int selBorderSize = 1;
