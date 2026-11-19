@@ -31,6 +31,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
@@ -53,6 +54,9 @@ import forge.game.card.Card;
 import forge.game.card.CardView;
 import forge.game.card.CardView.CardStateView;
 import forge.game.combat.CombatView;
+import forge.game.event.GameEventAttackersDeclared;
+import forge.game.event.GameEventCardChangeZone;
+import forge.game.event.GameEventCardTapped;
 import forge.game.event.GameEventSpellAbilityCast;
 import forge.game.event.GameEventSpellRemovedFromStack;
 import forge.game.keyword.Keyword;
@@ -134,6 +138,8 @@ import forge.util.collect.FCollectionView;
 import forge.view.FView;
 import forge.view.arcane.CardPanel;
 import forge.view.arcane.FloatingZone;
+import forge.view.arcane.effects.CastGlow;
+import forge.view.arcane.util.UIAnimator;
 
 import net.miginfocom.layout.LinkHandler;
 import net.miginfocom.swing.MigLayout;
@@ -154,6 +160,12 @@ public final class CMatchUI
             ZoneType.Flashback, ZoneType.Command, ZoneType.Ante, ZoneType.Sideboard, ZoneType.PlanarDeck,
             ZoneType.SchemeDeck, ZoneType.AttractionDeck, ZoneType.ContraptionDeck, ZoneType.Junkyard,
             ZoneType.StickerSheets);
+
+    // Glow colors for the transient match effects dispatched from game events.
+    private static final Color COLOR_TAPPED = new Color(255, 176, 0);
+    private static final Color COLOR_UNTAPPED = new Color(0, 200, 255);
+    private static final Color COLOR_ATTACK = new Color(255, 72, 72);
+    private static final Color COLOR_DRAW = new Color(122, 220, 122);
 
     private final List<PlayerZoneUpdate> selectionZonesShown = Lists.newArrayList();
     private final List<PlayerZoneUpdate> revealZonesShown = Lists.newArrayList();
@@ -1501,6 +1513,76 @@ public final class CMatchUI
         final List<String> options = ImmutableList.of(yesButtonText, noButtonText);
         final int reply = SOptionPane.showOptionDialog(message, title, SOptionPane.QUESTION_ICON, options, defaultYes ? 0 : 1);
         return reply == 0;
+    }
+
+    @Override
+    public void notifyCardTapped(GameEventCardTapped event) {
+        dispatchCardGlow(event.card(), event.tapped() ? COLOR_TAPPED : COLOR_UNTAPPED);
+    }
+
+    @Override
+    public void notifyAttackersDeclared(GameEventAttackersDeclared event) {
+        for (final CardView attacker : event.attackersMap().values()) {
+            dispatchCardGlow(attacker, COLOR_ATTACK);
+        }
+    }
+
+    @Override
+    public void notifyCardDrawn(GameEventCardChangeZone event) {
+        dispatchCardGlow(event.card(), COLOR_DRAW);
+    }
+
+    /**
+     * Plays a short glow over the card's panel on the match effect overlay.
+     * Purely cosmetic: it reads no game state beyond the passed card and never
+     * mutates it. No-op when animation is off, the overlay is not attached, or
+     * the card has no visible panel with non-empty bounds yet.
+     *
+     * @param card  the {@link CardView} to glow over
+     * @param color the glow color
+     */
+    private void dispatchCardGlow(final CardView card, final Color color) {
+        if (card == null || UIAnimator.currentMode() == UIAnimator.Mode.OFF) {
+            return;
+        }
+        final MatchEffectOverlay overlay = view.getEffectOverlay();
+        if (!overlay.isAttached()) {
+            return;
+        }
+        final CardPanel panel = findVisibleCardPanel(card.getId());
+        if (panel == null) {
+            return;
+        }
+        final Rectangle bounds = new Rectangle(0, 0, panel.getWidth(), panel.getHeight());
+        if (bounds.width <= 0 || bounds.height <= 0) {
+            return;
+        }
+        final Component paintTarget = overlay.getPaintTarget();
+        SwingUtilities.convertRectangle(panel, bounds, paintTarget);
+        new CastGlow(paintTarget, bounds, color).start();
+    }
+
+    /**
+     * Finds the visible {@link CardPanel} for a card without bringing up or
+     * switching any tab or window.
+     *
+     * @param cardId the card's game id
+     * @return the matching {@link CardPanel}, or {@code null} if none is shown
+     */
+    private CardPanel findVisibleCardPanel(final int cardId) {
+        for (final VField f : view.getFieldViews()) {
+            final CardPanel panel = f.getTabletop().getCardPanel(cardId);
+            if (panel != null) {
+                return panel;
+            }
+        }
+        for (final VHand h : view.getHands()) {
+            final CardPanel panel = h.getHandArea().getCardPanel(cardId);
+            if (panel != null) {
+                return panel;
+            }
+        }
+        return null;
     }
 
     @Override

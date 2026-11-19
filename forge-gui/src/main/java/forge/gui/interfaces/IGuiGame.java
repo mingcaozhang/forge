@@ -6,6 +6,9 @@ import forge.game.GameEntityView;
 import forge.game.GameView;
 import forge.game.card.CardView;
 import forge.game.event.GameEvent;
+import forge.game.event.GameEventAttackersDeclared;
+import forge.game.event.GameEventCardChangeZone;
+import forge.game.event.GameEventCardTapped;
 import forge.game.event.GameEventSpellAbilityCast;
 import forge.game.event.GameEventSpellRemovedFromStack;
 import forge.game.phase.PhaseType;
@@ -120,6 +123,13 @@ public interface IGuiGame {
 
     default void notifyStackAddition(final GameEventSpellAbilityCast event) {}
     default void notifyStackRemoval(final GameEventSpellRemovedFromStack event) {}
+
+    /** A permanent tapped or untapped: dispatch a transient visual cue. Called on the EDT. */
+    default void notifyCardTapped(final GameEventCardTapped event) {}
+    /** Attackers were declared: dispatch a transient visual cue. Called on the EDT. */
+    default void notifyAttackersDeclared(final GameEventAttackersDeclared event) {}
+    /** A card was drawn (moved from library to hand): dispatch a transient visual cue. Called on the EDT. */
+    default void notifyCardDrawn(final GameEventCardChangeZone event) {}
 
     default void handleLandPlayed(CardView land) {}
 

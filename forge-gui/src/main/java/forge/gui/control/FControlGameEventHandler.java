@@ -189,6 +189,13 @@ public class FControlGameEventHandler extends IGameEventVisitor.Base<Void> {
         return processEvent();
     }
 
+    // Forwards a transient visual-cue event to the desktop match controller on the EDT.
+    // The mobile port has no match effect overlay, so it is skipped there.
+    private void dispatchEffect(final Runnable effect) {
+        if (matchController.isLibgdxPort()) { return; }
+        GuiBase.getInterface().invokeInEdtLater(effect);
+    }
+
     @Override
     public Void visit(final GameEventFlipCoin ev) {
         if (humanController == null || !FModel.getPreferences().getPrefBoolean(FPref.UI_COIN_DICE_ANIMATION)) {
@@ -381,6 +388,7 @@ public class FControlGameEventHandler extends IGameEventVisitor.Base<Void> {
     public Void visit(final GameEventCardTapped event) {
         refreshFieldUpdate = true; //update all players field when event un/tapped
         processCard(event.card(), cardsUpdate);
+        dispatchEffect(() -> matchController.notifyCardTapped(event));
         return processEvent();
     }
 
@@ -413,6 +421,7 @@ public class FControlGameEventHandler extends IGameEventVisitor.Base<Void> {
 
     @Override
     public Void visit(final GameEventAttackersDeclared event) {
+        dispatchEffect(() -> matchController.notifyAttackersDeclared(event));
         return processCards(event.attackersMap().values(), cardsUpdate);
     }
 
@@ -456,6 +465,10 @@ public class FControlGameEventHandler extends IGameEventVisitor.Base<Void> {
             if (event.to() != null) {
                 updateZone(event.to().player(), event.to().zoneType());
             }
+        } else if (event.from() != null && event.to() != null
+                && event.from().zoneType() == ZoneType.Library
+                && event.to().zoneType() == ZoneType.Hand) {
+            dispatchEffect(() -> matchController.notifyCardDrawn(event));
         }
         return processEvent();
     }

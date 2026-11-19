@@ -300,8 +300,16 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
       to request repaints on. ZERO diff to `forge-core`/`forge-game`/`forge-ai`.
       Verified `mvn test-compile -T 1C` (exit 0; checkstyle clean) and
       `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (165 pass).
-- [ ] Hook draw / tap / attack triggers in `CMatchUI.java` to dispatch
-      animator effects (no logic changes).
+- [x] Hook draw / tap / attack triggers in `CMatchUI.java` to dispatch
+      animator effects (no logic changes). Forwarded `GameEventCardTapped`,
+      `GameEventAttackersDeclared`, and draw (`GameEventCardChangeZone`
+      Library->Hand) through new `IGuiGame` default hooks (no-op for mobile)
+      and `FControlGameEventHandler` (EDT, non-libgdx only); `CMatchUI`
+      dispatches `CastGlow` over the card's field/hand panel via
+      `VMatchUI.getEffectOverlay()`, no-op when `UIAnimator.Mode.OFF`. ZERO
+      diff to `forge-core`/`forge-game`/`forge-ai`. Verified
+      `mvn test-compile -T 1C` (exit 0) and
+      `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (exit 0).
 - [ ] Add cast lunge + glow pulse to `VField.java` creature/spell entry.
 - [ ] Add Arena-style draw arc and tap pulse in `VHand.java`.
 - [ ] Animate stack drawer open/close and per-item fade in `VStack.java`.
