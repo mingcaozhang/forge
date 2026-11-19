@@ -1,11 +1,5 @@
 package forge.screens.deckeditor.controllers;
 
-import java.util.Map.Entry;
-import java.util.function.Predicate;
-
-import javax.swing.JLabel;
-
-import forge.card.CardRules;
 import forge.card.CardRulesPredicates;
 import forge.card.MagicColor;
 import forge.deck.Deck;
@@ -15,17 +9,21 @@ import forge.gui.framework.ICDoc;
 import forge.item.InventoryItem;
 import forge.item.PaperCard;
 import forge.item.PaperCardPredicates;
-import forge.itemmanager.SItemManagerUtil.StatTypes;
 import forge.screens.deckeditor.CDeckEditorUI;
 import forge.screens.deckeditor.views.VStatistics;
 import forge.util.ItemPool;
-import forge.util.Localizer;
 
 /**
  * Controls the "analysis" panel in the deck editor UI.
  *
- * <br><br><i>(C at beginning of class name denotes a control class.)</i>
+ * <p>
+ * The controller is responsible for all counting; it computes a small set of
+ * numeric arrays (color identity, card types and a per-mana-value curve with
+ * its colored-symbol breakdown) and hands them to {@link VStatistics}, which
+ * paints them as modern charts. The displayed values are identical to those the
+ * previous text-grid version produced.
  *
+ * <br><br><i>(C at beginning of class name denotes a control class.)</i>
  */
 public enum CStatistics implements ICDoc {
     /** */
@@ -52,16 +50,6 @@ public enum CStatistics implements ICDoc {
         analyze();
     }
 
-    private void setLabelValue(final JLabel label, final ItemPool<PaperCard> deck, final Predicate<CardRules> predicate, final int total) {
-        final int tmp = deck.countAll(PaperCardPredicates.fromRules(predicate));
-        label.setText(tmp + " (" + calculatePercentage(tmp, total) + "%)");
-    }
-
-    private void setLabelValue(final JLabel label, final String str, final int value, final int total) {
-        String labelText = String.format("%s%d (%d%%)", str, value, calculatePercentage(value, total));
-        label.setText(labelText);
-    }
-
     //========== Other methods
     @SuppressWarnings("unchecked")
     private <T extends InventoryItem, TModel extends DeckBase> void analyze() {
@@ -72,62 +60,60 @@ public enum CStatistics implements ICDoc {
 
         final ItemPool<PaperCard> deck = ItemPool.createFrom(ed.getDeckManager().getPool(), PaperCard.class);
 
-        int total = deck.countAll();
-        final int[] shardCount = calculateShards(deck);
+        final int total = deck.countAll();
+        // Avoid divide-by-zero for the percentage readouts while still showing real counts.
+        final int percentTotal = total == 0 ? 1 : total;
 
-        // Hack-ish: avoid /0 cases, but still populate labels :)
-        if (total == 0) { total = 1; }
+        // Card types — order matches VStatistics.setCardTypeDistribution:
+        // creature, land, enchantment, artifact, instant, sorcery, planeswalker
+        final int[] typeCounts = {
+                deck.countAll(PaperCardPredicates.fromRules(CardRulesPredicates.IS_CREATURE)),
+                deck.countAll(PaperCardPredicates.fromRules(CardRulesPredicates.IS_LAND)),
+                deck.countAll(PaperCardPredicates.fromRules(CardRulesPredicates.IS_ENCHANTMENT)),
+                deck.countAll(PaperCardPredicates.fromRules(CardRulesPredicates.IS_ARTIFACT)),
+                deck.countAll(PaperCardPredicates.fromRules(CardRulesPredicates.IS_INSTANT)),
+                deck.countAll(PaperCardPredicates.fromRules(CardRulesPredicates.IS_SORCERY)),
+                deck.countAll(PaperCardPredicates.fromRules(CardRulesPredicates.IS_PLANESWALKER)) };
 
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblCreature(), deck, CardRulesPredicates.IS_CREATURE, total);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblLand(), deck, CardRulesPredicates.IS_LAND, total);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblEnchantment(), deck, CardRulesPredicates.IS_ENCHANTMENT, total);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblArtifact(), deck, CardRulesPredicates.IS_ARTIFACT, total);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblInstant(), deck, CardRulesPredicates.IS_INSTANT, total);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblSorcery(), deck, CardRulesPredicates.IS_SORCERY, total);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblPlaneswalker(), deck, CardRulesPredicates.IS_PLANESWALKER, total);
+        // Colors — order matches VStatistics.setColorDistribution:
+        // white, blue, black, red, green, colorless, multicolor
+        final int[] colorCounts = {
+                deck.countAll(PaperCardPredicates.fromRules(CardRulesPredicates.isMonoColor(MagicColor.WHITE))),
+                deck.countAll(PaperCardPredicates.fromRules(CardRulesPredicates.isMonoColor(MagicColor.BLUE))),
+                deck.countAll(PaperCardPredicates.fromRules(CardRulesPredicates.isMonoColor(MagicColor.BLACK))),
+                deck.countAll(PaperCardPredicates.fromRules(CardRulesPredicates.isMonoColor(MagicColor.RED))),
+                deck.countAll(PaperCardPredicates.fromRules(CardRulesPredicates.isMonoColor(MagicColor.GREEN))),
+                deck.countAll(PaperCardPredicates.fromRules(CardRulesPredicates.IS_COLORLESS)),
+                deck.countAll(PaperCardPredicates.fromRules(CardRulesPredicates.IS_MULTICOLOR)) };
 
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblMulti(), deck, CardRulesPredicates.IS_MULTICOLOR, total);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblColorless(), deck, CardRulesPredicates.IS_COLORLESS, total);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblBlack(), deck, CardRulesPredicates.isMonoColor(MagicColor.BLACK), total);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblBlue(), deck, CardRulesPredicates.isMonoColor(MagicColor.BLUE), total);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblGreen(), deck, CardRulesPredicates.isMonoColor(MagicColor.GREEN), total);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblRed(), deck, CardRulesPredicates.isMonoColor(MagicColor.RED), total);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblWhite(), deck, CardRulesPredicates.isMonoColor(MagicColor.WHITE), total);
-
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblCMC0(), deck, StatTypes.CMC_0.predicate, total);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblCMC1(), deck, StatTypes.CMC_1.predicate, total);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblCMC2(), deck, StatTypes.CMC_2.predicate, total);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblCMC3(), deck, StatTypes.CMC_3.predicate, total);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblCMC4(), deck, StatTypes.CMC_4.predicate, total);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblCMC5(), deck, StatTypes.CMC_5.predicate, total);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblCMC6(), deck, StatTypes.CMC_6.predicate, total);
-
-        int totShards = calculateTotalShards(shardCount);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblWhiteShard(), "Shards:", shardCount[0], totShards);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblBlueShard(), "Shards:", shardCount[1], totShards);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblBlackShard(), "Shards:", shardCount[2], totShards);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblRedShard(), "Shards:", shardCount[3], totShards);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblGreenShard(), "Shards:", shardCount[4], totShards);
-        setLabelValue(VStatistics.SINGLETON_INSTANCE.getLblColorlessShard(), "Shards:", shardCount[5], totShards);
-
+        // Mana curve — buckets 0,1,2,3,4,5,6+ with a per-bucket W U B R G colorless symbol total.
+        final int[] curveCounts = new int[7];
+        final int[][] curveShards = new int[7][6];
         int tmc = 0;
-        for (final Entry<PaperCard, Integer> e : deck) {
-            tmc += e.getKey().getRules().getManaCost().getCMC() * e.getValue();
+        for (final PaperCard c : deck.toFlatList()) {
+            final int cmc = c.getRules().getManaCost().getCMC();
+            tmc += cmc;
+            final int bucket = Math.min(cmc, 6);
+            curveCounts[bucket]++;
+            final int[] cardShards = c.getRules().getManaCost().getColorShardCounts();
+            for (int i = 0; i < 6; i++) {
+                curveShards[bucket][i] += cardShards[i];
+            }
         }
-        final double amc = Math.round((double) tmc / (double) total * 100) / 100.0d;
+        final double amc = Math.round((double) tmc / (double) percentTotal * 100) / 100.0d;
 
-        VStatistics.SINGLETON_INSTANCE.getLblTotal().setText(
-                String.format("%s: %d", Localizer.getInstance().getMessage("lblTotalCards").toUpperCase(), deck.countAll()));
-        VStatistics.SINGLETON_INSTANCE.getLblTMC().setText(
-                String.format("%s: %d", Localizer.getInstance().getMessage("lblTotalManaCost").toUpperCase(), tmc));
-        VStatistics.SINGLETON_INSTANCE.getLblAMC().setText(String.format("%s: %.2f",
-                Localizer.getInstance().getMessage("lblAverageManaCost").toUpperCase(), amc));
+        final VStatistics view = VStatistics.SINGLETON_INSTANCE;
+        view.setSummary(total, tmc, amc);
+        view.setColorDistribution(colorCounts, percentTotal);
+        view.setCardTypeDistribution(typeCounts, percentTotal);
+        view.setManaCurve(curveCounts, curveShards);
+
+        // Commander points summary (unchanged behavior).
         final DeckController<TModel> controller = ed.getDeckController();
         final DeckBase model = controller == null ? null : controller.getModel();
         final Deck wholeDeck = model == null ? null : model.getHumanDeck();
         final String points = wholeDeck == null ? null : DeckStatistics.pointsSummary(wholeDeck);
-        VStatistics.SINGLETON_INSTANCE.getLblPoints().setText(points == null ? "" : points.toUpperCase());
-        VStatistics.SINGLETON_INSTANCE.getLblPoints().setVisible(points != null);
+        view.setPoints(points);
     }
 
     /**
@@ -152,9 +138,9 @@ public enum CStatistics implements ICDoc {
         return counts;
     }
 
-    public static int calculateTotalShards(int[] counts) {
+    public static int calculateTotalShards(final int[] counts) {
         int total = 0;
-        for (int count : counts) {
+        for (final int count : counts) {
             total += count;
         }
         return total;

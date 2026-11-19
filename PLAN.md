@@ -572,7 +572,20 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
       (draws behind the already-non-opaque container/manager). ZERO diff to
       `forge-core`/`forge-game`/`forge-ai`. Verified `mvn test-compile -T 1C`
       (exit 0) and `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (165 pass).
-- [ ] Redesign `VStatistics.java` + `CStatistics.java` curve/identity visuals.
+ - [x] Redesign `VStatistics.java` + `CStatistics.java` curve/identity visuals.
+       Restyled into modern rounded `RoundedContentCard` panels with custom
+       charts: a new `ManaCurveChart` (rounded, per-CMC stacked bars colored by
+       sampled mana-symbol icon color) plus two `DistributionBarChart`s for the
+       color-identity and card-type breakdowns, all fed by a `ManaPalette`
+       icon-color sampler. `CStatistics.analyze()` now computes numeric count
+       arrays (colors, types, CMC curve + per-bucket `W U B R G colorless`
+       symbol totals) and injects them via a new small view setter API
+       (`setSummary`/`setPoints`/`setColorDistribution`/`setCardTypeDistribution`
+       `/setManaCurve`); displayed counts/percentages are unchanged. The
+       `DeckStatistics.pointsSummary` path is behavior-for-behavior identical.
+       ZERO diff to `forge-core`/`forge-game`/`forge-ai`. Verified
+       `mvn test-compile -T 1C` (exit 0) and
+       `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (exit 0).
 - [ ] Add commander/partner showcase header in `VCommanderDecks.java`.
 - [ ] Restyle `DeckImport.java` and `DeckFileMenu.java`; keep all actions.
 - [ ] Add `forge-gui-desktop/src/test/java/forge/itemmanager/DeckEditorFilterParityTest.java`
