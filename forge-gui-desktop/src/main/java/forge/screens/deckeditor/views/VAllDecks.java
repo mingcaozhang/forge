@@ -85,7 +85,7 @@ public enum VAllDecks implements IVDoc<CAllDecks> {
         String preferredDeck = DeckPreferences.getCurrentDeck();
         JPanel parentBody = parentCell.getBody();
         parentBody.setLayout(new MigLayout("insets 5, gap 0, wrap, hidemode 3"));
-        parentBody.add(new ItemManagerContainer(lstDecks), "push, grow");
+        parentBody.add(new RoundedContentCard(new ItemManagerContainer(lstDecks)), "push, grow");
         // Skip on other screens (e.g. DRAFTING_PROCESS) — editing would switch screens back here
         if (Singletons.getControl().getCurrentScreen() == FScreen.DECK_EDITOR_CONSTRUCTED) {
             editPreferredDeck(lstDecks, preferredDeck);

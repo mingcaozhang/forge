@@ -28,6 +28,7 @@ public enum VCardCatalog implements IVDoc<CCardCatalog> {
     private final DragTab tab = new DragTab(localizer.getMessage("lblCardCatalog"));
 
     private final ItemManagerContainer itemManagerContainer = new ItemManagerContainer();
+    private final RoundedContentCard contentCard = new RoundedContentCard(itemManagerContainer);
     private ItemManager<? extends InventoryItem> itemManager;
 
     //========== Constructor
@@ -66,7 +67,7 @@ public enum VCardCatalog implements IVDoc<CCardCatalog> {
     public void populate() {
         final JPanel parentBody = parentCell.getBody();
         parentBody.setLayout(new MigLayout("insets 5, gap 0, wrap, hidemode 3"));
-        parentBody.add(itemManagerContainer, "push, grow");
+        parentBody.add(contentCard, "push, grow");
     }
 
     public ItemManager<? extends InventoryItem> getItemManager() {

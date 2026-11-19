@@ -555,7 +555,23 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
       wired byte-for-byte identical). ZERO diff to `forge-core`/`forge-game`/`forge-ai`.
       Verified `mvn test-compile -T 1C` (exit 0; checkstyle clean) and
       `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (165 pass).
-- [ ] Restyle `VAllDecks.java` and `VCardCatalog.java`; preserve auto-edit.
+- [x] Restyle `VAllDecks.java` and `VCardCatalog.java`; preserve auto-edit.
+      **Implemented** (UI-only in `forge-gui-desktop`). Added a shared
+      paint-only `RoundedContentCard` (package-private in
+      `forge.screens.deckeditor.views`, mirroring the `VCurrentDeck`
+      `PnlToolbar` visual language: subtle `CLR_THEME` vertical gradient
+      `stepColor(-8)→stepColor(-16)`, rounded arc 12, soft translucent
+      `CLR_BORDERS` outline) that wraps a browser component in a
+      `BorderLayout` CENTER. `VAllDecks.populate()` now adds
+      `RoundedContentCard(ItemManagerContainer)` with the identical
+      `"push, grow"` constraint, and `VCardCatalog` holds one card around
+      its singleton `itemManagerContainer` — the browser placement, insets
+      and hit-testing are visually unchanged, and the `refresh()` +
+      `editPreferredDeck(...)` preferred-deck auto-edit path is byte-for-byte
+      intact. Card paint respects the existing opt-in modern cell chrome
+      (draws behind the already-non-opaque container/manager). ZERO diff to
+      `forge-core`/`forge-game`/`forge-ai`. Verified `mvn test-compile -T 1C`
+      (exit 0) and `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (165 pass).
 - [ ] Redesign `VStatistics.java` + `CStatistics.java` curve/identity visuals.
 - [ ] Add commander/partner showcase header in `VCommanderDecks.java`.
 - [ ] Restyle `DeckImport.java` and `DeckFileMenu.java`; keep all actions.
