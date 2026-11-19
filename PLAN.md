@@ -538,7 +538,7 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
 
 - [x] Restyle `VDeckEditorUI.java` tabs/panels; keep `editor.xml` layout IDs.
 - [x] Modernize `ItemManager.java` toolbar, search, and view-switch UI.
-- [ ] Restyle `ItemListView.java` table (zebra rows, slim scrollbars, header).
+- [x] Restyle `ItemListView.java` table (zebra rows, slim scrollbars, header).
 - [ ] Upgrade `ImageView.java` card tiles with hover scale/glow via cache.
 - [ ] Restyle `VCurrentDeck.java` toolbar/header; keep button accessors intact.
 - [ ] Restyle `VAllDecks.java` and `VCardCatalog.java`; preserve auto-edit.

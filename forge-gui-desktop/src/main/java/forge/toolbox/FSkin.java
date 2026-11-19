@@ -97,6 +97,7 @@ import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.plaf.ColorUIResource;
+import javax.swing.plaf.FontUIResource;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
@@ -1937,6 +1938,7 @@ public class FSkin {
             UIManager.put("Table.selectionBackground", new ColorUIResource(accent));
             UIManager.put("Table.selectionInactiveBackground", new ColorUIResource(HIGHLIGHT_COLOR));
             UIManager.put("Table.selectionInactiveForeground", new ColorUIResource(FORE_COLOR));
+            UIManager.put("Table.headerFont", new FontUIResource(getBoldFont(getFont().getSize() + 1).getBaseFont()));
             UIManager.put("Tree.background", new ColorUIResource(BACK_COLOR));
             UIManager.put("Tree.textBackground", new ColorUIResource(BACK_COLOR));
             UIManager.put("Tree.textForeground", new ColorUIResource(FORE_COLOR));

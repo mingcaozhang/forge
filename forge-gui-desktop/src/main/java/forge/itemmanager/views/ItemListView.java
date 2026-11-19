@@ -100,7 +100,10 @@ public final class ItemListView<T extends InventoryItem> extends ItemView<T> {
     private static final SkinColor GRID_COLOR = BACK_COLOR.getContrastColor(20);
     private static final SkinBorder HEADER_BORDER = new FSkin.CompoundSkinBorder(new FSkin.MatteSkinBorder(0, 0, 1, 1, GRID_COLOR), new EmptyBorder(0, 1, 0, 0));
     private static final SkinFont ROW_FONT = FSkin.getFont();
+    private static final SkinFont HEADER_FONT = FSkin.getBoldFont(ROW_FONT.getSize() + 1);
     private static final int ROW_HEIGHT = 19;
+    private static final int HEADER_HEIGHT = ROW_HEIGHT + 4;
+    private static final int SLIM_SCROLLBAR_WIDTH = 9;
 
     private final ItemTable table = new ItemTable();
     private final ItemTableModel tableModel;
@@ -119,6 +122,12 @@ public final class ItemListView<T extends InventoryItem> extends ItemView<T> {
         this.tableModel = new ItemTableModel(model0);
         this.setAllowMultipleSelections(false);
         this.getPnlOptions().setVisible(false); //hide options panel by default
+
+        // slim, modern scrollbars for the item table (FlatLaf-aware with skin UI fallback)
+        getScroller().getVerticalScrollBar().setPreferredSize(new Dimension(SLIM_SCROLLBAR_WIDTH, 0));
+        getScroller().getHorizontalScrollBar().setPreferredSize(new Dimension(0, SLIM_SCROLLBAR_WIDTH));
+        getScroller().getVerticalScrollBar().putClientProperty("JScrollBar.width", SLIM_SCROLLBAR_WIDTH);
+        getScroller().getHorizontalScrollBar().putClientProperty("JScrollBar.width", SLIM_SCROLLBAR_WIDTH);
 
         // use different selection highlight colors for focused vs. unfocused tables
         this.table.addMouseListener(new FMouseAdapter() {
@@ -213,7 +222,7 @@ public final class ItemListView<T extends InventoryItem> extends ItemView<T> {
             this.table.getTableHeader().setPreferredSize(new Dimension(0, 0));
         }
         else {
-            this.table.getTableHeader().setPreferredSize(new Dimension(0, ROW_HEIGHT));
+            this.table.getTableHeader().setPreferredSize(new Dimension(0, HEADER_HEIGHT));
         }
 
         this.tableModel.addListeners();
@@ -408,6 +417,7 @@ public final class ItemListView<T extends InventoryItem> extends ItemView<T> {
             header.setBorder((Border)null);
             header.setBackground(HEADER_BACK_COLOR);
             header.setForeground(FORE_COLOR);
+            header.setFont(HEADER_FONT.getBaseFont());
 
             final DefaultTableCellRenderer renderer = ((DefaultTableCellRenderer)header.getDefaultRenderer());
             header.setDefaultRenderer(new DefaultTableCellRenderer() {
