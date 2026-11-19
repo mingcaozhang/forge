@@ -6,8 +6,7 @@ phase stop, stack interaction, deck-editor filter, preference toggle, legality
 check, and `.dck`/Moxfield/Archidekt workflow.
 
 Hard constraints (do not violate):
-- ZERO diff in `forge-core`, `forge-game`, `forge-ai`. New code lives only in
-  `forge-gui-desktop` (and the FPref enum in `forge-gui`).
+- ZERO diff in `forge-core`, `forge-game`, `forge-ai`. Code changes may live in `forge-gui` and `forge-gui-desktop` (UI/controller layers only).
 - Do not touch `sync_commit_registry.csv` or `scripts/sync-upstream.sh`.
 - Work only on `dev`. Never push. Small atomic commits per phase.
 - Keep `mvn test` green so `scripts/sync-upstream.sh` still works.
