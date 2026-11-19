@@ -54,6 +54,7 @@ import forge.view.FView;
 import forge.view.arcane.CardPanel;
 import forge.view.arcane.CardPanelContainer;
 import forge.view.arcane.util.CardPanelMouseListener;
+import forge.view.arcane.util.UIAnimator;
 
 /**
  * Semi-transparent overlay panel. Should be used with layered panes.
@@ -491,6 +492,20 @@ public class TargetingOverlay {
     private class OverlayPanel extends SkinnedPanel {
         private final boolean useThrottling = FModel.getPreferences().getPrefBoolean(FPref.UI_TIMED_TARGETING_OVERLAY_UPDATES);
 
+        // Soft breathing highlight: one gentle in/out cycle per pulse cycle. The
+        // envelope is sampled from the clock (never from the tween's eased value)
+        // so the loop point and skipped frames cannot shift the wave.
+        private static final int PULSE_CYCLE_MILLIS = 1500;
+        private static final String PULSE_TWEEN_ID = "targeting-overlay-pulse";
+        /** Fill alpha multiplier at the trough of the breath (peak is 1.0). */
+        private static final float PULSE_FILL_MIN = 0.78f;
+        /** Arrow outline alpha at the trough of the breath. */
+        private static final int PULSE_OUTLINE_MIN_ALPHA = 140;
+        /** Arrow outline alpha at the peak of the breath (below 255 = softer edge). */
+        private static final int PULSE_OUTLINE_MAX_ALPHA = 205;
+
+        private boolean pulseRunning;
+
         // Arrow drawing code by the XMage team, used with permission.
         private Area getArrow(float length, float bendPercent) {
             float p1x = 0, p1y = 0;
@@ -531,7 +546,7 @@ public class TargetingOverlay {
             return area;
         }
 
-        private void drawArrow(Graphics2D g2d, int startX, int startY, int endX, int endY, Color color) {
+        private void drawArrow(Graphics2D g2d, int startX, int startY, int endX, int endY, Color color, Color outline) {
             float ex = endX - startX;
             float ey = endY - startY;
             if (ex == 0 && ey == 0) { return; }
@@ -550,15 +565,99 @@ public class TargetingOverlay {
             g2d.rotate(Math.atan2(ey, ex));
             g2d.setColor(color); 
             g2d.fill(arrow);
-            g2d.setColor(Color.BLACK);
+            g2d.setColor(outline);
             g2d.draw(arrow);
 
             g2d.setTransform(af);
         }
 
-        private void drawArcs(Graphics2D g2d, Color color, List<Arc> arcs) {
+        private void drawArcs(Graphics2D g2d, Color color, Color outline, List<Arc> arcs) {
             for (Arc arc : arcs) {
-                drawArrow(g2d, arc.x1, arc.y1, arc.x2, arc.y2, color);
+                drawArrow(g2d, arc.x1, arc.y1, arc.x2, arc.y2, color, outline);
+            }
+        }
+
+        /**
+         * @return the current {@code 0..1} breathing envelope for the targeting
+         *         highlight; {@code 1} (full strength, no motion) when animation
+         *         is off, so the overlay keeps its crisp static look
+         */
+        private float getBreath() {
+            if (UIAnimator.currentMode() == UIAnimator.Mode.OFF) {
+                return 1f;
+            }
+            final long cycleNanos = PULSE_CYCLE_MILLIS * 1_000_000L;
+            final float phase = (float) (Math.floorMod(System.nanoTime(), cycleNanos) / (double) cycleNanos);
+            return (float) (0.5d - 0.5d * Math.cos(2.0d * Math.PI * phase));
+        }
+
+        /**
+         * Scales only the alpha of a theme color so the highlight can breathe
+         * without changing its hue.
+         */
+        private static Color softenAlpha(Color color, float scale) {
+            int alpha = Math.round(color.getAlpha() * scale);
+            if (alpha < 0) { alpha = 0; }
+            if (alpha > 255) { alpha = 255; }
+            return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
+        }
+
+        private boolean hasArcs() {
+            return !arcsFoeAtk.isEmpty() || !arcsFoeDef.isEmpty() || !arcsFriend.isEmpty();
+        }
+
+        /**
+         * @return whether a breath driver should stay scheduled right now
+         */
+        private boolean isPulseWanted() {
+            return UIAnimator.currentMode() != UIAnimator.Mode.OFF
+                    && isShowing()
+                    && matchUI.getCDock().getArcState() != ArcState.OFF
+                    && hasArcs();
+        }
+
+        /**
+         * Starts the looped breath driver on the single shared animator timer.
+         * Each cycle only asks the match UI to repaint, exactly like the existing
+         * repaint loop does while arcs are on screen; the loop is re-armed in
+         * {@code onEnd} and unwinds itself as soon as {@link #isPulseWanted()}
+         * turns false, so the shared timer always drains back to idle.
+         */
+        private void startPulseDriver() {
+            pulseRunning = true;
+            UIAnimator.startRaw(PULSE_CYCLE_MILLIS, PULSE_TWEEN_ID, new UIAnimator.Tween() {
+                @Override
+                public void onFrame(final float easedProgress) {
+                    if (isShowing()) {
+                        FView.SINGLETON_INSTANCE.getFrame().repaint();
+                    }
+                }
+
+                @Override
+                public void onEnd() {
+                    if (isPulseWanted()) {
+                        startPulseDriver();
+                    } else {
+                        pulseRunning = false;
+                    }
+                }
+            });
+        }
+
+        private void ensurePulseDriver() {
+            if (UIAnimator.currentMode() == UIAnimator.Mode.OFF) {
+                stopPulseDriver();
+                return;
+            }
+            if (!pulseRunning) {
+                startPulseDriver();
+            }
+        }
+
+        private void stopPulseDriver() {
+            if (pulseRunning) {
+                pulseRunning = false;
+                UIAnimator.cancel(PULSE_TWEEN_ID);
             }
         }
 
@@ -582,7 +681,10 @@ public class TargetingOverlay {
             final ArcState overlaystate = matchUI.getCDock().getArcState();
 
             // Arcs are off
-            if (overlaystate == ArcState.OFF) { return; }
+            if (overlaystate == ArcState.OFF) {
+                stopPulseDriver();
+                return;
+            }
 
             // Arc drawing
             boolean assembled = false;
@@ -596,7 +698,8 @@ public class TargetingOverlay {
                 }
             }
 
-            if (arcsFoeAtk.isEmpty() && arcsFoeDef.isEmpty() && arcsFriend.isEmpty()) {
+            if (!hasArcs()) {
+                stopPulseDriver();
                 if (assembled) {
                     // We still need to repaint to get rid of visual artifacts
                     // The original (non-throttled) code did not do this repaint.
@@ -604,6 +707,9 @@ public class TargetingOverlay {
                 }
                 return;
             }
+
+            // A highlight is on screen: keep the soft breath driver alive.
+            ensurePulseDriver();
 
             Graphics2D g2d = (Graphics2D) g;
             g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -622,9 +728,18 @@ public class TargetingOverlay {
                 colorCombatAtk = new Color(255,138,1,153);
             }
 
-            drawArcs(g2d, colorOther, arcsFriend);
-            drawArcs(g2d, colorCombatAtk, arcsFoeAtk);
-            drawArcs(g2d, colorCombat, arcsFoeDef);
+            // Soft breath envelope: fills fade between PULSE_FILL_MIN and full
+            // strength, and the outline stays translucent (never a hard 255 edge)
+            // so the highlight reads as a glow instead of a stamp.
+            final float breath = getBreath();
+            final float fillScale = PULSE_FILL_MIN + (1f - PULSE_FILL_MIN) * breath;
+            final int outlineAlpha = PULSE_OUTLINE_MIN_ALPHA
+                    + Math.round((PULSE_OUTLINE_MAX_ALPHA - PULSE_OUTLINE_MIN_ALPHA) * breath);
+            final Color outline = new Color(0, 0, 0, outlineAlpha);
+
+            drawArcs(g2d, softenAlpha(colorOther, fillScale), outline, arcsFriend);
+            drawArcs(g2d, softenAlpha(colorCombatAtk, fillScale), outline, arcsFoeAtk);
+            drawArcs(g2d, softenAlpha(colorCombat, fillScale), outline, arcsFoeDef);
 
             if (assembled || !useThrottling) {
                 FView.SINGLETON_INSTANCE.getFrame().repaint(); // repaint the match UI

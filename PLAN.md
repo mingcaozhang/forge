@@ -336,7 +336,18 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
       field tabs share the behavior. ZERO diff to `forge-core`/`forge-game`/
       `forge-ai`. Verified `mvn test-compile -T 1C` (exit 0) and
       `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (165 tests, exit 0).
-- [ ] Soften targeting crosshair pulse in existing TargetingOverlay file.
+- [x] Soften targeting crosshair pulse in existing TargetingOverlay file.
+      `forge-gui-desktop/src/main/java/forge/screens/match/TargetingOverlay.java`
+      now drives a soft "breathing" highlight from the shared `UIAnimator`
+      (keyed tween, clock-sampled cosine envelope, ~1500 ms cycle): arrow fills
+      fade between ~0.78 and 1.0 of base alpha and the outline is a translucent
+      black (~140-205) instead of a hard `Color.BLACK`, so the highlight reads
+      as a glow rather than a stamp. Pulse only runs while arcs are on screen
+      and unwinds to idle when arcs clear or `UIAnimator.Mode.OFF` (then it
+      keeps the static, full-strength look with the softened outline). No new
+      `Timer`, no layout/hit-test change, ZERO diff to `forge-core`/`forge-game`/
+      `forge-ai`. Verified `mvn test-compile -T 1C` (exit 0) and
+      `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (exit 0).
 - [ ] Add `forge-gui-desktop/src/test/java/forge/view/arcane/util/AnimationModeTest.java`
       asserting `UIAnimator` snaps to end for mode `Off`, halves duration
       for `Fast`, and uses full duration for `Normal`; plus
