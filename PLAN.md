@@ -413,7 +413,7 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
 
 - [x] Implement `HomeTile.java`, `RecentDecksCarousel.java`,
       `LastMatchTile.java` under `forge-gui-desktop/src/main/java/forge/screens/home/tiles/`.
-- [ ] Refactor `VHomeUI.java` to lay out hero tiles + recent decks carousel.
+- [x] Refactor `VHomeUI.java` to lay out hero tiles + recent decks carousel.
 - [ ] Update `CHomeUI.java` so tile clicks dispatch through existing
       `itemClick(itemEnum)` path; keep `EDocID.HOME_*` behavior intact.
 - [ ] Add smooth transition (`UIAnimator` fade+slide) between dashboard and
