@@ -658,7 +658,10 @@ mvn test -T 1C
       accent ring on the current phase; `false` restores the classic separated-chip look.
       Click-toggle, right-click yield, tooltips, hover/pressed feedback and tutorial spotlight unchanged.
 - [x] Slim zone tab strip and stack/log column in `VMatchUI.java`.
-- [ ] Restyle floating zone frames in `CMatchUI.java` (no behavior change).
+- [x] Restyle floating zone frames in `CMatchUI.java` (no behavior change).
+      Zone frames opened via `CMatchUI` build their chrome in `FloatingZone`/`FloatingCardArea`/`FDialog`;
+      added opt-in `FDialog.setFloatingFrameAccent` + `CardPanel.getZoneAccentColor` and trimmed the zone
+      window's outer hairline and prompt callout to the zone accent. Border insets (3px) and resize grab-area unchanged.
 - [ ] Redesign `VPrompt.java` Arena-style prompt bar; keep all pref toggles.
 - [ ] Audit hot paint loops (`CardPanel.java`, `VField.java`, `VMatchUI.java`):
       no `new` inside `paintComponent`; reuse fields.

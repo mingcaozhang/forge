@@ -233,6 +233,22 @@ public class FDialog extends SkinnedDialog implements ITitleBarOwner, KeyEventDi
         return allowResize;
     }
 
+    /**
+     * Applies the floating-zone frame trim: the outer hairline takes a zone accent
+     * colour instead of the default hard black edge, while the inner border and the
+     * total border insets stay exactly the same as the default chrome. That keeps the
+     * resize grab-area maths ({@code borderThickness * 2}) and all layout behaviour
+     * unchanged. Opt-in only — dialogs that never call this keep the default frame.
+     *
+     * @param accent zone accent colour, ignored when {@code null}
+     */
+    public void setFloatingFrameAccent(final Color accent) {
+        if (!allowResize || accent == null) { return; }
+        setBorder(new CompoundSkinBorder(
+                BorderFactory.createLineBorder(accent, 1),
+                new LineSkinBorder(borderColor, borderThickness - 1)));
+    }
+
     public FTitleBar getTitleBar() {
         return titleBar;
     }

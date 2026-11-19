@@ -579,7 +579,14 @@ public class FloatingZone extends FloatingCardArea {
             @Override public void removeUpdate(final DocumentEvent e) { onFilterChanged(); }
             @Override public void changedUpdate(final DocumentEvent e) { onFilterChanged(); }
         });
-        promptLabel.setBorder(BorderFactory.createEmptyBorder(3, 6, 3, 6));
+        // Arena-style frame trim: thin zone accent hairline around the default border
+        // insets, plus a matching accent bar on the selection prompt callout.
+        final Color accent = CardPanel.getZoneAccentColor(zone0);
+        setFrameAccent(accent);
+        final Border promptPadding = BorderFactory.createEmptyBorder(4, 8, 4, 8);
+        promptLabel.setBorder(accent != null
+                ? BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(0, 2, 0, 0, accent), promptPadding)
+                : promptPadding);
         promptLabel.setVisible(false);
         window.add(promptLabel, "growx, wmin 10, gapbottom 4, wrap, hidemode 3");
         window.add(searchField, "growx, wrap");

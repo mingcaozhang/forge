@@ -17,6 +17,7 @@
  */
 package forge.view.arcane;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -130,6 +131,17 @@ public abstract class FloatingCardArea extends CardArea {
 
     protected FDialog getWindow() {
         return window;
+    }
+
+    /**
+     * Trims this floating window's frame with a zone accent colour. Purely visual:
+     * the border keeps the exact same insets, so resize and layout behaviour is
+     * identical to the default chrome.
+     *
+     * @param accent zone accent colour, ignored when {@code null}
+     */
+    protected void setFrameAccent(final Color accent) {
+        getWindow().setFloatingFrameAccent(accent);
     }
 
     protected void loadLocation() {

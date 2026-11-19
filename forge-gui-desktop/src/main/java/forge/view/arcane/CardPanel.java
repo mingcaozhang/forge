@@ -1288,6 +1288,14 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
         this.zoneBannerColor = zone != null ? ZONE_COLORS.getOrDefault(zone, DEFAULT_ZONE_COLOR) : null;
     }
 
+    /**
+     * @return the shared accent colour for a zone (used by zone banners and floating
+     *         zone frame trim), or {@code null} when the zone has no accent.
+     */
+    public static Color getZoneAccentColor(final ZoneType zone) {
+        return zone != null ? ZONE_COLORS.get(zone) : null;
+    }
+
     public final Point getCardLocation() {
         final Point p = getLocation();
         p.x += cardXOffset;
