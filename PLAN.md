@@ -586,7 +586,23 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
        ZERO diff to `forge-core`/`forge-game`/`forge-ai`. Verified
        `mvn test-compile -T 1C` (exit 0) and
        `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (exit 0).
-- [ ] Add commander/partner showcase header in `VCommanderDecks.java`.
+ - [x] Add commander/partner showcase header in `VCommanderDecks.java`.
+      New package-private inner class `VCommanderDecks.CommanderShowcasePanel`
+      (custom-painted, non-opaque `JComponent`) renders a rounded gradient
+      header above the commander deck list matching the existing
+      `RoundedContentCard` chrome: rounded cover thumbnail of the first
+      commander (via `ImageCache.scaleImage` + `makeRoundedCorner`), bold
+      commander/partner name(s) joined with ` & ` from the read-only
+      `DeckProxy.getDeck().getCommanders()`, deck name subtitle, and
+      horizontal color identity badges via `CardFaceSymbols.drawColorSet`
+      using `DeckProxy.getColorIdentity()`. It never mutates deck state.
+      Wired through `DeckManager.setSelectCommand` (DeckManager already fans
+      out row selection to `cmdSelect`), plus explicit refresh hooks in
+      `VCommanderDecks.populate()` and `CCommanderDecks.refresh()`.
+      Generated/empty decks fall back to a placeholder title. ZERO diff to
+      `forge-core`/`forge-game`/`forge-ai`. Verified
+      `mvn test-compile -T 1C` (exit 0) and
+      `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (exit 0).
 - [ ] Restyle `DeckImport.java` and `DeckFileMenu.java`; keep all actions.
 - [ ] Add `forge-gui-desktop/src/test/java/forge/itemmanager/DeckEditorFilterParityTest.java`
       asserting that the existing filter predicates
