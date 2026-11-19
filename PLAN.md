@@ -145,7 +145,7 @@ mvn test-compile -T 1C
 mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C
 ```
 
-- [ ] Implement `forge-gui-desktop/src/main/java/forge/view/arcane/util/Easing.java`.
+- [x] Implement `forge-gui-desktop/src/main/java/forge/view/arcane/util/Easing.java`.
 - [ ] Implement `forge-gui-desktop/src/main/java/forge/view/arcane/util/UIAnimator.java`
       (single shared Swing Timer, auto-stop on empty, honors UI_ANIMATION_MODE).
 - [ ] Implement `forge-gui-desktop/src/main/java/forge/view/arcane/util/CardTextureCache.java`
