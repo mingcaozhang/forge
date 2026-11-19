@@ -280,8 +280,26 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
       `forge-core`/`forge-game`/`forge-ai`. Verified `mvn test-compile -T 1C`
       (exit 0; checkstyle clean) and `mvn test -Dtest=*Commander*,*Deck* ... -T 1C`
       (165 pass).
-- [ ] Add a transparent overlay `JLayer` to the match window in
+- [x] Add a transparent overlay `JLayer` to the match window in
       `forge-gui-desktop/src/main/java/forge/screens/match/VMatchUI.java`.
+      Added `forge-gui-desktop/src/main/java/forge/screens/match/MatchEffectOverlay.java`:
+      a non-opaque `JLayer<JComponent>` whose `LayerUI.paint` draws every
+      `ArcaneEffect.activeEffects()` in window coordinates, skipping all work while
+      not showing or while `UIAnimator.currentMode()` is `OFF` (made `currentMode()`
+      public in `UIAnimator.java` for this). `JLayer` is final in the JDK, so a raw
+      layer swallows every mouse hit (verified empirically: it claims `findComponentAt`);
+      the layer therefore sits in a transparent `ClickThroughPane` host whose
+      `contains` is always `false`, so hits fall through to cards/buttons while the
+      layer still fills the window and paints above them (verified by painting into
+      an offscreen image). Host/layer are sized to `FView.getLpnDocument()` bounds,
+      re-sized on component resize, added at `FView.TARGETING_LAYER` index `0`
+      (same layer as the targeting arcs, above them) and take part in no layout and
+      no focus. `VMatchUI` owns one instance: `attach()` on `populate()`,
+      `detach()` only on the paths where the screen actually closes, both idempotent;
+      `getEffectOverlay()` exposes it and `getPaintTarget()` gives effects the layer
+      to request repaints on. ZERO diff to `forge-core`/`forge-game`/`forge-ai`.
+      Verified `mvn test-compile -T 1C` (exit 0; checkstyle clean) and
+      `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (165 pass).
 - [ ] Hook draw / tap / attack triggers in `CMatchUI.java` to dispatch
       animator effects (no logic changes).
 - [ ] Add cast lunge + glow pulse to `VField.java` creature/spell entry.

@@ -304,7 +304,15 @@ public abstract class UIAnimator {
         }
     }
 
-    private static Mode currentMode() {
+    /**
+     * Resolves the animation level in effect right now: the forced mode when one
+     * has been set (e.g. by tests), otherwise the stored
+     * {@link FPref#UI_ANIMATION_MODE} preference. Painters use this to skip all
+     * animation work when the result is {@link Mode#OFF}.
+     *
+     * @return the resolved mode, never {@code null}
+     */
+    public static Mode currentMode() {
         final Mode forced = forcedMode;
         if (forced != null) {
             return forced;

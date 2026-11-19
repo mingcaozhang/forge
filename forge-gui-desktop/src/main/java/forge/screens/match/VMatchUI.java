@@ -43,6 +43,7 @@ public class VMatchUI implements IVTopLevelUI {
 
     // Other instantiations
     private final CMatchUI control;
+    private final MatchEffectOverlay effectOverlay = new MatchEffectOverlay();
     private boolean bypassConcedeOnClose;
 
     VMatchUI(final CMatchUI control) {
@@ -151,6 +152,10 @@ public class VMatchUI implements IVTopLevelUI {
 
     @Override
     public void populate() {
+        // Show the shared effect layer over the match window. Idempotent, so
+        // returning to the match screen mid-game never stacks a second copy.
+        effectOverlay.attach();
+
         // Dev mode disabled? Remove from parent cell if exists.
         final VDev vDev = getControl().getCDev().getView();
         if (!ForgePreferences.DEV_MODE) {
@@ -419,16 +424,23 @@ public class VMatchUI implements IVTopLevelUI {
 
         if (bypassConcedeOnClose) {
             bypassConcedeOnClose = false;
+            effectOverlay.detach();
             SoundSystem.instance.setBackgroundMusic(MusicPlaylist.MENUS);
             return true;
         }
 
         if (control.concede()) {
+            effectOverlay.detach();
             //switch back to menus music when closing screen
             SoundSystem.instance.setBackgroundMusic(MusicPlaylist.MENUS);
             return true;
         }
 
         return false;
+    }
+
+    /** @return the match window's transparent {@link MatchEffectOverlay} */
+    public MatchEffectOverlay getEffectOverlay() {
+        return effectOverlay;
     }
 }
