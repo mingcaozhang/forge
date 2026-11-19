@@ -155,8 +155,8 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C
        `CardArea.java:326`, `Animation.java:195/256/292`.
 - [x] Add hover/glow + cached rounded-frame paint to
        `forge-gui-desktop/src/main/java/forge/view/arcane/CardPanel.java`.
-- [ ] Wire hover enter/exit through `CardPanelContainer.java` so detail
-      previews animate in/out smoothly.
+- [x] Wire hover enter/exit through `CardPanelContainer.java` so detail
+       previews animate in/out smoothly.
 - [ ] Replace hand fan/rise in `HandArea.java` with `UIAnimator` tweens.
 - [ ] Tune `CardDetailUtil.java` typography constants (UI-only, no logic).
 - [ ] Add `forge-gui-desktop/src/test/java/forge/view/arcane/util/UIAnimatorTest.java`

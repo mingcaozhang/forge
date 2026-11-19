@@ -34,6 +34,7 @@ import forge.toolbox.FScrollPane;
 import forge.toolbox.FSkin.SkinnedPanel;
 import forge.toolbox.special.CardZoomer;
 import forge.view.arcane.util.CardPanelMouseListener;
+import forge.view.arcane.util.UIAnimator;
 
 /**
  * Manages mouse events and common functionality for CardPanel containing
@@ -45,6 +46,8 @@ import forge.view.arcane.util.CardPanelMouseListener;
 public abstract class CardPanelContainer extends SkinnedPanel {
     private static final long serialVersionUID = -6400018234895548306L;
     private static final int DRAG_SMUDGE = 10;
+    /** Duration of the smooth hover glow in/out tween (before mode scaling). */
+    private static final int HOVER_ANIM_MILLIS = 150;
 
     private final List<CardPanel> cardPanels = new ArrayList<>();
     private final CMatchUI matchUI;
@@ -243,6 +246,7 @@ public abstract class CardPanelContainer extends SkinnedPanel {
 
                     hoveredPanel = hitPanel;
                     hoveredPanel.setSelected(true);
+                    animateHover(hitPanel, true);
                     mouseOver(hitPanel, evt);
                 }
 
@@ -257,9 +261,40 @@ public abstract class CardPanelContainer extends SkinnedPanel {
         if (this.hoveredPanel == null) {
             return;
         }
-        this.hoveredPanel.setSelected(false);
-        this.mouseOut(this.hoveredPanel, evt);
+        final CardPanel exiting = this.hoveredPanel;
+        exiting.setSelected(false);
+        this.mouseOut(exiting, evt);
         this.hoveredPanel = null;
+        animateHover(exiting, false);
+    }
+
+    /**
+     * Smoothly animates a card's hover glow toward {@code 1} (enter) or
+     * {@code 0} (exit) using a shared {@link UIAnimator} tween keyed on the
+     * panel. Starting a tween silently supersedes any in-flight one for the same
+     * panel, so a quick re-hover reverses from its current value instead of
+     * stacking animations.
+     */
+    private void animateHover(final CardPanel panel, final boolean enter) {
+        if (panel == null) {
+            return;
+        }
+        final float from = panel.getHoverProgress();
+        final float to = enter ? 1f : 0f;
+        if (from == to) {
+            return;
+        }
+        UIAnimator.start(HOVER_ANIM_MILLIS, panel, new UIAnimator.Tween() {
+            @Override
+            public void onFrame(final float easedProgress) {
+                panel.setHoverProgress(from + (to - from) * easedProgress);
+            }
+
+            @Override
+            public void onEnd() {
+                panel.setHoverProgress(to);
+            }
+        });
     }
 
     protected abstract CardPanel getCardPanel(int x, int y);

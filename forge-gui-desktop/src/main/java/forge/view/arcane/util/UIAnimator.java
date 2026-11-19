@@ -96,11 +96,13 @@ public abstract class UIAnimator {
         final Tween tween;
         final long startNanos;
         final long durationNanos;
+        final Object id;
 
-        Entry(final Tween tween0, final long startNanos0, final long durationNanos0) {
+        Entry(final Tween tween0, final long startNanos0, final long durationNanos0, final Object id0) {
             this.tween = tween0;
             this.startNanos = startNanos0;
             this.durationNanos = durationNanos0;
+            this.id = id0;
         }
     }
 
@@ -125,7 +127,21 @@ public abstract class UIAnimator {
      * @param tween          the tween to drive; ignored when {@code null}
      */
     public static void start(final int durationMillis, final Tween tween) {
-        startInternal(clampDuration(durationMillis), tween);
+        startInternal(clampDuration(durationMillis), null, tween);
+    }
+
+    /**
+     * Starts a keyed, clamped tween. When {@code id} is non-{@code null}, any
+     * currently active tween with the same id is silently cancelled first, so
+     * restarting e.g. a hover animation reverses smoothly instead of stacking.
+     *
+     * @param durationMillis requested duration; clamped to the supported range
+     * @param id             identity used to coalesce/cancel this tween, or
+     *                       {@code null} for an unkeyed tween
+     * @param tween          the tween to drive; ignored when {@code null}
+     */
+    public static void start(final int durationMillis, final Object id, final Tween tween) {
+        startInternal(clampDuration(durationMillis), id, tween);
     }
 
     /**
@@ -138,20 +154,42 @@ public abstract class UIAnimator {
      * @param tween          the tween to drive; ignored when {@code null}
      */
     public static void startRaw(final int durationMillis, final Tween tween) {
-        startInternal(Math.max(1, durationMillis), tween);
+        startInternal(Math.max(1, durationMillis), null, tween);
     }
 
-    private static void startInternal(final int resolvedDurationMillis, final Tween tween) {
+    /**
+     * Keyed variant of {@link #startRaw(int, Tween)}: starting with a
+     * non-{@code null} {@code id} silently cancels any active tween carrying the
+     * same id before scheduling this one.
+     *
+     * @param durationMillis caller-specified duration in milliseconds
+     * @param id             identity used to coalesce/cancel this tween, or
+     *                       {@code null} for an unkeyed tween
+     * @param tween          the tween to drive; ignored when {@code null}
+     */
+    public static void startRaw(final int durationMillis, final Object id, final Tween tween) {
+        startInternal(Math.max(1, durationMillis), id, tween);
+    }
+
+    private static void startInternal(final int resolvedDurationMillis, final Object id, final Tween tween) {
         if (tween == null) {
             return;
         }
         final int scaled = scaledDurationMillis(resolvedDurationMillis, currentMode());
         if (scaled <= 0) {
-            beginOnEdt(() -> finishNow(tween));
+            beginOnEdt(() -> {
+                if (id != null) {
+                    cancelSilently(id);
+                }
+                finishNow(tween);
+            });
             return;
         }
         beginOnEdt(() -> {
-            ACTIVE.add(new Entry(tween, System.nanoTime(), scaled * 1_000_000L));
+            if (id != null) {
+                cancelSilently(id);
+            }
+            ACTIVE.add(new Entry(tween, System.nanoTime(), scaled * 1_000_000L, id));
             ensureRunning();
         });
     }
@@ -181,6 +219,28 @@ public abstract class UIAnimator {
             ACTIVE.clear();
             stopIfIdle();
         });
+    }
+
+    /**
+     * Silently removes every in-flight tween carrying the given id without
+     * invoking their {@link Tween#onEnd()} callbacks (their owners are expected
+     * to drive any follow-up state). No-op for a {@code null} id.
+     *
+     * @param id the tween identity to cancel
+     */
+    public static void cancel(final Object id) {
+        if (id == null) {
+            return;
+        }
+        beginOnEdt(() -> {
+            cancelSilently(id);
+            stopIfIdle();
+        });
+    }
+
+    // Must run on the event dispatch thread.
+    private static void cancelSilently(final Object id) {
+        ACTIVE.removeIf(entry -> id.equals(entry.id));
     }
 
     /**
