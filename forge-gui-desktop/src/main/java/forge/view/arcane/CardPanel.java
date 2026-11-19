@@ -117,6 +117,21 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
     private static final Color DEFAULT_ZONE_COLOR = new Color(60, 60, 80);
     private static final Color GHOST_TINT = new Color(90, 120, 175, 110);
 
+    // Hot paint-path color constants. Hoisted out of paintComponent/paintChildren
+    // and the counter/marker tabs so repaints reuse the same instances instead of
+    // allocating a new Color every frame.
+    private static final Color AUTOTAP_GLOW_OUTER = new Color(1f, 1f, 0f, 0.14f * 2);
+    private static final Color AUTOTAP_GLOW_INNER = new Color(1f, 1f, 0f, 0.14f * 1);
+    private static final Color NONSELECTABLE_DIM = new Color(0.0f, 0.0f, 0.0f, 0.6f);
+    private static final Color TAB_BG_SELECTED = new Color(0, 0, 0, 255);
+    private static final Color TAB_BG = new Color(0, 0, 0, 200);
+    private static final Color MARKER_TEXT_SELECTED = new Color(200, 200, 200);
+    private static final Color MARKER_TEXT = new Color(200, 200, 200, 180);
+    // Counter-tab body colors are derived per CounterType (opaque + 180-alpha) and
+    // cached so the counter draw loop doesn't allocate a new Color each repaint.
+    private static final Map<CounterType, Color[]> COUNTER_TAB_COLORS = new HashMap<>();
+    private final RoundRectangle2D.Float counterTabShape = new RoundRectangle2D.Float();
+
     /** Shared, bounded cache of pre-rendered hover-glow halos, keyed purely on
      *  geometry so identical-sized cards reuse a single rasterised ring. */
     private static final CardTextureCache HOVER_CACHE = new CardTextureCache();
@@ -155,6 +170,8 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
     private int hotkeyDigit; // 1..9 paints a numbered badge for Ctrl+digit selection; 0 hides
     private Font badgeFont;
     private int badgeFontCardWidth; // cardWidth when badgeFont was last computed
+    private Font hotkeyFont;
+    private int hotkeyFontDiameter = -1; // diameter when hotkeyFont was last computed
 
     private static final Color BADGE_BG_COLOR = new Color(0, 0, 0, 180);
     private static final Color HOTKEY_BADGE_BG = new Color(20, 20, 20, 220);
@@ -543,7 +560,7 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
         // Yellow glow for cards that Auto would tap to pay (actionable strength >= 2)
         if (isPreferenceEnabled(FPref.UI_SHOW_AUTOTAP_PREVIEW) && matchUI.getActionableStrength(getCard()) >= 2) {
             for (int layer = 2; layer >= 1; layer--) {
-                g2d.setColor(new Color(1f, 1f, 0f, 0.14f * layer));
+                g2d.setColor(layer == 2 ? AUTOTAP_GLOW_OUTER : AUTOTAP_GLOW_INNER);
                 final int n = Math.max(1, Math.round(layer * cardWidth * CardPanel.SELECTED_BORDER_SIZE));
                 g2d.fillRoundRect(cardXOffset - n, (cardYOffset - n) + offset, cardWidth + (n * 2), cardHeight + (n * 2), cornerSize + n, cornerSize + n);
             }
@@ -633,13 +650,30 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
     }
 
     /** Pref is normalized to 6 hex chars on the write side; this just parses,
-     *  falling back to the FPref default if the stored value is malformed. */
+     *  falling back to the FPref default if the stored value is malformed.
+     *  Memoised on the raw pref string so the hot paint path doesn't re-parse and
+     *  allocate a new Color every repaint; recomputed only when the pref changes. */
+    private static String actionableHighlightPrefLast;
+    private static Color actionableHighlightPrefValue;
+
     private static Color parseActionableHighlightColor() {
         String s = forge.model.FModel.getPreferences().getPref(FPref.UI_ACTIONABLE_HIGHLIGHT_COLOR);
+        if (s != null && s.equals(actionableHighlightPrefLast) && actionableHighlightPrefValue != null) {
+            return actionableHighlightPrefValue;
+        }
+        Color result;
         try {
-            if (s != null && s.length() == 6) return new Color(Integer.parseInt(s, 16));
-        } catch (NumberFormatException ignored) {}
-        return new Color(Integer.parseInt(FPref.UI_ACTIONABLE_HIGHLIGHT_COLOR.getDefault(), 16));
+            if (s != null && s.length() == 6) {
+                result = new Color(Integer.parseInt(s, 16));
+            } else {
+                result = new Color(Integer.parseInt(FPref.UI_ACTIONABLE_HIGHLIGHT_COLOR.getDefault(), 16));
+            }
+        } catch (NumberFormatException ignored) {
+            result = new Color(Integer.parseInt(FPref.UI_ACTIONABLE_HIGHLIGHT_COLOR.getDefault(), 16));
+        }
+        actionableHighlightPrefLast = s;
+        actionableHighlightPrefValue = result;
+        return result;
     }
 
     /**
@@ -748,7 +782,7 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
             boolean cardImgHasAlpha = imagePanel != null && imagePanel.getSrcImage() != null && imagePanel.getSrcImage().getColorModel().hasAlpha();
             final int cornerSize = noBorderPref && !cardImgHasAlpha ? 0 : Math.max(4, Math.round(cardWidth * CardPanel.ROUNDED_CORNER_SIZE));
             final int offset = isTapped() && (!noBorderPref || cardImgHasAlpha) ? 1 : 0;
-            g.setColor(new Color(0.0f,0.0f,0.0f,0.6f));
+            g.setColor(NONSELECTABLE_DIM);
             g.fillRoundRect(cardXOffset, cardYOffset  + offset, cardWidth, cardHeight, cornerSize, cornerSize);
         }
     }
@@ -899,7 +933,11 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
             g2d.setColor(HOTKEY_BADGE_RING);
             g2d.drawOval(bx, by, diameter, diameter);
             g2d.setColor(Color.WHITE);
-            g2d.setFont(new Font("Dialog", Font.BOLD, Math.max(11, diameter * 2 / 3)));
+            if (hotkeyFont == null || hotkeyFontDiameter != diameter) {
+                hotkeyFont = new Font("Dialog", Font.BOLD, Math.max(11, diameter * 2 / 3));
+                hotkeyFontDiameter = diameter;
+            }
+            g2d.setFont(hotkeyFont);
             final String text = String.valueOf(hotkeyDigit);
             final FontMetrics fm = g2d.getFontMetrics();
             g2d.drawString(text, bx + (diameter - fm.stringWidth(text)) / 2,
@@ -1105,30 +1143,22 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
                 counterYOffset = cardYOffset + cardHeight - spaceFromTopOfCard / 2 - counterBoxHeight + currentCounter++ * (counterBoxHeight + counterBoxSpacing);
             }
 
-            if (isSelected) {
-                g.setColor(new Color(0, 0, 0, 255));
-            } else {
-                g.setColor(new Color(0, 0, 0, 200));
-            }
+            g.setColor(isSelected ? TAB_BG_SELECTED : TAB_BG);
 
-            RoundRectangle2D counterArea = new RoundRectangle2D.Float(cardXOffset, counterYOffset, counterBoxRealWidth, counterBoxHeight, 9, 9);
-            ((Graphics2D) g).fill(counterArea);
+            counterTabShape.setRoundRect(cardXOffset, counterYOffset, counterBoxRealWidth, counterBoxHeight, 9, 9);
+            ((Graphics2D) g).fill(counterTabShape);
 
             g.fillRect(cardXOffset, counterYOffset, 9, counterBoxHeight);
 
-            if (isSelected) {
-                g.setColor(new Color(counter.getRed(), counter.getGreen(), counter.getBlue()));
-            } else {
-                g.setColor(new Color(counter.getRed(), counter.getGreen(), counter.getBlue(), 180));
-            }
+            g.setColor(counterTabColor(counter, isSelected));
 
-            Rectangle nameBounds = counterArea.getBounds();
+            Rectangle nameBounds = counterTabShape.getBounds();
             nameBounds.x += 8;
             nameBounds.y -= 1;
             nameBounds.width = 43;
             drawVerticallyCenteredString(g, counter.getCounterOnCardDisplayName(), nameBounds, smallCounterFont, smallFontMetrics);
 
-            Rectangle numberBounds = counterArea.getBounds();
+            Rectangle numberBounds = counterTabShape.getBounds();
             numberBounds.x += 52;
             drawVerticallyCenteredString(g, String.valueOf(numberOfCounters), numberBounds, largeCounterFont, largeFontMetrics);
 
@@ -1174,29 +1204,38 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
                 markerYOffset = cardYOffset + cardHeight - spaceFromTopOfCard / 2 - markerBoxHeight + currentMarker++ * (markerBoxHeight + markerBoxSpacing);
             }
 
-            if (isSelected) {
-                g.setColor(new Color(0, 0, 0, 255));
-            } else {
-                g.setColor(new Color(0, 0, 0, 200));
-            }
+            g.setColor(isSelected ? TAB_BG_SELECTED : TAB_BG);
 
-            RoundRectangle2D markerArea = new RoundRectangle2D.Float(cardXOffset, markerYOffset, markerBoxRealWidth, markerBoxHeight, 9, 9);
-            ((Graphics2D) g).fill(markerArea);
+            counterTabShape.setRoundRect(cardXOffset, markerYOffset, markerBoxRealWidth, markerBoxHeight, 9, 9);
+            ((Graphics2D) g).fill(counterTabShape);
 
             g.fillRect(cardXOffset, markerYOffset, 9, markerBoxHeight);
 
-            if (isSelected) {
-                g.setColor(new Color(200, 200, 200));
-            } else {
-                g.setColor(new Color(200, 200, 200, 180));
-            }
+            g.setColor(isSelected ? MARKER_TEXT_SELECTED : MARKER_TEXT);
 
-            Rectangle nameBounds = markerArea.getBounds();
+            Rectangle nameBounds = counterTabShape.getBounds();
             nameBounds.x += 8;
             nameBounds.y -= 1;
             nameBounds.width = 43;
             drawVerticallyCenteredString(g, marker, nameBounds, smallCounterFont, smallFontMetrics);
         }
+    }
+
+    /**
+     * Returns the body color for a counter tab (opaque when the card is selected,
+     * 180-alpha otherwise). The two variants are derived once per CounterType and
+     * cached so the per-frame counter draw loop reuses existing Color instances.
+     */
+    private static Color counterTabColor(CounterType counter, boolean selected) {
+        Color[] pair = COUNTER_TAB_COLORS.get(counter);
+        if (pair == null) {
+            pair = new Color[]{
+                new Color(counter.getRed(), counter.getGreen(), counter.getBlue()),
+                new Color(counter.getRed(), counter.getGreen(), counter.getBlue(), 180)
+            };
+            COUNTER_TAB_COLORS.put(counter, pair);
+        }
+        return selected ? pair[0] : pair[1];
     }
 
     /**

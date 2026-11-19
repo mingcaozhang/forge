@@ -148,7 +148,8 @@ public class VField implements IVDoc<CField> {
         if (player == null) { return; }
         final float f = AITimeoutTracker.getRemainingFraction(aiTimeoutKey());
         if (f < 0f) { return; }
-        final Rectangle r = lblAvatar.getBounds();
+        lblAvatar.getBounds(avatarBoundsScratch);
+        final Rectangle r = avatarBoundsScratch;
         final int barH = Math.max(4, r.height / 10);
         final int y = r.y + r.height - barH;
         g.setColor(BAR_BG);
@@ -209,17 +210,23 @@ public class VField implements IVDoc<CField> {
         }
     }
 
-    /** Union of the visible life + counter label bounds, or {@code null} when nothing is shown. */
+    /** Union of the visible life + counter label bounds, or {@code null} when nothing is shown.
+     *  Accumulates into a shared scratch Rectangle (and the fixed label array field) so the
+     *  per-frame chip repaint doesn't allocate a new array/union of Rectangles. The result is
+     *  only consumed immediately by paintLifeChips, so returning the shared instance is safe. */
     private Rectangle getLifeRowBounds() {
-        final FLabel[] readoutLabels = { lblLife, lblPoison, lblEnergy, lblExperience, lblTicket, lblRad };
-        Rectangle row = null;
-        for (final FLabel label : readoutLabels) {
+        boolean found = false;
+        for (final FLabel label : lifeRowLabels) {
             if (label.isShowing()) {
-                final Rectangle b = label.getBounds();
-                row = row == null ? new Rectangle(b) : row.union(b);
+                if (found) {
+                    lifeRowScratch.add(label.getBounds());
+                } else {
+                    lifeRowScratch.setBounds(label.getBounds());
+                    found = true;
+                }
             }
         }
-        return row;
+        return found ? lifeRowScratch : null;
     }
 
     private final PlayerDetailsPanel detailsPanel;
@@ -232,6 +239,12 @@ public class VField implements IVDoc<CField> {
     private final FLabel lblExperience = new FLabel.Builder().fontAlign(SwingConstants.CENTER).fontStyle(Font.BOLD).icon(FSkin.getImage(FSkinProp.IMG_EXPERIENCE)).iconInBackground().build();
     private final FLabel lblTicket     = new FLabel.Builder().fontAlign(SwingConstants.CENTER).fontStyle(Font.BOLD).icon(FSkin.getImage(FSkinProp.IMG_TICKET)).iconInBackground().build();
     private final FLabel lblRad        = new FLabel.Builder().fontAlign(SwingConstants.CENTER).fontStyle(Font.BOLD).icon(FSkin.getImage(FSkinProp.IMG_RAD)).iconInBackground().build();
+
+    // Reused across the avatar panel's repaint so getLifeRowBounds()/paintAITimeoutBar
+    // don't allocate a new Rectangle (and array) every frame.
+    private final FLabel[] lifeRowLabels = { lblLife, lblPoison, lblEnergy, lblExperience, lblTicket, lblRad };
+    private final Rectangle lifeRowScratch = new Rectangle();
+    private final Rectangle avatarBoundsScratch = new Rectangle();
 
     private final PhaseIndicator phaseIndicator = new PhaseIndicator();
 

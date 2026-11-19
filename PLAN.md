@@ -669,8 +669,18 @@ mvn test -T 1C
       primary fill and outlined secondary fill. `UI_COMPACT_PROMPT`, `UI_ALLOW_ESC_TO_END_TURN`,
       `UI_TOUCHSCREEN_OPTIMIZE` behavior preserved; `UI_REVERSE_PROMPT_BUTTON` is now wired
       on desktop to swap the button order.
-- [ ] Audit hot paint loops (`CardPanel.java`, `VField.java`, `VMatchUI.java`):
-      no `new` inside `paintComponent`; reuse fields.
+- [x] Audit hot paint loops (`CardPanel.java`, `VField.java`, `VMatchUI.java`):
+       no `new` inside `paintComponent`; reuse fields.
+       - `CardPanel.java`: hoisted autotap-glow, nonselectable-dim, counter/marker tab bg and
+         marker-text `Color`s to static constants; memoised `parseActionableHighlightColor()`
+         on the raw pref string; cached the hotkey-digit `Font` by badge diameter; cached
+         per-`CounterType` tab body colors; reused a single `RoundRectangle2D.Float` scratch
+         for the counter/marker tabs.
+       - `VField.java`: reuse a fixed `FLabel[]` field plus scratch `Rectangle`s for
+         `getLifeRowBounds()` union and `paintAITimeoutBar()` avatar bounds (no per-frame
+         array/Rectangle allocations).
+       - `VMatchUI.java`: no `paintComponent`; `new RectangleOfDouble(...)` usages are
+         layout/bounds only — left unchanged.
 - [ ] Add `forge-gui-desktop/src/test/java/forge/view/arcane/util/UIAnimatorIdleTest.java`
       asserting `UIAnimator.isActive() == false` and its shared Swing `Timer`
       reports `isRunning() == false` once no tweens are scheduled, and
