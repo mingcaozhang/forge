@@ -157,7 +157,7 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C
        `forge-gui-desktop/src/main/java/forge/view/arcane/CardPanel.java`.
 - [x] Wire hover enter/exit through `CardPanelContainer.java` so detail
        previews animate in/out smoothly.
-- [ ] Replace hand fan/rise in `HandArea.java` with `UIAnimator` tweens.
+- [x] Replace hand fan/rise in `HandArea.java` with `UIAnimator` tweens.
 - [ ] Tune `CardDetailUtil.java` typography constants (UI-only, no logic).
 - [ ] Add `forge-gui-desktop/src/test/java/forge/view/arcane/util/UIAnimatorTest.java`
       asserting a submitted tween reaches 100% in its declared duration

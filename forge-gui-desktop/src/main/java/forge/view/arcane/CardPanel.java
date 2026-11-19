@@ -99,6 +99,12 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
     public static final float BLACK_BORDER_SIZE = 0.03f;
     private static final float ROT_CENTER_TO_TOP_CORNER = 1.0295630140987000315797369464196f;
     private static final float ROT_CENTER_TO_BOTTOM_CORNER = 0.7071067811865475244008443621048f;
+    /** Max vertical rise (as a fraction of card height) a hand card gets when hovered. */
+    private static final float HAND_MAX_LIFT_RATIO = 0.09f;
+    /** Max scale a hand card gets when hovered. */
+    private static final float HAND_MAX_SCALE = 1.07f;
+    /** Extra top bounds padding (as a fraction of card width) reserved for the lift. */
+    private static final float HAND_EXTRA_TOP_RATIO = 0.10f;
     private static final Map<ZoneType, Color> ZONE_COLORS = Map.of(
         ZoneType.Graveyard, new Color(80, 20, 100),
         ZoneType.Exile, new Color(180, 185, 200),
@@ -133,6 +139,8 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
     private int cardXOffset, cardYOffset, cardWidth, cardHeight;
     private boolean isSelected;
     private float hoverProgress;
+    private float handLift;
+    private boolean handLiftEnabled;
     private boolean hasFlash;
     private String zoneBannerText;
     private Color zoneBannerColor;
@@ -326,6 +334,54 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
         repaint();
     }
 
+    /**
+     * Enables hand-specific visual pose handling for this panel. When enabled,
+     * {@link #setCardBounds(int, int, int, int)} reserves extra headroom above the
+     * card so a hovered lift/scale is not clipped, and {@link #paint(Graphics)}
+     * applies the normalized lift transform. Disabled by default so play-area,
+     * stack and animation panels render byte-for-byte unchanged.
+     *
+     * @param handLiftEnabled whether this panel belongs to a fanning hand
+     */
+    public final void setHandLiftEnabled(final boolean handLiftEnabled) {
+        if (this.handLiftEnabled == handLiftEnabled) {
+            return;
+        }
+        this.handLiftEnabled = handLiftEnabled;
+        if (!handLiftEnabled) {
+            this.handLift = 0f;
+        }
+    }
+
+    public final boolean isHandLiftEnabled() {
+        return handLiftEnabled;
+    }
+
+    /**
+     * @return the current visual-lift intensity in {@code [0, 1]}
+     */
+    public final float getVisualLift() {
+        return handLift;
+    }
+
+    /**
+     * Sets the visual-lift intensity, clamped to {@code [0, 1]}. This is purely a
+     * paint-time transform: logical card bounds used for hit testing, layout and
+     * dragging are never affected. A value of {@code 0} (the default) leaves
+     * rendering byte-for-byte unchanged. No-op when the value is equal to the
+     * current lift.
+     *
+     * @param lift target lift intensity in {@code [0, 1]}
+     */
+    public final void setVisualLift(final float lift) {
+        final float clamped = lift < 0f ? 0f : (lift > 1f ? 1f : lift);
+        if (this.handLift == clamped) {
+            return;
+        }
+        this.handLift = clamped;
+        repaint();
+    }
+
     @Override
     public final void paint(final Graphics g) {
         if (!displayEnabled) {
@@ -335,11 +391,22 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
             super.validate();
         }
         Graphics2D g2d = (Graphics2D) g;
-        if (getTappedAngle() > 0) {
+        if (getTappedAngle() > 0 || handLift > 0f) {
             g2d = (Graphics2D) g2d.create();
-            final float edgeOffset = cardWidth / 2f;
-            g2d.rotate(getTappedAngle(), cardXOffset + edgeOffset, (cardYOffset + cardHeight)
-                    - edgeOffset);
+            if (handLift > 0f) {
+                final float s = 1f + (HAND_MAX_SCALE - 1f) * handLift;
+                final float cx = cardXOffset + cardWidth / 2f;
+                final float cy = cardYOffset + cardHeight / 2f;
+                g2d.translate(cx, cy);
+                g2d.scale(s, s);
+                g2d.translate(-cx, -cy);
+                g2d.translate(0f, -HAND_MAX_LIFT_RATIO * cardHeight * handLift);
+            }
+            if (getTappedAngle() > 0) {
+                final float edgeOffset = cardWidth / 2f;
+                g2d.rotate(getTappedAngle(), cardXOffset + edgeOffset, (cardYOffset + cardHeight)
+                        - edgeOffset);
+            }
         }
         super.paint(g2d);
     }
@@ -1057,9 +1124,15 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
         final int bannerSpace = zoneBannerText != null ? ZONE_BANNER_HEIGHT : 0;
         cardYOffset += bannerSpace;
 
+        // Hand cards reserve headroom above the card so a hovered lift/scale is not
+        // clipped. The component box grows upward by the same amount cardYOffset
+        // grows, so getCardX()/getCardY() (hit testing + layout) stay unchanged.
+        final int liftPad = handLiftEnabled ? Math.round(width * HAND_EXTRA_TOP_RATIO) : 0;
+        cardYOffset += liftPad;
+
         width = -xOffset + rotCenterX + rotCenterToTopCorner;
-        height = -yOffset + rotCenterY + rotCenterToBottomCorner + bannerSpace;
-        setBounds(x + xOffset, y + yOffset, width, height);
+        height = -yOffset + rotCenterY + rotCenterToBottomCorner + bannerSpace + liftPad;
+        setBounds(x + xOffset, y + yOffset - liftPad, width, height);
     }
 
     @Override
