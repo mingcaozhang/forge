@@ -150,9 +150,9 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C
        (single shared Swing Timer, auto-stop on empty, honors UI_ANIMATION_MODE).
 - [x] Implement `forge-gui-desktop/src/main/java/forge/view/arcane/util/CardTextureCache.java`
        (LRU + `SoftReference`, bounded, thread-safe).
-- [ ] Rewire `Animation.java` internals to delegate to `UIAnimator` while
-      keeping the existing public methods for `PlayArea.java:1028`,
-      `CardArea.java:326`, `Animation.java:195/256/292`.
+- [x] Rewire `Animation.java` internals to delegate to `UIAnimator` while
+       keeping the existing public methods for `PlayArea.java:1028`,
+       `CardArea.java:326`, `Animation.java:195/256/292`.
 - [ ] Add hover/glow + cached rounded-frame paint to
       `forge-gui-desktop/src/main/java/forge/view/arcane/CardPanel.java`.
 - [ ] Wire hover enter/exit through `CardPanelContainer.java` so detail

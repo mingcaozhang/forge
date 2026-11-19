@@ -19,8 +19,6 @@ package forge.view.arcane.util;
 
 import java.awt.Container;
 import java.awt.EventQueue;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.swing.JLayeredPane;
 
@@ -36,28 +34,7 @@ import forge.view.arcane.CardPanel;
  * @version $Id: Animation.java 24769 2014-02-09 13:56:04Z Hellfish $
  */
 public abstract class Animation {
-    /** Constant <code>TARGET_MILLIS_PER_FRAME=30</code>. */
-    private static final long TARGET_MILLIS_PER_FRAME = 30;
-
-    /** Constant <code>timer</code>. */
-    private static final Timer timer = new Timer("Animation", true);
-
-    private final long delay;
-
-    private final TimerTask timerTask;
-    private FrameTimer frameTimer;
-    private long elapsed;
-
-    /**
-     * Constructor for Animation, with a default delay of zero.
-     * 
-     * @param duration
-     *            the duration, in milliseconds, for which the animation will
-     *            run.
-     */
-    private Animation(final long duration) {
-        this(duration, 0);
-    }
+    private final long duration;
 
     /**
      * Constructor for Animation.
@@ -65,53 +42,42 @@ public abstract class Animation {
      * @param duration
      *            the duration, in milliseconds, for which the animation will
      *            run.
-     * @param delay
-     *            the delay, in milliseconds, between subsequent
-     *            {@link #update(float)} calls while the animation is running.
      */
-    private Animation(final long duration, final long delay) {
-        this.delay = delay;
-        timerTask = new TimerTask() {
-            @Override public void run() {
-                if (frameTimer == null) {
-                    onStart();
-                    frameTimer = new FrameTimer();
-                }
-                elapsed += frameTimer.getTimeSinceLastFrame();
-                if (elapsed >= duration) {
-                    cancel();
-                    elapsed = duration;
-                }
-                update(elapsed / (float) duration);
-                if (elapsed == duration) {
-                    onEnd();
-                }
-            }
-        };
+    private Animation(final long duration) {
+        this.duration = duration;
     }
 
     /**
-     * Starts the animation.
+     * Starts the animation by delegating to the shared {@link UIAnimator}
+     * tween engine, preserving this animation's caller-specified duration.
      */
     protected final void run() {
-        timer.scheduleAtFixedRate(timerTask, delay, TARGET_MILLIS_PER_FRAME);
+        UIAnimator.startRaw((int) duration, new UIAnimator.Tween() {
+            private boolean started;
+
+            @Override
+            public void onFrame(final float eased) {
+                if (!started) {
+                    started = true;
+                    Animation.this.onStart();
+                }
+                Animation.this.update(eased);
+            }
+
+            @Override
+            public void onEnd() {
+                Animation.this.onEnd();
+            }
+        });
     }
 
     /**
-     * Called every {@link #delay} ms while the animation is running.
+     * Called each animation frame while the animation is running.
      * 
      * @param percentage
-     *            a float.
+     *            the eased progress in {@code [0, 1]}.
      */
     protected abstract void update(float percentage);
-
-    /**
-     * Cancel the animation.
-     */
-    protected final void cancel() {
-        timerTask.cancel();
-        onEnd();
-    }
 
     /**
      * Executed when the animation starts.
@@ -135,52 +101,6 @@ public abstract class Animation {
      */
     private static void invokeLater(final Runnable runnable) {
         EventQueue.invokeLater(runnable);
-    }
-
-    /**
-     * Uses averaging of the time between the past few frames to provide smooth
-     * animation.
-     */
-    private static final class FrameTimer {
-        private static final int SAMPLES = 6;
-        private static final long MAX_FRAME = 100; // Max time for one frame, to
-                                                   // weed out spikes.
-
-        private long[] samples = new long[SAMPLES];
-        private int sampleIndex;
-
-        public FrameTimer() {
-            long currentTime = System.currentTimeMillis();
-            for (int i = SAMPLES - 1; i >= 0; i--) {
-                samples[i] = currentTime - (SAMPLES - i) * TARGET_MILLIS_PER_FRAME;
-            }
-        }
-
-        public long getTimeSinceLastFrame() {
-            long currentTime = System.currentTimeMillis();
-
-            int id = sampleIndex - 1;
-            if (id < 0) {
-                id += SAMPLES;
-            }
-
-            long timeSinceLastSample = currentTime - samples[id];
-
-            // If the slice was too big, advance all the previous times by the
-            // diff.
-            if (timeSinceLastSample > MAX_FRAME) {
-                long diff = timeSinceLastSample - MAX_FRAME;
-                for (int i = 0; i < SAMPLES; i++) {
-                    samples[i] += diff;
-                }
-            }
-
-            long timeSinceOldestSample = currentTime - samples[sampleIndex];
-            samples[sampleIndex] = currentTime;
-            sampleIndex = (sampleIndex + 1) % SAMPLES;
-
-            return timeSinceOldestSample / SAMPLES;
-        }
     }
 
     /**

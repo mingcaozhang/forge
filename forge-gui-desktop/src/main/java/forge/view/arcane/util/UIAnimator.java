@@ -125,10 +125,27 @@ public abstract class UIAnimator {
      * @param tween          the tween to drive; ignored when {@code null}
      */
     public static void start(final int durationMillis, final Tween tween) {
+        startInternal(clampDuration(durationMillis), tween);
+    }
+
+    /**
+     * Starts a tween using the caller-supplied duration verbatim (only a
+     * minimum of 1 ms is enforced), bypassing the {@value #MIN_DURATION_MILLIS}
+     *..{@value #MAX_DURATION_MILLIS} clamp used by {@link #start(int, Tween)}.
+     * Intended for legacy entry points whose durations are tuned per call.
+     *
+     * @param durationMillis caller-specified duration in milliseconds
+     * @param tween          the tween to drive; ignored when {@code null}
+     */
+    public static void startRaw(final int durationMillis, final Tween tween) {
+        startInternal(Math.max(1, durationMillis), tween);
+    }
+
+    private static void startInternal(final int resolvedDurationMillis, final Tween tween) {
         if (tween == null) {
             return;
         }
-        final int scaled = scaledDurationMillis(durationMillis, currentMode());
+        final int scaled = scaledDurationMillis(resolvedDurationMillis, currentMode());
         if (scaled <= 0) {
             beginOnEdt(() -> finishNow(tween));
             return;
@@ -200,15 +217,18 @@ public abstract class UIAnimator {
         }
     }
 
-    private static int scaledDurationMillis(final int durationMillis, final Mode mode) {
-        final int clamped = Math.max(MIN_DURATION_MILLIS, Math.min(MAX_DURATION_MILLIS, durationMillis));
+    private static int clampDuration(final int durationMillis) {
+        return Math.max(MIN_DURATION_MILLIS, Math.min(MAX_DURATION_MILLIS, durationMillis));
+    }
+
+    private static int scaledDurationMillis(final int resolvedDurationMillis, final Mode mode) {
         switch (mode) {
             case OFF:
                 return 0;
             case FAST:
-                return Math.max(1, clamped / 2);
+                return Math.max(1, resolvedDurationMillis / 2);
             default:
-                return clamped;
+                return resolvedDurationMillis;
         }
     }
 
