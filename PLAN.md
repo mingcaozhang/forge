@@ -69,7 +69,7 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C
 - [x] In `FSkin.java` `ForgeLookAndFeel.setMetalLookAndFeel`, install
       `FlatDarkLaf` (with `try/catch` fallback to Metal) and re-map existing
       `UIManager.put(...)` tokens so skin colors keep working.
-- [ ] Re-apply FlatLaf + token overrides in `FSkin.changeSkin` (line 1139–1142)
+- [x] Re-apply FlatLaf + token overrides in `FSkin.changeSkin` (line 1139–1142)
       so skin swaps remain consistent.
 - [ ] Verify `ForgeMenu.java` and `LayoutMenu.java` actions, accelerators,
       mnemonics, and keyboard shortcuts all work unchanged.

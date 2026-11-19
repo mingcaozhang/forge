@@ -96,6 +96,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.plaf.ColorUIResource;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
@@ -1144,7 +1145,8 @@ public class FSkin {
         prefs.setPref(FPref.UI_SKIN, skinName);
         prefs.save();
 
-        //load skin
+        //load skin (loadFull re-runs ForgeLookAndFeel.setForgeLookAndFeel below, which re-maps
+        //the FlatLaf UIManager tokens from the new skin palette so skin swaps stay consistent)
         loaded = false; //reset this temporarily until end of loadFull()
         loadLight(skinName, false);
         loadFull(false);
@@ -1693,6 +1695,8 @@ public class FSkin {
 
         /**
          * Sets the look and feel of the GUI based on the selected Forge theme.
+         * Invoked both on startup and every {@link FSkin#changeSkin(String)} (via {@code loadFull}),
+         * so the FlatLaf token overrides below are re-applied whenever the skin palette changes.
          */
         private void setForgeLookAndFeel(final JFrame appFrame) {
             if (setMetalLookAndFeel(appFrame)) {
@@ -1702,6 +1706,7 @@ public class FSkin {
                 setButtonLookAndFeel();
                 setToolTipLookAndFeel();
                 setTextEditLookAndFeel();
+                applyFlatLafTheme();
             }
             onInit = false;
         }
@@ -1828,6 +1833,95 @@ public class FSkin {
                     im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.META_DOWN_MASK), DefaultEditorKit.selectAllAction);
                 }
             }
+        }
+
+        /**
+         * Maps the active Forge skin palette onto FlatLaf's global alias and component tokens so that
+         * FlatLaf-rendered chrome (panels, text components, lists/tables/trees, tabs, popups) follows the
+         * selected skin instead of FlatLaf's stock dark palette. Called from {@link #setForgeLookAndFeel}
+         * on startup and on every skin swap (via {@code loadFull}). Borders are intentionally left to
+         * FlatLaf so its clean rounded focus borders are preserved.
+         */
+        private void applyFlatLafTheme() {
+            final Color accent = MENU_HIGHLIGHT_COLOR;
+            final Color borderColor = stepColor(getColor(Colors.CLR_THEME).color, -40);
+            final Color fieldBackground = BACK_COLOR;
+            final Color disabledForeground = BACK_COLOR.darker();
+
+            // Root aliases: nearly every FlatLaf component token resolves to one of these.
+            UIManager.put("@background", new ColorUIResource(BACK_COLOR));
+            UIManager.put("@foreground", new ColorUIResource(FORE_COLOR));
+            UIManager.put("@componentBackground", new ColorUIResource(fieldBackground));
+            UIManager.put("@selectionBackground", new ColorUIResource(accent));
+            UIManager.put("@selectionForeground", new ColorUIResource(FORE_COLOR));
+            UIManager.put("@disabledForeground", new ColorUIResource(disabledForeground));
+            UIManager.put("@separatorColor", new ColorUIResource(borderColor));
+
+            // Container / labels.
+            UIManager.put("Panel.background", new ColorUIResource(BACK_COLOR));
+            UIManager.put("Label.background", new ColorUIResource(BACK_COLOR));
+            UIManager.put("Label.foreground", new ColorUIResource(FORE_COLOR));
+            UIManager.put("OptionPanel.background", new ColorUIResource(BACK_COLOR));
+
+            // Rounded corners for an Arena / Hearthstone-like feel.
+            UIManager.put("Component.arc", 8);
+            UIManager.put("Component.borderColor", new ColorUIResource(borderColor));
+            UIManager.put("Component.focusColor", new ColorUIResource(accent));
+            UIManager.put("Component.accentColor", new ColorUIResource(accent));
+
+            // Text components.
+            for (String prefix : new String[] {"TextField", "TextArea", "EditorPane", "FormattedTextField"}) {
+                UIManager.put(prefix + ".background", new ColorUIResource(fieldBackground));
+                UIManager.put(prefix + ".foreground", new ColorUIResource(FORE_COLOR));
+                UIManager.put(prefix + ".selectionBackground", new ColorUIResource(accent));
+                UIManager.put(prefix + ".selectionForeground", new ColorUIResource(FORE_COLOR));
+                UIManager.put(prefix + ".inactiveBackground", new ColorUIResource(fieldBackground));
+                UIManager.put(prefix + ".inactiveForeground", new ColorUIResource(disabledForeground));
+                UIManager.put(prefix + ".disabledBackground", new ColorUIResource(fieldBackground));
+                UIManager.put(prefix + ".caretColor", new ColorUIResource(FORE_COLOR));
+            }
+
+            // Toggle buttons (selection accent).
+            UIManager.put("ToggleButton.background", new ColorUIResource(BACK_COLOR));
+            UIManager.put("ToggleButton.foreground", new ColorUIResource(FORE_COLOR));
+            UIManager.put("ToggleButton.selectedBackground", new ColorUIResource(accent));
+            UIManager.put("ToggleButton.selectedForeground", new ColorUIResource(FORE_COLOR));
+
+            // Combo box arrow / button chrome.
+            UIManager.put("ComboBox.buttonArrowColor", new ColorUIResource(FORE_COLOR));
+            UIManager.put("ComboBox.buttonBackground", new ColorUIResource(BACK_COLOR.darker()));
+
+            // Tabbed pane (FlatLaf-specific tokens; Metal-oriented ones are set elsewhere).
+            UIManager.put("TabbedPane.background", new ColorUIResource(BACK_COLOR));
+            UIManager.put("TabbedPane.foreground", new ColorUIResource(FORE_COLOR));
+            UIManager.put("TabbedPane.underlineColor", new ColorUIResource(accent));
+            UIManager.put("TabbedPane.contentAreaColor", new ColorUIResource(borderColor));
+            UIManager.put("TabbedPane.hoverColor", new ColorUIResource(HIGHLIGHT_COLOR));
+            UIManager.put("TabbedPane.focusColor", new ColorUIResource(HIGHLIGHT_COLOR));
+
+            // List / Table / Tree.
+            UIManager.put("List.background", new ColorUIResource(BACK_COLOR));
+            UIManager.put("List.foreground", new ColorUIResource(FORE_COLOR));
+            UIManager.put("List.selectionBackground", new ColorUIResource(accent));
+            UIManager.put("List.selectionInactiveBackground", new ColorUIResource(HIGHLIGHT_COLOR));
+            UIManager.put("List.selectionInactiveForeground", new ColorUIResource(FORE_COLOR));
+            UIManager.put("Table.background", new ColorUIResource(BACK_COLOR));
+            UIManager.put("Table.foreground", new ColorUIResource(FORE_COLOR));
+            UIManager.put("Table.gridColor", new ColorUIResource(borderColor));
+            UIManager.put("Table.selectionBackground", new ColorUIResource(accent));
+            UIManager.put("Table.selectionInactiveBackground", new ColorUIResource(HIGHLIGHT_COLOR));
+            UIManager.put("Table.selectionInactiveForeground", new ColorUIResource(FORE_COLOR));
+            UIManager.put("Tree.background", new ColorUIResource(BACK_COLOR));
+            UIManager.put("Tree.textBackground", new ColorUIResource(BACK_COLOR));
+            UIManager.put("Tree.textForeground", new ColorUIResource(FORE_COLOR));
+            UIManager.put("Tree.selectionBackground", new ColorUIResource(accent));
+            UIManager.put("Tree.selectionInactiveBackground", new ColorUIResource(HIGHLIGHT_COLOR));
+
+            // Scrolling surfaces.
+            UIManager.put("ScrollPane.background", new ColorUIResource(BACK_COLOR));
+            UIManager.put("Viewport.background", new ColorUIResource(BACK_COLOR));
+            UIManager.put("ScrollBar.track", new ColorUIResource(BACK_COLOR.darker()));
+            UIManager.put("ScrollBar.thumb", new ColorUIResource(HIGHLIGHT_COLOR));
         }
 
         private static Font getDefaultFont(final String component) {
