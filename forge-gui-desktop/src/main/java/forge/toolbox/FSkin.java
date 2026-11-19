@@ -102,6 +102,8 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.JTextComponent;
 
+import com.formdev.flatlaf.FlatDarkLaf;
+
 import forge.Singletons;
 import forge.gui.FThreads;
 import forge.gui.GuiUtils;
@@ -1705,15 +1707,20 @@ public class FSkin {
         }
 
         /**
-         * Sets the standard "Java L&F" (also called "Metal") that looks the same on all platforms.
-         * <p>
-         * If not explicitly set then the Mac uses its native L&F which does
+         * Installs the cross-platform look and feel. Prefers FlatLaf's dark theme for a crisp, modern
+         * appearance, but falls back to the always-available "Java L&amp;F" (Metal) so headless or unusual
+         * JVMs never break startup. Metal is used rather than the native Mac L&amp;F because the latter does
          * not support various settings (eg. combobox background color).
          */
         private boolean setMetalLookAndFeel(final JFrame appFrame) {
-            if (onInit) { //only attempt to set Metal Look and Feel the first time
+            if (onInit) { //only attempt to set the Look and Feel the first time
                 try {
-                    UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+                    try {
+                        UIManager.setLookAndFeel(new FlatDarkLaf());
+                    } catch (Exception flatLafFailed) {
+                        // Unusual/headless JVMs or a missing FlatLaf class must never prevent startup.
+                        UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+                    }
                     SwingUtilities.updateComponentTreeUI(appFrame);
                     isMetalLafSet = true;
                 } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {

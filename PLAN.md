@@ -66,7 +66,7 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C
 - [x] In `forge-gui-desktop/src/main/java/forge/view/Main.java`, set
       `sun.java2d.opengl=true` (guarded), `awt.useSystemAAFontSettings=lcd`,
       and `swing.aatext=true` before `GuiBase.setInterface(new GuiDesktop())`.
-- [ ] In `FSkin.java` `ForgeLookAndFeel.setMetalLookAndFeel`, install
+- [x] In `FSkin.java` `ForgeLookAndFeel.setMetalLookAndFeel`, install
       `FlatDarkLaf` (with `try/catch` fallback to Metal) and re-map existing
       `UIManager.put(...)` tokens so skin colors keep working.
 - [ ] Re-apply FlatLaf + token overrides in `FSkin.changeSkin` (line 1139–1142)
