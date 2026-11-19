@@ -17,8 +17,12 @@
  */
 package forge.screens.match.views;
 
-import javax.swing.JPanel;
+import java.awt.Point;
 
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
+import forge.game.card.CardView;
 import forge.game.player.PlayerView;
 import forge.gui.framework.DragCell;
 import forge.gui.framework.DragTab;
@@ -28,7 +32,10 @@ import forge.screens.match.CMatchUI;
 import forge.screens.match.controllers.CHand;
 import forge.toolbox.FScrollPane;
 import forge.util.Localizer;
+import forge.view.arcane.CardPanel;
 import forge.view.arcane.HandArea;
+import forge.view.arcane.util.Easing;
+import forge.view.arcane.util.UIAnimator;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -151,6 +158,100 @@ public class VHand implements IVDoc<CHand> {
         }
         tab.setText(label);
         tab.setToolTipText(label);
+    }
+
+    private static final int DRAW_ARC_DURATION_MILLIS = 360;
+    private static final float DRAW_ARC_START_SCALE = 0.78f;
+    private static final float DRAW_ARC_BOW_RATIO = 0.35f;
+
+    private static final int TAP_PULSE_DURATION_MILLIS = 220;
+    private static final float TAP_PULSE_PEAK = 0.6f;
+
+    /**
+     * Plays an Arena-style draw arc on the hand panel for the given card: the
+     * card sweeps in along a shallow curve from the hand's leading edge while
+     * easing up to its full size. Purely paint-only — layout, hit-testing and
+     * drag state for the panel are unaffected. No-op when animation is off, the
+     * player is unknown, or the card isn't currently shown in this hand.
+     *
+     * @param card the {@link CardView} just drawn into this hand
+     */
+    public void dispatchDrawArc(final CardView card) {
+        if (card == null || UIAnimator.currentMode() == UIAnimator.Mode.OFF) {
+            return;
+        }
+        final CardPanel panel = hand.getCardPanel(card.getId());
+        if (panel == null || panel.getWidth() <= 0 || panel.getHeight() <= 0) {
+            return;
+        }
+        final Point start = computeDrawArcStart(panel);
+        tweenDrawArc(panel, start);
+    }
+
+    /**
+     * Plays a short scale "pop" over the given card when it is tapped or
+     * untapped. Purely paint-only; no-op when animation is off or the card
+     * isn't currently shown in this hand.
+     *
+     * @param card the {@link CardView} whose tapped state just changed
+     */
+    public void dispatchTapPulse(final CardView card) {
+        if (card == null || UIAnimator.currentMode() == UIAnimator.Mode.OFF) {
+            return;
+        }
+        final CardPanel panel = hand.getCardPanel(card.getId());
+        if (panel == null || panel.getWidth() <= 0 || panel.getHeight() <= 0) {
+            return;
+        }
+        tweenTapPulse(panel);
+    }
+
+    private Point computeDrawArcStart(final CardPanel panel) {
+        final Point panelTopLeft = SwingUtilities.convertPoint(panel, 0, 0, hand);
+        final int handWidth = hand.getWidth();
+        final int handHeight = hand.getHeight();
+        final int startX;
+        final int startY;
+        if (hand.isVertical()) {
+            startX = panelTopLeft.x + handWidth / 4;
+            startY = panelTopLeft.y + handHeight + panel.getHeight();
+        } else {
+            startX = panelTopLeft.x - handWidth / 4 - panel.getWidth();
+            startY = panelTopLeft.y + handHeight + panel.getHeight() / 4;
+        }
+        return new Point(startX - panelTopLeft.x, startY - panelTopLeft.y);
+    }
+
+    private static void tweenDrawArc(final CardPanel panel, final Point startOffset) {
+        final int w = panel.getWidth();
+        final int h = panel.getHeight();
+        final int peakX = startOffset.x;
+        final int peakY = startOffset.y;
+        final int bowX = (int) (peakY * DRAW_ARC_BOW_RATIO) + (peakY > 0 ? -1 : 1) * (w / 2);
+        final int bowY = (int) (peakY / 2f);
+        UIAnimator.startRaw(DRAW_ARC_DURATION_MILLIS, "hand-draw-arc-" + System.identityHashCode(panel),
+                progress -> {
+                    final float eased = Easing.cubicOut(progress);
+                    final float inv = 1f - eased;
+                    final float bx = inv * inv * peakX + 2f * inv * eased * bowX + eased * eased * 0f;
+                    final float by = inv * inv * peakY + 2f * inv * eased * bowY + eased * eased * 0f;
+                    panel.setDrawArcOffsetX(bx);
+                    panel.setDrawArcOffsetY(by);
+                    panel.setDrawArcScale(DRAW_ARC_START_SCALE + (1f - DRAW_ARC_START_SCALE) * eased);
+                });
+    }
+
+    private static void tweenTapPulse(final CardPanel panel) {
+        UIAnimator.startRaw(TAP_PULSE_DURATION_MILLIS, "hand-tap-pulse-" + System.identityHashCode(panel),
+                progress -> {
+                    final float eased;
+                    if (progress <= 0.5f) {
+                        eased = Easing.cubicOut(progress / 0.5f);
+                    } else {
+                        eased = 1f - Easing.cubicOut((progress - 0.5f) / 0.5f);
+                    }
+                    panel.setTapPulse(TAP_PULSE_PEAK * eased);
+                });
     }
 
 }

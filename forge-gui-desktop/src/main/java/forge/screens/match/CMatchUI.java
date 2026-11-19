@@ -1518,6 +1518,9 @@ public final class CMatchUI
     @Override
     public void notifyCardTapped(GameEventCardTapped event) {
         dispatchCardGlow(event.card(), event.tapped() ? COLOR_TAPPED : COLOR_UNTAPPED);
+        for (final VHand h : view.getHands()) {
+            h.dispatchTapPulse(event.card());
+        }
     }
 
     @Override
@@ -1529,6 +1532,9 @@ public final class CMatchUI
 
     @Override
     public void notifyCardDrawn(GameEventCardChangeZone event) {
+        for (final VHand h : view.getHands()) {
+            h.dispatchDrawArc(event.card());
+        }
         dispatchCardGlow(event.card(), COLOR_DRAW);
     }
 

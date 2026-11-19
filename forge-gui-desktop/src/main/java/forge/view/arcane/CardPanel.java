@@ -103,6 +103,7 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
     private static final float HAND_MAX_LIFT_RATIO = 0.09f;
     /** Max scale a hand card gets when hovered. */
     private static final float HAND_MAX_SCALE = 1.07f;
+    private static final float TAP_PULSE_MAX_SCALE = 1.04f;
     /** Extra top bounds padding (as a fraction of card width) reserved for the lift. */
     private static final float HAND_EXTRA_TOP_RATIO = 0.10f;
     private static final Map<ZoneType, Color> ZONE_COLORS = Map.of(
@@ -142,6 +143,10 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
     private float handLift;
     private boolean handLiftEnabled;
     private int lungeOffsetY;
+    private float drawArcOffsetX;
+    private float drawArcOffsetY;
+    private float drawArcScale = 1f;
+    private float tapPulse;
     private boolean hasFlash;
     private String zoneBannerText;
     private Color zoneBannerColor;
@@ -408,6 +413,68 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
         repaint();
     }
 
+    public final float getDrawArcOffsetX() {
+        return drawArcOffsetX;
+    }
+
+    public final void setDrawArcOffsetX(final float offsetPixels) {
+        if (this.drawArcOffsetX == offsetPixels) {
+            return;
+        }
+        this.drawArcOffsetX = offsetPixels;
+        repaint();
+    }
+
+    public final float getDrawArcOffsetY() {
+        return drawArcOffsetY;
+    }
+
+    public final void setDrawArcOffsetY(final float offsetPixels) {
+        if (this.drawArcOffsetY == offsetPixels) {
+            return;
+        }
+        this.drawArcOffsetY = offsetPixels;
+        repaint();
+    }
+
+    public final float getDrawArcScale() {
+        return drawArcScale;
+    }
+
+    public final void setDrawArcScale(final float scale) {
+        if (this.drawArcScale == scale) {
+            return;
+        }
+        this.drawArcScale = scale;
+        repaint();
+    }
+
+    public final float getTapPulse() {
+        return tapPulse;
+    }
+
+    public final void setTapPulse(final float pulse) {
+        final float clamped = pulse < 0f ? 0f : (pulse > 1f ? 1f : pulse);
+        if (this.tapPulse == clamped) {
+            return;
+        }
+        this.tapPulse = clamped;
+        repaint();
+    }
+
+    public final void resetTransientVisuals() {
+        if (lungeOffsetY == 0 && drawArcOffsetX == 0f && drawArcOffsetY == 0f
+                && drawArcScale == 1f && tapPulse == 0f) {
+            return;
+        }
+        lungeOffsetY = 0;
+        drawArcOffsetX = 0f;
+        drawArcOffsetY = 0f;
+        drawArcScale = 1f;
+        tapPulse = 0f;
+        repaint();
+    }
+
     @Override
     public final void paint(final Graphics g) {
         if (!displayEnabled) {
@@ -417,8 +484,29 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
             super.validate();
         }
         Graphics2D g2d = (Graphics2D) g;
-        if (getTappedAngle() > 0 || handLift > 0f || lungeOffsetY != 0) {
+        final boolean hasDrawArc = drawArcOffsetX != 0f || drawArcOffsetY != 0f || drawArcScale != 1f;
+        if (getTappedAngle() > 0 || handLift > 0f || lungeOffsetY != 0 || hasDrawArc || tapPulse > 0f) {
             g2d = (Graphics2D) g2d.create();
+            if (hasDrawArc) {
+                final float dcx = cardXOffset + cardWidth / 2f;
+                final float dcy = cardYOffset + cardHeight / 2f;
+                g2d.translate(dcx, dcy);
+                if (drawArcScale != 1f) {
+                    g2d.scale(drawArcScale, drawArcScale);
+                }
+                g2d.translate(-dcx, -dcy);
+                if (drawArcOffsetX != 0f || drawArcOffsetY != 0f) {
+                    g2d.translate(drawArcOffsetX, drawArcOffsetY);
+                }
+            }
+            if (tapPulse > 0f) {
+                final float pcx = cardXOffset + cardWidth / 2f;
+                final float pcy = cardYOffset + cardHeight / 2f;
+                final float pScale = 1f + (TAP_PULSE_MAX_SCALE - 1f) * tapPulse;
+                g2d.translate(pcx, pcy);
+                g2d.scale(pScale, pScale);
+                g2d.translate(-pcx, -pcy);
+            }
             if (handLift > 0f) {
                 final float s = 1f + (HAND_MAX_SCALE - 1f) * handLift;
                 final float cx = cardXOffset + cardWidth / 2f;
