@@ -460,13 +460,19 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
       unchanged for the normal path. ZERO diff to `forge-core`/`forge-game`/`forge-ai`.
       Verified `mvn test-compile -T 1C` (exit 0; checkstyle clean) and
       `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (165 pass).
-- [ ] Add `forge-gui-desktop/src/test/java/forge/screens/home/HomeNavigationRegistryTest.java`
-      asserting that the set of `EDocID` values surfaced by the new
-      dashboard tiles is exactly the same as the set returned by
-      `IVSubmenu.getItemEnum()` across every existing
-      `VSubmenu*` class (Play / Decks / Collection / Preferences), and that
-      the `EDocID.HOME_CONSTRUCTED` default still resolves; run
-      `mvn test -Dtest=HomeNavigationRegistryTest -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C`.
+- [x] Add `forge-gui-desktop/src/test/java/forge/screens/home/HomeNavigationRegistryTest.java`
+       asserting that the set of `EDocID` values surfaced by the new
+       dashboard tiles is exactly the same as the set returned by
+       `IVSubmenu.getItemEnum()` across every existing
+       `VSubmenu*` class (Play / Decks / Collection / Preferences), and that
+       the `EDocID.HOME_CONSTRUCTED` default still resolves; run
+       `mvn test -Dtest=HomeNavigationRegistryTest -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C`.
+       Note: `EDocID`/`VSubmenu*` singletons cannot be instantiated in a bare
+       unit-test JVM (loading them requires the full skin/splash sprite stack),
+       so the test introspects the `VHomeUI` `allSubmenus` registrations and each
+       `VSubmenu*` `getItemEnum()` source. ZERO diff to
+       `forge-core`/`forge-game`/`forge-ai`. Verified
+       `mvn test -Dtest=HomeNavigationRegistryTest ... -T 1C` (7 pass).
 
 Commit message: `feat(commander): Arena-style Home dashboard tiles`
 
