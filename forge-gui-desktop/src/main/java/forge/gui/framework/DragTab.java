@@ -3,6 +3,9 @@ package forge.gui.framework;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
 
 import javax.swing.border.EmptyBorder;
 
@@ -19,6 +22,7 @@ public final class DragTab extends SkinnedLabel implements ILocalRepaint {
     private boolean selected = false;
     private int priority = 10;
     private float flashIntensity = 0f;
+    private float bumpScale = 1f;
 
     /**
      * The tab label object in drag layout.
@@ -80,6 +84,18 @@ public final class DragTab extends SkinnedLabel implements ILocalRepaint {
         repaintSelf();
     }
 
+    /**
+     * Sets the paint-only scale multiplier applied to the tab label when
+     * repainting (1.0 renders at native size). Driven by the counter-bump
+     * animation; does not affect layout, preferred size, or hit-testing.
+     *
+     * @param scale scale multiplier; values outside {@code [0.5, 2.0]} are clamped
+     */
+    public void setBumpScale(final float scale) {
+        bumpScale = Math.max(0.5f, Math.min(2.0f, scale));
+        repaintSelf();
+    }
+
     @Override
     public void repaintSelf() {
         final Dimension d = DragTab.this.getSize();
@@ -106,6 +122,25 @@ public final class DragTab extends SkinnedLabel implements ILocalRepaint {
             g.fillRoundRect(0, 0, getWidth() - 1, getHeight() * 2, 6, 6);
         }
 
-        super.paintComponent(g);
+        if (bumpScale != 1f) {
+            final Graphics2D g2 = (Graphics2D) g;
+            final AffineTransform original = g2.getTransform();
+            final Object originalHint =
+                    g2.getRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING);
+            g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            final int cx = getWidth() / 2;
+            final int cy = getHeight() / 2;
+            g2.translate(cx, cy);
+            g2.scale(bumpScale, bumpScale);
+            g2.translate(-cx, -cy);
+            super.paintComponent(g);
+            g2.setTransform(original);
+            if (originalHint != null) {
+                g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, originalHint);
+            }
+        } else {
+            super.paintComponent(g);
+        }
     }
 }

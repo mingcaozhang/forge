@@ -325,7 +325,17 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
       ZERO diff to `forge-core`/`forge-game`/`forge-ai`. Verified
       `mvn test-compile -T 1C` (exit 0; checkstyle clean) and
       `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (exit 0).
-- [ ] Animate counter bumps in `VZone.java` (graveyard/exile/library).
+- [x] Animate counter bumps in `VZone.java` (graveyard/exile/library).
+      Count increase on a hidden zone tab now drives a shared `UIAnimator.startRaw`
+      tween (keyed per `DragTab`) instead of `TabDiffTracker`'s private
+      `javax.swing.Timer`: a red flash ramp (triangle envelope) plus a paint-only
+      label "bump" via new `DragTab.setBumpScale` rendered with a centered
+      `AffineTransform` over `super.paintComponent` (no layout/hit-test change).
+      The envelope rests at 0/1.0 when progress hits 1, so `UIAnimator.Mode.OFF`
+      snaps straight to rest. Routed through `TabDiffTracker` so all zone/hand/
+      field tabs share the behavior. ZERO diff to `forge-core`/`forge-game`/
+      `forge-ai`. Verified `mvn test-compile -T 1C` (exit 0) and
+      `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (165 tests, exit 0).
 - [ ] Soften targeting crosshair pulse in existing TargetingOverlay file.
 - [ ] Add `forge-gui-desktop/src/test/java/forge/view/arcane/util/AnimationModeTest.java`
       asserting `UIAnimator` snaps to end for mode `Off`, halves duration
