@@ -20,7 +20,10 @@ package forge.screens.match.views;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GradientPaint;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -54,6 +57,7 @@ import forge.screens.match.controllers.CField;
 import forge.toolbox.FLabel;
 import forge.toolbox.FScrollPane;
 import forge.toolbox.FSkin;
+import forge.toolbox.FSkin.SkinColor;
 import forge.toolbox.FSkin.SkinImage;
 import forge.toolbox.FSkin.SkinnedPanel;
 import forge.toolbox.special.PhaseIndicator;
@@ -92,11 +96,19 @@ public class VField implements IVDoc<CField> {
     private final PlayArea tabletop;
     private final SkinnedPanel avatarArea = new SkinnedPanel() {
         @Override
+        protected void paintComponent(final Graphics g) {
+            super.paintComponent(g);
+            paintPlayerPanelChrome(g);
+            paintLifeChips(g);
+        }
+
+        @Override
         protected void paintChildren(final Graphics g) {
             super.paintChildren(g);
             paintAITimeoutBar(g);
         }
     };
+    private boolean avatarPanelHovered;
 
     // ---- AI "thinking" timer bar over the avatar (shrinks to 0 at the AI timeout) ----
     private static final Color BAR_BG = new Color(0, 0, 0, 165);
@@ -143,6 +155,71 @@ public class VField implements IVDoc<CField> {
         g.fillRect(r.x, y, r.width, barH);
         g.setColor(f > 0.5f ? Color.GREEN : f > 0.25f ? BAR_AMBER : Color.RED);
         g.fillRect(r.x, y, Math.round(r.width * f), barH);
+    }
+
+    // ---- Arena-style rounded player-panel backdrop + life/counter chips ----
+    private static final int PANEL_ARC = 12;
+    private static final int PANEL_PAD = 2;
+
+    /** Paints the rounded, subtly gradient card backdrop (and hover fill) behind a player's avatar panel. */
+    private void paintPlayerPanelChrome(final Graphics graphics) {
+        final int w = avatarArea.getWidth();
+        final int h = avatarArea.getHeight();
+        if (w <= PANEL_PAD * 2 || h <= PANEL_PAD * 2) {
+            return;
+        }
+        final Graphics2D g2d = (Graphics2D) graphics.create();
+        try {
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            final SkinColor theme = FSkin.getColor(FSkin.Colors.CLR_THEME);
+            g2d.setPaint(new GradientPaint(0f, PANEL_PAD, theme.stepColor(-12).getColor(),
+                    0f, h - PANEL_PAD, theme.stepColor(-20).getColor()));
+            g2d.fillRoundRect(PANEL_PAD, PANEL_PAD, w - PANEL_PAD * 2, h - PANEL_PAD * 2, PANEL_ARC, PANEL_ARC);
+            if (avatarPanelHovered) {
+                FSkin.setGraphicsColor(g2d, FSkin.getColor(FSkin.Colors.CLR_HOVER).alphaColor(110));
+                g2d.fillRoundRect(PANEL_PAD, PANEL_PAD, w - PANEL_PAD * 2, h - PANEL_PAD * 2, PANEL_ARC, PANEL_ARC);
+            }
+            FSkin.setGraphicsColor(g2d,
+                    FSkin.getColor(FSkin.Colors.CLR_BORDERS).getContrastColor(25).alphaColor(200));
+            g2d.drawRoundRect(PANEL_PAD, PANEL_PAD, w - PANEL_PAD * 2, h - PANEL_PAD * 2, PANEL_ARC, PANEL_ARC);
+        } finally {
+            g2d.dispose();
+        }
+    }
+
+    /** Paints a rounded pill behind the visible life/counter read-out row, giving it a modern chip look. */
+    private void paintLifeChips(final Graphics graphics) {
+        final Rectangle row = getLifeRowBounds();
+        if (row == null || row.width <= 4 || row.height <= 4) {
+            return;
+        }
+        final Graphics2D g2d = (Graphics2D) graphics.create();
+        try {
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            final int arc = row.height;
+            final SkinColor theme2 = FSkin.getColor(FSkin.Colors.CLR_THEME2);
+            g2d.setPaint(new GradientPaint(0f, row.y, theme2.stepColor(-6).getColor(),
+                    0f, row.y + row.height, theme2.stepColor(-14).getColor()));
+            g2d.fillRoundRect(row.x, row.y, row.width, row.height, arc, arc);
+            FSkin.setGraphicsColor(g2d,
+                    FSkin.getColor(FSkin.Colors.CLR_BORDERS).getContrastColor(30).alphaColor(170));
+            g2d.drawRoundRect(row.x, row.y, row.width, row.height, arc, arc);
+        } finally {
+            g2d.dispose();
+        }
+    }
+
+    /** Union of the visible life + counter label bounds, or {@code null} when nothing is shown. */
+    private Rectangle getLifeRowBounds() {
+        final FLabel[] readoutLabels = { lblLife, lblPoison, lblEnergy, lblExperience, lblTicket, lblRad };
+        Rectangle row = null;
+        for (final FLabel label : readoutLabels) {
+            if (label.isShowing()) {
+                final Rectangle b = label.getBounds();
+                row = row == null ? new Rectangle(b) : row.union(b);
+            }
+        }
+        return row;
     }
 
     private final PlayerDetailsPanel detailsPanel;
@@ -208,18 +285,14 @@ public class VField implements IVDoc<CField> {
         avatarArea.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(final MouseEvent e) {
-                avatarArea.setOpaque(true);
-                if (!isHighlighted()) {
-                    avatarArea.setBorder(new FSkin.LineSkinBorder(FSkin.getColor(FSkin.Colors.CLR_BORDERS)));
-                }
+                avatarPanelHovered = true;
+                avatarArea.repaint();
             }
 
             @Override
             public void mouseExited(final MouseEvent e) {
-                avatarArea.setOpaque(false);
-                if (!isHighlighted()) {
-                    avatarArea.setBorder(control.getMatchUI().isSelectable(player) ? borderAvatarSelectable : borderAvatarSimple);
-                }
+                avatarPanelHovered = false;
+                avatarArea.repaint();
             }
         });
 
@@ -301,7 +374,7 @@ public class VField implements IVDoc<CField> {
         final boolean highlighted = isHighlighted();
         avatarArea.setBorder(highlighted ? borderAvatarHighlighted
                 : control.getMatchUI().isSelectable(player) ? borderAvatarSelectable : borderAvatarSimple);
-        avatarArea.setOpaque(highlighted);
+        avatarArea.repaint();
     }
 
     public void setAvatar(final SkinImage avatar) {

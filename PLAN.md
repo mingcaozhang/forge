@@ -651,7 +651,7 @@ mvn package -DskipTests -T 1C
 mvn test -T 1C
 ```
 
-- [ ] Restyle player panels / life counters in `VMatchUI.java`.
+- [x] Restyle player panels / life counters in `VMatchUI.java`.
 - [ ] Style unified phase label pill (existing `UI_UNIFIED_PHASE_LABEL`).
 - [ ] Slim zone tab strip and stack/log column in `VMatchUI.java`.
 - [ ] Restyle floating zone frames in `CMatchUI.java` (no behavior change).
