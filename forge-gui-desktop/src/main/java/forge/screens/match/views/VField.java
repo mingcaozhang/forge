@@ -39,6 +39,7 @@ import javax.swing.border.LineBorder;
 
 import forge.deck.CommanderBracketCalculator;
 import forge.deck.Deck;
+import forge.game.card.CardView;
 import forge.game.card.CounterEnumType;
 import forge.game.GameView;
 import forge.game.player.PlayerView;
@@ -60,6 +61,9 @@ import forge.toolbox.special.PlayerDetailsPanel;
 import forge.util.AITimeoutTracker;
 import forge.util.Localizer;
 import forge.view.arcane.PlayArea;
+import forge.view.arcane.CardPanel;
+import forge.view.arcane.util.Easing;
+import forge.view.arcane.util.UIAnimator;
 import net.miginfocom.swing.MigLayout;
 
 /** 
@@ -267,6 +271,15 @@ public class VField implements IVDoc<CField> {
         return this.tabletop;
     }
 
+    /**
+     * @return the {@link PlayerView} this field belongs to; never {@code null}
+     * for fields wired through the constructor (only the EDocID placeholder can
+     * pass {@code null}, which we treat as unowned and skip animations for).
+     */
+    public PlayerView getPlayer() {
+        return player;
+    }
+
     public JPanel getAvatarArea() {
         return this.avatarArea;
     }
@@ -314,6 +327,51 @@ public class VField implements IVDoc<CField> {
         }
         tab.setText(label);
         tab.setToolTipText(label);
+    }
+
+    // ---- Cast lunge + glow pulse on battlefield entry ----------------------------------------
+    private static final Color COLOR_CAST_ENTRY = new Color(180, 140, 255);
+    private static final int CAST_LUNGE_PX = 18;
+    private static final int CAST_LUNGE_DURATION_MILLIS = 320;
+
+    /**
+     * Plays the transient "cast lunge + glow pulse" cue for a card that just
+     * entered this field's battlefield zone. Cosmetic only: the card's logical
+     * bounds, layout, hit testing and game state are untouched, and no-op
+     * happens when animation is off, the card has no panel on this field, or
+     * the panel hasn't been sized yet.
+     *
+     * <p>Opponent-field panels lunge toward the field centre (positive Y) and
+     * local-field panels lunge toward their opponent (negative Y), matching the
+     * tabletop's mirrored top/bottom layout.</p>
+     *
+     * @param card the {@link CardView} that just entered the battlefield
+     */
+    public void dispatchCastEntry(final CardView card) {
+        if (card == null || player == null || matchUI == null
+                || UIAnimator.currentMode() == UIAnimator.Mode.OFF) {
+            return;
+        }
+        final CardPanel panel = tabletop.getCardPanel(card.getId());
+        if (panel == null || panel.getWidth() <= 0 || panel.getHeight() <= 0) {
+            return;
+        }
+        final boolean opponentField = !matchUI.getLocalPlayers().contains(player);
+        tweenCastLunge(panel, opponentField ? CAST_LUNGE_PX : -CAST_LUNGE_PX);
+        matchUI.dispatchCardGlowAt(panel, COLOR_CAST_ENTRY);
+    }
+
+    private static void tweenCastLunge(final CardPanel panel, final int peakOffsetPx) {
+        UIAnimator.startRaw(CAST_LUNGE_DURATION_MILLIS, "cast-lunge-" + System.identityHashCode(panel),
+                progress -> {
+                    final float eased;
+                    if (progress <= 0.5f) {
+                        eased = Easing.cubicOut(progress / 0.5f);
+                    } else {
+                        eased = 1f - Easing.cubicOut((progress - 0.5f) / 0.5f);
+                    }
+                    panel.setLungeOffsetY(Math.round(peakOffsetPx * eased));
+                });
     }
 
     private void addLblTicket() {

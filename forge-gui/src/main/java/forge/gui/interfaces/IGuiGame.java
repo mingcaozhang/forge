@@ -130,6 +130,12 @@ public interface IGuiGame {
     default void notifyAttackersDeclared(final GameEventAttackersDeclared event) {}
     /** A card was drawn (moved from library to hand): dispatch a transient visual cue. Called on the EDT. */
     default void notifyCardDrawn(final GameEventCardChangeZone event) {}
+    /**
+     * A non-instant/spell permanent entered the battlefield (e.g. from hand,
+     * library, stack, or exile). Dispatch a transient cast-lunge + glow-pulse
+     * cue on the card's panel. Called on the EDT.
+     */
+    default void notifyCardEntersBattlefield(final GameEventCardChangeZone event) {}
 
     default void handleLandPlayed(CardView land) {}
 

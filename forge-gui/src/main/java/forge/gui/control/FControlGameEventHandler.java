@@ -469,6 +469,10 @@ public class FControlGameEventHandler extends IGameEventVisitor.Base<Void> {
                 && event.from().zoneType() == ZoneType.Library
                 && event.to().zoneType() == ZoneType.Hand) {
             dispatchEffect(() -> matchController.notifyCardDrawn(event));
+        } else if (event.to() != null
+                && event.to().zoneType() == ZoneType.Battlefield
+                && (event.from() == null || event.from().zoneType() != ZoneType.Battlefield)) {
+            dispatchEffect(() -> matchController.notifyCardEntersBattlefield(event));
         }
         return processEvent();
     }

@@ -1532,6 +1532,20 @@ public final class CMatchUI
         dispatchCardGlow(event.card(), COLOR_DRAW);
     }
 
+    @Override
+    public void notifyCardEntersBattlefield(GameEventCardChangeZone event) {
+        if (event == null || event.to() == null) {
+            return;
+        }
+        final PlayerView owner = event.to().player();
+        for (final VField field : getFieldViews()) {
+            if (field.getPlayer() == owner) {
+                field.dispatchCastEntry(event.card());
+                return;
+            }
+        }
+    }
+
     /**
      * Plays a short glow over the card's panel on the match effect overlay.
      * Purely cosmetic: it reads no game state beyond the passed card and never
@@ -1542,15 +1556,26 @@ public final class CMatchUI
      * @param color the glow color
      */
     private void dispatchCardGlow(final CardView card, final Color color) {
-        if (card == null || UIAnimator.currentMode() == UIAnimator.Mode.OFF) {
+        if (card == null) {
+            return;
+        }
+        dispatchCardGlowAt(findVisibleCardPanel(card.getId()), color);
+    }
+
+    /**
+     * Plays a short glow over the given panel on the match effect overlay.
+     * Exposed so sibling views (e.g. {@link VField}) can piggyback their own
+     * transient entry cues without duplicating overlay/paint-target plumbing.
+     *
+     * @param panel the {@link CardPanel} to glow over (may be {@code null})
+     * @param color the glow color
+     */
+    public void dispatchCardGlowAt(final CardPanel panel, final Color color) {
+        if (panel == null || UIAnimator.currentMode() == UIAnimator.Mode.OFF) {
             return;
         }
         final MatchEffectOverlay overlay = view.getEffectOverlay();
         if (!overlay.isAttached()) {
-            return;
-        }
-        final CardPanel panel = findVisibleCardPanel(card.getId());
-        if (panel == null) {
             return;
         }
         final Rectangle bounds = new Rectangle(0, 0, panel.getWidth(), panel.getHeight());

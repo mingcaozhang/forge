@@ -141,6 +141,7 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
     private float hoverProgress;
     private float handLift;
     private boolean handLiftEnabled;
+    private int lungeOffsetY;
     private boolean hasFlash;
     private String zoneBannerText;
     private Color zoneBannerColor;
@@ -382,6 +383,31 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
         repaint();
     }
 
+    /**
+     * @return the transient paint-time vertical offset (in pixels) used by the
+     * cast-lunge animation; {@code 0} when the panel is at rest
+     */
+    public final int getLungeOffsetY() {
+        return lungeOffsetY;
+    }
+
+    /**
+     * Sets the transient paint-time vertical offset (in pixels) used by the
+     * cast-lunge animation on battlefield entries. This is a paint-only
+     * transform — logical card bounds used for hit testing, layout and dragging
+     * are never affected. A value of {@code 0} (the default) leaves rendering
+     * byte-for-byte unchanged. No-op when the value is unchanged.
+     *
+     * @param offsetPixels vertical paint offset in pixels
+     */
+    public final void setLungeOffsetY(final int offsetPixels) {
+        if (this.lungeOffsetY == offsetPixels) {
+            return;
+        }
+        this.lungeOffsetY = offsetPixels;
+        repaint();
+    }
+
     @Override
     public final void paint(final Graphics g) {
         if (!displayEnabled) {
@@ -391,7 +417,7 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
             super.validate();
         }
         Graphics2D g2d = (Graphics2D) g;
-        if (getTappedAngle() > 0 || handLift > 0f) {
+        if (getTappedAngle() > 0 || handLift > 0f || lungeOffsetY != 0) {
             g2d = (Graphics2D) g2d.create();
             if (handLift > 0f) {
                 final float s = 1f + (HAND_MAX_SCALE - 1f) * handLift;
@@ -401,6 +427,9 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
                 g2d.scale(s, s);
                 g2d.translate(-cx, -cy);
                 g2d.translate(0f, -HAND_MAX_LIFT_RATIO * cardHeight * handLift);
+            }
+            if (lungeOffsetY != 0) {
+                g2d.translate(0, lungeOffsetY);
             }
             if (getTappedAngle() > 0) {
                 final float edgeOffset = cardWidth / 2f;

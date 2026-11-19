@@ -310,7 +310,7 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
       diff to `forge-core`/`forge-game`/`forge-ai`. Verified
       `mvn test-compile -T 1C` (exit 0) and
       `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (exit 0).
-- [ ] Add cast lunge + glow pulse to `VField.java` creature/spell entry.
+- [x] Add cast lunge + glow pulse to `VField.java` creature/spell entry.
 - [ ] Add Arena-style draw arc and tap pulse in `VHand.java`.
 - [ ] Animate stack drawer open/close and per-item fade in `VStack.java`.
 - [ ] Animate counter bumps in `VZone.java` (graveyard/exile/library).
