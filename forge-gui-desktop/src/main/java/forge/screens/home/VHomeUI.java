@@ -211,8 +211,9 @@ public enum VHomeUI implements IVTopLevelUI {
         pnlDashboard.add(pnlRecentDecks, "w 100%!, pushy, growy");
 
         pnlDisplayArea.addCards(pnlDisplay, pnlDashboard);
-        // CardLayout starts on the submenu display so existing navigation is unchanged; the
-        // dashboard is surfaced by CHomeUI once tile clicks are wired through itemClick(...).
+        // CardLayout starts on the submenu display so existing navigation is unchanged. CHomeUI
+        // wires every hero tile's click through CHomeUI.itemClick(...); surfacing the dashboard
+        // (with the fade/slide transition) is deferred to a later phase.
     }
 
     /**

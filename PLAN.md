@@ -414,8 +414,20 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
 - [x] Implement `HomeTile.java`, `RecentDecksCarousel.java`,
       `LastMatchTile.java` under `forge-gui-desktop/src/main/java/forge/screens/home/tiles/`.
 - [x] Refactor `VHomeUI.java` to lay out hero tiles + recent decks carousel.
-- [ ] Update `CHomeUI.java` so tile clicks dispatch through existing
+- [x] Update `CHomeUI.java` so tile clicks dispatch through existing
       `itemClick(itemEnum)` path; keep `EDocID.HOME_*` behavior intact.
+      **Implemented** (controller-only wiring). Added `CHomeUI.wireDashboardTiles()`,
+      called once from `initialize()`, which installs a click handler on every hero
+      tile from `VHomeUI.getHeroTiles()` that forwards the tile's `EDocID` tag to the
+      existing `itemClick(EDocID)` method — the same path `LblMenuItem` uses — so tile
+      clicks are byte-for-byte equivalent to selecting the left-hand menu entry and
+      `EDocID.HOME_*` behavior is unchanged. `HomeTile` keeps zero screen/navigation
+      knowledge (handler is injected via `setOnClick`); zero diff to
+      `forge-core`/`forge-game`/`forge-ai`. CardLayout still defaults to the submenu
+      display (dashboard surfacing + fade/slide transition is the next item), so runtime
+      navigation is unchanged today. Also corrected the now-stale comment in `VHomeUI`
+      that described the wiring as a future step. Verified `mvn test-compile -T 1C`
+      (exit 0) and `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (165 pass).
 - [ ] Add smooth transition (`UIAnimator` fade+slide) between dashboard and
       submenus without breaking `IVSubmenu` contract.
 - [ ] Preserve screen-reader / accessibility path: if

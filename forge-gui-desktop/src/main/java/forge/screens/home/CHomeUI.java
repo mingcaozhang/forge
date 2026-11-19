@@ -13,6 +13,7 @@ import forge.menus.IMenuProvider;
 import forge.menus.MenuUtil;
 import forge.model.FModel;
 import forge.screens.home.sanctioned.VSubmenuConstructed;
+import forge.screens.home.tiles.HomeTile;
 import forge.toolbox.FAbsolutePositioner;
 
 /**
@@ -85,7 +86,29 @@ public enum CHomeUI implements ICDoc, IMenuProvider {
     public void initialize() {
         Singletons.getControl().getForgeMenu().setProvider(this);
 
+        wireDashboardTiles();
         selectPrevious();
+    }
+
+    /**
+     * Wires each Arena dashboard hero tile to the existing submenu navigation
+     * path so that clicking a tile behaves exactly like selecting its entry in
+     * the left-hand menu.
+     *
+     * <p>The handler only forwards the tile's {@link EDocID} tag to
+     * {@link #itemClick(forge.gui.framework.EDocID)}; the tiles themselves carry
+     * no screen knowledge, so {@code EDocID.HOME_*} behavior stays identical to
+     * the menu labels driven by {@link LblMenuItem}.</p>
+     */
+    private void wireDashboardTiles() {
+        for (final HomeTile tile : VHomeUI.SINGLETON_INSTANCE.getHeroTiles().values()) {
+            tile.setOnClick(clicked -> {
+                final EDocID docId = clicked.getDocId();
+                if (docId != null) {
+                    itemClick(docId);
+                }
+            });
+        }
     }
 
     /* (non-Javadoc)
