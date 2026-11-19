@@ -540,7 +540,21 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
 - [x] Modernize `ItemManager.java` toolbar, search, and view-switch UI.
 - [x] Restyle `ItemListView.java` table (zebra rows, slim scrollbars, header).
 - [x] Upgrade `ImageView.java` card tiles with hover scale/glow via cache.
-- [ ] Restyle `VCurrentDeck.java` toolbar/header; keep button accessors intact.
+- [x] Restyle `VCurrentDeck.java` toolbar/header; keep button accessors intact.
+      **Implemented** (UI-only in `forge-gui-desktop`). `pnlHeader` is now a
+      private `PnlToolbar extends JPanel` that paints a subtle `CLR_THEME` vertical
+      gradient with a rounded (arc 12) soft border behind the header controls — it
+      is a drop-in replacement for the old plain `JPanel` (same MigLayout, sizes,
+      insets and hit-testing; `getPnlHeader()` still returns a `JPanel` and is only
+      ever used for `setVisible`). All seven toolbar icon/text buttons (`btnSave`,
+      `btnSaveAs`, `btnLoad`, `btnNew`, `btnPrintProxies`, `btnCopyToClipboard`,
+      `btnImport`) now use the existing opt-in `FLabel` `modernToggle()` flat
+      rounded chrome already adopted by `ItemManager`, so the deck-editor toolbar
+      matches the rest of the modernized browser. No command, tooltip, size,
+      layout, or accessor change (`getBtnOpen()`/`getBtnImport()` and all others
+      wired byte-for-byte identical). ZERO diff to `forge-core`/`forge-game`/`forge-ai`.
+      Verified `mvn test-compile -T 1C` (exit 0; checkstyle clean) and
+      `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (165 pass).
 - [ ] Restyle `VAllDecks.java` and `VCardCatalog.java`; preserve auto-edit.
 - [ ] Redesign `VStatistics.java` + `CStatistics.java` curve/identity visuals.
 - [ ] Add commander/partner showcase header in `VCommanderDecks.java`.

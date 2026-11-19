@@ -1,5 +1,10 @@
 package forge.screens.deckeditor.views;
 
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
@@ -16,6 +21,7 @@ import forge.screens.deckeditor.controllers.CCurrentDeck;
 import forge.toolbox.FComboBox;
 import forge.toolbox.FLabel;
 import forge.toolbox.FSkin;
+import forge.toolbox.FSkin.SkinColor;
 import forge.toolbox.FTextField;
 import forge.util.Localizer;
 import net.miginfocom.swing.MigLayout;
@@ -41,7 +47,7 @@ public enum VCurrentDeck implements IVDoc<CCurrentDeck> {
             .iconInBackground(true)
             .iconAlignX(SwingConstants.CENTER)
             .icon(FSkin.getIcon(FSkinProp.ICO_SAVE))
-            .text(" ").hoverable(true).build();
+            .text(" ").hoverable(true).modernToggle().build();
 
     private final FLabel btnSaveAs = new FLabel.Builder()
             .fontSize(14)
@@ -49,7 +55,7 @@ public enum VCurrentDeck implements IVDoc<CCurrentDeck> {
             .iconInBackground(true)
             .iconAlignX(SwingConstants.CENTER)
             .icon(FSkin.getIcon(FSkinProp.ICO_SAVEAS))
-            .text(" ").hoverable(true).build();
+            .text(" ").hoverable(true).modernToggle().build();
 
     private final FLabel btnLoad = new FLabel.Builder()
             .fontSize(14)
@@ -57,7 +63,7 @@ public enum VCurrentDeck implements IVDoc<CCurrentDeck> {
             .iconInBackground(true)
             .iconAlignX(SwingConstants.CENTER)
             .icon(FSkin.getIcon(FSkinProp.ICO_OPEN))
-            .text(" ").hoverable(true).build();
+            .text(" ").hoverable(true).modernToggle().build();
 
     private final FLabel btnNew = new FLabel.Builder()
             .fontSize(14)
@@ -65,7 +71,7 @@ public enum VCurrentDeck implements IVDoc<CCurrentDeck> {
             .iconInBackground(true)
             .iconAlignX(SwingConstants.CENTER)
             .icon(FSkin.getIcon(FSkinProp.ICO_NEW))
-            .text(" ").hoverable(true).build();
+            .text(" ").hoverable(true).modernToggle().build();
 
     private final FLabel btnPrintProxies = new FLabel.Builder()
             .fontSize(14)
@@ -73,7 +79,7 @@ public enum VCurrentDeck implements IVDoc<CCurrentDeck> {
             .iconInBackground(true)
             .iconAlignX(SwingConstants.CENTER)
             .icon(FSkin.getIcon(FSkinProp.ICO_PRINT))
-            .text(" ").hoverable(true).build();
+            .text(" ").hoverable(true).modernToggle().build();
 
     private final FLabel btnCopyToClipboard = new FLabel.Builder()
             .fontSize(14)
@@ -81,17 +87,17 @@ public enum VCurrentDeck implements IVDoc<CCurrentDeck> {
             .iconInBackground(true)
             .iconAlignX(SwingConstants.CENTER)
             .icon(FSkin.getIcon(FSkinProp.ICO_CLIPBOARD))
-            .text(" ").hoverable(true).build();
+            .text(" ").hoverable(true).modernToggle().build();
 
     private final FLabel btnImport = new FLabel.Builder()
             .fontSize(14)
             .text(localizer.getMessage("lblImport"))
             .tooltip(localizer.getMessage("ttImportDeck"))
-            .opaque(true).hoverable(true).build();
+            .opaque(true).hoverable(true).modernToggle().build();
 
     private final FTextField txfTitle = new FTextField.Builder().ghostText("[" + localizer.getMessage("lblNewDeck") +"]").build();
 
-    private final JPanel pnlHeader = new JPanel();
+    private final JPanel pnlHeader = new PnlToolbar();
 
     private final FLabel lblTitle = new FLabel.Builder().text(localizer.getMessage("lblTitle")).fontSize(14).build();
 
@@ -245,5 +251,46 @@ public enum VCurrentDeck implements IVDoc<CCurrentDeck> {
 
     public FComboBox<Object> getCbFormat() {
         return cbFormat;
+    }
+
+    /**
+     * Rounded, subtly gradient toolbar chrome painted behind the current-deck
+     * header controls. It behaves exactly like the plain {@link JPanel} it
+     * replaces (same layout, sizing and component hit-testing) and only adds a
+     * soft vertical gradient fill with a rounded border so the deck toolbar reads
+     * as a modern toolbar card. Purely visual; no controller or deck logic is
+     * involved and every button accessor stays identical.
+     */
+    private static final class PnlToolbar extends JPanel {
+        private static final long serialVersionUID = 1L;
+        private static final int ARC = 12;
+        private static final int PAD = 1;
+
+        PnlToolbar() {
+            setOpaque(false);
+        }
+
+        @Override
+        protected void paintComponent(final Graphics graphics) {
+            super.paintComponent(graphics);
+            final int w = getWidth();
+            final int h = getHeight();
+            if (w <= PAD * 2 || h <= PAD * 2) {
+                return;
+            }
+            final Graphics2D g2d = (Graphics2D) graphics.create();
+            try {
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                final SkinColor theme = FSkin.getColor(FSkin.Colors.CLR_THEME);
+                g2d.setPaint(new GradientPaint(0f, PAD, theme.stepColor(10).getColor(),
+                        0f, h - PAD, theme.stepColor(-18).getColor()));
+                g2d.fillRoundRect(PAD, PAD, w - PAD * 2, h - PAD * 2, ARC, ARC);
+                FSkin.setGraphicsColor(g2d,
+                        FSkin.getColor(FSkin.Colors.CLR_BORDERS).getContrastColor(20).alphaColor(180));
+                g2d.drawRoundRect(PAD, PAD, w - PAD * 2, h - PAD * 2, ARC, ARC);
+            } finally {
+                g2d.dispose();
+            }
+        }
     }
 }
