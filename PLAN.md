@@ -312,7 +312,19 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
       `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (exit 0).
 - [x] Add cast lunge + glow pulse to `VField.java` creature/spell entry.
 - [x] Add Arena-style draw arc and tap pulse in `VHand.java`.
-- [ ] Animate stack drawer open/close and per-item fade in `VStack.java`.
+- [x] Animate stack drawer open/close and per-item fade in `VStack.java`.
+      Drawer "open" plays when the stack goes from empty to non-empty: every
+      entry starts faded + offset below rest and rises/fades in via a keyed
+      `UIAnimator.startRaw` tween, staggered per position so the batch reads as
+      a drawer opening. After open, only newly-cast items animate (tracked by
+      `StackItemView.getId()` in `entryAnimated`) so persistent entries are not
+      re-animated on every repaint; the set clears on open/close. Per-entry
+      `setEntryState`/`paintComponent` apply `AlphaComposite` + translate on a
+      child `Graphics` copy — purely paint-only, no layout/hit-test change.
+      Honors `UIAnimator.Mode.OFF` (skips tween, leaves entries at rest).
+      ZERO diff to `forge-core`/`forge-game`/`forge-ai`. Verified
+      `mvn test-compile -T 1C` (exit 0; checkstyle clean) and
+      `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (exit 0).
 - [ ] Animate counter bumps in `VZone.java` (graveyard/exile/library).
 - [ ] Soften targeting crosshair pulse in existing TargetingOverlay file.
 - [ ] Add `forge-gui-desktop/src/test/java/forge/view/arcane/util/AnimationModeTest.java`

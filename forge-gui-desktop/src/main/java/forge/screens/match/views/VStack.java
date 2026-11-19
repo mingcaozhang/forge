@@ -17,6 +17,7 @@
  */
 package forge.screens.match.views;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -25,6 +26,8 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.BasicStroke;
 import java.awt.Stroke;
+import java.util.HashSet;
+import java.util.Set;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -58,6 +61,8 @@ import forge.toolbox.FSkin;
 import forge.toolbox.FSkin.SkinnedTextArea;
 import forge.util.Localizer;
 import forge.util.collect.FCollectionView;
+import forge.view.arcane.util.Easing;
+import forge.view.arcane.util.UIAnimator;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -86,6 +91,19 @@ public class VStack implements IVDoc<CStack> {
     public StackInstanceTextArea getHoveredItem() {
         return hoveredItem;
     }
+
+    // Stack "drawer" entry animation: items slide up and fade in as they are added.
+    private static final int ENTRY_DURATION_MILLIS = 240;
+    private static final int ENTRY_STAGGER_MILLIS = 40;
+    private static final int ENTRY_SLIDE_PX = 22;
+    private static final int MAX_STAGGER_ITEMS = 8;
+
+    // Tracks whether the drawer is currently showing a non-empty stack, so the
+    // first batch of items after an empty state is played as a group "open".
+    private boolean drawerOpen;
+    // Stack item ids that have already been animated this match, so items that
+    // persist across repaints are not re-animated on every stack change.
+    private final Set<Integer> entryAnimated = new HashSet<>();
 
     private final CStack controller;
     public VStack(final CStack controller) {
@@ -139,6 +157,16 @@ public class VStack implements IVDoc<CStack> {
         hoveredItem = null;
         scroller.removeAll();
 
+        // The drawer slides open when it goes from empty to non-empty: the whole
+        // batch of items is (re)played as a group. After that only newly cast
+        // items animate, so entries that persist are not re-animated per repaint.
+        final boolean opening = !drawerOpen && !items.isEmpty();
+        if (opening || (drawerOpen && items.isEmpty())) {
+            entryAnimated.clear();
+        }
+        final boolean animate = UIAnimator.currentMode() != UIAnimator.Mode.OFF;
+        int newEntryCount = 0;
+
         final Iterable<StackItemView> safeItems = controller.getMatchUI().isNetGame()
                 ? items.threadSafeIterable() : items;
         boolean isFirst = true;
@@ -147,6 +175,14 @@ public class VStack implements IVDoc<CStack> {
 
             scroller.add(tar, "pushx, growx" + (isFirst ? "" : ", gaptop 2px"));
 
+            final int id = item.getId();
+            if (animate && (opening || !entryAnimated.contains(id))) {
+                animateEntry(tar, newEntryCount++);
+            } else {
+                tar.setEntryState(1f, 0f);
+            }
+            entryAnimated.add(id);
+
             //update the Card Picture/Detail when the spell is added to the stack
             if (isFirst) {
                 isFirst = false;
@@ -154,10 +190,39 @@ public class VStack implements IVDoc<CStack> {
             }
         }
 
+        drawerOpen = !items.isEmpty();
+
         scroller.revalidate();
         scroller.repaint();
 
         SwingUtilities.invokeLater(scroller::scrollToTop);
+    }
+
+    /**
+     * Plays the per-item drawer entry: the entry starts faded and offset below its
+     * resting spot, then rises and fades in. The {@code staggerIndex} delays later
+     * items slightly so a batch reads as a drawer opening. Purely paint-only — the
+     * entry's layout bounds and hit-testing never change.
+     *
+     * @param tar          the entry to animate
+     * @param staggerIndex zero-based order among the entries added in this batch
+     */
+    private static void animateEntry(final StackInstanceTextArea tar, final int staggerIndex) {
+        tar.setEntryState(0f, ENTRY_SLIDE_PX);
+        final int stagger = Math.min(staggerIndex, MAX_STAGGER_ITEMS) * ENTRY_STAGGER_MILLIS;
+        final int total = ENTRY_DURATION_MILLIS + stagger;
+        final Object key = "stack-entry-" + System.identityHashCode(tar);
+        UIAnimator.startRaw(total, key, progress -> {
+            float local = ((float) total * progress - stagger) / ENTRY_DURATION_MILLIS;
+            if (local <= 0f) {
+                return; // still in this item's stagger hold-out
+            }
+            if (local > 1f) {
+                local = 1f;
+            }
+            final float eased = Easing.cubicOut(local);
+            tar.setEntryState(eased, (1f - eased) * ENTRY_SLIDE_PX);
+        });
     }
 
     /** Repaints the entries, for when a stack target was marked, picked or unmarked (the outline is painted per entry). */
@@ -173,6 +238,19 @@ public class VStack implements IVDoc<CStack> {
 
         private final StackItemView item;
         private final CachedCardImage cachedImage;
+
+        // Paint-only drawer entry state; layout bounds and hit-testing are untouched.
+        private float entryAlpha = 1f;
+        private float entryOffsetY;
+
+        void setEntryState(final float alpha0, final float offsetY0) {
+            if (this.entryAlpha == alpha0 && this.entryOffsetY == offsetY0) {
+                return;
+            }
+            this.entryAlpha = alpha0;
+            this.entryOffsetY = offsetY0;
+            repaint();
+        }
 
         public StackItemView getItem() {
             return item;
@@ -295,9 +373,18 @@ public class VStack implements IVDoc<CStack> {
 
         @Override
         public void paintComponent(final Graphics g) {
-            super.paintComponent(g);
+            final boolean animating = entryAlpha < 1f || entryOffsetY != 0f;
+            final Graphics2D g2d = animating ? (Graphics2D) g.create() : (Graphics2D) g;
+            if (animating) {
+                if (entryAlpha < 1f) {
+                    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, entryAlpha));
+                }
+                if (entryOffsetY != 0f) {
+                    g2d.translate(0f, entryOffsetY);
+                }
+            }
 
-            final Graphics2D g2d = (Graphics2D) g;
+            super.paintComponent(g2d);
 
             //draw image for source card
             final BufferedImage img = cachedImage.getImage();
@@ -314,6 +401,10 @@ public class VStack implements IVDoc<CStack> {
                         : new BasicStroke(3f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10f, new float[] {8f, 6f}, 0f));
                 g2d.drawRect(1, 1, getWidth() - 3, getHeight() - 3);
                 g2d.setStroke(oldStroke);
+            }
+
+            if (animating) {
+                g2d.dispose();
             }
         }
     }
