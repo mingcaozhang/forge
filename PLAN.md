@@ -264,8 +264,22 @@ mvn test-compile -T 1C
 mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C
 ```
 
-- [ ] Implement `HitFlashOverlay.java`, `DamagePopup.java`, `CastGlow.java`
+- [x] Implement `HitFlashOverlay.java`, `DamagePopup.java`, `CastGlow.java`
       under `forge-gui-desktop/src/main/java/forge/view/arcane/effects/`.
+      **Implemented** (test-only none needed this item; new package only).
+      Added a shared abstract base `ArcaneEffect.java` that schedules exactly
+      one keyed `UIAnimator.startRaw` tween per effect, registers it in a static
+      active list (`activeCount()`/`activeEffects()`), requests target repaints
+      per frame, and retires itself in the tween's `onEnd` — so once full
+      duration elapses both the effect list and the shared animator timer are
+      empty/idle (the invariant the later `EffectsLifecycleTest` will assert).
+      `HitFlashOverlay` (triangular ramp/fade rounded flash, ~220ms),
+      `DamagePopup` (floating `-N` text that rises via `Easing.cubicOut` and
+      fades, ~900ms), `CastGlow` (outward pulsing multi-ring glow, ~600ms).
+      All effects are purely visual, read no game state, and add ZERO diff to
+      `forge-core`/`forge-game`/`forge-ai`. Verified `mvn test-compile -T 1C`
+      (exit 0; checkstyle clean) and `mvn test -Dtest=*Commander*,*Deck* ... -T 1C`
+      (165 pass).
 - [ ] Add a transparent overlay `JLayer` to the match window in
       `forge-gui-desktop/src/main/java/forge/screens/match/VMatchUI.java`.
 - [ ] Hook draw / tap / attack triggers in `CMatchUI.java` to dispatch
