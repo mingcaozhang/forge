@@ -153,8 +153,8 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C
 - [x] Rewire `Animation.java` internals to delegate to `UIAnimator` while
        keeping the existing public methods for `PlayArea.java:1028`,
        `CardArea.java:326`, `Animation.java:195/256/292`.
-- [ ] Add hover/glow + cached rounded-frame paint to
-      `forge-gui-desktop/src/main/java/forge/view/arcane/CardPanel.java`.
+- [x] Add hover/glow + cached rounded-frame paint to
+       `forge-gui-desktop/src/main/java/forge/view/arcane/CardPanel.java`.
 - [ ] Wire hover enter/exit through `CardPanelContainer.java` so detail
       previews animate in/out smoothly.
 - [ ] Replace hand fan/rise in `HandArea.java` with `UIAnimator` tweens.

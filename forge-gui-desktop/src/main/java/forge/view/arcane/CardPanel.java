@@ -17,7 +17,9 @@
  */
 package forge.view.arcane;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
@@ -72,6 +74,7 @@ import forge.toolbox.FSkin;
 import forge.toolbox.FSkin.SkinnedPanel;
 import forge.toolbox.IDisposable;
 import forge.util.CardTranslation;
+import forge.view.arcane.util.CardTextureCache;
 import forge.view.arcane.util.OutlinedLabel;
 
 /**
@@ -107,6 +110,10 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
     private static final Color DEFAULT_ZONE_COLOR = new Color(60, 60, 80);
     private static final Color GHOST_TINT = new Color(90, 120, 175, 110);
 
+    /** Shared, bounded cache of pre-rendered hover-glow halos, keyed purely on
+     *  geometry so identical-sized cards reuse a single rasterised ring. */
+    private static final CardTextureCache HOVER_CACHE = new CardTextureCache();
+
     private final CMatchUI matchUI;
     private CardView card;
     private CardPanel attachedToPanel;
@@ -125,6 +132,7 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
     private boolean isAnimationPanel;
     private int cardXOffset, cardYOffset, cardWidth, cardHeight;
     private boolean isSelected;
+    private float hoverProgress;
     private boolean hasFlash;
     private String zoneBannerText;
     private Color zoneBannerColor;
@@ -292,6 +300,32 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
         repaint();
     }
 
+    /**
+     * @return the current hover-glow intensity in {@code [0, 1]}; {@code 0}
+     *         means no glow (identical to the un-hovered card).
+     */
+    public final float getHoverProgress() {
+        return hoverProgress;
+    }
+
+    /**
+     * Sets the hover-glow intensity, clamped to {@code [0, 1]}. Intended to be
+     * driven per-frame by a {@link forge.view.arcane.util.UIAnimator} tween so
+     * detail previews fade in/out smoothly; calling with {@code 0} (the default)
+     * leaves rendering byte-for-byte unchanged. No-op when the value is equal to
+     * the current progress.
+     *
+     * @param progress target glow intensity in {@code [0, 1]}
+     */
+    public final void setHoverProgress(final float progress) {
+        final float clamped = progress < 0f ? 0f : (progress > 1f ? 1f : progress);
+        if (this.hoverProgress == clamped) {
+            return;
+        }
+        this.hoverProgress = clamped;
+        repaint();
+    }
+
     @Override
     public final void paint(final Graphics g) {
         if (!displayEnabled) {
@@ -352,6 +386,10 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
             final int n = Math.max(1, Math.round(cardWidth * CardPanel.SELECTED_BORDER_SIZE));
             g2d.fillRoundRect(cardXOffset - n, (cardYOffset - n) + offset, cardWidth + (n * 2), cardHeight + (n * 2), cornerSize + n, cornerSize + n);
         }
+
+        // Soft hover glow: cached rounded halo faded by hoverProgress (drawn
+        // before the opaque card body so only the outer edge shows through).
+        paintHoverGlow(g2d, hoverProgress, cornerSize, offset);
 
         // Black fill - (will become an outline for white bordered cards)
         g2d.setColor(Color.black);
@@ -418,6 +456,59 @@ public class CardPanel extends SkinnedPanel implements CardContainer, IDisposabl
             if (s != null && s.length() == 6) return new Color(Integer.parseInt(s, 16));
         } catch (NumberFormatException ignored) {}
         return new Color(Integer.parseInt(FPref.UI_ACTIONABLE_HIGHLIGHT_COLOR.getDefault(), 16));
+    }
+
+    /**
+     * Paints the soft, hover-activated glow ring. The rounded halo is
+     * pre-rendered once per distinct geometry into the shared, bounded
+     * {@link #HOVER_CACHE} and reused for every subsequent frame, so an
+     * animated hover-in/out re-rasterises nothing; the whole ring is then faded
+     * by {@code progress} via {@link AlphaComposite}. A {@code progress} of
+     * {@code 0} (the default) draws nothing at all.
+     */
+    private void paintHoverGlow(final Graphics2D g2d, final float progress, final int cornerSize, final int offset) {
+        if (progress <= 0f || cardWidth <= 0 || cardHeight <= 0) {
+            return;
+        }
+        final int thickness = Math.max(2, Math.round(cardWidth * CardPanel.SELECTED_BORDER_SIZE * 2f));
+        final String key = "hover|" + cardWidth + "x" + cardHeight + "|c" + cornerSize + "|t" + thickness;
+        final BufferedImage ring = HOVER_CACHE.getOrCompute(key,
+                () -> buildHoverGlow(cardWidth, cardHeight, cornerSize, thickness));
+        if (ring == null) {
+            return;
+        }
+        final Composite previous = g2d.getComposite();
+        try {
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, Math.min(1f, progress)));
+            g2d.drawImage(ring, cardXOffset - thickness, (cardYOffset - thickness) + offset, null);
+        } finally {
+            g2d.setComposite(previous);
+        }
+    }
+
+    /**
+     * Builds a full-intensity green glow halo for a {@code w}x{@code h} card.
+     * Two concentric, anti-aliased rounded rects approximate a blur; when the
+     * opaque card body is painted on top afterwards, only the green edge shows
+     * as a soft halo. The image is left at full alpha so the caller can modulate
+     * it independently of geometry.
+     */
+    private static BufferedImage buildHoverGlow(final int w, final int h, final int corner, final int thickness) {
+        final int sw = w + thickness * 2;
+        final int sh = h + thickness * 2;
+        final BufferedImage img = new BufferedImage(sw, sh, BufferedImage.TYPE_INT_ARGB);
+        final Graphics2D g = img.createGraphics();
+        try {
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setColor(new Color(0f, 1f, 0f, 0.18f));
+            g.fillRoundRect(0, 0, sw, sh, corner + thickness, corner + thickness);
+            g.setColor(new Color(0f, 1f, 0f, 0.34f));
+            final int inset = Math.max(1, thickness / 2);
+            g.fillRoundRect(inset, inset, sw - inset * 2, sh - inset * 2, corner + inset, corner + inset);
+        } finally {
+            g.dispose();
+        }
+        return img;
     }
 
     private void drawManaCost(final Graphics g, final ManaCost cost, final int deltaY) {
