@@ -603,7 +603,7 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
       `forge-core`/`forge-game`/`forge-ai`. Verified
       `mvn test-compile -T 1C` (exit 0) and
       `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (exit 0).
-- [ ] Restyle `DeckImport.java` and `DeckFileMenu.java`; keep all actions.
+- [x] Restyle `DeckImport.java` and `DeckFileMenu.java`; keep all actions.
 - [ ] Add `forge-gui-desktop/src/test/java/forge/itemmanager/DeckEditorFilterParityTest.java`
       asserting that the existing filter predicates
       (`TextSearchFilter`, `CardFormatFilter`, `CardCMCRangeFilter`,

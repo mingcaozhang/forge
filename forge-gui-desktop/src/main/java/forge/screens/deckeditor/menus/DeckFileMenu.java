@@ -15,6 +15,7 @@ import forge.menus.MenuUtil;
 import forge.model.FModel;
 import forge.screens.deckeditor.CDeckEditorUI;
 import forge.screens.deckeditor.views.VCurrentDeck;
+import forge.toolbox.FSkin.SkinnedCheckBoxMenuItem;
 import forge.toolbox.FSkin.SkinnedMenuItem;
 import forge.util.Localizer;
 
@@ -126,7 +127,7 @@ public final class DeckFileMenu {
 
     private static JCheckBoxMenuItem getMenuItem_EnforceConformity() {
         final Localizer localizer = Localizer.getInstance();
-        JCheckBoxMenuItem checkItem = new JCheckBoxMenuItem(localizer.getMessage("cbEnforceDeckLegality"));
+        JCheckBoxMenuItem checkItem = new SkinnedCheckBoxMenuItem(localizer.getMessage("cbEnforceDeckLegality"));
         checkItem.setSelected(FModel.getPreferences().getPrefBoolean(FPref.ENFORCE_DECK_LEGALITY));
         checkItem.addActionListener(e -> {
             FModel.getPreferences().setPref(FPref.ENFORCE_DECK_LEGALITY, checkItem.isSelected());

@@ -24,6 +24,7 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
@@ -287,9 +288,8 @@ public class DeckImport<TModel extends DeckBase> extends FDialog {
         // === TOP COMPONENTS ===
 
         // == A. Scroll Input (Card List)
-        this.scrollInput.setBorder(new FSkin.TitledSkinBorder(BorderFactory.createEtchedBorder(),
+        this.scrollInput.setBorder(new FSkin.TitledSkinBorder(modernTitledBorderBase(),
                 Localizer.getInstance().getMessage("lblCardListTitle"), foreColor));
-        this.scrollInput.setViewportBorder(BorderFactory.createLoweredBevelBorder());
         // Action Listeners
         // ----------------
         this.txtInput.getDocument().addDocumentListener(new OnChangeTextUpdate());
@@ -299,9 +299,8 @@ public class DeckImport<TModel extends DeckBase> extends FDialog {
         this.txtDeckUrl.addActionListener(e -> loadFromUrl());
 
         // == B. Scroll Output (Decklist)
-        this.scrollOutput.setBorder(new FSkin.TitledSkinBorder(BorderFactory.createEtchedBorder(),
+        this.scrollOutput.setBorder(new FSkin.TitledSkinBorder(modernTitledBorderBase(),
                 Localizer.getInstance().getMessage("lblDecklistTitle"), foreColor));
-        this.scrollOutput.setViewportBorder(BorderFactory.createLoweredBevelBorder());
         // Action Listeners
         // ----------------
         this.htmlOutput.addHyperlinkListener(this::activateCardPreview);
@@ -327,7 +326,7 @@ public class DeckImport<TModel extends DeckBase> extends FDialog {
         this.closedOptsPanel = new JPanel(new MigLayout("insets 10, gap 5, left, w 100%"));
         closedOptsPanel.setVisible(true);
         closedOptsPanel.setOpaque(false);
-        final TitledBorder showOptsBorder = new TitledBorder(BorderFactory.createEtchedBorder(),
+        final TitledBorder showOptsBorder = new TitledBorder(modernTitledBorderBase(),
                 String.format("\u25B6 %s", Localizer.getInstance().getMessage("lblExtraOptions")));
         showOptsBorder.setTitleColor(foreColor.getColor());
         closedOptsPanel.setBorder(showOptsBorder);
@@ -335,7 +334,7 @@ public class DeckImport<TModel extends DeckBase> extends FDialog {
 
         // == B. (Actual) Options Panel
         this.optionsPanel = new JPanel(new MigLayout("insets 10, gap 5, left, h 150!"));
-        final TitledBorder border = new TitledBorder(BorderFactory.createEtchedBorder(),
+        final TitledBorder border = new TitledBorder(modernTitledBorderBase(),
                 String.format("\u25BC %s", Localizer.getInstance().getMessage("lblHideOptions")));
         border.setTitleColor(foreColor.getColor());
         optionsPanel.setBorder(border);
@@ -889,6 +888,18 @@ public class DeckImport<TModel extends DeckBase> extends FDialog {
         for (int i = targetMsg.length(); i < limit; i++)
             spacer.append("&nbsp;");
         return String.format("%s%s", targetMsg, spacer);
+    }
+
+    /**
+     * Border used as the "inside" base of every titled border in the import
+     * dialog. Prefers the FlatLaf/skin-themed {@code TitledBorder.border} token
+     * (rounded, subtle) so the panel chrome matches the modernized deck editor;
+     * falls back to the classic etched border if the L&F does not expose the
+     * token (e.g. headless test JVMs). Purely visual — no behavior impact.
+     */
+    private static Border modernTitledBorderBase() {
+        Border themed = UIManager.getBorder("TitledBorder.border");
+        return themed != null ? themed : BorderFactory.createEtchedBorder();
     }
 
     private String getTokenCSSClass(DeckRecognizer.TokenType tokenType){
