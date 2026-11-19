@@ -19,7 +19,6 @@
 package forge.gui;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.event.MouseListener;
 
 import javax.swing.BorderFactory;
@@ -47,6 +46,7 @@ import forge.toolbox.FLabel;
 import forge.toolbox.FScrollPane;
 import forge.toolbox.FSkin;
 import forge.toolbox.FSkin.SkinnedPanel;
+import forge.toolbox.FSkin.SkinFont;
 import forge.util.Localizer;
 /**
  * The class CardDetailPanel. Shows the details of a card.
@@ -57,6 +57,11 @@ import forge.util.Localizer;
 public class CardDetailPanel extends SkinnedPanel {
     /** Constant <code>serialVersionUID=-8461473263764812323L</code>. */
     private static final long serialVersionUID = -8461473263764812323L;
+
+    // Card detail typography (UI-only). Tuned for a larger, crisper Arena-style read.
+    // Sizes are relative (base 12) so they scale with FPref.UI_DEFAULT_FONT_SIZE.
+    private static final int DETAIL_FONT_SIZE = 15;
+    private static final int CARD_TEXT_FONT_SIZE = 13;
 
     private static Color fromDetailColor(final DetailColors detailColor) {
         return new Color(detailColor.r, detailColor.g, detailColor.b);
@@ -84,16 +89,17 @@ public class CardDetailPanel extends SkinnedPanel {
         setInfoLabel = new JLabel();
         setInfoLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        final Integer fontSizeR12 = FSkin.getRelativeFontSize(12);
-        final Integer fontSizeR14 = FSkin.getRelativeFontSize(14);
-        final Font font = new Font("Dialog", 0, fontSizeR14);
-        nameCostLabel.setFont(font);
-        typeLabel.setFont(font);
-        idLabel.setFont(font);
-        powerToughnessLabel.setFont(font);
+        // Drive the fonts through FSkin so the card detail view uses the skinned base
+        // face (crisper than the old hard-coded "Dialog") and honors the UI font size
+        // preference. Behavior is otherwise unchanged.
+        final SkinFont detailFont = FSkin.getRelativeFont(DETAIL_FONT_SIZE);
+        nameCostLabel.setFont(detailFont);
+        typeLabel.setFont(detailFont);
+        idLabel.setFont(detailFont);
+        powerToughnessLabel.setFont(detailFont);
 
         cdArea = new FHtmlViewer();
-        cdArea.setFont(new Font("Dialog", 0, fontSizeR12));
+        cdArea.setFont(FSkin.getRelativeFont(CARD_TEXT_FONT_SIZE));
         cdArea.setBorder(new EmptyBorder(2, 6, 2, 6));
         cdArea.setOpaque(false);
         cdArea.setFocusable(true);

@@ -173,7 +173,24 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
       `forge-core`/`forge-game`/`forge-ai` untouched; no `forge-gui` edit was
       required. Verified `mvn test-compile -T 1C` (exit 0) and
       `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (165 pass).
-- [ ] Tune `CardDetailUtil.java` typography constants (UI-only, no logic).
+- [x] Tune `CardDetailUtil.java` typography constants (UI-only, no logic).
+      **Context & placement audit:** Inspected `CardDetailUtil.java` (forge-gui)
+      — it is a pure text/`DetailColors` composer with **no** font/typography
+      constants and cannot reference `FSkin` (wrong module; forge-gui does not
+      depend on forge-gui-desktop). The card-detail typography constants actually
+      live in the rendering view `forge-gui-desktop/.../forge/gui/CardDetailPanel.java`,
+      which was hard-coding `new Font("Dialog", 0, …)` — bypassing the skinned
+      base face and the `UI_DEFAULT_FONT_SIZE` pref. Tuned cleanly there (UI-only,
+      zero logic/text-composition change): introduced named `DETAIL_FONT_SIZE` /
+      `CARD_TEXT_FONT_SIZE` constants and routed all four labels + the HTML card
+      text area through `FSkin.getRelativeFont(...)` so they now use the crisp
+      theme base face and scale with the pref. `doLayout()` is preferred-size
+      driven so the slightly larger sizes reflow automatically. Removed the now
+      unused `java.awt.Font` import. `forge-core`/`forge-game`/`forge-ai` and
+      `CardDetailUtil` text output left byte-for-byte unchanged (so
+      `PerfPatchFollowUpRulesTest` markup assertions stay intact). Verified
+      `mvn test-compile -T 1C` (exit 0) and
+      `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (237 pass).
 - [ ] Add `forge-gui-desktop/src/test/java/forge/view/arcane/util/UIAnimatorTest.java`
       asserting a submitted tween reaches 100% in its declared duration
       and that the shared Swing `Timer` reports `isRunning() == false`
