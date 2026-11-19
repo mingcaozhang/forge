@@ -73,7 +73,7 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C
       so skin swaps remain consistent.
 - [x] Verify `ForgeMenu.java` and `LayoutMenu.java` actions, accelerators,
       mnemonics, and keyboard shortcuts all work unchanged.
-- [ ] Add `UI_ANIMATION_MODE` and `UI_UI_THEME` FPref values to
+- [x] Add `UI_ANIMATION_MODE` and `UI_UI_THEME` FPref values to
       `ForgePreferences.java`; add matching controls in
       `forge-gui-desktop/src/main/java/forge/screens/home/settings/CSubmenuPreferences.java`.
 - [ ] Add `forge-gui-desktop/src/test/java/forge/ThemeIntegrationTest.java`

@@ -167,6 +167,8 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
     private final FComboBoxPanel<String> cbpAutoUpdater = new FComboBoxPanel<>(localizer.getMessage("cbpAutoUpdater")+":");
     private final FComboBoxPanel<String> cbpSwitchStates = new FComboBoxPanel<>(localizer.getMessage("cbpSwitchStates")+":");
     private final FComboBoxPanel<String> cbpServerUPnPOption = new FComboBoxPanel<>(localizer.getMessage("cbpServerUPnPOption")+":");
+    private final FComboBoxPanel<String> cbpUiTheme = new FComboBoxPanel<>(localizer.getMessage("cbpUiTheme")+":");
+    private final FComboBoxPanel<String> cbpAnimationMode = new FComboBoxPanel<>(localizer.getMessage("cbpAnimationMode")+":");
 
     /**
      * Constructor.
@@ -472,6 +474,12 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
 
         pnlPrefs.add(cbpMaxStackDepth, comboBoxConstraints);
         pnlPrefs.add(new NoteLabel(localizer.getMessage("nlMaxStackDepth")), descriptionConstraints);
+
+        pnlPrefs.add(cbpUiTheme, comboBoxConstraints);
+        pnlPrefs.add(new NoteLabel(localizer.getMessage("nlUiTheme")), descriptionConstraints);
+
+        pnlPrefs.add(cbpAnimationMode, comboBoxConstraints);
+        pnlPrefs.add(new NoteLabel(localizer.getMessage("nlAnimationMode")), descriptionConstraints);
 
         pnlPrefs.add(cbSeparateCombatStacks, titleConstraints);
         pnlPrefs.add(new NoteLabel(localizer.getMessage("nlSeparateCombatStacks")), descriptionConstraints);
@@ -951,6 +959,14 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
 
     public FComboBoxPanel<CloseAction> getCloseActionComboBoxPanel() {
         return cbpCloseAction;
+    }
+
+    public FComboBoxPanel<String> getCbpUiThemeComboBoxPanel() {
+        return cbpUiTheme;
+    }
+
+    public FComboBoxPanel<String> getCbpAnimationModeComboBoxPanel() {
+        return cbpAnimationMode;
     }
 
     public FComboBoxPanel<String> getCbpDefaultFontSizeComboBoxPanel() {

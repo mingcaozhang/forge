@@ -221,6 +221,8 @@ public enum CSubmenuPreferences implements ICDoc {
         initializeAutoDecisionModeComboBox();
         initializeStackGroupPermanentsComboBox();
         initializeMaxStackDepthComboBox();
+        initializeUiThemeComboBox();
+        initializeAnimationModeComboBox();
         initializeCounterDisplayTypeComboBox();
         initializeCounterDisplayLocationComboBox();
         initializeGraveyardOrderingComboBox();
@@ -699,6 +701,24 @@ public enum CSubmenuPreferences implements ICDoc {
         } catch (NumberFormatException e) {
             selectedItem = 4;
         }
+        panel.setComboBox(comboBox, selectedItem);
+    }
+
+    private void initializeUiThemeComboBox() {
+        final String[] themes = {"Dark", "Light"};
+        final FPref userSetting = FPref.UI_UI_THEME;
+        final FComboBoxPanel<String> panel = this.view.getCbpUiThemeComboBoxPanel();
+        final FComboBox<String> comboBox = createComboBox(themes, userSetting);
+        final String selectedItem = this.prefs.getPref(userSetting);
+        panel.setComboBox(comboBox, selectedItem);
+    }
+
+    private void initializeAnimationModeComboBox() {
+        final String[] modes = {"Full", "Reduced", "None"};
+        final FPref userSetting = FPref.UI_ANIMATION_MODE;
+        final FComboBoxPanel<String> panel = this.view.getCbpAnimationModeComboBoxPanel();
+        final FComboBox<String> comboBox = createComboBox(modes, userSetting);
+        final String selectedItem = this.prefs.getPref(userSetting);
         panel.setComboBox(comboBox, selectedItem);
     }
 
