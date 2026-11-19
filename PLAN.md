@@ -657,7 +657,7 @@ mvn test -T 1C
       the pref is now read (default `true`) and drives an Arena-style segmented capsule with an
       accent ring on the current phase; `false` restores the classic separated-chip look.
       Click-toggle, right-click yield, tooltips, hover/pressed feedback and tutorial spotlight unchanged.
-- [ ] Slim zone tab strip and stack/log column in `VMatchUI.java`.
+- [x] Slim zone tab strip and stack/log column in `VMatchUI.java`.
 - [ ] Restyle floating zone frames in `CMatchUI.java` (no behavior change).
 - [ ] Redesign `VPrompt.java` Arena-style prompt bar; keep all pref toggles.
 - [ ] Audit hot paint loops (`CardPanel.java`, `VField.java`, `VMatchUI.java`):

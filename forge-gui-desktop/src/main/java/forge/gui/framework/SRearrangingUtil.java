@@ -142,7 +142,7 @@ public final class SRearrangingUtil {
         }
 
         if (evtX < (tempX + nestingMargin)
-                && evtY > tempY + SLayoutConstants.HEAD_H
+                && evtY > tempY + cellTarget.getHeadHeight()
                 && (cellTarget.getW() / 2) > SResizingUtil.W_MIN) {
             dropzone = Dropzone.LEFT;
             pnlDocument.setCursor(CUR_L);
@@ -155,7 +155,7 @@ public final class SRearrangingUtil {
 
         }
         else if (evtX > (tempX + tempW - nestingMargin)
-                && evtY > tempY + SLayoutConstants.HEAD_H
+                && evtY > tempY + cellTarget.getHeadHeight()
                 && (cellTarget.getW() / 2) > SResizingUtil.W_MIN) {
             dropzone = Dropzone.RIGHT;
             pnlDocument.setCursor(CUR_R);
@@ -168,7 +168,8 @@ public final class SRearrangingUtil {
                     tempH - SLayoutConstants.BORDER_T
             );
         }
-        else if (evtY < (tempY + nestingMargin + SLayoutConstants.HEAD_H) && evtY > tempY + SLayoutConstants.HEAD_H
+        else if (evtY < (tempY + nestingMargin + cellTarget.getHeadHeight())
+                && evtY > tempY + cellTarget.getHeadHeight()
                 && (cellTarget.getH() / 2) > SResizingUtil.H_MIN) {
             dropzone = Dropzone.TOP;
             pnlDocument.setCursor(CUR_T);

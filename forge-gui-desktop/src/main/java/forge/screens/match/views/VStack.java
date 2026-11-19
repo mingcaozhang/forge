@@ -173,7 +173,7 @@ public class VStack implements IVDoc<CStack> {
         for (final StackItemView item : safeItems) {
             final StackInstanceTextArea tar = new StackInstanceTextArea(item);
 
-            scroller.add(tar, "pushx, growx" + (isFirst ? "" : ", gaptop 2px"));
+            scroller.add(tar, "pushx, growx" + (isFirst ? "" : ", gaptop 1px"));
 
             final int id = item.getId();
             if (animate && (opening || !entryAnimated.contains(id))) {

@@ -22,6 +22,7 @@ import forge.toolbox.FSkin.SkinnedLabel;
 public final class DragTab extends SkinnedLabel implements ILocalRepaint {
     private boolean selected = false;
     private boolean modernChrome = false;
+    private boolean slimChrome = false;
     private int priority = 10;
     private float flashIntensity = 0f;
     private float bumpScale = 1f;
@@ -59,6 +60,26 @@ public final class DragTab extends SkinnedLabel implements ILocalRepaint {
      */
     public void setModernChrome(final boolean modernChrome0) {
         modernChrome = modernChrome0;
+        repaintSelf();
+    }
+
+    /**
+     * Enables the slim (Arena-style) tab strip look: tighter border insets so a
+     * row of tabs reads as a compact capsule band inside a reduced-height head.
+     * Opt-in only: when false the tab keeps its default padding, so cells that
+     * don't opt in are unaffected. Purely visual — hit-testing and layout math
+     * are driven by the owning {@link DragCell}, not this label.
+     *
+     * @param slimChrome0 whether to render the compact tab padding
+     */
+    public void setSlimChrome(final boolean slimChrome0) {
+        if (slimChrome == slimChrome0) {
+            return;
+        }
+        slimChrome = slimChrome0;
+        setBorder(new EmptyBorder(
+                slimChrome ? 1 : 2, slimChrome ? 4 : 5,
+                slimChrome ? 1 : 2, slimChrome ? 4 : 5));
         repaintSelf();
     }
 

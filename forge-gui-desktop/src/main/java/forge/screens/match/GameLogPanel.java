@@ -183,7 +183,7 @@ public class GameLogPanel extends JPanel {
     private JTextArea createNewLogEntryJTextArea(final String text, final boolean useAlternateBackColor) {
         final SkinnedTextArea tar = new SkinnedTextArea(text);
         tar.setFont(textFont);
-        tar.setBorder(new EmptyBorder(3, 4, 3, 4));
+        tar.setBorder(new EmptyBorder(1, 4, 1, 4));
         tar.setFocusable(false);
         tar.setEditable(false);
         tar.setLineWrap(true);

@@ -54,6 +54,9 @@ public final class DragCell extends JPanel implements ILocalRepaint {
     private final JLabel lblOverflow = new JLabel();
     private IVDoc<? extends ICDoc> docSelected = null;
     private boolean modernChrome = false;
+    private boolean slimChrome = false;
+    // Actual head height in px currently allocated by doCellLayout (0 when tabs hidden).
+    private int headHeight = 0;
 
     public DragCell() {
         super(new MigLayout("insets 0, gap 0, wrap 2"));
@@ -95,7 +98,9 @@ public final class DragCell extends JPanel implements ILocalRepaint {
     public void doCellLayout(final boolean showTabs) {
         this.removeAll();
         final int borderT = SLayoutConstants.BORDER_T;
-        final int headH = ((showTabs || allDocs.size() > 1) ? SLayoutConstants.HEAD_H : 0);
+        final int headH = ((showTabs || allDocs.size() > 1)
+                ? (slimChrome ? SLayoutConstants.HEAD_H_SLIM : SLayoutConstants.HEAD_H) : 0);
+        this.headHeight = headH;
         this.add(pnlHead,
                 "w 100% - " + borderT + "px!" + ", " + "h " + headH + "px!");
         this.add(pnlBorderRight,
@@ -142,6 +147,33 @@ public final class DragCell extends JPanel implements ILocalRepaint {
         }
         pnlBody.repaint();
         repaintSelf();
+    }
+
+    /**
+     * Enables the slim (Arena-style) zone tab strip for this cell: the head band
+     * shrinks from {@link SLayoutConstants#HEAD_H} to
+     * {@link SLayoutConstants#HEAD_H_SLIM} and each tab uses tighter padding.
+     * Opt-in only (defaults off), so cells that never call this are unaffected.
+     * The new head height is reported through {@link #getHeadHeight()} so drag
+     * drop-zone math stays accurate.
+     *
+     * @param slimChrome0 whether to render the compact tab strip
+     */
+    public void setSlimChrome(final boolean slimChrome0) {
+        if (slimChrome == slimChrome0) {
+            return;
+        }
+        slimChrome = slimChrome0;
+        for (final IVDoc<? extends ICDoc> doc : allDocs) {
+            doc.getTabLabel().setSlimChrome(slimChrome);
+        }
+        doCellLayout(showGameTabs());
+        repaintSelf();
+    }
+
+    /** @return current head-band height in px (0 when the tab strip is hidden). */
+    public int getHeadHeight() {
+        return headHeight;
     }
 
     /** @return {@link javax.swing.JPanel} */
@@ -288,6 +320,7 @@ public final class DragCell extends JPanel implements ILocalRepaint {
         allDocs.add(doc0);
         doc0.setParentCell(this);
         doc0.getTabLabel().setModernChrome(modernChrome);
+        doc0.getTabLabel().setSlimChrome(slimChrome);
         pnlHead.add(doc0.getTabLabel(), "h 100%!, gap " + tabPaddingPx + "px " + tabPaddingPx + "px 0 0", allDocs.size() - 1);
 
         // Ensure that a tab is selected

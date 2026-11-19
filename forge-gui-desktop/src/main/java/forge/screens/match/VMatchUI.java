@@ -273,6 +273,11 @@ public class VMatchUI implements IVTopLevelUI {
             }
         }
 
+        // Apply (or clear) the Arena-style slim zone tab strip to every match-screen
+        // cell once all documents/cells are assigned. Reads the existing
+        // UI_COMPACT_ZONE_TABS pref (default on). Idempotent across repopulates.
+        applyCompactZoneTabs();
+
         // Fill in gaps
         SwingUtilities.invokeLater(() -> {
             for (final DragCell c : FView.SINGLETON_INSTANCE.getDragCells()) {
@@ -282,6 +287,19 @@ public class VMatchUI implements IVTopLevelUI {
                 }
             }
         });
+    }
+
+    /**
+     * Applies the slim (Arena-style) zone tab strip to every cell currently on the
+     * match screen, honoring {@code FPref.UI_COMPACT_ZONE_TABS}. Must run after all
+     * docs/cells are assigned so newly created cells are covered; safe to call on
+     * every {@link #populate()}.
+     */
+    private void applyCompactZoneTabs() {
+        final boolean compact = "true".equals(FModel.getPreferences().getPref(FPref.UI_COMPACT_ZONE_TABS));
+        for (final DragCell cell : FView.SINGLETON_INSTANCE.getDragCells()) {
+            cell.setSlimChrome(compact);
+        }
     }
 
     /**
