@@ -714,7 +714,7 @@ public enum CSubmenuPreferences implements ICDoc {
     }
 
     private void initializeAnimationModeComboBox() {
-        final String[] modes = {"Normal", "Reduced", "None"};
+        final String[] modes = {"Normal", "Fast", "Off"};
         final FPref userSetting = FPref.UI_ANIMATION_MODE;
         final FComboBoxPanel<String> panel = this.view.getCbpAnimationModeComboBoxPanel();
         final FComboBox<String> comboBox = createComboBox(modes, userSetting);
