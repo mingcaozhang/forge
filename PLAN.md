@@ -58,7 +58,7 @@ Key decoupling points:
 Verification:
 ```
 mvn test-compile -T 1C
-mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C
+mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C
 ```
 
 - [x] Add `com.formdev:flatlaf` dependency to `forge-gui-desktop/pom.xml`.
@@ -82,7 +82,7 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C
       `UIManager.getLookAndFeel()` returns FlatLaf after a headless-safe
       init path (direct `FlatDarkLaf` install; the `FSkin.ForgeLookAndFeel`
       path needs a JFrame so it is not headless-safe); run
-      `mvn test -Dtest=ThemeIntegrationTest -DfailIfNoTests=false -T 1C`.
+      `mvn test -Dtest=ThemeIntegrationTest -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C`.
 
 Commit message: `refactor(commander): integrate FlatLaf, Java2D flags, menu typography, animation pref`
 
@@ -141,7 +141,7 @@ Performance guards:
 Verification:
 ```
 mvn test-compile -T 1C
-mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C
+mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C
 ```
 
 - [x] Implement `forge-gui-desktop/src/main/java/forge/view/arcane/util/Easing.java`.
@@ -165,7 +165,7 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C
       `CardTextureCacheTest.java` asserting bounded LRU eviction at the
       configured cap and that a `clearCache()` call forces recompute;
       run
-      `mvn test -Dtest=UIAnimatorTest,CardTextureCacheTest -DfailIfNoTests=false -T 1C`.
+      `mvn test -Dtest=UIAnimatorTest,CardTextureCacheTest -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C`.
 
 Commit message: `refactor(commander): add UIAnimator + CardTextureCache, tactile card hover/glow/preview`
 
@@ -212,7 +212,7 @@ Key decoupling points:
 Verification:
 ```
 mvn test-compile -T 1C
-mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C
+mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C
 ```
 
 - [ ] Implement `HitFlashOverlay.java`, `DamagePopup.java`, `CastGlow.java`
@@ -233,7 +233,7 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C
       asserting that scheduling a `HitFlashOverlay`/`DamagePopup`/`CastGlow`
       leaves the active effect list empty and the `UIAnimator` timer stopped
       after its full duration has elapsed; run
-      `mvn test -Dtest=AnimationModeTest,EffectsLifecycleTest -DfailIfNoTests=false -T 1C`.
+      `mvn test -Dtest=AnimationModeTest,EffectsLifecycleTest -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C`.
 
 Commit message: `feat(commander): tactile cast/draw/tap/attack/damage feedback`
 
@@ -270,7 +270,7 @@ Key decoupling points:
 Verification:
 ```
 mvn test-compile -T 1C
-mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C
+mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C
 ```
 
 - [ ] Implement `HomeTile.java`, `RecentDecksCarousel.java`,
@@ -288,7 +288,7 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C
       `IVSubmenu.getItemEnum()` across every existing
       `VSubmenu*` class (Play / Decks / Collection / Preferences), and that
       the `EDocID.HOME_CONSTRUCTED` default still resolves; run
-      `mvn test -Dtest=HomeNavigationRegistryTest -DfailIfNoTests=false -T 1C`.
+      `mvn test -Dtest=HomeNavigationRegistryTest -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C`.
 
 Commit message: `feat(commander): Arena-style Home dashboard tiles`
 
@@ -349,7 +349,7 @@ Key decoupling points:
 Verification:
 ```
 mvn test-compile -T 1C
-mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C
+mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C
 ```
 
 - [ ] Restyle `VDeckEditorUI.java` tabs/panels; keep `editor.xml` layout IDs.
@@ -367,7 +367,7 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C
       `ToggleButtonsFilter`) return the exact same card set after the UI
       refactor as they do on the pre-refactor baseline deck, and that the
       existing `*Deck*` suite continues to pass; run
-      `mvn test -Dtest=DeckEditorFilterParityTest,*Deck* -DfailIfNoTests=false -T 1C`.
+      `mvn test -Dtest=DeckEditorFilterParityTest,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C`.
 
 Commit message: `feat(commander): modernize deck editor, card browser, statistics, commander showcase`
 
@@ -403,7 +403,7 @@ Key decoupling points:
 Verification (full gates per AGENTS.md final-phase rule):
 ```
 mvn test-compile -T 1C
-mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C
+mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C
 mvn package -DskipTests -T 1C
 mvn test -T 1C
 ```
@@ -421,10 +421,10 @@ mvn test -T 1C
       `forge-gui-desktop/src/test/java/forge/view/arcane/util/CardTextureCacheBoundTest.java`
       asserting the cache never exceeds its configured bound after 1000+
       distinct key insertions; run
-      `mvn test -Dtest=UIAnimatorIdleTest,CardTextureCacheBoundTest -DfailIfNoTests=false -T 1C`.
+      `mvn test -Dtest=UIAnimatorIdleTest,CardTextureCacheBoundTest -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C`.
 - [ ] Run final automated gates and confirm exit code 0 for each:
       - `mvn test-compile -T 1C`
-      - `mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C`
+      - `mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C`
       - `mvn package -DskipTests -T 1C`
       - `mvn test -T 1C`
 

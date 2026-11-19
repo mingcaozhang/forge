@@ -1,3 +1,8 @@
+---
+name: forge-workflow
+description: Forge repository branch structure, upstream sync constraints, and single-player Commander development workflow
+---
+
 # Forge Development Workflow
 
 ## Branch Structure

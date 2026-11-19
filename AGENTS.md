@@ -15,7 +15,7 @@
 - Full desktop package check (run at the end of each major phase):
   `mvn package -DskipTests -T 1C`
 - Targeted Commander & deck tests:
-  `mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C`
+  `mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C`
 
 ## Protected Core Subsystems (Preserve & Keep Upstream-Sync Friendly)
 - `forge-core` and `forge-game`: Card scripts, zone rules, Commander zone/tax/damage rules, `DeckFormat.Commander`, and deck serialization/import/export (`DeckSerializer`, `.dck` / Moxfield / Archidekt / text importers). Minimize diffs in `forge-core` and `forge-game` to avoid upstream merge conflicts.
@@ -37,4 +37,4 @@
 ## Available Skills & Sync Test Compatibility
 - `forge-workflow` (`.opencode/skills/forge-workflow/SKILL.md`): Governs `dev` branch rules and `scripts/sync-upstream.sh` compatibility.
 - `failure-identifier` (`.opencode/skills/failure-identifier/SKILL.md`): Uses `./scripts/binary-search-test.sh <start_commit> <end_commit>` to bisect build/test regressions.
-- **Keep `mvn test` clean:** Because `scripts/sync-upstream.sh` runs `mvn test` after syncing upstream commits, remove or update obsolete unit tests tied to deleted modes (`quest`, `adventure`, `puzzle`, `draft`, `sealed`, etc.) rather than leaving broken tests behind. Run `mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -T 1C` after each phase and `mvn test -T 1C` at the end of Phase 5.
+- **Keep `mvn test` clean:** Because `scripts/sync-upstream.sh` runs `mvn test` after syncing upstream commits, remove or update obsolete unit tests tied to deleted modes (`quest`, `adventure`, `puzzle`, `draft`, `sealed`, etc.) rather than leaving broken tests behind. Run `mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` after each phase and `mvn test -T 1C` at the end of Phase 5.
