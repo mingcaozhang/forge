@@ -122,6 +122,7 @@ public abstract class ItemManager<T extends InventoryItem> extends JPanel implem
     private final ImageView<T> imageView;
     private ItemView<T> currentView;
     private boolean initialized;
+    private boolean modernChrome = true;
     protected boolean lockFiltering;
 
     /**
@@ -182,7 +183,8 @@ public abstract class ItemManager<T extends InventoryItem> extends JPanel implem
         mainSearchFilter.getPanel().setVisible(!hideFilters);
         this.add(mainSearchFilter.getPanel());
         this.pnlButtons.setOpaque(false);
-        this.pnlButtons.setBorder(new FSkin.MatteSkinBorder(1, 0, 1, 0, FSkin.getColor(Colors.CLR_TEXT)));
+        this.pnlButtons.setBorder(new FSkin.MatteSkinBorder(1, 0, 1, 0,
+                FSkin.getColor(modernChrome ? Colors.CLR_BORDERS : Colors.CLR_TEXT)));
         this.add(this.pnlButtons);
         this.add(this.btnFilters);
         this.add(this.lblCaption);
@@ -193,9 +195,12 @@ public abstract class ItemManager<T extends InventoryItem> extends JPanel implem
         for (final ItemView<T> view : this.views) {
             this.add(view.getButton());
             view.getButton().setSelected(view == this.currentView);
+            view.getButton().setModernToggle(modernChrome);
         }
         this.add(this.btnViewOptions);
         this.btnViewOptions.setSelected(this.currentView.getPnlOptions().isVisible());
+        this.btnViewOptions.setModernToggle(modernChrome);
+        this.btnFilters.setModernToggle(modernChrome);
         this.add(this.currentView.getPnlOptions());
         this.add(this.currentView.getScroller());
 
@@ -319,6 +324,36 @@ public abstract class ItemManager<T extends InventoryItem> extends JPanel implem
         this.revalidate();
         this.repaint();
         this.focus();
+    }
+
+    /**
+     * Enables/disables the modern toolbar chrome for this item manager: flat
+     * rounded toggle buttons (filter, view options, view switch) and a softer
+     * search/toolbar divider. Opt-in friendly (defaults on) but purely visual;
+     * all filters, search behavior, view switching, actions and shortcuts are
+     * unchanged.
+     *
+     * @param modernChrome0 whether to render the modern toolbar look
+     */
+    public void setModernChrome(final boolean modernChrome0) {
+        if (this.modernChrome == modernChrome0) { return; }
+        this.modernChrome = modernChrome0;
+        this.btnFilters.setModernToggle(modernChrome0);
+        this.btnViewOptions.setModernToggle(modernChrome0);
+        for (final ItemView<T> view : this.views) {
+            view.getButton().setModernToggle(modernChrome0);
+        }
+        if (this.initialized) {
+            this.pnlButtons.setBorder(new FSkin.MatteSkinBorder(1, 0, 1, 0,
+                    FSkin.getColor(modernChrome0 ? Colors.CLR_BORDERS : Colors.CLR_TEXT)));
+            this.revalidate();
+            this.repaint();
+        }
+    }
+
+    /** @return whether the modern toolbar chrome is enabled */
+    public boolean isModernChrome() {
+        return this.modernChrome;
     }
 
     public void setHideViewOptions(final int viewIndex, final boolean hideViewOptions) {

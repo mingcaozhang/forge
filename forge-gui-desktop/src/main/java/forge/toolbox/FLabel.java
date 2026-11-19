@@ -79,6 +79,7 @@ public class FLabel extends SkinnedLabel implements ILocalRepaint, IButton {
         protected boolean bldReactOnMouseDown = false;
         private boolean bldUseSkinColors      = true;
         private boolean bldEnabled            = true;
+        private boolean bldModernToggle       = false;
 
         protected String  bldText, bldToolTip;
         private SkinImage bldIcon;
@@ -172,6 +173,11 @@ public class FLabel extends SkinnedLabel implements ILocalRepaint, IButton {
          * SwingConstants.HORIZONTAL .VERTICAL or .CENTER
          * @return {@link forge.toolbox.FLabel.Builder} */
         public Builder iconAlignX(final int i0) { this.bldIconAlignX = i0; return this; }
+
+        /** Enables the modern flat/rounded toggle chrome for button-like labels.
+         * @return {@link forge.toolbox.FLabel.Builder} */
+        public Builder modernToggle(final boolean b0) { this.bldModernToggle = b0; return this; }
+        public Builder modernToggle() { modernToggle(true); return this; }
     }
 
     // sets better defaults for button labels
@@ -207,6 +213,7 @@ public class FLabel extends SkinnedLabel implements ILocalRepaint, IButton {
         this.setFontAlign(b0.bldFontAlign);
         this.setToolTipText(b0.bldToolTip);
         this.setHoverable(b0.bldHoverable);
+        this.modernToggle = b0.bldModernToggle;
 
         // Call this last; to allow the properties which affect icons to already be in place.
         this.setIcon(b0.bldIcon);
@@ -270,6 +277,7 @@ public class FLabel extends SkinnedLabel implements ILocalRepaint, IButton {
     private final boolean iconInBackground;
     private final boolean iconScaleAuto;
     private boolean reactOnMouseDown;
+    private boolean modernToggle;
     private final Point iconInsets;
 
     // Various variables used in image rendering.
@@ -397,6 +405,18 @@ public class FLabel extends SkinnedLabel implements ILocalRepaint, IButton {
     @Override
     public void setSelected(final boolean b0) {
         this.selected = b0;
+        repaintSelf();
+    }
+
+    /**
+     * Enables the modern flat/rounded toggle chrome. Opt-in only: when false the
+     * label paints exactly as before, so shared screens are unaffected. Purely
+     * visual; sizing, hover/selection behavior and commands are unchanged.
+     *
+     * @param b0 whether to render the modern flat/rounded toggle look
+     */
+    public void setModernToggle(final boolean b0) {
+        this.modernToggle = b0;
         repaintSelf();
     }
 
@@ -552,7 +572,10 @@ public class FLabel extends SkinnedLabel implements ILocalRepaint, IButton {
         }
 
         final boolean paintPressedState = pressed && hovered && isEnabled() && (opaque || selectable);
-        if (paintPressedState) {
+        if (modernToggle && !paintPressedState) {
+            paintModern(g2d, w, h, paintWithHover);
+        }
+        else if (paintPressedState) {
             paintPressed(g2d, w, h);
         }
         else if (opaque) {
@@ -651,6 +674,25 @@ public class FLabel extends SkinnedLabel implements ILocalRepaint, IButton {
         g.drawRect(0, 0, w - 2, h - 2);
         FSkin.setGraphicsColor(g, l10);
         g.drawRect(1, 1, w - 4, h - 4);
+    }
+
+    private void paintModern(final Graphics2D g, final int w, final int h, final boolean paintWithHover) {
+        final int arc = Math.max(4, Math.min(10, h - 2));
+        if (selected) {
+            final SkinColor active = FSkin.getColor(Colors.CLR_ACTIVE);
+            FSkin.setGraphicsGradientPaint(g, 0, h, active.stepColor(-20), 0, 0, active.stepColor(20));
+            g.fillRoundRect(0, 0, w - 1, h - 1, arc, arc);
+            FSkin.setGraphicsColor(g, active.stepColor(-50));
+            g.drawRoundRect(0, 0, w - 1, h - 1, arc, arc);
+        }
+        else if (paintWithHover) {
+            FSkin.setGraphicsColor(g, clrHover.alphaColor(60));
+            g.fillRoundRect(0, 0, w - 1, h - 1, arc, arc);
+        }
+        else if (opaque) { //faint outline keeps flat icon buttons discoverable
+            FSkin.setGraphicsColor(g, l20.alphaColor(120));
+            g.drawRoundRect(0, 0, w - 2, h - 2, arc, arc);
+        }
     }
 
     protected void resetIcon() {
