@@ -157,17 +157,22 @@ mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpec
 - [x] Wire hover enter/exit through `CardPanelContainer.java` so detail
        previews animate in/out smoothly.
 - [x] Replace hand fan/rise in `HandArea.java` with `UIAnimator` tweens.
-- [ ] **Context & Refactor Audit (`forge-gui` now permitted):** Execution was
-      paused to relax the previous restriction against modifying `forge-gui`.
-      Before continuing Phase 2, inspect the Phase 1 and Phase 2 commits on `dev`
-      (`git log --oneline d34202b5c2f^..HEAD`) to check whether any change was
-      compromised or placed awkwardly in `forge-gui-desktop` solely to avoid
-      editing `forge-gui` (for example, shared UI/theme helpers, preference
-      plumbing, or `CardTextureCache`/`UIAnimator` hooks). If a cleaner, more
-      optimal design is now possible with `forge-gui` edits allowed (while
-      keeping `forge-core`, `forge-game`, and `forge-ai` strictly untouched),
-      refactor it cleanly and commit atomically on `dev` before proceeding to
-      `CardDetailUtil.java`.
+- [x] **Context & Refactor Audit (`forge-gui` now permitted):** Inspected every
+      Phase 1/2 commit on `dev` (`git log --oneline d34202b5c2f^..HEAD`). Most
+      work was correctly placed: `FPref.UI_UI_THEME`/`UI_ANIMATION_MODE` already
+      live in `forge-gui`, and `UIAnimator`/`CardTextureCache`/`Easing` belong in
+      `forge-gui-desktop` (they drive Swing components). One **compromised**
+      helper was found: the Phase 1 "UI Theme" combobox + `FPref.UI_UI_THEME`
+      were plumbed and exposed, but `FSkin.ForgeLookAndFeel.setMetalLookAndFeel`
+      hard-coded `new FlatDarkLaf()` and silently ignored the preference, so the
+      setting was a no-op. Refactored cleanly: extracted `resolveFlatLaf()` which
+      reads `FPref.UI_UI_THEME` (`"Light"` → `FlatLightLaf`, otherwise
+      `FlatDarkLaf`/ArenaDark default), applied at L&F install with the existing
+      Metal fallback and a `Throwable`-guarded pref read so startup is never
+      broken. Default (`ArenaDark`) behavior is byte-for-byte unchanged. Kept
+      `forge-core`/`forge-game`/`forge-ai` untouched; no `forge-gui` edit was
+      required. Verified `mvn test-compile -T 1C` (exit 0) and
+      `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (165 pass).
 - [ ] Tune `CardDetailUtil.java` typography constants (UI-only, no logic).
 - [ ] Add `forge-gui-desktop/src/test/java/forge/view/arcane/util/UIAnimatorTest.java`
       asserting a submitted tween reaches 100% in its declared duration

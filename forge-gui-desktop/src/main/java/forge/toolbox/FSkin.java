@@ -104,6 +104,8 @@ import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.JTextComponent;
 
 import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.FlatLightLaf;
 
 import forge.Singletons;
 import forge.gui.FThreads;
@@ -1712,16 +1714,17 @@ public class FSkin {
         }
 
         /**
-         * Installs the cross-platform look and feel. Prefers FlatLaf's dark theme for a crisp, modern
-         * appearance, but falls back to the always-available "Java L&amp;F" (Metal) so headless or unusual
-         * JVMs never break startup. Metal is used rather than the native Mac L&amp;F because the latter does
+         * Installs the cross-platform look and feel. Honors the stored
+         * {@link FPref#UI_UI_THEME} preference (resolved by {@link #resolveFlatLaf()}) for a crisp,
+         * modern appearance, but falls back to the always-available "Java L&amp;F" (Metal) so headless or
+         * unusual JVMs never break startup. Metal is used rather than the native Mac L&amp;F because the latter does
          * not support various settings (eg. combobox background color).
          */
         private boolean setMetalLookAndFeel(final JFrame appFrame) {
             if (onInit) { //only attempt to set the Look and Feel the first time
                 try {
                     try {
-                        UIManager.setLookAndFeel(new FlatDarkLaf());
+                        UIManager.setLookAndFeel(resolveFlatLaf());
                     } catch (Exception flatLafFailed) {
                         // Unusual/headless JVMs or a missing FlatLaf class must never prevent startup.
                         UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
@@ -1734,6 +1737,26 @@ public class FSkin {
                 }
             }
             return isMetalLafSet;
+        }
+
+        /**
+         * Resolves the FlatLaf look and feel matching the stored {@link FPref#UI_UI_THEME} preference so the
+         * user's "UI Theme" selection actually drives the installed look and feel instead of being ignored:
+         * {@code "Light"} selects {@link FlatLightLaf}, while anything else (including the {@code "ArenaDark"}
+         * default) selects {@link FlatDarkLaf}. Reading the preference must never break startup, so any failure
+         * (for example a headless test with no preference store) falls back to the dark theme.
+         *
+         * @return the FlatLaf instance to install, never {@code null}
+         */
+        private static FlatLaf resolveFlatLaf() {
+            try {
+                if ("Light".equalsIgnoreCase(FModel.getPreferences().getPref(FPref.UI_UI_THEME))) {
+                    return new FlatLightLaf();
+                }
+            } catch (Throwable ignored) {
+                // Preference store unavailable: keep the ArenaDark default so startup is never broken.
+            }
+            return new FlatDarkLaf();
         }
 
         /**
