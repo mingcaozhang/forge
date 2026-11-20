@@ -12,5 +12,21 @@
 - Code changes allowed only in `forge-gui` and `forge-gui-desktop`.
 
 ### Active Caveats / Next Steps
-- Phase 1 remaining items require launching the jar with the `forge-ui-e2e` in-process inspection agent (isolated scratch dir + `res` symlink, `-javaagent:.../agent.jar=<dir>`, stdout/stderr -> `app.log`) and exercising navigation/menus/settings via `cmd` + `ui.txt` dumps. A clean build alone never justifies `[x]` — each feature item needs exercised UI evidence.
+- Phase 1 remaining items require exercising navigation/menus/settings via `cmd` + `ui.txt` dumps. A clean build alone never justifies `[x]` — each feature item needs exercised UI evidence.
 - Benign env messages (e.g. missing audio `SourceDataLine` on headless box) are noted, not counted as runtime errors.
+
+## Iteration 2 — Phase 1 UI launch verification
+
+### Key Codebase & Architecture Facts
+- Live `ui.txt` confirms `FNavigationBar` is present in the main component tree: `forge.view.FNavigationBar vis=true` plus nested `NavigationTab` entries.
+- Splash clears: `agent.log` shows `windows=3`, `FFrame visible=true`, and `SplashFrame visible=false`; `ui.txt` confirms the splash window is invisible.
+- `app.log` scan found no runtime exception/stack trace; only benign startup line `Error handling registered!`.
+
+### Build & Test Gotchas
+- UI agent verification must use flat `/tmp/opencode` files accessed through `bash`; normal `read`/`grep` tool calls are restricted.
+- Detached launch pattern confirmed: `DISPLAY=:0`, `-Djava.awt.headless=false`, and command-file-driven agent control.
+- Stop the app with agent `close` through `/tmp/opencode/cmd`; `pkill` is disallowed due `Unknown: ChildProcess.kill`.
+
+### Active Caveats / Next Steps
+- Next Phase 1 item: exercise home tabs/tiles (`HomeTile`, `LastMatchTile`, `RecentDecksCarousel`) via `cmd` + `dump` and confirm screens render without exceptions.
+- Keep `/tmp/opencode/cmd` clear before launch so stale `close` commands do not terminate a fresh agent session.
