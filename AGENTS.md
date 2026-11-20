@@ -36,5 +36,20 @@
 
 ## Available Skills & Sync Test Compatibility
 - `forge-workflow` (`.opencode/skills/forge-workflow/SKILL.md`): Governs `dev` branch rules and `scripts/sync-upstream.sh` compatibility.
-- `failure-identifier` (`.opencode/skills/failure-identifier/SKILL.md`): Uses `./scripts/binary-search-test.sh <start_commit> <end_commit>` to bisect build/test regressions.
+- `forge-ui-e2e` (`.opencode/skills/forge-ui-e2e/SKILL.md`): Clean-compiles the desktop jar, launches the Swing UI with an in-process inspection agent, verifies real UI flows and runtime logs, and cleans up temporary artifacts.
+- `failure-identifier` — **disabled** for now (parked at `.opencode/skills-disabled/failure-identifier/` so the skill scanner ignores it). Re-enable by moving the folder back to `.opencode/skills/`. When enabled, it uses `./scripts/binary-search-test.sh <start_commit> <end_commit>` to bisect build/test regressions.
 - **Keep `mvn test` clean:** Because `scripts/sync-upstream.sh` runs `mvn test` after syncing upstream commits, remove or update obsolete unit tests tied to deleted modes (`quest`, `adventure`, `puzzle`, `draft`, `sealed`, etc.) rather than leaving broken tests behind. Run `mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` after each phase and `mvn test -T 1C` at the end of Phase 5.
+
+## Cross-Iteration Progress (`PROGRESS.md`)
+
+At the end of each iteration (alongside updating `PLAN.md` and committing), update `PROGRESS.md` so the next fresh iteration starts with high-signal context without re-discovering settled facts:
+
+### What to Record (Keep Concise, Target <= 40 Lines)
+- **Key Codebase & Architecture Facts:** Important classes, controllers, UI/state hooks, and shared helpers discovered or introduced that affect upcoming tasks.
+- **Build & Test Gotchas:** Verified test/build commands, flags (such as Surefire flags or timeouts), and environment quirks that prevent failed runs.
+- **Active Caveats & Follow-ups:** Open edge cases, behavioral nuances, or dependencies relevant to the next unchecked `PLAN.md` items.
+
+### What to Prune Every Iteration
+- Remove notes from completed phases that are no longer needed for remaining tasks.
+- Delete resolved errors, abandoned approaches, and superseded workarounds.
+- Never paste raw command logs, long diffs, or play-by-play narration—keep entries to short, factual bullets and rely on `git log` and `PLAN.md` for history.
