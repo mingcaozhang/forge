@@ -51,7 +51,7 @@ Targets: `forge.view.Main`, `forge.GuiDesktop`, `forge.view.{FView,FFrame,FNavig
 `forge.control.{FControl,KeyboardShortcuts}`, `forge.menus.*`, `forge.screens.home.*`,
 `forge.screens.home.{tiles,settings}.*`, `forge.gui.SwingPrefBinders`.
 
-- [ ] Clean-build the desktop jar (`mvn clean package -pl forge-gui-desktop -am -DskipTests -T 1C`) and confirm the shaded jar exists under `forge-gui-desktop/target/`.
+- [x] Clean-build the desktop jar (`mvn clean package -pl forge-gui-desktop -am -DskipTests -T 1C`) and confirm the shaded jar exists under `forge-gui-desktop/target/`.
 - [ ] Launch the jar with the UI agent from an isolated scratch dir; confirm the splash clears and the main window (`FView`/`FFrame`) is visible with the `FNavigationBar` present (verify via `dump` → `ui.txt`). No exceptions in `app.log`/`agent.log`.
 - [ ] Exercise main navigation: open each home tab/tile (`HomeTile`, `LastMatchTile`, `RecentDecksCarousel`) and confirm the screen switches and renders without exceptions.
 - [ ] Open and exercise the main menu items (`ForgeMenu`, `HelpMenu`, `AudioMenu`, `LayoutMenu`) and the `KeyboardShortcutsDialog`; confirm menus open, items enable/disable correctly, and no NPE/stack trace.
