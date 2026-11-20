@@ -105,7 +105,7 @@ public enum VHomeUI implements IVTopLevelUI {
     private final PnlDisplayArea pnlDisplayArea = new PnlDisplayArea();
     private final JPanel pnlDashboard = new JPanel(new MigLayout("insets 24, gap 16, wrap, hidemode 3"));
     private final JPanel pnlHeroTiles = new JPanel(new MigLayout(
-            "insets 0, gap 16, wrap " + HERO_TILE_COLUMNS, "repeat(" + HERO_TILE_COLUMNS + ", [grow 1])", "[]16[]"));
+            "insets 0, gap 16, wrap " + HERO_TILE_COLUMNS, heroTileColumnConstraints(), "[]16[]"));
     private final Map<EDocID, HomeTile> heroTiles = new LinkedHashMap<>();
     private final RecentDecksCarousel recentDecksCarousel = new RecentDecksCarousel();
     private final LastMatchTile lastMatchTile = new LastMatchTile();
@@ -217,6 +217,20 @@ public enum VHomeUI implements IVTopLevelUI {
         // Both panels share one area; the submenu display stays live so existing navigation and
         // getPnlDisplay() callers are unchanged. CHomeUI toggles the dashboard with a fade+slide
         // tween (re-clicking the active menu item opens it; tile or menu clicks return to it).
+    }
+
+    /**
+     * MigLayout 4.2 predates the {@code repeat()} column function, so the hero
+     * columns are spelled out explicitly, one {@code [grow 1]} cell each.
+     *
+     * @return the MigLayout column constraint string for the hero tile grid
+     */
+    private static String heroTileColumnConstraints() {
+        final StringBuilder sb = new StringBuilder(HERO_TILE_COLUMNS * 8);
+        for (int i = 0; i < HERO_TILE_COLUMNS; i++) {
+            sb.append("[grow 1]");
+        }
+        return sb.toString();
     }
 
     /**
