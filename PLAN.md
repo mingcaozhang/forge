@@ -681,13 +681,33 @@ mvn test -T 1C
          array/Rectangle allocations).
        - `VMatchUI.java`: no `paintComponent`; `new RectangleOfDouble(...)` usages are
          layout/bounds only — left unchanged.
-- [ ] Add `forge-gui-desktop/src/test/java/forge/view/arcane/util/UIAnimatorIdleTest.java`
+- [x] Add `forge-gui-desktop/src/test/java/forge/view/arcane/util/UIAnimatorIdleTest.java`
       asserting `UIAnimator.isActive() == false` and its shared Swing `Timer`
       reports `isRunning() == false` once no tweens are scheduled, and
       `forge-gui-desktop/src/test/java/forge/view/arcane/util/CardTextureCacheBoundTest.java`
       asserting the cache never exceeds its configured bound after 1000+
       distinct key insertions; run
       `mvn test -Dtest=UIAnimatorIdleTest,CardTextureCacheBoundTest -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C`.
+      **Implemented** (test-only, ZERO production diff). The PLAN's
+      "`isActive()`" requirement maps onto the existing public
+      `UIAnimator.isAnimating()` accessor, so no redundant alias was added to the
+      production API. `UIAnimatorIdleTest` (4 methods) locks the idle invariant
+      across every drain path — baseline before any tween is ever scheduled; after
+      five keyed tweens all complete naturally; after `cancelAll()`; and after
+      `cancel(id)` removes the single remaining tween — each asserting the active
+      set is empty, `isAnimating() == false`, and `isTimerRunning() == false`. The
+      idle triple is always read on the EDT (the completing auto-stop `tick` is
+      itself an EDT event that finishes before the queued snapshot event), so it
+      stays headless-safe with no `JFrame`. `CardTextureCacheBoundTest` (2
+      methods): inserts 1500 and 1200 distinct keys (both well over 1000) asserting
+      `size()` never exceeds the configured bound (64 / 128) at any point and
+      settles exactly on it, with the second test mixing random `get()` re-reads to
+      exercise access-order LRU re-ordering; strong refs keep the
+      `SoftReference`-wrapped values alive so LRU eviction is the only shrink path.
+      Verified `mvn test -Dtest=UIAnimatorIdleTest,CardTextureCacheBoundTest ... -T 1C`
+      (6 pass, exit 0; checkstyle clean) and
+      `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (169 pass, exit 0). ZERO diff
+      to `forge-core`/`forge-game`/`forge-ai`.
 - [ ] Run final automated gates and confirm exit code 0 for each:
       - `mvn test-compile -T 1C`
       - `mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C`
