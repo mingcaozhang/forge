@@ -708,10 +708,15 @@ mvn test -T 1C
       (6 pass, exit 0; checkstyle clean) and
       `mvn test -Dtest=*Commander*,*Deck* ... -T 1C` (169 pass, exit 0). ZERO diff
       to `forge-core`/`forge-game`/`forge-ai`.
-- [ ] Run final automated gates and confirm exit code 0 for each:
-      - `mvn test-compile -T 1C`
+- [x] Run final automated gates and confirm exit code 0 for each:
+      - `mvn test-compile -T 1C` → BUILD SUCCESS, exit 0.
       - `mvn test -Dtest=*Commander*,*Deck* -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C`
-      - `mvn package -DskipTests -T 1C`
-      - `mvn test -T 1C`
+        → 169 tests, 0 failures/errors/skipped, exit 0.
+      - `mvn package -DskipTests -T 1C` → BUILD SUCCESS (fat jar + CHANGES.txt), exit 0.
+      - `mvn test -T 1C` → 2736 tests, 0 failures, 0 errors, 11 skipped, BUILD SUCCESS,
+        exit 0. (The two `[ERROR]` WireClassFilter/CObjectInputStream log lines are the
+        expected rejection output from the negative-path wire-filter tests, not failures.)
+      **Implemented** (verification-only, ZERO production diff). All four AGENTS.md
+      final-phase gates green on `dev`; working tree clean of source changes.
 
 Commit message: `feat(commander): modern match HUD, prompts, final perf polish`
