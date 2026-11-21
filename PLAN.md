@@ -189,7 +189,7 @@ Per `REWRITE.md`, this cleanup trims the JVM baseline BEFORE the rewrite phases 
 
 ## Phase 8 — UI Smoke
 
-- [ ] **8.1 UI e2e verification (forge-swing-ui-e2e)**
+- [x] **8.1 UI e2e verification (forge-swing-ui-e2e)**
   - Build: `PKG` (600000 ms), then run the `forge-swing-ui-e2e` skill (build jar, launch with `-javaagent` EDT inspection agent, scratch dir `/tmp/opencode/forge-ui-e2e`).
   - Verify in the live UI:
     - Home screen: no How To Play panel; no Avatars / Content Downloaders / Release Notes hero tiles.

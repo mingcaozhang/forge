@@ -555,7 +555,8 @@ public final class CMatchUI
                         owner.getId(), update.getZones(), System.identityHashCode(owner));
             }
 
-            boolean setupPlayZone = false, updateHand = false, updateAnte = false, updateZones = false;
+            boolean setupPlayZone = false, updateHand = false, updateAnte = false, updateZones = false,
+                    updateCommanderImage = false;
             for (final ZoneType zone : update.getZones()) {
                 switch (zone) {
                 case Battlefield:
@@ -563,6 +564,13 @@ public final class CMatchUI
                     break;
                 case Hand:
                     updateHand = true;
+                    updateZones = true;
+                    FloatingZone.refresh(owner, zone);
+                    break;
+                case Command:
+                    // The match field image is set once at init, before the game thread
+                    // places commanders in the command zone, so refresh it on change.
+                    updateCommanderImage = true;
                     updateZones = true;
                     FloatingZone.refresh(owner, zone);
                     break;
@@ -598,6 +606,9 @@ public final class CMatchUI
             }
             if (updateZones) {
                 vField.updateZones();
+            }
+            if (updateCommanderImage) {
+                vField.setPlayerImage(getPlayerImage(owner));
             }
         }
     }
