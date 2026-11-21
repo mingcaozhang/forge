@@ -4,15 +4,8 @@
 - `forge-gui-mobile`, `forge-gui-ios`, `forge-gui-android`, `forge-gui-mobile-dev`, `adventure-editor`, `forge-installer`, `forge-lda`.
 
 ## Build & Verification Commands
+- Use `forge-test-runner` (`.opencode/skills/forge-test-runner/SKILL.md`) for unit/integration test runs and `forge-ui-e2e` (`.opencode/skills/forge-ui-e2e/SKILL.md`) for real desktop UI/gameplay verification (with a `600000` ms timeout on long Maven/test/UI runs).
 - Always use a `600000` ms (10-minute) timeout on `mvn test` and `mvn package` commands.
-- Include `-am` (`--also-make`) whenever running module-scoped Maven commands (`-pl <module>`) so required upstream reactor modules build in order.
-- Include `-DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` whenever running or filtering tests with Surefire so modules without matching tests do not fail the reactor build.
-- Fast incremental compile check (run after every edit batch):
-  `mvn test-compile -T 1C`
-- Full desktop package check (run at the end of each major phase):
-  `mvn package -DskipTests -T 1C`
-- Run the test suite:
-  `mvn test -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C`
 - Keep unit tests clean so `mvn test -T 1C` passes; remove or update obsolete tests tied to deleted modes (`quest`, `adventure`, `puzzle`, `draft`, `sealed`, etc.) rather than leaving broken tests behind.
 
 ## Target Subsystems to Strip
