@@ -1,11 +1,19 @@
 # PROGRESS.md — Iteration 1 (pre-rewrite cleanup)
 
 ## Verified baseline facts
-- Branch: `dev` == `trim_code` == `aadb87daeaa`; working tree clean before PLAN.md was added.
-- `PKG` (`mvn package -DskipTests -T 1C`) → BUILD SUCCESS (~14 s). Reactor modules resolve as
-  Forge Parent, Forge Core, Forge Game, Forge AI, Forge Gui, Forge (artifactId `forge-gui-desktop`).
-- `GATE` (`mvn test -pl forge-gui-desktop -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C`)
-  → BUILD SUCCESS, 2736 tests run, 0 failures/errors, 11 skipped (75 s TestSuite run).
+- Branch `dev` (work started from plan commit `399acbbd29a`, clean tree).
+- `PKG` → BUILD SUCCESS (~14 s). `GATE` baseline → 2736 tests, 0 failures/errors, 11 skipped (~75 s).
+
+## Item 1.1 (Content Downloader) — done
+- `GATE` after removal: 2736 tests, 0 failures/errors, 11 skipped; rg sweep for deleted classes → zero.
+- `Localizer.getMessage` falls back locale → en-US bundle (forge-core .../util/Localizer.java:97-114),
+  so deleting non-EN `lblFirstRunBulkCdnPrompt` lines is safe (en-US reworded in place).
+- Also removed `lblImportPictures` (sole Java ref was in deleted VSubmenuDownloaders; would be a new orphan).
+- Pre-existing i18n orphans left in place (zero Java refs even before 1.1): `lblDownloadCardImages`,
+  `lblDownloadCJKFontPrompt` (all locales).
+- `lblHowToPlay` removed from all 10 locales (Downloaders section AND the tutorial-block occurrence in the
+  9 non-EN files) — item 3.1 will only find `lblHowToPlayTooltip`/`lblHowtoPlay` left.
+- `res/defaults/home.xml` is legacy (many stale HOME_* ids); only the `HOME_UTILITIES` line removed per plan.
 
 ## Environment quirks
 - Always use a 600000 ms timeout on Maven runs (default 120 s kills long runs).

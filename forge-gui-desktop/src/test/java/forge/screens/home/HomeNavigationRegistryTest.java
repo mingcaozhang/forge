@@ -45,7 +45,6 @@ public class HomeNavigationRegistryTest {
             "VSubmenuPreferences",
             "VSubmenuAchievements",
             "VSubmenuAvatars",
-            "VSubmenuDownloaders",
             "VSubmenuReleaseNotes"));
 
     /** Multiplayer/online submenus that must remain hidden from the dashboard. */
@@ -65,7 +64,6 @@ public class HomeNavigationRegistryTest {
         EXPECTED_SUBMENU_DOC_ID.put("VSubmenuPreferences", "HOME_PREFERENCES");
         EXPECTED_SUBMENU_DOC_ID.put("VSubmenuAchievements", "HOME_ACHIEVEMENTS");
         EXPECTED_SUBMENU_DOC_ID.put("VSubmenuAvatars", "HOME_AVATARS");
-        EXPECTED_SUBMENU_DOC_ID.put("VSubmenuDownloaders", "HOME_UTILITIES");
         EXPECTED_SUBMENU_DOC_ID.put("VSubmenuReleaseNotes", "HOME_RELEASE_NOTES");
 
         EXPECTED_ONLINE_DOC_ID.put("VSubmenuOnlineLobby", "HOME_NETWORK");

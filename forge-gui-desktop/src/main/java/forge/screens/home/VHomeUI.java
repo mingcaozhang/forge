@@ -53,7 +53,6 @@ import forge.model.FModel;
 import forge.screens.home.sanctioned.VSubmenuConstructed;
 import forge.screens.home.settings.VSubmenuAchievements;
 import forge.screens.home.settings.VSubmenuAvatars;
-import forge.screens.home.settings.VSubmenuDownloaders;
 import forge.screens.home.settings.VSubmenuPreferences;
 import forge.screens.home.settings.VSubmenuReleaseNotes;
 import forge.screens.home.tiles.HomeTile;
@@ -149,7 +148,6 @@ public enum VHomeUI implements IVTopLevelUI {
         allSubmenus.add(VSubmenuPreferences.SINGLETON_INSTANCE);
         allSubmenus.add(VSubmenuAchievements.SINGLETON_INSTANCE);
         allSubmenus.add(VSubmenuAvatars.SINGLETON_INSTANCE);
-        allSubmenus.add(VSubmenuDownloaders.SINGLETON_INSTANCE);
         allSubmenus.add(VSubmenuReleaseNotes.SINGLETON_INSTANCE);
 
         // Only render groups that actually contain menu items, so removed sections leave no empty header.
