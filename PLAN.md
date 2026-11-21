@@ -156,7 +156,7 @@ Per `REWRITE.md`, this cleanup trims the JVM baseline BEFORE the rewrite phases 
   - Verify: `GATE`; `rg -n "CommanderBracket" --type java -g '!target/**'` → remaining only `CommanderBracketCalculator`, `DeckgenUtil`, `FModel`, `AiCardLists` javadoc (items 6.2/6.3).
   - Commit: `chore(commander): remove bracket UI views, column, and in-game tooltip`.
 
-- [ ] **6.2 Remove bracket calculator, setting, lobby cap, AI deckgen cap, protocol field**
+- [x] **6.2 Remove bracket calculator, setting, lobby cap, AI deckgen cap, protocol field**
   - Delete `forge-gui/src/main/java/forge/deck/CommanderBracketCalculator.java`.
   - Delete `forge-gui/res/lists/`: `gamechangers.txt`, `mass-land-denial.txt`, `extra-turns.txt`, `chained-extra-turns.txt` (KEEP `commander-bracket-combos.txt` — item 6.3).
   - `ForgeConstants.java`: remove the 4 `COMMANDER_BRACKET_*_FILE` list constants (L80-83); KEEP `COMMANDER_BRACKET_COMBOS_FILE` (L76) until 6.3.

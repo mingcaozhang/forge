@@ -63,7 +63,6 @@ public class CLobby {
             view.getBtnStart().requestFocusInWindow();
         });
         view.getGamesInMatchBinder().load();
-        view.getMaximumCommanderBracketBinder().load();
     }
 
     public void initialize() {
@@ -78,10 +77,6 @@ public class CLobby {
         view.getCbArtifacts().addActionListener(arg0 -> {
             prefs.setPref(FPref.DECKGEN_ARTIFACTS, String.valueOf(view.getCbArtifacts().isSelected()));
             prefs.save();
-            view.markDirty();
-        });
-
-        view.getMaximumCommanderBracketBinder().getComponent().addActionListener(arg0 -> {
             view.markDirty();
         });
 

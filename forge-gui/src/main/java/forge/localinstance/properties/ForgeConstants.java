@@ -77,10 +77,6 @@ public final class ForgeConstants {
     public static final String AI_COMMANDER_COMBOS_FILE              = LISTS_DIR + "ai-commander-combos.txt";
     public static final String AI_CARD_ROLES_FILE                    = LISTS_DIR + "ai-card-roles.txt";
     public static final String AI_COMBOS_FILE                        = LISTS_DIR + "ai-combos.txt";
-    public static final String COMMANDER_BRACKET_GAMECHANGERS_FILE   = LISTS_DIR + "gamechangers.txt";
-    public static final String COMMANDER_BRACKET_MASS_LAND_DENIAL_FILE = LISTS_DIR + "mass-land-denial.txt";
-    public static final String COMMANDER_BRACKET_EXTRA_TURNS_FILE    = LISTS_DIR + "extra-turns.txt";
-    public static final String COMMANDER_BRACKET_CHAINED_EXTRA_TURNS_FILE = LISTS_DIR + "chained-extra-turns.txt";
 
     public static final String LICENSE_FILE                 = ASSETS_DIR + "LICENSE.txt";
 

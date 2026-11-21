@@ -22,8 +22,6 @@ import forge.gui.interfaces.IGuiGame;
 import forge.gui.interfaces.IMayViewCards;
 import forge.interfaces.IGameController;
 import forge.interfaces.IMacroSystem;
-import forge.localinstance.properties.ForgePreferences.FPref;
-import forge.model.FModel;
 import forge.player.PlayerControllerHuman;
 import forge.player.PlayerZoneUpdate;
 import forge.player.PlayerZoneUpdates;
@@ -130,12 +128,6 @@ public abstract class AbstractGuiGame implements IGuiGame, IMayViewCards {
             return null;
         }
         return gameView == null ? null : gameView.getDeck(player);
-    }
-
-    public final int getMaximumCommanderBracket() {
-        return clientLobby != null
-                ? clientLobby.getData().getMaximumCommanderBracket()
-                : FModel.getPreferences().getPrefInt(FPref.DECKGEN_MAXIMUM_COMMANDER_BRACKET);
     }
 
     /**

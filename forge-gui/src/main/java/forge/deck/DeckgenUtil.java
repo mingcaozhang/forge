@@ -22,7 +22,6 @@ import forge.item.PaperCardPredicates;
 import forge.item.PreconDeck;
 import forge.itemmanager.IItemManager;
 import forge.localinstance.properties.ForgeConstants;
-import forge.localinstance.properties.ForgePreferences;
 import forge.localinstance.properties.ForgePreferences.FPref;
 import forge.model.FModel;
 import forge.util.*;
@@ -588,12 +587,8 @@ public class DeckgenUtil {
         return generateRandomCommanderDeck(commander, format, forAi, false);
     }
 
+    /** Generate a random Commander deck. */
     public static Deck generateRandomCommanderDeck(PaperCard commander, DeckFormat format, boolean forAi, boolean isCardGen) {
-        return generateRandomCommanderDeck(commander, format, forAi, isCardGen, FModel.getPreferences().getPrefInt(ForgePreferences.FPref.DECKGEN_MAXIMUM_COMMANDER_BRACKET));
-    }
-
-    /** Generate a random Commander deck with an optional maximum bracket. */
-    public static Deck generateRandomCommanderDeck(PaperCard commander, DeckFormat format, boolean forAi, boolean isCardGen, int maxBracket) {
         final Deck deck;
         PaperCard selectedPartner = null;
         List<PaperCard> preSelectedCards = new ArrayList<>();
@@ -624,7 +619,6 @@ public class DeckgenUtil {
                 }
             }
 
-            preSelectedCards = limitCardsToCommanderBracket(preSelectedCards, commander, null, maxBracket);
             if (format.equals(DeckFormat.Oathbreaker)) {
                 //pass signature spell as partner for simplicity
                 selectedPartner = getRandomSignatureSpell(preSelectedCards);
@@ -657,7 +651,6 @@ public class DeckgenUtil {
             }
             preSelectedCards.removeAll(toRemove);
             preSelectedCards.removeAll(StaticData.instance().getCommonCards().getAllCards(commander));
-            preSelectedCards = limitCardsToCommanderBracket(preSelectedCards, commander, selectedPartner, maxBracket);
         } else {
             IDeckGenPool cardDb = FModel.getMagicDb().getCommonCards();
             Iterable<PaperCard> colorList = IterableUtil.filter(format.getCardPool(cardDb).getAllCards(),
@@ -673,7 +666,6 @@ public class DeckgenUtil {
             Collections.shuffle(cardList, MyRandom.getRandom());
             int shortlistlength = Math.min(400, cardList.size());
             preSelectedCards = cardList.subList(0, shortlistlength);
-            preSelectedCards = limitCardsToCommanderBracket(preSelectedCards, commander, null, maxBracket);
             switch (format) {
             case Oathbreaker:
                 //pass signature spell as partner for simplicity
@@ -687,7 +679,6 @@ public class DeckgenUtil {
             }
             if (selectedPartner != null) {
                 preSelectedCards.removeAll(StaticData.instance().getCommonCards().getAllCards(selectedPartner));
-                preSelectedCards = limitCardsToCommanderBracket(preSelectedCards, commander, selectedPartner, maxBracket);
             }
             preSelectedCards.removeAll(StaticData.instance().getCommonCards().getAllCards(commander));
         }
@@ -722,29 +713,6 @@ public class DeckgenUtil {
             sortKeys.put(cardEntry, Math.log(MyRandom.getRandom().nextDouble()) / weight);
         }
         potentialCards.sort(Comparator.comparingDouble(sortKeys::get).reversed());
-    }
-
-    private static List<PaperCard> limitCardsToCommanderBracket(final List<PaperCard> cards,
-            final PaperCard commander, final PaperCard selectedPartner, final int maxBracket) {
-        if (maxBracket < 1 || maxBracket >= 4) {
-            return cards;
-        }
-
-        final List<PaperCard> result = new ArrayList<>();
-        Set<String> prospectiveDeckNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-        prospectiveDeckNames.addAll(CommanderBracketCalculator.getCardNames(commander));
-        prospectiveDeckNames.addAll(CommanderBracketCalculator.getCardNames(selectedPartner));
-        for (final PaperCard card : cards) {
-            final Set<String> cardNames = CommanderBracketCalculator.getCardNames(card);
-            final Set<String> candidateDeckNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-            candidateDeckNames.addAll(prospectiveDeckNames);
-            candidateDeckNames.addAll(cardNames);
-            if (CommanderBracketCalculator.calculate(candidateDeckNames).getBracket() <= maxBracket) {
-                result.add(card);
-                prospectiveDeckNames = candidateDeckNames;
-            }
-        }
-        return result;
     }
 
     private static PaperCard getRandomSignatureSpell(final Iterable<PaperCard> cards) {

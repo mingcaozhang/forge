@@ -244,7 +244,6 @@ public class ForgePreferences extends AbstractPreferences<ForgePreferences.FPref
         DECKGEN_SINGLETONS ("false"),
         DECKGEN_ARTIFACTS ("false"),
         DECKGEN_NOSMALL ("false"),
-        DECKGEN_MAXIMUM_COMMANDER_BRACKET("5"),
 
         PROMPT_FOR_AUTOSELL ("true"),
 
