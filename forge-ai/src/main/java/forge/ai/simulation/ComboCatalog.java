@@ -281,7 +281,7 @@ public final class ComboCatalog {
     private static List<Entry> pairEntries;
 
     /**
-     * The two card combos of {@code commander-bracket-combos.txt} and {@code ai-commander-combos.txt} as entries (win
+     * The two card combos of {@code commander-combos.txt} and {@code ai-commander-combos.txt} as entries (win
      * combos of two slots, numbered from {@link #PAIR_NUMBER_BASE}). They are not part of {@link #entries()}: the
      * rollouts' terms and the opponent's threat list stay as they were, the combos are put together by
      * {@link ComboAssembly} and tested from here.

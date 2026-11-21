@@ -170,7 +170,7 @@ Per `REWRITE.md`, this cleanup trims the JVM baseline BEFORE the rewrite phases 
   - Verify: `GATE`; `rg -n -i "bracket" --type java -g '!target/**'` → remaining only `COMMANDER_BRACKET_COMBOS_FILE` + `FModel` supplier + `forge-ai` javadoc (item 6.3) + unrelated matches (`DeckSerializer.enclosedBracket`, `Tracker` "bracket a region", `CardDetailUtil` "Bracket P/T", test square-bracket parsing).
   - Commit: `chore(commander): remove bracket calculator, lobby cap, deckgen cap, and protocol field`.
 
-- [ ] **6.3 Rename AI combos data file + constant (keep AI knowledge)**
+- [x] **6.3 Rename AI combos data file + constant (keep AI knowledge)**
   - `git mv forge-gui/res/lists/commander-bracket-combos.txt forge-gui/res/lists/commander-combos.txt`.
   - `ForgeConstants.java`: `COMMANDER_BRACKET_COMBOS_FILE` → `COMMANDER_COMBOS_FILE` (L76).
   - `FModel.java` (L261-265): update supplier + comment.

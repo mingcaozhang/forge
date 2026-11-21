@@ -32,7 +32,7 @@ public class AiCardListsTest {
     @AfterClass(alwaysRun = true)
     public void restoreRealFiles() {
         AiCardLists.configure(() -> FileUtil.readFile(ForgeConstants.AI_CARD_ROLES_FILE),
-                () -> FileUtil.readFile(ForgeConstants.COMMANDER_BRACKET_COMBOS_FILE),
+                () -> FileUtil.readFile(ForgeConstants.COMMANDER_COMBOS_FILE),
                 () -> FileUtil.readFile(ForgeConstants.AI_COMMANDER_COMBOS_FILE));
     }
 

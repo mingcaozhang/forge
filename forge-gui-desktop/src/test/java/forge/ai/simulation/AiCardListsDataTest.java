@@ -21,7 +21,7 @@ import forge.gui.GuiBase;
 import forge.localinstance.properties.ForgeConstants;
 import forge.util.FileUtil;
 
-/** The shipped AI card lists must only name cards that exist, use known roles and not repeat the bracket combos. */
+/** The shipped AI card lists must only name cards that exist, use known roles and not repeat the Commander combos. */
 public class AiCardListsDataTest {
     private static final String NAME_PREFIX = "Name:";
 
@@ -89,12 +89,12 @@ public class AiCardListsDataTest {
     }
 
     @Test
-    public void comboFileHasRealCardsAndNoBracketDuplicates() {
-        final Set<String> bracketPairs = new HashSet<>();
-        for (final String raw : FileUtil.readFile(ForgeConstants.COMMANDER_BRACKET_COMBOS_FILE)) {
+    public void comboFileHasRealCardsAndNoCommanderDuplicates() {
+        final Set<String> commanderPairs = new HashSet<>();
+        for (final String raw : FileUtil.readFile(ForgeConstants.COMMANDER_COMBOS_FILE)) {
             final String[] p = strip(raw).split("\\s*\\|\\s*");
             if (p.length >= 3) {
-                bracketPairs.add(new AiCardLists.Pair(p[1], p[2]).key());
+                commanderPairs.add(new AiCardLists.Pair(p[1], p[2]).key());
             }
         }
         final List<String> problems = new ArrayList<>();
@@ -117,8 +117,8 @@ public class AiCardListsDataTest {
                 }
             }
             final String key = new AiCardLists.Pair(p[1], p[2]).key();
-            if (bracketPairs.contains(key)) {
-                problems.add("line " + n + ": already in the bracket combos file: " + p[1] + " | " + p[2]);
+            if (commanderPairs.contains(key)) {
+                problems.add("line " + n + ": already in the Commander combos file: " + p[1] + " | " + p[2]);
             }
             if (!own.add(key)) {
                 problems.add("line " + n + ": listed twice: " + p[1] + " | " + p[2]);

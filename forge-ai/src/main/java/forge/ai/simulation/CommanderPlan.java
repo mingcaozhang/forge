@@ -71,7 +71,7 @@ public final class CommanderPlan {
     static final int MAX_KNOWN_COMBOS = 40;
 
     /**
-     * A two card combo of the format, from the lists read by {@link AiCardLists} (the Commander bracket combos and
+     * A two card combo of the format, from the lists read by {@link AiCardLists} (the Commander combos and
      * the combos that only the AI knows). Both cards make it.
      */
     public static final class KnownCombo {

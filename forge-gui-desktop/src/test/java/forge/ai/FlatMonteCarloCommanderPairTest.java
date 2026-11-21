@@ -21,7 +21,7 @@ import forge.game.zone.ZoneType;
 import forge.model.FModel;
 
 /**
- * The two card combos of commander-bracket-combos.txt and ai-commander-combos.txt, put together by ComboAssembly like the
+ * The two card combos of commander-combos.txt and ai-commander-combos.txt, put together by ComboAssembly like the
  * lines of ai-combos.txt: the AI holds both permanents and the mana, and has to cast them both in one turn. There are a
  * couple of thousand pairs and a game each takes seconds, so a run takes every {@code flatmc.pairs.stride}th pair (50 by
  * default, 1 for all of them: {@code -Dflatmc.pairs.stride=1}). A pair with a spell, a land, an Aura or a cost above 12

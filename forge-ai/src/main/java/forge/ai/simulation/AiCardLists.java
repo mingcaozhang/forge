@@ -21,10 +21,10 @@ import forge.game.card.Card;
  * cards can be added without a code change.
  * <ul>
  *   <li><b>Roles</b> ({@code ai-card-roles.txt}): {@code role | Card Name | Card Name ...}, see {@link Role}.</li>
- *   <li><b>Two card combos</b> for Commander: the Commander bracket list ({@code commander-bracket-combos.txt},
+ *   <li><b>Two card combos</b> for Commander: the Commander combos list ({@code commander-combos.txt},
  *       {@code category | Card A | Card B}) together with {@code ai-commander-combos.txt}, which has the same format
- *       and holds the pairs that should change how the AI plays but not the bracket of a deck. A pair that is in
- *       both, in either order, counts once.</li>
+ *       and holds the pairs that should only change how the AI plays. A pair that is in both, in either order,
+ *       counts once.</li>
  * </ul>
  * forge-ai cannot see the resource folder, so the front end hands over the readers with {@link #configure}
  * (FModel does it on start up, the way it does for the AI profiles). Nothing is read before it is needed, and a missing
