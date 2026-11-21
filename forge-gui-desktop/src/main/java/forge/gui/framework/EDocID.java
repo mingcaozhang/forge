@@ -16,7 +16,6 @@ import forge.screens.home.sanctioned.VSubmenuConstructed;
 import forge.screens.home.settings.VSubmenuAchievements;
 import forge.screens.home.settings.VSubmenuAvatars;
 import forge.screens.home.settings.VSubmenuPreferences;
-import forge.screens.home.settings.VSubmenuReleaseNotes;
 
 /**
  * These are the identifiers for tabs found in the drag layout.
@@ -46,7 +45,6 @@ public enum EDocID {
     HOME_CONSTRUCTED (VSubmenuConstructed.SINGLETON_INSTANCE),
     HOME_NETWORK (VSubmenuOnlineLobby.SINGLETON_INSTANCE),
     HOME_NET_DECKS (VSubmenuOnlineDecks.SINGLETON_INSTANCE),
-    HOME_RELEASE_NOTES (VSubmenuReleaseNotes.SINGLETON_INSTANCE),
 
     REPORT_MESSAGE (),
     REPORT_STACK (),

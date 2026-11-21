@@ -61,7 +61,7 @@ Per `REWRITE.md`, this cleanup trims the JVM baseline BEFORE the rewrite phases 
 
 ## Phase 2 — Release Notes
 
-- [ ] **2.1 Remove Release Notes section + Help menu entry**
+- [x] **2.1 Remove Release Notes section + Help menu entry**
   - Delete: `forge-gui-desktop/src/main/java/forge/screens/home/settings/CSubmenuReleaseNotes.java`, `.../VSubmenuReleaseNotes.java`.
   - Surgical: `EDocID.java` (import L20 + `HOME_RELEASE_NOTES` L51); `VHomeUI.java` (import L58, registration L153, hero-icon case L253-254); `HelpMenu.java` (L38 `menu.add(...)` + `getMenuItem_ReleaseNotes()` L130-135; keep shared file-open helpers); `HomeNavigationRegistryTest.java` (L49 + mapping L69); `ForgeConstants.java` (`CHANGES_FILE` L85 + `CHANGES_FILE_NO_RELEASE` L86 — after `rg` confirms no remaining refs); `forge-core .../util/TextUtil.java` (`getFormattedChangelog` ~L400 — sole caller was `CSubmenuReleaseNotes`; verify with `rg` first).
   - i18n (10 files): delete `ReleaseNotes` + `lblReleaseNotes`.

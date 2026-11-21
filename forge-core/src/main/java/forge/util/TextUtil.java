@@ -5,28 +5,21 @@ import forge.item.IPaperCard;
 import forge.item.PaperCard;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StringEscapeUtils;
 
-import java.io.File;
 import java.text.DecimalFormat;
 import java.text.Normalizer;
 import java.text.SimpleDateFormat;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TimeZone;
 
 /** 
  * TODO: Write javadoc for this type.
  *
  */
 public class TextUtil {
-    private static final StringBuilder changes = new StringBuilder();
     private static SimpleDateFormat simpleDate;
 
     static ImmutableSortedMap<Integer,String> romanMap = ImmutableSortedMap.<Integer,String>naturalOrder()
@@ -397,56 +390,4 @@ public class TextUtil {
         return simpleDate;
     }
 
-    public static String getFormattedChangelog(File changelog, String defaultLog) {
-        if (!changelog.exists())
-            return defaultLog;
-        if (changes == null || changes.toString().isEmpty()) {
-            try {
-                Calendar calendar = Calendar.getInstance();
-                SimpleDateFormat original = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                SimpleDateFormat formatted = getSimpleDate();
-                String offset = " GMT " + OffsetDateTime.now().getOffset();
-                List<String> toformat = FileUtil.readAllLines(changelog, false);
-                boolean skip = false;
-                int count = 0;
-                for (String line : toformat) {
-                    if (line.isEmpty() || line.startsWith("#") || line.length() < 4)
-                        continue;
-                    if (line.contains("**Merge")) {
-                        skip = true;
-                        continue;
-                    }
-                    if (line.startsWith("[")) {
-                        if (skip) {
-                            skip = false;
-                            continue;
-                        }
-                        count++;
-                        String datestring = line.substring(line.lastIndexOf(" *")+1).replace("*", "");
-                        try {
-                            original.setTimeZone(TimeZone.getTimeZone("UTC"));
-                            Date toDate = original.parse(datestring);
-                            calendar.setTime(toDate);
-                            formatted.setTimeZone(TimeZone.getDefault());
-                            changes.append("\n(").append(formatted.format(calendar.getTime())).append(offset).append(")\n\n");
-                        } catch (Exception e2) {
-                            changes.append("\n(").append(datestring).append(")\n\n");
-                        }
-                        if (count > 20)
-                            break;
-                    } else {
-                        if (skip)
-                            continue;
-                        if (line.startsWith(" * "))
-                            changes.append("\n").append(StringEscapeUtils.unescapeXml(line));
-                        else
-                            changes.append(StringEscapeUtils.unescapeXml(line));
-                    }
-                }
-            } catch (Exception e) {
-                return defaultLog;
-            }
-        }
-        return changes.toString();
-    }
 }

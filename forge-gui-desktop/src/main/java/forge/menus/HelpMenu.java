@@ -35,7 +35,6 @@ public final class HelpMenu {
         menu.add(getMenuItem_OpenLogFileDirectory());
         menu.add(getMenuItem_ExportLogs());
         menu.addSeparator();
-        menu.add(getMenuItem_ReleaseNotes());
         menu.add(getMenuItem_License());
         menu.addSeparator();
         menu.add(getMenuItem_About());
@@ -124,13 +123,6 @@ public final class HelpMenu {
         final Localizer localizer = Localizer.getInstance();
         JMenuItem menuItem = new JMenuItem(localizer.getMessage("lblForgeLicense"));
         menuItem.addActionListener(getOpenFileAction(getFile(ForgeConstants.LICENSE_FILE)));
-        return menuItem;
-    }
-
-    private static JMenuItem getMenuItem_ReleaseNotes() {
-        final Localizer localizer = Localizer.getInstance();
-        JMenuItem menuItem = new JMenuItem(localizer.getMessage("lblReleaseNotes"));
-        menuItem.addActionListener(getOpenFileAction(getFile(ForgeConstants.CHANGES_FILE)));
         return menuItem;
     }
 
