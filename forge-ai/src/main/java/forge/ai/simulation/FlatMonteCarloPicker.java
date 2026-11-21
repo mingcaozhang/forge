@@ -2400,7 +2400,24 @@ public final class FlatMonteCarloPicker {
     /** The creature to aim a keyword ability at, for the block (opponent's attack) or for the attack (the AI's own). */
     static Card keywordGrantTarget(final Player player, final SpellAbility sa) {
         final Card blocker = blockerSubject(player, sa);
-        return blocker != null ? blocker : evasionSubject(player, sa, false);
+        if (blocker != null) {
+            return blocker;
+        }
+        
+        // Fallback: if we can't find a good blocker, but the card has valid targets, select one
+        final List<Card> subjects = grantSubjects(player, sa);
+        if (!subjects.isEmpty()) {
+            // Select the first suitable creature, or a reasonable default
+            for (final Card subject : subjects) {
+                if (subject.isCreature() && !subject.hasKeyword(Keyword.FLYING)) { 
+                    return subject;
+                }
+            }
+            // If no suitable creatures, return first one
+            return subjects.get(0);
+        }
+        
+        return evasionSubject(player, sa, false);
     }
 
     /**
