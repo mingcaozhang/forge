@@ -173,7 +173,6 @@ public class HostedMatch {
         }
 
         final FCollectionView<Player> players = game.getPlayers();
-        final String[] avatarIndices = FModel.getPreferences().getPref(FPref.UI_AVATARS).split(",");
         final String[] sleeveIndices = FModel.getPreferences().getPref(FPref.UI_SLEEVES).split(",");
         final GameView gameView = getGameView();
 
@@ -183,15 +182,6 @@ public class HostedMatch {
             final RegisteredPlayer rp = match.getPlayers().get(iPlayer);
             final Player p = players.get(iPlayer);
 
-            p.getLobbyPlayer().setAvatarIndex(rp.getPlayer().getAvatarIndex());
-            if (p.getLobbyPlayer().getAvatarIndex() == -1) {
-                if (iPlayer < avatarIndices.length) {
-                    p.getLobbyPlayer().setAvatarIndex(Integer.parseInt(avatarIndices[iPlayer]));
-                } else {
-                    p.getLobbyPlayer().setAvatarIndex(0);
-                }
-            }
-            p.updateAvatar();
             p.getLobbyPlayer().setSleeveIndex(rp.getPlayer().getSleeveIndex());
             if (p.getLobbyPlayer().getSleeveIndex() == -1) {
                 if (iPlayer < sleeveIndices.length) {

@@ -12,12 +12,11 @@ import java.util.Collections;
 public final class ServerGameLobby extends GameLobby implements IHasForgeLog {
 
     public ServerGameLobby() {
-        final int[] avatarIndices = localAvatarIndices();
         final int[] sleeveIndices = localSleeveIndices();
 
-        addSlot(new LobbySlot(LobbySlotType.LOCAL, localName(), avatarIndices[0], sleeveIndices[0], 0, true, false, Collections.emptySet()));
+        addSlot(new LobbySlot(LobbySlotType.LOCAL, localName(), sleeveIndices[0], 0, true, false, Collections.emptySet()));
         // Seeded while open so the seat has art the moment it is taken; a connecting client replaces both
-        addSlot(new LobbySlot(LobbySlotType.OPEN, null, avatarIndices[1], sleeveIndices[1], 1, false, false, Collections.emptySet()));
+        addSlot(new LobbySlot(LobbySlotType.OPEN, null, sleeveIndices[1], 1, false, false, Collections.emptySet()));
     }
 
     /**
@@ -27,25 +26,23 @@ public final class ServerGameLobby extends GameLobby implements IHasForgeLog {
      * multiple clients).
      *
      * @param name the player's name
-     * @param avatarIndex the avatar index
      * @param sleeveIndex the sleeve index
      * @return the assigned slot index, or -1 if no slots available
      */
-    public synchronized int connectPlayer(final String name, final int avatarIndex, final int sleeveIndex) {
+    public synchronized int connectPlayer(final String name, final int sleeveIndex) {
         final int nSlots = getNumberOfSlots();
         for (int index = 0; index < nSlots; index++) {
             final LobbySlot slot = getSlot(index);
             if (slot.getType() == LobbySlotType.OPEN) {
-                connectPlayer(name, avatarIndex, sleeveIndex, slot);
+                connectPlayer(name, sleeveIndex, slot);
                 return index;
             }
         }
         return -1;
     }
-    private void connectPlayer(final String name, final int avatarIndex, final int sleeveIndex, final LobbySlot slot) {
+    private void connectPlayer(final String name, final int sleeveIndex, final LobbySlot slot) {
         slot.setType(LobbySlotType.REMOTE);
         slot.setName(name);
-        slot.setAvatarIndex(avatarIndex);
         slot.setSleeveIndex(sleeveIndex);
         updateView(false);
     }

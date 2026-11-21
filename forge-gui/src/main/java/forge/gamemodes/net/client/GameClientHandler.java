@@ -179,7 +179,6 @@ final class GameClientHandler extends GameProtocolHandler<IGuiGame> implements I
         }
         ctx.channel().writeAndFlush(new LoginEvent(
                 loginName,
-                Integer.parseInt(FModel.getPreferences().getPref(FPref.UI_AVATARS).split(",")[0]),
                 Integer.parseInt(FModel.getPreferences().getPref(FPref.UI_SLEEVES).split(",")[0]),
                 BuildInfo.getVersionString(),
                 GuiBase.getInterface().isLibgdxPort()

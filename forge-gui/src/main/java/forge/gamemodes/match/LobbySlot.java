@@ -16,7 +16,6 @@ public final class LobbySlot implements Serializable {
 
     private LobbySlotType type;
     private String name;
-    private int avatarIndex;
     private int sleeveIndex;
     private int team;
     private boolean isArchenemy;
@@ -30,10 +29,9 @@ public final class LobbySlot implements Serializable {
     private String DeckName;
     private String aiProfile;
 
-    public LobbySlot(final LobbySlotType type, final String name, final int avatarIndex, final int sleeveIndex, final int team, final boolean isArchenemy, final boolean isReady, final Set<AIOption> aiOptions) {
+    public LobbySlot(final LobbySlotType type, final String name, final int sleeveIndex, final int team, final boolean isArchenemy, final boolean isReady, final Set<AIOption> aiOptions) {
         this.type = type;
         this.name = name;
-        this.avatarIndex = avatarIndex;
         this.sleeveIndex = sleeveIndex;
         this.team = team;
         this.isArchenemy = isArchenemy;
@@ -46,7 +44,6 @@ public final class LobbySlot implements Serializable {
         boolean changed = false;
         changed |= setIfChanged(data.getType(),            this.type,           this::setType);
         changed |= setIfChanged(data.getName(),            this.name,           this::setName);
-        changed |= setIntIfChanged(data.getAvatarIndex(),  this.avatarIndex,    this::setAvatarIndex);
         changed |= setIntIfChanged(data.getSleeveIndex(),  this.sleeveIndex,    this::setSleeveIndex);
         changed |= setIntIfChanged(data.getTeam(),         this.team,           this::setTeam);
         changed |= setIfChanged(data.getArchenemy(),       this.isArchenemy,    this::setIsArchenemy);
@@ -97,14 +94,8 @@ public final class LobbySlot implements Serializable {
         this.name = name;
     }
 
-    public int getAvatarIndex() {
-        return avatarIndex;
-    }
     public int getSleeveIndex() {
         return sleeveIndex;
-    }
-    public void setAvatarIndex(final int avatarIndex) {
-        this.avatarIndex = avatarIndex;
     }
     public void setSleeveIndex(final int sleeveIndex) {
         this.sleeveIndex = sleeveIndex;

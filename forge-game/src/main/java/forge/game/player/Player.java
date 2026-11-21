@@ -2684,16 +2684,10 @@ public class Player extends GameEntity implements Comparable<Player> {
 
     public final void dangerouslySetController(PlayerController ctrlr) {
         controller = ctrlr;
-        updateAvatar();
+        view.setHasLost(false);
         updateSleeve();
         view.updateIsAI(this);
         view.updateLobbyPlayerName(this);
-    }
-
-    public void updateAvatar() {
-        view.updateAvatarIndex(this);
-        view.updateAvatarCardImageKey(this);
-        view.setHasLost(false);
     }
 
     public void updateSleeve() {

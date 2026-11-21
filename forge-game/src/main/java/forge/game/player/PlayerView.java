@@ -71,20 +71,6 @@ public class PlayerView extends GameEntityView {
         return getLobbyPlayerName().equals(p.getName());
     }
 
-    public int getAvatarIndex() {
-        return get(TrackableProperty.AvatarIndex);
-    }
-    void updateAvatarIndex(Player p) {
-        set(TrackableProperty.AvatarIndex, p.getLobbyPlayer().getAvatarIndex());
-    }
-
-    public String getAvatarCardImageKey() {
-        return get(TrackableProperty.AvatarCardImageKey);
-    }
-    void updateAvatarCardImageKey(Player p) {
-        set(TrackableProperty.AvatarCardImageKey, p.getLobbyPlayer().getAvatarCardImageKey());
-    }
-
     public int getSleeveIndex() {
         return get(TrackableProperty.SleeveIndex);
     }

@@ -12,9 +12,7 @@ import java.util.Objects;
  */
 public abstract class LobbyPlayer {
     protected String name;
-    private int avatarIndex = -1;
     private int sleeveIndex = -1;
-    private String avatarCardImageKey;
     private String sleeveArtKey = "";
     private int sleeveArtOffset = 500;
 
@@ -57,24 +55,11 @@ public abstract class LobbyPlayer {
         return Objects.equals(name, other.name);
     }
 
-    public int getAvatarIndex() {
-        return avatarIndex;
-    }
     public int getSleeveIndex() {
         return sleeveIndex;
     }
-    public void setAvatarIndex(int avatarIndex) {
-        this.avatarIndex = avatarIndex;
-    }
     public void setSleeveIndex(int sleeveIndex) {
         this.sleeveIndex = sleeveIndex;
-    }
-
-    public String getAvatarCardImageKey() {
-        return avatarCardImageKey;
-    }
-    public void setAvatarCardImageKey(String avatarImageKey0) {
-        this.avatarCardImageKey = avatarImageKey0;
     }
 
     // empty means fall back to the built-in sleeveIndex

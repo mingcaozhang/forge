@@ -13,11 +13,10 @@ public class LobbyPlayerHuman extends LobbyPlayer implements IGameEntitiesFactor
     public AutoYieldStore getYieldStore() { return yieldStore; }
 
     public LobbyPlayerHuman(final String name) {
-        this(name, -1, -1);
+        this(name, -1);
     }
-    public LobbyPlayerHuman(final String name, final int avatarIndex, final int sleeveIndex) {
+    public LobbyPlayerHuman(final String name, final int sleeveIndex) {
         super(name);
-        setAvatarIndex(avatarIndex);
         setSleeveIndex(sleeveIndex);
     }
 

@@ -273,7 +273,7 @@ public abstract class GameLobby implements IHasGameType {
     public void addSlot() {
         final int newIndex = getNumberOfSlots();
         final LobbySlotType type = isAllowNetworking() ? LobbySlotType.OPEN : LobbySlotType.AI;
-        addSlot(new LobbySlot(type, null, newIndex, newIndex, newIndex, false, !isAllowNetworking(), Collections.emptySet()));
+        addSlot(new LobbySlot(type, null, newIndex, newIndex, false, !isAllowNetworking(), Collections.emptySet()));
     }
     protected final void addSlot(final LobbySlot slot) {
         if (slot == null) {
@@ -304,9 +304,6 @@ public abstract class GameLobby implements IHasGameType {
     }
     protected final static String localName() {
         return FModel.getPreferences().getPref(FPref.PLAYER_NAME);
-    }
-    protected final static int[] localAvatarIndices() {
-        return localIndices(FPref.UI_AVATARS);
     }
     protected final static int[] localSleeveIndices() {
         return localIndices(FPref.UI_SLEEVES);
@@ -611,7 +608,6 @@ public abstract class GameLobby implements IHasGameType {
         for (final LobbySlot slot : activeSlots) {
             final IGuiGame gui = getGui(data.slots.indexOf(slot));
             final String name = slot.getName();
-            final int avatar = slot.getAvatarIndex();
             final int sleeve = slot.getSleeveIndex();
             final boolean isArchenemy = slot.isArchenemy();
             final int team = slot.getTeam();
@@ -621,14 +617,14 @@ public abstract class GameLobby implements IHasGameType {
             final LobbyPlayer lobbyPlayer;
             if (isAI) {
                 String aiProfileOverride = slot.getAiProfile();
-                lobbyPlayer = GamePlayerUtil.createAiPlayer(name, avatar, sleeve, aiOptions, aiProfileOverride);
+                lobbyPlayer = GamePlayerUtil.createAiPlayer(name, sleeve, aiOptions, aiProfileOverride);
             } else {
                 boolean setNameNow = false;
                 if (!hasNameBeenSet && slot.getType() == LobbySlotType.LOCAL) {
                     setNameNow = true;
                     hasNameBeenSet = true;
                 }
-                lobbyPlayer = GamePlayerUtil.getGuiPlayer(name, avatar, sleeve, setNameNow);
+                lobbyPlayer = GamePlayerUtil.getGuiPlayer(name, sleeve, setNameNow);
             }
             final Deck slotDeck = slot.getDeck();
             lobbyPlayer.setSleeveArtKey(slotDeck == null ? "" : slotDeck.getSleeveArtKey());

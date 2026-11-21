@@ -155,8 +155,6 @@ public enum TrackableProperty {
     //Player
     IsAI(TrackableTypes.BooleanType),
     LobbyPlayerName(TrackableTypes.StringType),
-    AvatarIndex(TrackableTypes.IntegerType),
-    AvatarCardImageKey(TrackableTypes.StringType),
     SleeveIndex(TrackableTypes.IntegerType),
     SleeveArtKey(TrackableTypes.StringType),
     SleeveArtOffset(TrackableTypes.IntegerType),

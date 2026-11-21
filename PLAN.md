@@ -108,7 +108,7 @@ Per `REWRITE.md`, this cleanup trims the JVM baseline BEFORE the rewrite phases 
   - Verify: `GATE`; `rg -n "avatarImages|getPlayerAvatar|setPlayerAvatar|IHasIcon|getAvatarArea|updateAvatarBorder" --type java -g '!target/**'` → zero.
   - Commit: `chore(commander): match player panels show commander card image`.
 
-- [ ] **4.3 Drop avatar index from lobby/game data model**
+- [x] **4.3 Drop avatar index from lobby/game data model**
   - `LobbyPlayer.java` (forge-core): remove `avatarIndex` + `avatarCardImageKey` fields/getters/setters (L15, L17, L60-78).
   - `Player.java` (forge-game): delete `updateAvatar()` (L2693-2697); in `dangerouslySetController` (L2687) keep the `view.setHasLost(false)` effect inline.
   - `PlayerView.java`: remove `getAvatarIndex`/`updateAvatarIndex`/`getAvatarCardImageKey`/`updateAvatarCardImageKey` (L74-86).

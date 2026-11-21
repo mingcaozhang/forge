@@ -1105,7 +1105,7 @@ public final class FServerManager implements IHasForgeLog, HostingServer.Server 
                     ctx.close();
                 } else {
                     // Normal login flow
-                    final int index = localLobby.connectPlayer(username, event.getAvatarIndex(), event.getSleeveIndex());
+                    final int index = localLobby.connectPlayer(username, event.getSleeveIndex());
                     if (index == -1) {
                         ctx.close();
                     } else {

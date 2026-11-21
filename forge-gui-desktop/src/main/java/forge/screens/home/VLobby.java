@@ -450,7 +450,7 @@ public class VLobby implements ILobbyView {
         final PlayerPanel panel = getPlayerPanel(index);
         return UpdateLobbyPlayerEvent.create(panel.getType(),
                 panel.getPlayerName(),
-                0, panel.getSleeveIndex(),
+                panel.getSleeveIndex(),
                 panel.getTeam(), panel.isArchenemy(),
                 panel.isDevMode(),
                 panel.getAiOptions(),

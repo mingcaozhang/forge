@@ -18,7 +18,7 @@ public class LobbySlotAuthorizationTest {
     @Test
     public void testClearsOnlyServerOwnedFields() {
         final UpdateLobbyPlayerEvent forged = UpdateLobbyPlayerEvent.create(
-                LobbySlotType.OPEN, "Mallory", 3, 4, 1, true, true,
+                LobbySlotType.OPEN, "Mallory", 4, 1, true, true,
                 Collections.emptySet(), "ai-profile");
 
         Assert.assertTrue(forged.clearServerOwnedFields(), "Server-owned fields were present");

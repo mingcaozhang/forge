@@ -17,7 +17,6 @@ public final class UpdateLobbyPlayerEvent implements NetEvent {
 
     private LobbySlotType type = null;
     private String name = null;
-    private int avatarIndex = -1;
     private int sleeveIndex = -1;
     private int team = -1;
     private Boolean isArchenemy = null;
@@ -33,8 +32,8 @@ public final class UpdateLobbyPlayerEvent implements NetEvent {
     private String DeckName = null;
     private String aiProfile = null;
 
-    public static UpdateLobbyPlayerEvent create(final LobbySlotType type, final String name, final int avatarIndex, final int sleeveIndex, final int team, final boolean isArchenemy, final boolean isDevMode, final Set<AIOption> aiOptions, final String aiProfile) {
-        return new UpdateLobbyPlayerEvent(type, name, avatarIndex, sleeveIndex, team, isArchenemy, isDevMode, aiOptions, aiProfile);
+    public static UpdateLobbyPlayerEvent create(final LobbySlotType type, final String name, final int sleeveIndex, final int team, final boolean isArchenemy, final boolean isDevMode, final Set<AIOption> aiOptions, final String aiProfile) {
+        return new UpdateLobbyPlayerEvent(type, name, sleeveIndex, team, isArchenemy, isDevMode, aiOptions, aiProfile);
     }
     public static UpdateLobbyPlayerEvent deckUpdate(final Deck deck) {
         return new UpdateLobbyPlayerEvent(deck);
@@ -59,11 +58,10 @@ public final class UpdateLobbyPlayerEvent implements NetEvent {
         this.name = name;
     }
 
-    public static UpdateLobbyPlayerEvent avatarUpdate(final int index) {
-        return new UpdateLobbyPlayerEvent(index, true);
-    }
     public static UpdateLobbyPlayerEvent sleeveUpdate(final int index) {
-        return new UpdateLobbyPlayerEvent(index, false);
+        final UpdateLobbyPlayerEvent event = new UpdateLobbyPlayerEvent();
+        event.sleeveIndex = index;
+        return event;
     }
     public static UpdateLobbyPlayerEvent isReadyUpdate(final boolean isReady) {
         return new UpdateLobbyPlayerEvent(isReady);
@@ -78,12 +76,6 @@ public final class UpdateLobbyPlayerEvent implements NetEvent {
     }
     public static UpdateLobbyPlayerEvent setDeckSchemePlaneVanguard(final String DeckName, final String Scheme, final String Plane, final String Vanguard) {
         return new UpdateLobbyPlayerEvent(DeckName, Scheme, Plane, Vanguard);
-    }
-    private UpdateLobbyPlayerEvent(final int index, final boolean avatar) {
-        if (avatar)
-            this.avatarIndex = index;
-        else
-            this.sleeveIndex = index;
     }
     private UpdateLobbyPlayerEvent(final int team) {
         this.team = team;
@@ -111,7 +103,6 @@ public final class UpdateLobbyPlayerEvent implements NetEvent {
     private UpdateLobbyPlayerEvent(
             final LobbySlotType type,
             final String name,
-            final int avatarIndex,
             final int sleeveIndex,
             final int team,
             final boolean isArchenemy,
@@ -120,7 +111,6 @@ public final class UpdateLobbyPlayerEvent implements NetEvent {
             final String aiProfile) {
         this.type = type;
         this.name = name;
-        this.avatarIndex = avatarIndex;
         this.sleeveIndex = sleeveIndex;
         this.team = team;
         this.isArchenemy = isArchenemy;
@@ -159,9 +149,6 @@ public final class UpdateLobbyPlayerEvent implements NetEvent {
     }
     public String getName() {
         return name;
-    }
-    public int getAvatarIndex() {
-        return avatarIndex;
     }
     public int getSleeveIndex() {
         return sleeveIndex;
@@ -213,7 +200,6 @@ public final class UpdateLobbyPlayerEvent implements NetEvent {
         final List<String> set = new ArrayList<>();
         if (type != null) { set.add("type=" + type); }
         if (name != null) { set.add("name=" + LogSafe.forLog(name)); }
-        if (avatarIndex != -1) { set.add("avatar=" + avatarIndex); }
         if (sleeveIndex != -1) { set.add("sleeve=" + sleeveIndex); }
         if (team != -1) { set.add("team=" + team); }
         if (isArchenemy != null) { set.add("archenemy=" + isArchenemy); }
