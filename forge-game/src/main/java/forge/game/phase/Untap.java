@@ -257,8 +257,7 @@ public class Untap extends Phase {
         }
         final Game game = previous.getGame();
         List<Card> casted = game.getStack().getSpellsCastLastTurn();
-        // under shared team turns the previous active player is the whole team
-        final Predicate<Card> castByPrevious = c -> previous.sharesTeamWith(c.getController());
+        final Predicate<Card> castByPrevious = c -> c.getController() == previous;
 
         if (game.isDay() && casted.stream().noneMatch(castByPrevious)) {
             game.setDayTime(true);

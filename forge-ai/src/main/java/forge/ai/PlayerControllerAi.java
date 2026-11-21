@@ -960,12 +960,6 @@ public class PlayerControllerAi extends PlayerController {
     @Override
     public void declareBlockers(Player defender, Combat combat) {
         brains.declareBlockersFor(defender, combat);
-        // CR 805.10d: an illegal team block is declared again, so drop this player's blocks rather than repeat it
-        if (defender.getSharedTeam().size() > 1 && CombatUtil.validateTeamBlock(combat, defender) != null) {
-            for (final Card blocker : CardLists.filterControlledBy(combat.getAllBlockers(), defender)) {
-                combat.undoBlockingAssignment(blocker);
-            }
-        }
     }
 
     @Override

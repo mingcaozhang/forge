@@ -924,8 +924,7 @@ public class MagicStack /* extends MyObservable */ implements Iterable<SpellAbil
                 activator = sa.getHostCard().getController();
             }
 
-            // CR 805.7: a team puts all its triggered abilities on the stack in one order, chosen by its first player
-            if (activePlayer.sharesTeamWith(activator)) {
+            if (activator == activePlayer) {
                 adjustAuraHost(sa);
                 activePlayerSAs.add(sa);
             }

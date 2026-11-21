@@ -520,9 +520,8 @@ public class CombatUtil {
             }
 
             // Rule 802.4a: A player can block only creatures attacking him/her or a planeswalker he/she controls
-            // CR 805.10d: under shared team turns, creatures attacking any player of their team
             Player attacked = combat.getDefendingPlayerRelatedTo(attacker);
-            if (attacked != null && !attacked.sharesTeamWith(defendingPlayer)) {
+            if (attacked != null && attacked != defendingPlayer) {
                 return false;
             }
         }
@@ -695,16 +694,7 @@ public class CombatUtil {
             }
         }
 
-        // CR 805.10d: a team declares one combined block, which the game checks once all its players have declared
-        if (defending.getGame().getRules().hasSharedTeamTurns()) {
-            return null;
-        }
         return validateBlockRestrictions(combat, defending, blockers);
-    }
-
-    /** Checks the combined block of the defender's team, which must be legal as a whole once all its players have declared (CR 805.10d). */
-    public static String validateTeamBlock(final Combat combat, final Player defender) {
-        return validateBlockRestrictions(combat, defender, CardLists.filterControlledBy(combat.getAllBlockers(), defender.getSharedTeam()));
     }
 
     /** Checks the restrictions that depend on the other blockers and on the number of blockers per attacker. */

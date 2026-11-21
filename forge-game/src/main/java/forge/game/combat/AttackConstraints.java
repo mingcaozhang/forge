@@ -22,7 +22,6 @@ import forge.game.GameEntity;
 import forge.game.card.Card;
 import forge.game.card.CardCollection;
 import forge.game.player.Player;
-import forge.game.player.PlayerCollection;
 import forge.game.staticability.StaticAbility;
 import forge.game.staticability.StaticAbilityMustAttack;
 import forge.util.collect.FCollection;
@@ -41,14 +40,10 @@ public class AttackConstraints {
 
     public AttackConstraints(final Combat combat) {
         final Player attacking = combat.getAttackingPlayer();
-        // CR 805.10b: under shared team turns the team declares one combined attack, and each attacking player keeps their own requirements
-        final PlayerCollection attackingPlayers = attacking.getSharedTeam();
-        possibleAttackers = attackingPlayers.getCreaturesInPlay();
+        possibleAttackers = attacking.getCreaturesInPlay();
         possibleDefenders = combat.getDefenders();
         globalRestrictions = GlobalAttackRestrictions.getGlobalRestrictions(attacking, possibleDefenders);
-        for (final Player p : attackingPlayers) {
-            playerRequirements.put(p, StaticAbilityMustAttack.mustAttackSpecific(p, possibleDefenders));
-        }
+        playerRequirements.put(attacking, StaticAbilityMustAttack.mustAttackSpecific(attacking, possibleDefenders));
 
         for (final Card possibleAttacker : possibleAttackers) {
             restrictions.put(possibleAttacker, new AttackRestriction(possibleAttacker, possibleDefenders));

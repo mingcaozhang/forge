@@ -727,7 +727,7 @@ public class Combat {
                 }
             }
         }
-        // triggers for Coveted Jewel, once per attacking player since a team can attack together (CR 805.10a)
+        // triggers for Coveted Jewel, once per attacking player
         for (Player attackingPlayer : defendersByAttackingPlayer.keySet()) {
             final Map<AbilityKey, Object> runParams = AbilityKey.newMap();
             runParams.put(AbilityKey.AttackingPlayer, attackingPlayer);
@@ -988,11 +988,10 @@ public class Combat {
     }
 
     public boolean isPlayerAttacked(Player who) {
-        // CR 805.10d: under shared team turns a player can block creatures attacking any player of their team
         for (GameEntity defender : attackedByBands.get().keySet()) {
             Card defenderAsCard = defender instanceof Card ? (Card)defender : null;
-            if ((null != defenderAsCard && (!who.sharesTeamWith(defenderAsCard.getController()) && !who.sharesTeamWith(defenderAsCard.getProtectingPlayer()))) ||
-                    (null == defenderAsCard && !who.sharesTeamWith((Player) defender))) {
+            if ((null != defenderAsCard && (defenderAsCard.getController() != who && defenderAsCard.getProtectingPlayer() != who)) ||
+                    (null == defenderAsCard && defender != who)) {
                 continue; // defender is not related to player 'who'
             }
             for (AttackingBand ab : attackedByBands.get().get(defender)) {
