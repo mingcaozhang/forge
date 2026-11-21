@@ -78,7 +78,6 @@ public final class GameOutcome implements Iterable<Entry<RegisteredPlayer, Playe
 
     private int lastTurnNumber = 0;
     private int lifeDelta = 0;
-    private int winningTeam = -1;
 
     private final HashMap<RegisteredPlayer, PlayerStatistics> playerRating = new HashMap<>();
     private final HashMap<RegisteredPlayer, String> playerNames = new LinkedHashMap<>();
@@ -92,11 +91,6 @@ public final class GameOutcome implements Iterable<Entry<RegisteredPlayer, Playe
         for (final Player p : players) {
             this.playerRating.put(p.getRegisteredPlayer(), p.getStats());
             this.playerNames.put(p.getRegisteredPlayer(), p.getName());
-
-            if (winCondition == GameEndReason.AllOpposingTeamsLost && p.getOutcome().hasWon()) {
-                // Only mark the WinningTeam when "Team mode" is on.
-                winningTeam = p.getTeam();
-            }
         }
 
         // Unable to calculate lifeDelta between a winning and losing player whe a draw is in place
@@ -171,10 +165,6 @@ public final class GameOutcome implements Iterable<Entry<RegisteredPlayer, Playe
         }
 
         return null;
-    }
-
-    public int getWinningTeam() {
-        return winningTeam;
     }
 
     public GameEndReason getWinCondition() {

@@ -43,7 +43,6 @@ public class GameView extends TrackableObject {
         this.game = game;
         this.gameLog = game.getGameLog();
         set(TrackableProperty.Title, game.getMatch().getTitle());
-        set(TrackableProperty.WinningTeam, -1);
 
         GameRules rules = game.getRules();
         set(TrackableProperty.IsCommander, rules.hasCommander());
@@ -156,17 +155,12 @@ public class GameView extends TrackableObject {
         return get(TrackableProperty.WinningPlayerName);
     }
 
-    public int getWinningTeam() {
-        return get(TrackableProperty.WinningTeam);
-    }
-
     void updateGameOver(final Game game) {
         set(TrackableProperty.GameOver, game.isGameOver());
         set(TrackableProperty.MatchOver, game.getMatch().isMatchOver());
         if (game.getOutcome() != null && game.getOutcome().getWinningLobbyPlayer() != null) {
             set(TrackableProperty.WinningPlayerName, game.getOutcome().getWinningLobbyPlayer().getName());
         }
-        set(TrackableProperty.WinningTeam, game.getOutcome() == null ? -1 : game.getOutcome().getWinningTeam());
     }
 
     public GameLog getGameLog() {

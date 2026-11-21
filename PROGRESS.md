@@ -15,6 +15,11 @@
   TriggerPhase CR 805.4d team-step block + Trigger.`refersToTriggering` deleted, CardView hand case → self,
   PlayerView (SharedTeam trackable usage + `sharesTeamWith` + `getCommanderInfo` 2HG branch deleted; `updateOpponentsAndTeam`→`updateOpponents`),
   `PlayerController.playedByTeammate` deleted + 3 call sites (AI/Human/test controllers). GATE green: 2709 run / 11 skipped, 0 F/E.
+- Part 2 / 1.3 Team win/loss + game-level refs removed: GameAction.checkGameOverCondition (spell-win loop skips winner via `pl == p`,
+  team-loss block deleted, team set + `AllOpposingTeamsLost` branch deleted → cntNotLost 1/0/else), GameEndReason.AllOpposingTeamsLost deleted,
+  GameOutcome (winningTeam field/ctor block/getWinningTeam deleted), GameView (WinningTeam trackable sets + getWinningTeam deleted),
+  TrackableProperty (SharedTeam + WinningTeam entries deleted), ViewWinLose.composeTitle (lblTeamWon branch deleted),
+  HostedMatch (human-first seat sort now unconditional; last `hasSharedTeamTurns` ref outside Player removed). GATE green: 2709 run / 11 skipped, 0 F/E.
 
 ## Environment quirks
 - Always use a 600000 ms timeout on Maven runs (default 120 s kills long runs).
@@ -24,10 +29,9 @@
 
 ## Active caveats / follow-ups
 - Player team API (`Player.sharesTeamWith`/`getSharedTeam`/`sameTeam`/`getTeamMates`/`getYourTeam`/`teamNumber`) still exists — removed in 1.4;
-  `hasSharedTeamTurns` in 1.5 (remaining refs: Player L3835/L3841, TriggerPhase gone, HostedMatch L120 in 1.3).
-- PULLED FORWARD into 1.2 (plan listed under 1.3): PlayerView-based `sharesTeamWith` call sites rebased to `equals` — InputPassPriority:222,
-  YieldController L167/L188, CMatchUI.updatePhase, PlayerControllerHuman.isUiSetToSkipPhase. 1.3 only has GameAction/HostedMatch left.
-- `lblCommanderDealNDamageToTeam` i18n key now orphaned (en-US only) — goes in 2.5.
+  `hasSharedTeamTurns` in 1.5 (refs now only: Player L3835/L3841 + GameRules definition; HostedMatch ref gone in 1.3).
+- InputPassPriority:222 + YieldController L167/L188 `sharesTeamWith`→equals rebases were pulled into 1.2 — 1.3 verified zero team refs there.
+- Orphaned i18n keys now (java refs gone): `lblTeamWon` (1.3) + `lblCommanderDealNDamageToTeam` (1.2, en-US only) — both go in 2.5.
 - `Player.setTeam(...)` lines in AI tests (AIIntegrationTests, FlatMonteCarlo*) stay until 1.4.
 - GATE covers forge-core/game/ai/gui/gui-desktop tests; final phase 4.1 gate is GATE + PKG.
 - Pre-existing orphan i18n keys (quest/gauntlet/puzzle/adv*/misc) left as follow-ups.

@@ -32,7 +32,4 @@ public enum GameEndReason {
 
     /** Used to end multiplayer games where the all humans have lost or conceded while AIs cannot end match by themselves.*/
     AllHumansLost,
-
-    /** Team win. */
-    AllOpposingTeamsLost,
 }

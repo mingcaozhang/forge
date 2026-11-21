@@ -1950,8 +1950,7 @@ public class GameAction {
             // then the rest have lost!
             reason = GameEndReason.WinsGameSpellEffect;
             for (Player pl : allPlayers) {
-                // CR 810.8a: the winner's teammates win with them
-                if (p.getSharedTeam().contains(pl)) {
+                if (pl == p) {
                     continue;
                 }
 
@@ -1978,24 +1977,6 @@ public class GameAction {
             }
         }
 
-        // CR 810.8a: a player who loses takes their team out with them
-        if (losers != null) {
-            for (Player p : Lists.newArrayList(losers)) {
-                for (Player mate : p.getSharedTeam()) {
-                    if (losers.contains(mate) || mate.hasLost()) {
-                        continue;
-                    }
-                    // CR 810.8b: a concession takes the team out at once
-                    if (p.conceded()) {
-                        mate.concede();
-                        losers.add(mate);
-                    } else if (mate.loseConditionMet(p.getOutcome().lossState, p.getOutcome().loseConditionSpell)) {
-                        losers.add(mate);
-                    }
-                }
-            }
-        }
-
         if (losers != null) {
             for (Player p : losers) {
                 game.onPlayerLost(p);
@@ -2003,23 +1984,17 @@ public class GameAction {
         }
 
         if (reason == null) {
-            List<Player> notLost = Lists.newArrayList();
-            Set<Integer> teams = Sets.newHashSet();
+            int cntNotLost = 0;
             for (Player p : allPlayers) {
                 if (p.getOutcome() == null || p.getOutcome().hasWon()) {
-                    notLost.add(p);
-                    teams.add(p.getTeam());
+                    cntNotLost++;
                 }
             }
-            int cntNotLost = notLost.size();
             if (cntNotLost == 1) {
                 reason = GameEndReason.AllOpponentsLost;
             }
             else if (cntNotLost == 0) {
                 reason = GameEndReason.Draw;
-            }
-            else if (teams.size() == 1) {
-                reason = GameEndReason.AllOpposingTeamsLost;
             }
             else {
                 return;

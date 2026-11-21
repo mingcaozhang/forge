@@ -199,12 +199,9 @@ public class ViewWinLose implements IWinLoseView<FButton> {
 
     private static String composeTitle(final GameView game) {
         final String winner = game.getWinningPlayerName();
-        final int winningTeam = game.getWinningTeam();
         final Localizer localizer = Localizer.getInstance();
         if (winner == null || winner.isEmpty()) {
             return localizer.getMessage("lblItsADraw");
-        } else if (winningTeam != -1) {
-            return localizer.getMessage("lblTeamWon").replace("%s", String.valueOf(winningTeam));
         } else {
             return localizer.getMessage("lblWinnerWon").replace("%s", winner);
         }
