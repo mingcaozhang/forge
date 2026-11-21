@@ -457,9 +457,6 @@ public class AbilityUtils {
             if (hType.equals("Players") || hType.isEmpty()) {
                 players.addAll(game.getPlayers());
                 val = playerXCount(players, calcX[1], card, ability);
-            } else if (hType.equals("YourTeam")) {
-                players.addAll(player.getYourTeam());
-                val = playerXCount(players, calcX[1], card, ability);
             } else if (hType.equals("Opponents")) {
                 players.addAll(player.getOpponents());
                 val = playerXCount(players, calcX[1], card, ability);
@@ -2361,9 +2358,6 @@ public class AbilityUtils {
         if (sq[0].contains("LifeYouGainedThisTurn")) {
             return doXMath(player.getLifeGainedThisTurn(), expr, c, ctb);
         }
-        if (sq[0].contains("LifeYourTeamGainedThisTurn")) {
-            return doXMath(player.getLifeGainedByTeamThisTurn(), expr, c, ctb);
-        }
         if (sq[0].contains("LifeYouGainedTimesThisTurn")) {
             return doXMath(player.getLifeGainedTimesThisTurn(), expr, c, ctb);
         }
@@ -3598,10 +3592,6 @@ public class AbilityUtils {
 
         if (value.contains("LifeGainedThisTurn")) {
             return doXMath(player.getLifeGainedThisTurn(), m, source, ctb);
-        }
-
-        if (value.contains("LifeGainedByTeamThisTurn")) {
-            return doXMath(player.getLifeGainedByTeamThisTurn(), m, source, ctb);
         }
 
         if (value.contains("LifeStartedThisTurnWith")) {

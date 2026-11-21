@@ -59,17 +59,6 @@ public class TriggerPhase extends Trigger {
         if (!matchesValidParam("ValidPlayer", player)) {
             return false;
         }
-        // CR 805.4d: an ability that doesn't refer to that player triggers once per team step, for the first active player it matches
-        if (getHostCard().getGame().getRules().hasSharedTeamTurns() && !refersToTriggering(AbilityKey.Player)) {
-            for (final Player earlier : getHostCard().getGame().getPhaseHandler().getActivePlayers()) {
-                if (earlier.equals(player)) {
-                    break;
-                }
-                if (matchesValidParam("ValidPlayer", earlier)) {
-                    return false;
-                }
-            }
-        }
         return true;
     }
 

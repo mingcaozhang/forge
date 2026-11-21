@@ -942,13 +942,9 @@ public final class CMatchUI
 
         resetAllPhaseButtons();
         if (ph != null) {
-            // a team that shares its turns shows the phase on each of its players
-            final PlayerView turnPlayer = getGameView().getPlayerTurn();
-            for (final PlayerView p : getGameView().getPlayers()) {
-                final PhaseLabel lbl = p.sharesTeamWith(turnPlayer) ? getFieldViewFor(p).getPhaseIndicator().getLabelFor(ph) : null;
-                if (lbl != null) {
-                    lbl.setActive(true);
-                }
+            final PhaseLabel lbl = getFieldViewFor(getGameView().getPlayerTurn()).getPhaseIndicator().getLabelFor(ph);
+            if (lbl != null) {
+                lbl.setActive(true);
             }
         }
 

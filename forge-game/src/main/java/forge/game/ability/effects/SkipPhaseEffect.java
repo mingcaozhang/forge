@@ -41,7 +41,7 @@ public class SkipPhaseEffect extends SpellAbilityEffect {
         final String phase = sa.getParam("Phase");
         final String step = sa.getParam("Step");
 
-        for (final Player player : getTargetPlayersOnePerTeam(sa)) {
+        for (final Player player : getTargetPlayers(sa)) {
             createSkipPhaseEffect(sa, player, duration, phase, step);
         }
     }
