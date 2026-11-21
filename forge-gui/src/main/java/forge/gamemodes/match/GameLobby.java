@@ -46,7 +46,6 @@ public abstract class GameLobby implements IHasGameType {
 
     private GameLobbyData data = new GameLobbyData();
     private GameType currentGameType = GameType.Constructed;
-    private int lastArchenemy = 0;
 
     private IUpdateable listener;
 
@@ -218,29 +217,7 @@ public abstract class GameLobby implements IHasGameType {
             throw new NullPointerException();
         }
 
-        final int nSlots = getNumberOfSlots();
-        final boolean triesToChangeArchenemy = event.getArchenemy() != null;
-        final boolean archenemyRemoved = triesToChangeArchenemy && !event.getArchenemy();
-        final boolean hasArchenemyChanged = triesToChangeArchenemy && slot.isArchenemy() != event.getArchenemy();
-
-        final boolean changed = slot.apply(event) || hasArchenemyChanged;
-
-        // Change archenemy teams
-        if (hasVariant(GameType.Archenemy) && hasArchenemyChanged) {
-            final int newArchenemy = archenemyRemoved ? lastArchenemy : index;
-            if (archenemyRemoved) {
-                lastArchenemy = index;
-            }
-            for (int otherIndex = 0; otherIndex < nSlots; otherIndex++) {
-                final LobbySlot otherSlot = getSlot(otherIndex);
-                final boolean becomesArchenemy = otherIndex == newArchenemy;
-                if (!archenemyRemoved && otherSlot.isArchenemy() && !becomesArchenemy) {
-                    lastArchenemy = otherIndex;
-                }
-                otherSlot.setIsArchenemy(becomesArchenemy);
-            }
-        }
-        applyVariantTeams();
+        final boolean changed = slot.apply(event);
 
         if (event.getType() != null) {
             //refresh decklist for slot
@@ -287,12 +264,6 @@ public abstract class GameLobby implements IHasGameType {
         if (StringUtils.isEmpty(slot.getName()) && slot.getType() != LobbySlotType.OPEN) {
             slot.setName(randomName());
         }
-        if (data.slots.size() == 1) {
-            // If first slot, make archenemy
-            slot.setIsArchenemy(true);
-            lastArchenemy = 0;
-        }
-        applyVariantTeams();
         updateView(true);
     }
     private String randomName() {
@@ -324,18 +295,7 @@ public abstract class GameLobby implements IHasGameType {
             return;
         }
 
-        if (getSlot(index).isArchenemy()) {
-            getSlot(lastArchenemy).setIsArchenemy(true);
-            // Should actually be a stack here, but that's rather involved for
-            // such a nonimportant feature
-            lastArchenemy = 0;
-        } else if (lastArchenemy == index) {
-            lastArchenemy = 0;
-        } else if (index < lastArchenemy) {
-            lastArchenemy--;
-        }
         data.slots.remove(index);
-        applyVariantTeams();
         updateView(false);
     }
 
@@ -347,26 +307,9 @@ public abstract class GameLobby implements IHasGameType {
         switch (variant) {
         case Archenemy:
             data.appliedVariants.remove(GameType.ArchenemyRumble);
-            data.appliedVariants.remove(GameType.TwoHeadedGiant);
-            applyVariantTeams();
             break;
         case ArchenemyRumble:
             data.appliedVariants.remove(GameType.Archenemy);
-            data.appliedVariants.remove(GameType.TwoHeadedGiant);
-            break;
-        case TwoHeadedGiant:
-            // the other Commander variants and Vanguard set their own life totals, and Planechase has its own team rules (CR 901.12)
-            data.appliedVariants.remove(GameType.Vanguard);
-            data.appliedVariants.remove(GameType.Planechase);
-            data.appliedVariants.remove(GameType.Archenemy);
-            data.appliedVariants.remove(GameType.ArchenemyRumble);
-            data.appliedVariants.remove(GameType.Oathbreaker);
-            data.appliedVariants.remove(GameType.TinyLeaders);
-            data.appliedVariants.remove(GameType.Brawl);
-            if (hasVariant(GameType.Commander)) {
-                setGameType(GameType.Commander); // the desktop deck choosers follow the game type
-            }
-            applyVariantTeams();
             break;
         case Commander:
             data.appliedVariants.remove(GameType.Oathbreaker);
@@ -376,7 +319,6 @@ public abstract class GameLobby implements IHasGameType {
             data.appliedVariants.remove(GameType.MoJhoSto);
             break;
         case Oathbreaker:
-            data.appliedVariants.remove(GameType.TwoHeadedGiant);
             data.appliedVariants.remove(GameType.Commander);
             data.appliedVariants.remove(GameType.TinyLeaders);
             data.appliedVariants.remove(GameType.Brawl);
@@ -384,7 +326,6 @@ public abstract class GameLobby implements IHasGameType {
             data.appliedVariants.remove(GameType.MoJhoSto);
             break;
         case TinyLeaders:
-            data.appliedVariants.remove(GameType.TwoHeadedGiant);
             data.appliedVariants.remove(GameType.Commander);
             data.appliedVariants.remove(GameType.Oathbreaker);
             data.appliedVariants.remove(GameType.Brawl);
@@ -392,18 +333,13 @@ public abstract class GameLobby implements IHasGameType {
             data.appliedVariants.remove(GameType.MoJhoSto);
             break;
         case Brawl:
-            data.appliedVariants.remove(GameType.TwoHeadedGiant);
             data.appliedVariants.remove(GameType.Commander);
             data.appliedVariants.remove(GameType.Oathbreaker);
             data.appliedVariants.remove(GameType.TinyLeaders);
             data.appliedVariants.remove(GameType.MomirBasic);
             data.appliedVariants.remove(GameType.MoJhoSto);
             break;
-        case Planechase:
-            data.appliedVariants.remove(GameType.TwoHeadedGiant);
-            break;
         case Vanguard:
-            data.appliedVariants.remove(GameType.TwoHeadedGiant);
             data.appliedVariants.remove(GameType.MomirBasic);
             data.appliedVariants.remove(GameType.MoJhoSto);
             break;
@@ -435,12 +371,6 @@ public abstract class GameLobby implements IHasGameType {
             return;
         }
 
-        if (variant == GameType.TwoHeadedGiant || variant == GameType.Archenemy) {
-            for (int i = 0; i < data.slots.size(); i++) {
-                data.slots.get(i).setTeam(i);
-            }
-        }
-
         if (variant == currentGameType) {
             if (hasVariant(GameType.Commander)) {
                 currentGameType = GameType.Commander;
@@ -463,35 +393,6 @@ public abstract class GameLobby implements IHasGameType {
 
     public Iterable<GameType> getAppliedVariants() {
         return data.appliedVariants;
-    }
-
-    private boolean isEnoughTeams() {
-        int lastTeam = -1;
-        for (final LobbySlot slot : data.slots) {
-            final int team = slot.getTeam();
-            if (lastTeam == -1) {
-                lastTeam = team;
-            } else if (lastTeam != team) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /** Under Archenemy a seat's team follows its archenemy flag. Under Two-Headed Giant seats pair up in order, so teammates sit together (CR 805.1). */
-    private void applyVariantTeams() {
-        if (hasVariant(GameType.TwoHeadedGiant)) {
-            for (int i = 0; i < data.slots.size(); i++) {
-                data.slots.get(i).setTeam(i / 2);
-            }
-            return;
-        }
-        if (!hasVariant(GameType.Archenemy)) {
-            return;
-        }
-        for (final LobbySlot slot : data.slots) {
-            slot.setTeam(slot.isArchenemy() ? 0 : 1);
-        }
     }
 
     protected void updateView(final boolean fullUpdate) {
@@ -528,16 +429,6 @@ public abstract class GameLobby implements IHasGameType {
 
         if (activeSlots.size() < 2) {
             SOptionPane.showMessageDialog(Localizer.getInstance().getMessage("lblRequiredLeastTwoPlayerStartGame"));
-            return null;
-        }
-
-        if (hasVariant(GameType.TwoHeadedGiant) && (activeSlots.size() != 4 || data.slots.size() != 4)) {
-            SOptionPane.showMessageDialog(Localizer.getInstance().getMessage("lblTwoHeadedGiantNeedsFourPlayers"));
-            return null;
-        }
-
-        if (!isEnoughTeams()) {
-            SOptionPane.showMessageDialog(Localizer.getInstance().getMessage("lblNotEnoughTeams"));
             return null;
         }
 
@@ -609,8 +500,6 @@ public abstract class GameLobby implements IHasGameType {
             final IGuiGame gui = getGui(data.slots.indexOf(slot));
             final String name = slot.getName();
             final int sleeve = slot.getSleeveIndex();
-            final boolean isArchenemy = slot.isArchenemy();
-            final int team = slot.getTeam();
             final Set<AIOption> aiOptions = slot.getAiOptions(); // TODO: could AiOptions carry the choice of which AI is selected to play against?
 
             final boolean isAI = slot.getType() == LobbySlotType.AI;
@@ -666,8 +555,7 @@ public abstract class GameLobby implements IHasGameType {
                 Iterable<PaperCard> schemes = null;
                 Iterable<PaperCard> planes = null;
 
-                if (variantTypes.contains(GameType.ArchenemyRumble)
-                        || (variantTypes.contains(GameType.Archenemy) && isArchenemy)) {
+                if (variantTypes.contains(GameType.ArchenemyRumble)) {
                     final CardPool schemePool = deck.get(DeckSection.Schemes);
                     if (checkLegality) {
                         final String errMsg = DeckFormat.getSchemeSectionConformanceProblem(schemePool);
@@ -696,10 +584,9 @@ public abstract class GameLobby implements IHasGameType {
                     }
                 }
 
-                rp = RegisteredPlayer.forVariants(activeSlots.size(), variantTypes, deck, schemes, isArchenemy, planes, avatarPool);
+                rp = RegisteredPlayer.forVariants(activeSlots.size(), variantTypes, deck, schemes, false, planes, avatarPool);
             }
 
-            rp.setTeamNumber(team);
             players.add(rp.setPlayer(lobbyPlayer));
 
             if (!isAI) {
