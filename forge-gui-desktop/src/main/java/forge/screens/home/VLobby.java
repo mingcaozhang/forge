@@ -10,7 +10,6 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
@@ -36,7 +35,6 @@ import forge.localinstance.properties.ForgePreferences;
 import forge.localinstance.properties.ForgePreferences.FPref;
 import forge.model.FModel;
 import forge.toolbox.*;
-import forge.toolbox.FSkin.SkinImage;
 import forge.util.*;
 import net.miginfocom.swing.MigLayout;
 
@@ -901,35 +899,6 @@ public class VLobby implements ILobbyView {
             usedSleeves.add(pp.getSleeveIndex());
         }
         return usedSleeves;
-    }
-
-    private static final ImmutableList<String> genderOptions = ImmutableList.of("Male",    "Female",  "Any"),
-                                               typeOptions   = ImmutableList.of("Fantasy", "Generic", "Any");
-    final String getNewName() {
-        final String title = localizer.getMessage("lblGetNewRandomName");
-        final String message = localizer.getMessage("lbltypeofName");
-        final SkinImage icon = FOptionPane.QUESTION_ICON;
-
-        final int genderIndex = FOptionPane.showOptionDialog(message, title, icon, genderOptions, 2);
-        if (genderIndex < 0) {
-            return null;
-        }
-        final int typeIndex = FOptionPane.showOptionDialog(message, title, icon, typeOptions, 2);
-        if (typeIndex < 0) {
-            return null;
-        }
-
-        final String gender = genderOptions.get(genderIndex);
-        final String type = typeOptions.get(typeIndex);
-
-        String confirmMsg, newName;
-        final List<String> usedNames = getPlayerNames();
-        do {
-            newName = NameGenerator.getRandomName(gender, type, usedNames);
-            confirmMsg = localizer.getMessage("lblconfirmName").replace("%s","\"" +newName + "\"");
-        } while (!FOptionPane.showConfirmDialog(confirmMsg, title, localizer.getMessage("lblUseThisName"), localizer.getMessage("lblTryAgain"), true));
-
-        return newName;
     }
 
     List<String> getPlayerNames() {

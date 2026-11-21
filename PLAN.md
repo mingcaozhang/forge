@@ -133,7 +133,7 @@ Per `REWRITE.md`, this cleanup trims the JVM baseline BEFORE the rewrite phases 
 
 ## Phase 5 — Player Name Generator
 
-- [ ] **5.1 Remove random-name generator UI (keep auto-naming)**
+- [x] **5.1 Remove random-name generator UI (keep auto-naming)**
   - `PlayerPanel.java`: remove `nameRandomiser` field (L70) + layout add (L154-155) + enable (L252) + `createNameRandomizer()` (L664-684).
   - `VLobby.java`: remove `genderOptions`/`typeOptions` (L927-928) + `getNewName()` (L929-953); drop the `NameGenerator` import if now unused.
   - i18n (10 files): delete `lblGetNewRandomName`, `lbltypeofName`, `lblconfirmName`, `lblUseThisName`, `lblTryAgain`, `lblGetaNewRandomName`.

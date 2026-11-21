@@ -66,7 +66,6 @@ public class PlayerPanel extends FPanel {
     private String playerName = StringUtils.EMPTY;
     private boolean mayEdit, mayControl, mayRemove;
 
-    private final FLabel nameRandomiser;
     private final FLabel playerImageLabel = new FLabel.Builder().opaque(true).iconScaleFactor(0.99f).iconInBackground(true).build();
     private final FLabel sleeveLabel = new FLabel.Builder().opaque(true).hoverable(true).iconScaleFactor(0.99f).iconInBackground(true).build();
     private int sleeveIndex;
@@ -148,9 +147,6 @@ public class PlayerPanel extends FPanel {
         createNameEditor();
         this.add(lobby.newLabel(localizer.getMessage("lblName") +":"), "w 40px, h 30px, gaptop 5px");
         this.add(txtPlayerName, "h 30px, pushx, growx");
-
-        nameRandomiser = createNameRandomizer();
-        this.add(nameRandomiser, "h 30px, w 30px, gaptop 5px");
 
         createPlayerTypeOptions();
         this.add(radioHuman, "gapright 5px");
@@ -240,7 +236,6 @@ public class PlayerPanel extends FPanel {
 
         txtPlayerName.setEnabled(mayEdit);
         txtPlayerName.setText(type == LobbySlotType.OPEN ? StringUtils.EMPTY : playerName);
-        nameRandomiser.setEnabled(mayEdit);
 
         boolean enableAiPicker = mayEdit && type == LobbySlotType.AI && prefs.getPrefBoolean(FPref.UI_ENABLE_AI_PICKER);
         aiPickerLabel.setVisible(enableAiPicker);
@@ -637,28 +632,6 @@ public class PlayerPanel extends FPanel {
             deckBtn.requestFocusInWindow();
             lobby.changePlayerFocus(index, GameType.Constructed);
         });
-    }
-
-    private FLabel createNameRandomizer() {
-        final FLabel newNameBtn = new FLabel.Builder().tooltip(localizer.getMessage("lblGetaNewRandomName")).iconInBackground(false)
-                .icon(FSkin.getIcon(FSkinProp.ICO_EDIT)).hoverable(true).opaque(false)
-                .unhoveredAlpha(0.9f).build();
-        newNameBtn.setCommand((UiCommand) () -> {
-            final String newName = lobby.getNewName();
-            if (null == newName) {
-                return;
-            }
-            txtPlayerName.setText(newName);
-
-            if (index == 0) {
-                prefs.setPref(FPref.PLAYER_NAME, newName);
-                prefs.save();
-            }
-            txtPlayerName.requestFocus();
-            lobby.changePlayerFocus(index);
-        });
-        newNameBtn.addFocusListener(nameFocusListener);
-        return newNameBtn;
     }
 
     private void createNameEditor() {

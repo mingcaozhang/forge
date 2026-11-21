@@ -19,6 +19,9 @@
 - 4.4 Avatar pref/skin/sprite removed: `FPref.UI_AVATARS`, `IGuiBase.getAvatarCount` (+ GuiDesktop/ForgeMatrixWriter overrides),
   all FSkin avatar state (`avatars` map, bim*Avatars, f4/f5, assembleAvatars/getAvatars, splash 21→20), `SPRITE_AVATARS_FILE`,
   deleted res/skins/default/sprite_avatars.png. `GATE` green; `rg -i avatar --type java` → only Vanguard/card matches.
+- 5.1 Random-name UI removed: PlayerPanel `nameRandomiser`/`createNameRandomizer`; VLobby `genderOptions`/`typeOptions`/`getNewName`
+  (+ now-unused `SkinImage` import caught by checkstyle); 6 i18n keys × 10 locales. Kept NameGenerator + auto-naming
+  (PlayerPanel open-slot AI naming, GameLobby.randomName, GuiDisplayUtil.getRandomAiName). `GATE` green; plan grep zero.
 
 ## Environment quirks
 - Always use a 600000 ms timeout on Maven runs (default 120 s kills long runs).
