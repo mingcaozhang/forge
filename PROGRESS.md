@@ -13,17 +13,16 @@
 - 4.1 Avatar selection UI gone; PlayerPanel shows commander card image (fallback `ICO_PLAYERS`) + i18n.
 - 4.2 Match panels show commander image: CMatchUI `getPlayerImage(PlayerView)`; VField `playerImageArea` naming; `IHasIcon` deleted.
 - 4.3 Avatar index dropped from lobby/game model (LobbyPlayer/Player/PlayerView/TrackableProperty; LobbySlot 8→7 args;
-  avatar params gone from UpdateLobbyPlayerEvent/LoginEvent/FServerManager/GameClientHandler; GamePlayerUtil restructured).
+  avatar params gone from protocol events/handlers; GamePlayerUtil restructured).
 - 4.4 Avatar pref/skin/sprite gone: `FPref.UI_AVATARS`, `IGuiBase.getAvatarCount`, all FSkin avatar state, `SPRITE_AVATARS_FILE`, sprite png.
 - 5.1 Random-name generator UI gone (PlayerPanel randomiser, VLobby `getNewName`, 6 keys × 10 locales); NameGenerator + auto-naming kept.
-- 6.1 Bracket UI gone: CommanderBracketView/TextView/DeckView + CommanderBracketDataTest + tools/scrape_bracket_details.py deleted;
-   `ColumnDef.DECK_BRACKET` removed; SColumnUtil 3-arg `getDecksDefaultColumns` folded to 2-arg (ItemManagerConfig 3 call sites);
-   DeckManager/FDeckViewer bracket views removed (FDeckChooser → 1-arg `show`); VField tooltip = plain `player.getDetailsHtml()`; 22 keys × 10 locales.
-- 6.2 Bracket calculator/caps/protocol gone: `CommanderBracketCalculator` + 4 bracket list txts + `COMMANDER_BRACKET_*_FILE` consts,
-   `FPref.DECKGEN_MAXIMUM_COMMANDER_BRACKET`, DeckgenUtil bracket cap, VLobby/CLobby bracket combo+binder, `GameLobbyData` field, FServerManager/AbstractGuiGame accessors.
-- 6.3 AI combos data renamed: `res/lists/commander-bracket-combos.txt` → `commander-combos.txt` (git mv), `COMMANDER_BRACKET_COMBOS_FILE` →
-   `COMMANDER_COMBOS_FILE`; FModel supplier + AiCardLists/ComboCatalog/CommanderPlan javadoc reworded; AiCardLists(Data)Test +
-   FlatMonteCarloCommanderPairTest updated; `ai-commander-combos.txt` header reworded. All "bracket" java refs now unrelated matches only.
+- 6.1 Bracket UI gone: views/tests/scrape script deleted; `ColumnDef.DECK_BRACKET`, SColumnUtil 3-arg overload,
+    DeckManager/FDeckViewer views, VField bracket tooltip (→ `player.getDetailsHtml()`); 22 keys × 10 locales.
+- 6.2 Bracket calculator/caps/protocol gone: calculator + 4 list txts + `COMMANDER_BRACKET_*_FILE`, `FPref.DECKGEN_MAXIMUM_COMMANDER_BRACKET`,
+    DeckgenUtil cap, VLobby/CLobby combo+binder, `GameLobbyData` field, FServerManager/AbstractGuiGame accessors.
+- 6.3 AI combos data renamed to `res/lists/commander-combos.txt` + `COMMANDER_COMBOS_FILE`; FModel/AiCardLists/ComboCatalog/CommanderPlan
+    javadoc reworded; tests updated. All "bracket" java refs now unrelated matches only.
+- 7.1 Docs updated for removed avatar/bracket features (User-Guide, FAQ, Network-Play). FAQ content-download line kept (auto-download remains).
 
 ## Environment quirks
 - Always use a 600000 ms timeout on Maven runs (default 120 s kills long runs).

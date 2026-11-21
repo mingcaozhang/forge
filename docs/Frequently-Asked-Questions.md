@@ -68,7 +68,7 @@ Take a look through the /res/cardsfolder folder. This is where all the card data
 Click on the Lightning Bolt icon in the player panel. Since cards with external Activations aren't as clear to activate, we created this shortcut for this specific purpose. After the last card is removed from a zone window, that window will automatically be hidden.
 
 ## How do I target a player?
-Just click on the player's Avatar in the Player Panel when prompted to select a Player as a target.
+Just click on the player's panel in the match view when prompted to select a Player as a target.
 
 ## Where did my mana go?
 If you have an effect that generated you some mana, and you don't know where it is. Check out the Player Panel. There are 6 different mana subpools one for each color/colorless that should have it. If you accidentally tapped your mana before your Main Phase, your mana is gone. Sorry, we don't have a way at this time to revert these actions. In general, I'd say it's easier/better to start casting a spell first, then activate your mana so this doesn't happen.

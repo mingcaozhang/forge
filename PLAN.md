@@ -180,7 +180,7 @@ Per `REWRITE.md`, this cleanup trims the JVM baseline BEFORE the rewrite phases 
 
 ## Phase 7 — Docs
 
-- [ ] **7.1 Update docs for removed features**
+- [x] **7.1 Update docs for removed features**
   - `docs/User-Guide.md` L221: "Right click/long tap on your player avatar" → right-click on the player panel; L252: "Avatar and life total" → "Player image (commander) and life total" and drop ", when a Commander bracket cap is active, estimated Commander bracket".
   - `docs/Frequently-Asked-Questions.md` L71: "click on the player's Avatar in the Player Panel" → "click on the player's panel in the match view".
   - `docs/Network-Play.md` L61: "decks, sleeves, and avatars" → "decks and sleeves" (file is removed entirely in the later networking iteration).

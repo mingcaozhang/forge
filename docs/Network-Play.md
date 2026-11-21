@@ -58,7 +58,7 @@
      - If the port is omitted, Forge defaults to 36743 (=FORGE on older phone keypads).
 7. **Configure the match:**
      - Host selects match type, teams, and game settings.
-     - All players select decks, sleeves, and avatars.
+     - All players select decks and sleeves.
      - Each player toggles their **Ready** switch.
 8. **Host starts the match** once all players are ready.
 
