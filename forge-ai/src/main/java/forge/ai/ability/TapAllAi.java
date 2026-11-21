@@ -107,7 +107,7 @@ public class TapAllAi extends SpellAbilityAi {
         }
 
         if (validTappables.size() > 0) {
-            final int human = CardLists.count(validTappables, CardPredicates.isControlledByAnyOf(ai.getYourTeam()));
+            final int human = CardLists.count(validTappables, CardPredicates.isController(ai));
             final int compy = CardLists.count(validTappables, CardPredicates.isControlledByAnyOf(ai.getOpponents()));
             if (human > compy) {
                 return new AiAbilityDecision(100, AiPlayDecision.WillPlay);

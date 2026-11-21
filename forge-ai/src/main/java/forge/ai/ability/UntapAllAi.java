@@ -29,7 +29,7 @@ public class UntapAllAi extends SpellAbilityAi {
             final String valid = sa.getParamOrDefault("ValidCards", "");
             list = CardLists.getValidCards(list, valid, source.getController(), source, sa);
             // don't untap if only opponent benefits
-            if (list.anyMatch(CardPredicates.isControlledByAnyOf(aiPlayer.getYourTeam()))) {
+            if (list.anyMatch(CardPredicates.isController(aiPlayer))) {
                 return new AiAbilityDecision(100, AiPlayDecision.WillPlay);
             } else {
                 return new AiAbilityDecision(0, AiPlayDecision.CantPlayAi);

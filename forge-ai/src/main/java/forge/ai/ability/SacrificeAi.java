@@ -286,8 +286,8 @@ public class SacrificeAi extends SpellAbilityAi {
         // Icy Prison
         if (payers.size() > 1) {
             final Player p = sa.getActivatingPlayer();
-            // not me or team mate
-            if (!p.sameTeam(payer)) {
+            // not me
+            if (!p.equals(payer)) {
                 return false;
             }
         }

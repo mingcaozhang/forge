@@ -42,8 +42,6 @@ public class FlatMonteCarloManlandAttackTest extends AITest {
         game.AI_TIMEOUT = 20;
         ai = game.getPlayers().get(1);
         opp = game.getPlayers().get(0);
-        ai.setTeam(0);
-        opp.setTeam(1);
         for (int i = 0; i < 10; i++) {
             addCardToZone("Mountain", ai, ZoneType.Library);
             addCardToZone("Plains", opp, ZoneType.Library);

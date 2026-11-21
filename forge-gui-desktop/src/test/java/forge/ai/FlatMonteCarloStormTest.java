@@ -35,8 +35,6 @@ public class FlatMonteCarloStormTest extends AITest {
         final Game game = initAndCreateGame();
         game.AI_FLAT_MONTE_CARLO = false; // the heuristics and the deck plan only: deterministic
         game.AI_TIMEOUT = 10;
-        game.getPlayers().get(1).setTeam(0);
-        game.getPlayers().get(0).setTeam(1);
         return game;
     }
 

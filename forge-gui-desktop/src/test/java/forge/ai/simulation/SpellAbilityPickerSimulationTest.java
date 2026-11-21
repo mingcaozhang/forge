@@ -24,8 +24,6 @@ public class SpellAbilityPickerSimulationTest extends SimulationTest {
         // a tapped Mutavault can't attack or block, even though being a Rat makes Pack Rat bigger
         Game game = initAndCreateGame();
         Player p = game.getPlayers().get(1);
-        p.setTeam(0);
-        game.getPlayers().get(0).setTeam(1);
 
         addCard("Pack Rat", p);
         addCard("Swamp", p);
@@ -45,13 +43,11 @@ public class SpellAbilityPickerSimulationTest extends SimulationTest {
     public void testPickingLethalDamage() {
         Game game = initAndCreateGame();
         Player p = game.getPlayers().get(1);
-        p.setTeam(0);
 
         addCard("Mountain", p);
         addCardToZone("Shock", p, ZoneType.Hand);
 
         Player opponent = game.getPlayers().get(0);
-        opponent.setTeam(1);
 
         addCard("Runeclaw Bear", opponent);
         opponent.setLife(2, null);
@@ -938,10 +934,8 @@ public class SpellAbilityPickerSimulationTest extends SimulationTest {
     public void testXIsTheLargestPayableCMC(String cardName) {
         Game game = initAndCreateGame();
         Player ai = game.getPlayers().get(1);
-        ai.setTeam(0);
 
         Player opponent = game.getPlayers().get(0);
-        opponent.setTeam(1);
 
         // 9 mana available
         addCards("Forest", 3, ai);

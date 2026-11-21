@@ -111,8 +111,6 @@ public class FlatMonteCarloScenarioTest extends AITest {
         Game game = createMonteCarloGame(true);
         Player ai = game.getPlayers().get(1);
         Player opp = game.getPlayers().get(0);
-        ai.setTeam(0);
-        opp.setTeam(1);
 
         addCardToZone("Shock", ai, ZoneType.Hand);
         addCardToZone("Mountain", ai, ZoneType.Hand);
@@ -165,8 +163,6 @@ public class FlatMonteCarloScenarioTest extends AITest {
         Game game = createMonteCarloGame(true);
         Player ai = game.getPlayers().get(1);
         Player opp = game.getPlayers().get(0);
-        ai.setTeam(0);
-        opp.setTeam(1);
 
         addCards("Island", 3, ai);
         addCardToZone("Counterspell", ai, ZoneType.Hand);
@@ -209,8 +205,6 @@ public class FlatMonteCarloScenarioTest extends AITest {
     public void testNoTimeLeftKeepsTheHeuristicChoice() {
         Game game = createMonteCarloGame(true);
         Player ai = game.getPlayers().get(1);
-        game.getPlayers().get(0).setTeam(1);
-        ai.setTeam(0);
 
         addCards("Mountain", 2, ai);
         addCardToZone("Shock", ai, ZoneType.Hand);
@@ -239,8 +233,6 @@ public class FlatMonteCarloScenarioTest extends AITest {
         Game game = createMonteCarloGame(true);
         Player ai = game.getPlayers().get(1);
         Player opp = game.getPlayers().get(0);
-        ai.setTeam(0);
-        opp.setTeam(1);
 
         addCards("Island", 4, ai);
         addCards("Mountain", 2, ai);
@@ -271,8 +263,6 @@ public class FlatMonteCarloScenarioTest extends AITest {
     public void testIdenticalPlaysAreSampledOnlyOnce() {
         Game game = createMonteCarloGame(true);
         Player ai = game.getPlayers().get(1);
-        ai.setTeam(0);
-        game.getPlayers().get(0).setTeam(1);
 
         Card first = addCard("Prodigal Sorcerer", ai);
         Card second = addCard("Prodigal Sorcerer", ai);
@@ -297,8 +287,6 @@ public class FlatMonteCarloScenarioTest extends AITest {
         Game game = createMonteCarloGame(true);
         Player ai = game.getPlayers().get(1);
         Player opp = game.getPlayers().get(0);
-        ai.setTeam(0);
-        opp.setTeam(1);
 
         addCard("Mountain", ai);
         addCardToZone("Shock", ai, ZoneType.Hand);
@@ -331,8 +319,6 @@ public class FlatMonteCarloScenarioTest extends AITest {
     public void testComboHandsGetLongerPlayouts() {
         Game game = createMonteCarloGame(true);
         Player ai = game.getPlayers().get(1);
-        ai.setTeam(0);
-        game.getPlayers().get(0).setTeam(1);
 
         // a control hand is not a combo hand
         for (String n : new String[] { "Counterspell", "Divination", "Air Elemental" }) {
@@ -351,8 +337,6 @@ public class FlatMonteCarloScenarioTest extends AITest {
     public void testStormCardMakesAHandComboLike() {
         Game game = createMonteCarloGame(true);
         Player ai = game.getPlayers().get(1);
-        ai.setTeam(0);
-        game.getPlayers().get(0).setTeam(1);
         addCardToZone("Grapeshot", ai, ZoneType.Hand);
         AssertJUnit.assertTrue(FlatMonteCarloPicker.isComboLike(ai));
     }
@@ -363,8 +347,6 @@ public class FlatMonteCarloScenarioTest extends AITest {
         Game game = createMonteCarloGame(true);
         Player ai = game.getPlayers().get(1);
         Player opp = game.getPlayers().get(0);
-        ai.setTeam(0);
-        opp.setTeam(1);
 
         addCards("Swamp", 3, ai);
         for (int i = 0; i < 3; i++) {
@@ -391,8 +373,6 @@ public class FlatMonteCarloScenarioTest extends AITest {
         Game game = createMonteCarloGame(true);
         Player ai = game.getPlayers().get(1);
         Player opp = game.getPlayers().get(0);
-        ai.setTeam(0);
-        opp.setTeam(1);
 
         addCard("Mountain", ai);
         addCardToZone("Shock", ai, ZoneType.Hand);
@@ -423,8 +403,6 @@ public class FlatMonteCarloScenarioTest extends AITest {
         Game game = createMonteCarloGame(monteCarlo);
         Player control = game.getPlayers().get(1); // takes the first turn, see AITest#initAndCreateGame
         Player beatdown = game.getPlayers().get(0);
-        control.setTeam(0);
-        beatdown.setTeam(1);
 
         // control: blue with counters, card draw and a finisher
         addCards("Island", 2, control);
@@ -475,8 +453,6 @@ public class FlatMonteCarloScenarioTest extends AITest {
         Game game = createMonteCarloGame(true);
         Player ai = game.getPlayers().get(1);
         brainOf(ai).setUseSimulation(AIOption.USE_FULL_SIMULATION);
-        ai.setTeam(0);
-        game.getPlayers().get(0).setTeam(1);
         addCards("Mountain", 2, ai);
         addCardToZone("Shock", ai, ZoneType.Hand);
         addCardToZone("Runeclaw Bear", ai, ZoneType.Hand);
@@ -493,8 +469,6 @@ public class FlatMonteCarloScenarioTest extends AITest {
         // A copy made for a rollout must not start rollouts of its own (that would recurse without end).
         Game game = createMonteCarloGame(true);
         Player ai = game.getPlayers().get(1);
-        game.getPlayers().get(0).setTeam(1);
-        ai.setTeam(0);
         addCard("Mountain", ai);
 
         GameSimulator sim = new GameSimulator(game, ai);
@@ -510,8 +484,6 @@ public class FlatMonteCarloScenarioTest extends AITest {
         Game game = createMonteCarloGame(true);
         Player ai = game.getPlayers().get(1);
         Player opp = game.getPlayers().get(0);
-        ai.setTeam(0);
-        opp.setTeam(1);
         ai.setLife(3, null);
         addCards("Runeclaw Bear", 3, opp); // 6 power against 3 life and no blockers
         addCard("Island", ai);
@@ -531,8 +503,6 @@ public class FlatMonteCarloScenarioTest extends AITest {
     public void testRiskAdjustmentIsZeroWhenNothingThreatens() {
         Game game = createMonteCarloGame(true);
         Player ai = game.getPlayers().get(1);
-        ai.setTeam(0);
-        game.getPlayers().get(0).setTeam(1);
         addCard("Island", ai);
         game.getPhaseHandler().devModeSet(PhaseType.MAIN2, ai);
         AssertJUnit.assertEquals(0, FlatMonteCarloPicker.riskAdjustment(ai, new FlatMonteCarloPicker.Config()));
@@ -570,8 +540,6 @@ public class FlatMonteCarloScenarioTest extends AITest {
     public void testPerPlayerOverrideBeatsTheGameSetting() {
         Game game = createMonteCarloGame(true);
         Player ai = game.getPlayers().get(1);
-        ai.setTeam(0);
-        game.getPlayers().get(0).setTeam(1);
         brainOf(ai).setFlatMonteCarloOverride(false);
         addCards("Island", 3, ai);
         addCardToZone("Divination", ai, ZoneType.Hand);
@@ -631,8 +599,6 @@ public class FlatMonteCarloScenarioTest extends AITest {
         // Two identical-value lines: nothing may override the heuristic's first choice.
         Game game = createMonteCarloGame(true);
         Player ai = game.getPlayers().get(1);
-        ai.setTeam(0);
-        game.getPlayers().get(0).setTeam(1);
         addCards("Mountain", 2, ai);
         addCardToZone("Raging Goblin", ai, ZoneType.Hand);
         addCardToZone("Shock", ai, ZoneType.Hand);
@@ -669,8 +635,6 @@ public class FlatMonteCarloScenarioTest extends AITest {
             game.AI_TIMEOUT = 5;
             Player control = game.getPlayers().get(1);
             Player beatdown = game.getPlayers().get(0);
-            control.setTeam(0);
-            beatdown.setTeam(1);
             boolean mcIsControl = g % 2 == 0;
             brainOf(control).setFlatMonteCarloOverride(mcIsControl);
             brainOf(beatdown).setFlatMonteCarloOverride(!mcIsControl);

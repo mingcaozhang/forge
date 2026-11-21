@@ -89,15 +89,8 @@ public class CopyPermanentAi extends SpellAbilityAi {
                     if (sa.canTarget(aiPlayer)) {
                         sa.getTargets().add(aiPlayer);
                         return new AiAbilityDecision(100, AiPlayDecision.WillPlay);
-                    } else {
-                        for (Player p : aiPlayer.getYourTeam()) {
-                            if (sa.canTarget(p)) {
-                                sa.getTargets().add(p);
-                                return new AiAbilityDecision(100, AiPlayDecision.WillPlay);
-                            }
-                        }
-                        return new AiAbilityDecision(0, AiPlayDecision.TargetingFailed);
                     }
+                    return new AiAbilityDecision(0, AiPlayDecision.TargetingFailed);
                 } else {
                     for (Player p : aiPlayer.getOpponents()) {
                         if (sa.canTarget(p)) {

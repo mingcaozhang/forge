@@ -351,15 +351,6 @@ public class Game {
         maingame = maingame0;
         this.id = nextId();
 
-        int highestTeam = -1;
-        for (RegisteredPlayer psc : players0) {
-            // Track highest team number for auto assigning unassigned teams
-            int teamNum = psc.getTeamNumber();
-            if (teamNum > highestTeam) {
-                highestTeam = teamNum;
-            }
-        }
-
         // View needs to be done before PlayerController
         view = new GameView(this);
 
@@ -383,14 +374,6 @@ public class Game {
             if (psc.getManaShards() > 0) {
                 pl.setNumManaShards(psc.getManaShards());
             }
-            int teamNum = psc.getTeamNumber();
-            if (teamNum == -1) {
-                // RegisteredPlayer doesn't have an assigned team, set it to 1 higher than the highest found team number
-                teamNum = ++highestTeam;
-                psc.setTeamNumber(teamNum);
-            }
-
-            pl.setTeam(teamNum);
         }
 
         action = new GameAction(this);

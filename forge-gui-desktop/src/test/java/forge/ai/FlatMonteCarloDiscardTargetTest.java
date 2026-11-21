@@ -29,8 +29,6 @@ public class FlatMonteCarloDiscardTargetTest extends AITest {
         final Game game = initAndCreateGame();
         final Player ai = game.getPlayers().get(1);
         final Player opp = game.getPlayers().get(0);
-        ai.setTeam(0);
-        opp.setTeam(1);
         game.getPhaseHandler().devModeSet(PhaseType.MAIN2, ai);
 
         addComboScanCards(ai);
@@ -56,8 +54,6 @@ public class FlatMonteCarloDiscardTargetTest extends AITest {
         final Game game = initAndCreateGame();
         final Player ai = game.getPlayers().get(1);
         final Player opp = game.getPlayers().get(0);
-        ai.setTeam(0);
-        opp.setTeam(1);
         game.getPhaseHandler().devModeSet(PhaseType.MAIN2, ai);
 
         addComboScanCards(ai);

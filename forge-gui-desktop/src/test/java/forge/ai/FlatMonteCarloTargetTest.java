@@ -32,8 +32,6 @@ public class FlatMonteCarloTargetTest extends AITest {
         final Game game = initAndCreateGame();
         game.AI_FLAT_MONTE_CARLO = true;
         game.AI_TIMEOUT = 10;
-        game.getPlayers().get(1).setTeam(0);
-        game.getPlayers().get(0).setTeam(1);
         return game;
     }
 

@@ -33,8 +33,6 @@ public class FlatMonteCarloEnhancementTest extends AITest {
         final Game game = initAndCreateGame();
         game.AI_FLAT_MONTE_CARLO = true;
         game.AI_TIMEOUT = 10;
-        game.getPlayers().get(1).setTeam(0);
-        game.getPlayers().get(0).setTeam(1);
         return game;
     }
 
@@ -53,8 +51,6 @@ public class FlatMonteCarloEnhancementTest extends AITest {
 
     private Game strategicGame() {
         final Game g = initAndCreateGame();
-        g.getPlayers().get(1).setTeam(0);
-        g.getPlayers().get(0).setTeam(1);
         return g;
     }
 

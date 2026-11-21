@@ -25,8 +25,6 @@ public class FlatMonteCarloAttackTest extends AITest {
         game.AI_FLAT_MONTE_CARLO = true;
         game.AI_FLAT_MONTE_CARLO_MAX = true; // a generous budget: the tests are about the choice, not about speed
         game.AI_TIMEOUT = 20;
-        game.getPlayers().get(1).setTeam(0);
-        game.getPlayers().get(0).setTeam(1);
         return game;
     }
 

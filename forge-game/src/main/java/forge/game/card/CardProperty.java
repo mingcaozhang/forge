@@ -180,7 +180,7 @@ public class CardProperty {
                 return false;
             }
         } else if (property.startsWith("YourTeamCtrl")) {
-            if (controller.getTeam() != sourceController.getTeam()) {
+            if (!controller.equals(sourceController)) {
                 return false;
             }
         } else if (property.startsWith("YouDontCtrl")) {

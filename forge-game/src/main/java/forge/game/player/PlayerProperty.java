@@ -48,7 +48,7 @@ public class PlayerProperty {
                 return false;
             }
         } else if (property.equals("YourTeam")) {
-            if (!player.sameTeam(sourceController)) {
+            if (!player.equals(sourceController)) {
                 return false;
             }
         } else if (property.equals("Allies")) {

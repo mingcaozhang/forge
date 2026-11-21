@@ -48,7 +48,7 @@ public class CounterAi extends SpellAbilityAi {
 
         if (sa.usesTargeting()) {
             final SpellAbility topSA = ComputerUtilAbility.getTopSpellAbilityOnStack(game, sa);
-            if ((topSA.isSpell() && !topSA.isCounterableBy(sa)) || ai.getYourTeam().contains(topSA.getActivatingPlayer())) {
+            if ((topSA.isSpell() && !topSA.isCounterableBy(sa)) || ai.equals(topSA.getActivatingPlayer())) {
                 // might as well check for player's friendliness
                 return new AiAbilityDecision(0, AiPlayDecision.CantPlayAi);
             }

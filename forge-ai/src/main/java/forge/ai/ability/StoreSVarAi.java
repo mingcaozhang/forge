@@ -33,8 +33,8 @@ public class StoreSVarAi extends SpellAbilityAi {
         // Join Forces cards
         if (sa.hasParam("UnlessSwitched") && payers.size() > 1) {
             final Player p = sa.getActivatingPlayer();
-            // not me or team mate
-            if (!p.sameTeam(payer)) {
+            // not me
+            if (!p.equals(payer)) {
                 return false;
             }
         }

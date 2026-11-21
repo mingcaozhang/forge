@@ -560,9 +560,9 @@ public class PumpAi extends PumpAiBase {
 
         if (sa.isCurse()) {
             pref = CardLists.filterControlledBy(list, ai.getOpponents());
-            forced = CardLists.filterControlledBy(list, ai.getYourTeam());
+            forced = CardLists.filterControlledBy(list, ai);
         } else {
-            pref = CardLists.filterControlledBy(list, ai.getYourTeam());
+            pref = CardLists.filterControlledBy(list, ai);
             forced = CardLists.filterControlledBy(list, ai.getOpponents());
         }
 

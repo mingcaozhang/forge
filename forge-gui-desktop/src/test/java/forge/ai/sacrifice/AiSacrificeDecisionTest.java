@@ -18,10 +18,8 @@ public class AiSacrificeDecisionTest extends AITest {
         Game game = initAndCreateGame();
 
         Player p = game.getPlayers().get(1);
-        p.setTeam(0);
 
         Player opponent = game.getPlayers().get(0);
-        opponent.setTeam(1);
         opponent.setLife(1, null);
 
         // Player 1 controls Fandaniel
@@ -59,10 +57,8 @@ public class AiSacrificeDecisionTest extends AITest {
         Game game = initAndCreateGame();
 
         Player p = game.getPlayers().get(1);
-        p.setTeam(0);
 
         Player opponent = game.getPlayers().get(0);
-        opponent.setTeam(1);
         opponent.setLife(10, null);
 
         // Player 1 controls Fandaniel
@@ -100,10 +96,8 @@ public class AiSacrificeDecisionTest extends AITest {
         Game game = initAndCreateGame();
 
         Player p = game.getPlayers().get(1);
-        p.setTeam(0);
 
         Player opponent = game.getPlayers().get(0);
-        opponent.setTeam(1);
         opponent.setLife(4, null);
 
         // Player 1 controls Pillar Tombs of Aku

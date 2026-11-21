@@ -33,29 +33,27 @@ public class CountersProliferateAi extends SpellAbilityAi {
         final List<Card> cperms = Lists.newArrayList();
         boolean allyExpOrEnergy = false;
 
-        for (final Player p : ai.getYourTeam()) {
-            // player has experience or energy counter
-            if (p.getCounters(CounterEnumType.EXPERIENCE) + p.getCounters(CounterEnumType.ENERGY) >= 1) {
-                allyExpOrEnergy = true;
+        // player has experience or energy counter
+        if (ai.getCounters(CounterEnumType.EXPERIENCE) + ai.getCounters(CounterEnumType.ENERGY) >= 1) {
+            allyExpOrEnergy = true;
+        }
+        cperms.addAll(CardLists.filter(ai.getCardsIn(ZoneType.Battlefield), crd -> {
+            if (!crd.hasCounters()) {
+                return false;
             }
-            cperms.addAll(CardLists.filter(p.getCardsIn(ZoneType.Battlefield), crd -> {
-                if (!crd.hasCounters()) {
-                    return false;
-                }
 
-                if (crd.isPlaneswalker()) {
+            if (crd.isPlaneswalker()) {
+                return true;
+            }
+
+            // iterate only over existing counters
+            for (final Multiset.Entry<CounterType> e : crd.getCounters().entrySet()) {
+                if (e.getCount() >= 1 && !ComputerUtil.isNegativeCounter(e.getElement(), crd)) {
                     return true;
                 }
-
-                // iterate only over existing counters
-                for (final Multiset.Entry<CounterType> e : crd.getCounters().entrySet()) {
-                    if (e.getCount() >= 1 && !ComputerUtil.isNegativeCounter(e.getElement(), crd)) {
-                        return true;
-                    }
-                }
-                return false;
-            }));
-        }
+            }
+            return false;
+        }));
 
         final List<Card> hperms = Lists.newArrayList();
         boolean opponentPoison = false;

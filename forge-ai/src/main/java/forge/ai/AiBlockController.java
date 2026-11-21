@@ -158,8 +158,7 @@ public class AiBlockController {
             return attackers;
         }
 
-        // CR 805.10d: under shared team turns the AI defends its whole team
-        final Predicate<Player> defends = ai::sharesTeamWith;
+        final Predicate<Player> defends = ai::equals;
         // TODO Add creatures attacking Planeswalkers in order of which we want to protect
         // defend planeswalkers with more loyalty before planeswalkers with less loyalty,
         // defend battles with fewer defense counters before battles with more defense counters,

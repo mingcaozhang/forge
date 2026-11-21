@@ -24,8 +24,6 @@ public class CastRestrictionTest extends AITest {
         game.AI_TIMEOUT = 20;
 
         final Player ai = game.getPlayers().get(1);
-        ai.setTeam(0);
-        game.getPlayers().get(0).setTeam(1);
 
         final AiController brain = ((PlayerControllerAi) ai.getController()).getAi();
         brain.setFlatMonteCarloOverride(true);

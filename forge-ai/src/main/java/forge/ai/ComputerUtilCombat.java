@@ -383,13 +383,9 @@ public class ComputerUtilCombat {
         return ai.getPoisonCounters() + poison;
     }
 
-    /** The attackers whose damage reaches this player's life total: those attacking them, and in Two-Headed Giant those attacking a teammate (CR 810.4). */
+    /** The attackers whose damage reaches this player's life total. */
     private static List<Card> attackersOfTeam(final Player ai, final Combat combat) {
-        final CardCollection attackers = new CardCollection();
-        for (final Player p : ai.getSharedTeam()) {
-            attackers.addAll(combat.getAttackersOf(p));
-        }
-        return attackers;
+        return combat.getAttackersOf(ai);
     }
 
     public static List<Card> getLifeThreateningCommanders(final Player ai, final Combat combat) {
@@ -432,7 +428,7 @@ public class ComputerUtilCombat {
     }
     public static boolean lifeInDanger(final Player ai, final Combat combat, final int payment) {
         // life in danger only cares about the player's life. Not Planeswalkers' life
-        if (ai.cantLose() || combat == null || ai.sharesTeamWith(combat.getAttackingPlayer())) {
+        if (ai.cantLose() || combat == null || ai.equals(combat.getAttackingPlayer())) {
             return false;
         }
 

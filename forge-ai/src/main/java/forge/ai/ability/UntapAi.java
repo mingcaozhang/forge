@@ -187,7 +187,7 @@ public class UntapAi extends SpellAbilityAi {
         if (sa.isCurse() || (sa.getSubAbility() != null && sa.getSubAbility().getApi() == ApiType.GainControl)) {
             targetController = ai.getOpponents();
         } else {
-            targetController = ai.getYourTeam();
+            targetController = new PlayerCollection(ai);
         }
 
         CardCollection list = CardLists.getTargetableCards(targetController.getCardsIn(ZoneType.Battlefield), sa);
@@ -380,7 +380,7 @@ public class UntapAi extends SpellAbilityAi {
 
     @Override
     public Card chooseSingleCard(Player ai, SpellAbility sa, Iterable<Card> list, boolean isOptional, Player targetedPlayer, Map<String, Object> params) {
-        CardCollection filteredList = CardLists.filterControlledBy(list, ai.getYourTeam());
+        CardCollection filteredList = CardLists.filterControlledBy(list, ai);
         if (!filteredList.isEmpty()) {
             return ComputerUtilCard.getBestAI(filteredList);
         }

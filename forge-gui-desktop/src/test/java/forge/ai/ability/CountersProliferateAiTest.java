@@ -23,8 +23,6 @@ public class CountersProliferateAiTest extends AITest {
         Game game = initAndCreateGame();
         Player ai = game.getPlayers().get(1);
         Player opponent = game.getPlayers().get(0);
-        ai.setTeam(0);
-        opponent.setTeam(1);
 
         // Add Karn's Bastion (4 mana to proliferate) and enough lands
         Card karnsBastion = addCard("Karn's Bastion", ai);
@@ -101,8 +99,6 @@ public class CountersProliferateAiTest extends AITest {
         Game game = initAndCreateGame();
         Player ai = game.getPlayers().get(1);
         Player opponent = game.getPlayers().get(0);
-        ai.setTeam(0);
-        opponent.setTeam(1);
 
         // Add Karn's Bastion and enough lands
         Card karnsBastion = addCard("Karn's Bastion", ai);

@@ -24,10 +24,6 @@ public final class PlayerPredicates {
     public static Predicate<Player> isOpponentOf(final Player player) {
         return p -> p.isOpponentOf(player);
     }
-    
-    public static Predicate<Player> sameTeam(final Player player) {
-        return player::sameTeam;
-    }
 
     public static Predicate<Player> isCardInPlay(final String cardName) {
         return p -> p.isCardInPlay(cardName);

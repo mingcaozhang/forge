@@ -2,8 +2,6 @@ package forge.localinstance.achievements;
 
 import forge.game.Game;
 import forge.game.player.Player;
-import forge.game.player.PlayerCollection;
-import forge.game.player.PlayerPredicates;
 import forge.util.Localizer;
 
 public class AgainstAllOdds extends Achievement {
@@ -12,34 +10,19 @@ public class AgainstAllOdds extends Achievement {
             Localizer.getInstance().getMessage("lblWinGame"), 0,
             Localizer.getInstance().getMessage("lblAgainstIndividual", "3"), 1,
             Localizer.getInstance().getMessage("lblAgainstIndividual", "7"), 2,
-            Localizer.getInstance().getMessage("lblAgainstTeam", "3"), 3,
-            Localizer.getInstance().getMessage("lblAgainstTeam", "7"), 4
+            Localizer.getInstance().getMessage("lblAgainstIndividual", "7"), 3,
+            Localizer.getInstance().getMessage("lblAgainstIndividual", "7"), 4
         );
     }
 
     @Override
     protected int evaluate(Player player, Game game) {
         if (player.getOutcome().hasWon() && game.getRegisteredPlayers().size() - player.getRegisteredOpponents().size() == 1) {
-            int teamNum = 0;
-            for (Player opp : player.getRegisteredOpponents()) {
-                PlayerCollection otherOpps = player.getRegisteredOpponents();
-                otherOpps.remove(opp);
-                if (otherOpps.stream().allMatch(PlayerPredicates.sameTeam(opp))) {
-                    teamNum++;   
-                } else if (otherOpps.stream().allMatch(PlayerPredicates.sameTeam(opp).negate())) {
-                    teamNum--;
-                }
-            }
-            if (teamNum == 7) {
-                return 4;
-            }
-            if (teamNum >= 3) {
-                return 3;
-            }
-            if (teamNum == -7) {
+            int individualNum = player.getRegisteredOpponents().size();
+            if (individualNum >= 7) {
                 return 2;
             }
-            if (teamNum <= -3) {
+            if (individualNum >= 3) {
                 return 1;
             }
         }

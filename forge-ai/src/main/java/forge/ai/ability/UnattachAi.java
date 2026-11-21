@@ -31,7 +31,7 @@ public class UnattachAi extends SpellAbilityAi {
 
         if (!mandatory && !targets.isEmpty()) {
             Card attachment = (Card) targets.get(0);
-            if (attachment.isEquipment() && ai.getYourTeam().contains(attachment.getController())) {
+            if (attachment.isEquipment() && ai.equals(attachment.getController())) {
                 return new AiAbilityDecision(0, AiPlayDecision.CantPlayAi);
             }
 

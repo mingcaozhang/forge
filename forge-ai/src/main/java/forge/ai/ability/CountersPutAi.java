@@ -841,7 +841,7 @@ public class CountersPutAi extends CountersAi {
                     if (list.isEmpty()) {
                         // Still an empty list, but we have to choose something (mandatory); expand targeting to
                         // include AI's own cards to see if there's anything targetable (e.g. Plague Belcher).
-                        list = CardLists.filterControlledBy(targetables, ai.getYourTeam());
+                        list = CardLists.filterControlledBy(targetables, ai);
                         preferred = false;
                     }
                 }

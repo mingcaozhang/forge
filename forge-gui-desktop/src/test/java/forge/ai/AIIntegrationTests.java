@@ -22,12 +22,10 @@ public class AIIntegrationTests extends AITest {
     public void testSwingForLethal() {
         Game game = initAndCreateGame();
         Player p = game.getPlayers().get(1);
-        p.setTeam(0);
         addCard("Nest Robber", p);
         addCard("Nest Robber", p);
 
         Player opponent = game.getPlayers().get(0);
-        opponent.setTeam(1);
 
         addCard("Runeclaw Bear", opponent);
         opponent.setLife(2, null);
@@ -43,12 +41,10 @@ public class AIIntegrationTests extends AITest {
         // They should suspend it, then deal three damage to their opponent
         Game game = initAndCreateGame();
         Player p = game.getPlayers().get(1);
-        p.setTeam(0);
         addCard("Mountain", p);
         addCardToZone("Rift Bolt", p, ZoneType.Hand);
 
         Player opponent = game.getPlayers().get(0);
-        opponent.setTeam(1);
 
         // Fill deck with lands so we can goldfish a few turns
         for (int i = 0; i < 60; i++) {
@@ -69,12 +65,10 @@ public class AIIntegrationTests extends AITest {
         // Test that attack triggers actually trigger
         Game game = initAndCreateGame();
         Player p = game.getPlayers().get(1);
-        p.setTeam(0);
         addCard("Hellrider", p);
         addCard("Raging Goblin", p);
 
         Player opponent = game.getPlayers().get(0);
-        opponent.setTeam(1);
 
         // Fill deck with lands so we can goldfish a few turns
         for (int i = 0; i < 60; i++) {
@@ -92,10 +86,8 @@ public class AIIntegrationTests extends AITest {
     public void testDoesNotCastRepopulateWhenNoCreaturesInOpponentGraveyard() {
         Game game = initAndCreateGame();
         Player p = game.getPlayers().get(1);
-        p.setTeam(0);
 
         Player opponent = game.getPlayers().get(0);
-        opponent.setTeam(1);
 
         // AI has Repopulate in hand, mana to cast, and no other playable cards.
         Zone hand = p.getZone(ZoneType.Hand);
@@ -124,7 +116,6 @@ public class AIIntegrationTests extends AITest {
     public void testCrushContrabandChoosesBothModes() {
         Game game = initAndCreateGame();
         Player p = game.getPlayers().get(1);
-        p.setTeam(0);
 
         Card crushContraband = addCardToZone("Crush Contraband", p, ZoneType.Hand);
         SpellAbility sa = crushContraband.getSpellAbilities().get(0);
@@ -132,7 +123,6 @@ public class AIIntegrationTests extends AITest {
         game.getPhaseHandler().devModeSet(PhaseType.MAIN2, p);
 
         Player opponent = game.getPlayers().get(0);
-        opponent.setTeam(1);
         addCard("Sol Ring", opponent);
         addCard("Honor of the Pure", opponent);
 
@@ -146,7 +136,6 @@ public class AIIntegrationTests extends AITest {
     public void testEscalateDoesNotChooseUnaffordableExtraMode() {
         Game game = initAndCreateGame();
         Player p = game.getPlayers().get(1);
-        p.setTeam(0);
         addCard("Forest", p);
         addCard("Wastes", p);
 
@@ -155,7 +144,6 @@ public class AIIntegrationTests extends AITest {
         sa.setActivatingPlayer(p);
 
         Player opponent = game.getPlayers().get(0);
-        opponent.setTeam(1);
         addCard("Sol Ring", opponent);
         addCard("Honor of the Pure", opponent);
 
@@ -169,7 +157,6 @@ public class AIIntegrationTests extends AITest {
     public void testEscalateChoosesAffordableExtraMode() {
         Game game = initAndCreateGame();
         Player p = game.getPlayers().get(1);
-        p.setTeam(0);
         addCards("Forest", 3, p);
 
         Card collectiveResistance = addCardToZone("Collective Resistance", p, ZoneType.Hand);
@@ -177,7 +164,6 @@ public class AIIntegrationTests extends AITest {
         sa.setActivatingPlayer(p);
 
         Player opponent = game.getPlayers().get(0);
-        opponent.setTeam(1);
         addCard("Sol Ring", opponent);
         addCard("Honor of the Pure", opponent);
 
@@ -191,7 +177,6 @@ public class AIIntegrationTests extends AITest {
     public void testEntwineChoosesCostWhenAllModesAreUseful() {
         Game game = initAndCreateGame();
         Player p = game.getPlayers().get(1);
-        p.setTeam(0);
         addCards("Forest", 6, p);
         addCardToZone("Forest", p, ZoneType.Library);
         addCardToZone("Plains", p, ZoneType.Library);
@@ -211,7 +196,6 @@ public class AIIntegrationTests extends AITest {
     public void testSpreeDoesNotChooseUnaffordableExtraMode() {
         Game game = initAndCreateGame();
         Player p = game.getPlayers().get(1);
-        p.setTeam(0);
         addCard("Plains", p);
         addCard("Wastes", p);
 
@@ -220,7 +204,6 @@ public class AIIntegrationTests extends AITest {
         sa.setActivatingPlayer(p);
 
         Player opponent = game.getPlayers().get(0);
-        opponent.setTeam(1);
         addCard("Sol Ring", opponent);
         addCard("Honor of the Pure", opponent);
 
@@ -234,7 +217,6 @@ public class AIIntegrationTests extends AITest {
     public void testSpreeChoosesAffordableExtraMode() {
         Game game = initAndCreateGame();
         Player p = game.getPlayers().get(1);
-        p.setTeam(0);
         addCard("Plains", p);
         addCards("Wastes", 2, p);
 
@@ -243,7 +225,6 @@ public class AIIntegrationTests extends AITest {
         sa.setActivatingPlayer(p);
 
         Player opponent = game.getPlayers().get(0);
-        opponent.setTeam(1);
         addCard("Sol Ring", opponent);
         addCard("Honor of the Pure", opponent);
 

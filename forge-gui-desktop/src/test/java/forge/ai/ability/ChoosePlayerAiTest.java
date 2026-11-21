@@ -19,9 +19,6 @@ public class ChoosePlayerAiTest extends AITest {
         Player firstOpponent = game.getPlayers().get(0);
         Player ai = game.getPlayers().get(1);
         Player preferredOpponent = game.getPlayers().get(2);
-        firstOpponent.setTeam(0);
-        ai.setTeam(1);
-        preferredOpponent.setTeam(2);
 
         firstOpponent.setLife(20, null);
         preferredOpponent.setLife(25, null);

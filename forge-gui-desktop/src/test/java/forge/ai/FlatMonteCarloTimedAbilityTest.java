@@ -48,8 +48,6 @@ public class FlatMonteCarloTimedAbilityTest extends AITest {
         game.AI_TIMEOUT = 10;
         ai = game.getPlayers().get(1);
         opp = game.getPlayers().get(0);
-        ai.setTeam(0);
-        opp.setTeam(1);
     }
 
     // ------------------------------------------------------------------------------------------------ helpers

@@ -409,7 +409,7 @@ public class TokenAi extends SpellAbilityAi {
         if (isCurse) {
             prefList = CardLists.filterControlledBy(prefListSBA, ai.getOpponents());
         } else {
-            prefList = CardLists.filterControlledBy(prefListSBA, ai.getYourTeam());
+            prefList = CardLists.filterControlledBy(prefListSBA, ai);
         }
 
         if (prefList.isEmpty()) {

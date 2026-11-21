@@ -122,9 +122,6 @@ public class DamageDealAiTest extends AITest {
         Player opponent = game.getPlayers().get(0);
 
         // Set up teams: AI and ally on team 0, opponent on team 1
-        ai.setTeam(0);
-        ally.setTeam(0);
-        opponent.setTeam(1);
 
         // Setup: AI and ally both have creatures
         Card aiCreature = addCard("Serra Angel", ai);      // 4/4 - stronger

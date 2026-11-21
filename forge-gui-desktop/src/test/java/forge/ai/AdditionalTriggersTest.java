@@ -21,10 +21,6 @@ public class AdditionalTriggersTest extends AITest {
     public void additionalTriggersAreDeterminedBeforePermanentsAreGivenAway() {
         Game game = initAndCreateThreePlayerGame();
         Player ai = game.getPlayers().get(1);
-        int team = 0;
-        for (Player p : game.getPlayers()) {
-            p.setTeam(team++);
-        }
 
         addCard("Roaming Throne", ai).setChosenType("Rabbit");
         addCards("Plains", 6, ai);
