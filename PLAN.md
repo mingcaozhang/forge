@@ -123,7 +123,7 @@ Per `REWRITE.md`, this cleanup trims the JVM baseline BEFORE the rewrite phases 
   - Verify: `GATE`; `rg -n "avatarIndex|AvatarIndex|avatarCardImageKey|AvatarCardImageKey" --type java -g '!target/**'` → zero (except `AvatarVanguard`).
   - Commit: `chore(commander): drop avatar index from lobby/game data model`.
 
-- [ ] **4.4 Remove avatar preference, skin assembly, and sprite file**
+- [x] **4.4 Remove avatar preference, skin assembly, and sprite file**
   - `ForgePreferences.java`: remove `FPref.UI_AVATARS` (L68).
   - `IGuiBase.java`: remove `getAvatarCount()` (L77); `GuiDesktop.java`: remove the override (L258-264).
   - `FSkin.java`: remove `avatars` map (L945), `bimDefaultAvatars`/`bimPreferredAvatars` (L1135-1138), `f4`/`f5` (L1265-1266), image reads (L1305-1306, L1327), `assembleAvatars()` call (L1411-1412), flushes (L1425, L1441), null-outs (L1447, L1454), `getAvatars()` (L1520-1522), `assembleAvatars()` method (L1597-1636).

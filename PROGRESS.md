@@ -15,8 +15,10 @@
 - 4.3 Avatar index dropped from lobby/game model: avatar fields gone from LobbyPlayer/Player/PlayerView/TrackableProperty
   (`setHasLost(false)` inlined in `dangerouslySetController`); LobbySlot 8→7 args (LocalLobby/GameLobby/OfflineLobby/ServerGameLobby);
   avatar params dropped from UpdateLobbyPlayerEvent/LoginEvent/FServerManager/GameClientHandler; dead `avatarUpdate` deleted;
-  GamePlayerUtil overloads restructured (dropped dead `(name,profileOverride)`); VLobby.getSlot + LobbySlotAuthorizationTest updated.
-  Only `FPref.UI_AVATARS` def remains (4.4). `GATE` green; verification grep zero.
+  GamePlayerUtil overloads restructured (dropped dead `(name,profileOverride)`); VLobby.getSlot + LobbySlotAuthorizationTest updated. `GATE` green; grep zero.
+- 4.4 Avatar pref/skin/sprite removed: `FPref.UI_AVATARS`, `IGuiBase.getAvatarCount` (+ GuiDesktop/ForgeMatrixWriter overrides),
+  all FSkin avatar state (`avatars` map, bim*Avatars, f4/f5, assembleAvatars/getAvatars, splash 21→20), `SPRITE_AVATARS_FILE`,
+  deleted res/skins/default/sprite_avatars.png. `GATE` green; `rg -i avatar --type java` → only Vanguard/card matches.
 
 ## Environment quirks
 - Always use a 600000 ms timeout on Maven runs (default 120 s kills long runs).
@@ -31,5 +33,4 @@
 - Per-format banlist validation (`DeckFormat`, `res/formats/**`) is NOT the Commander bracket system — keep.
 - Vanguard "avatar" (`DeckSection.Avatar`, `GamePieceType.AVATAR`, `AvatarVanguard`) is unrelated — keep.
 - Networking files get minimal field-level edits only (networking removal is a later iteration).
-- 4.4 removes `FPref.UI_AVATARS` + `IGuiBase.getAvatarCount()` (GuiDesktop/ForgeMatrixWriter overrides) — no callers left after 4.3.
 - `res/defaults/home.xml` is legacy (stale HOME_* ids); only item-specific lines get removed.

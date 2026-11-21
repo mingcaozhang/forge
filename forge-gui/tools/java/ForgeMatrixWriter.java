@@ -171,7 +171,6 @@ public final class ForgeMatrixWriter {
         @Override public ISkinImage createLayeredImage(PaperCard card, FSkinProp background, String overlayFilename, float opacity) { return null; }
         @Override public void clearImageCache() { }
         @Override public String encodeSymbols(String str, boolean formatReminderText) { return str; }
-        @Override public int getAvatarCount() { return 0; }
         @Override public int getSleevesCount() { return 0; }
         @Override public float getScreenScale() { return 1.0f; }
         @Override public void preventSystemSleep(boolean preventSleep) { }

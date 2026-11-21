@@ -44,7 +44,6 @@ public interface IGuiBase {
     void clearImageCache();
     String encodeSymbols(String str, boolean formatReminderText);
 
-    int getAvatarCount();
     int getSleevesCount();
 
     float getScreenScale();

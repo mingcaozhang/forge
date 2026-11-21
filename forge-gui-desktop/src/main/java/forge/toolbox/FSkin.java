@@ -942,7 +942,6 @@ public class FSkin {
         }
     }
 
-    private static Map<Integer, SkinImage> avatars;
     private static Map<Integer, SkinImage> sleeves;
     private static Map<Integer, Font> fixedFonts = new HashMap<>();
 
@@ -1133,7 +1132,7 @@ public class FSkin {
     private static String preferredDir;
     private static String preferredName;
     private static BufferedImage bimDefaultSprite, bimFavIcon, bimPreferredSprite, bimFoils, bimQuestDraftDeck, bimOldFoils,
-    bimDefaultAvatars, bimPreferredAvatars, bimTrophies, bimAbilities, bimManaIcons, bimPhyrexian, bimColorlessHybrid, bimDefaultSleeve,
+    bimTrophies, bimAbilities, bimManaIcons, bimPhyrexian, bimColorlessHybrid, bimDefaultSleeve,
             bimDefaultSleeve2, bimDefaultDeckbox, bimPrefferedSetLogo, bimDefaultWatermark, bimDefaultDraftRank, bimAttractionLights,
             bimZoneIcons;
     private static int x0, y0, w0, h0, newW, newH, preferredW, preferredH;
@@ -1255,15 +1254,13 @@ public class FSkin {
         }
 
         final Localizer localizer = Localizer.getInstance();
-        FView.SINGLETON_INSTANCE.setSplashProgessBarMessage(localizer.getMessage("splash.loading.processingimagesprites") + ": ", 21);
+        FView.SINGLETON_INSTANCE.setSplashProgessBarMessage(localizer.getMessage("splash.loading.processingimagesprites") + ": ", 20);
 
         // Grab and test various sprite files.
         final String defaultDir = ForgeConstants.DEFAULT_SKINS_DIR;
         final File f1 = new File(defaultDir + ForgeConstants.SPRITE_ICONS_FILE);
         final File f2 = new File(preferredDir + ForgeConstants.SPRITE_ICONS_FILE);
         final File f3 = new File(defaultDir + ForgeConstants.SPRITE_FOILS_FILE);
-        final File f4 = new File(defaultDir + ForgeConstants.SPRITE_AVATARS_FILE);
-        final File f5 = new File(preferredDir + ForgeConstants.SPRITE_AVATARS_FILE);
         final File f6 = new File(defaultDir + ForgeConstants.SPRITE_OLD_FOILS_FILE);
         final File f7 = new File(defaultDir + ForgeConstants.SPRITE_TROPHIES_FILE);
         final File f8 = new File(defaultDir + ForgeConstants.DRAFT_DECK_IMG_FILE);
@@ -1302,8 +1299,6 @@ public class FSkin {
             FView.SINGLETON_INSTANCE.incrementSplashProgessBar(++p);
             bimOldFoils = f6.exists() ? ImageIO.read(f6) : ImageIO.read(f3);
             FView.SINGLETON_INSTANCE.incrementSplashProgessBar(++p);
-            bimDefaultAvatars = ImageIO.read(f4);
-            FView.SINGLETON_INSTANCE.incrementSplashProgessBar(++p);
             bimDefaultSleeve = ImageIO.read(f12);
             FView.SINGLETON_INSTANCE.incrementSplashProgessBar(++p);
             bimDefaultSleeve2 = ImageIO.read(f13);
@@ -1324,7 +1319,6 @@ public class FSkin {
             FView.SINGLETON_INSTANCE.incrementSplashProgessBar(++p);
             bimFavIcon = ImageIO.read(f9);
             FView.SINGLETON_INSTANCE.incrementSplashProgessBar(++p);
-            if (f5.exists()) { bimPreferredAvatars = ImageIO.read(f5); }
 
             FView.SINGLETON_INSTANCE.incrementSplashProgessBar(++p);
 
@@ -1408,8 +1402,6 @@ public class FSkin {
             }
         }
 
-        // Assemble avatar images
-        assembleAvatars();
         // Sleeves
         assembleSleeves();
 
@@ -1422,7 +1414,6 @@ public class FSkin {
         bimFoils.flush();
         bimOldFoils.flush();
         bimPreferredSprite.flush();
-        bimDefaultAvatars.flush();
         bimDefaultSleeve.flush();
         bimDefaultSleeve2.flush();
         bimDefaultDeckbox.flush();
@@ -1438,20 +1429,16 @@ public class FSkin {
         bimAttractionLights.flush();
         bimZoneIcons.flush();
 
-        if (bimPreferredAvatars != null) { bimPreferredAvatars.flush(); }
-
         bimDefaultSprite = null;
         bimFoils = null;
         bimOldFoils = null;
         bimPreferredSprite = null;
-        bimDefaultAvatars = null;
         bimDefaultSleeve = null;
         bimDefaultSleeve2 = null;
         bimDefaultDeckbox = null;
         bimDefaultDraftRank = null;
         bimPrefferedSetLogo = null;
         bimDefaultWatermark = null;
-        bimPreferredAvatars = null;
         bimQuestDraftDeck = null;
         bimTrophies = null;
         bimAbilities = null;
@@ -1515,10 +1502,6 @@ public class FSkin {
 
     public static List<String> getAllSkins() {
         return allSkins;
-    }
-
-    public static Map<Integer, SkinImage> getAvatars() {
-        return avatars;
     }
 
     public static Map<Integer, SkinImage> getSleeves() {
@@ -1592,47 +1575,6 @@ public class FSkin {
         }
 
         return bimDefaultSprite;
-    }
-
-    private static void assembleAvatars() {
-        avatars = new HashMap<>();
-        int counter = 0;
-        Color pxTest;
-
-        if (bimPreferredAvatars != null) {
-            final int pw = bimPreferredAvatars.getWidth();
-            final int ph = bimPreferredAvatars.getHeight();
-
-            for (int j = 0; j < ph; j += 100) {
-                for (int i = 0; i < pw; i += 100) {
-                    if (i == 0 && j == 0) { continue; }
-                    pxTest = getColorFromPixel(bimPreferredAvatars.getRGB(i + 50, j + 50));
-                    if (pxTest.getAlpha() == 0) { continue; }
-                    avatars.put(counter++, new SkinImage(bimPreferredAvatars.getSubimage(i, j, 100, 100)));
-                }
-            }
-        } else {
-
-            final int aw = bimDefaultAvatars.getWidth();
-            final int ah = bimDefaultAvatars.getHeight();
-
-            for (int j = 0; j < ah; j += 100) {
-                for (int i = 0; i < aw; i += 100) {
-                    if (i == 0 && j == 0) {
-                        continue;
-                    }
-                    pxTest = getColorFromPixel(bimDefaultAvatars.getRGB(i + 50, j + 50));
-                    if (pxTest.getAlpha() == 0) {
-                        continue;
-                    }
-                    try {
-                        avatars.put(counter++, new SkinImage(bimDefaultAvatars.getSubimage(i, j, 100, 100)));
-                    } catch (Exception e) {
-                        System.err.println(e.getMessage());
-                    }
-                }
-            }
-        }
     }
 
     private static void assembleSleeves() {

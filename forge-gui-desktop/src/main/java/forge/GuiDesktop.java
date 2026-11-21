@@ -254,14 +254,6 @@ public class GuiDesktop implements IGuiBase {
     }
 
     @Override
-    public int getAvatarCount() {
-        if (FSkin.isLoaded()) {
-            return FSkin.getAvatars().size();
-        }
-        return 0;
-    }
-
-    @Override
     public int getSleevesCount() {
         if (FSkin.isLoaded()) {
             return FSkin.getSleeves().size();
