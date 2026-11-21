@@ -18,7 +18,7 @@ public class LobbySlotAuthorizationTest {
     @Test
     public void testClearsOnlyServerOwnedFields() {
         final UpdateLobbyPlayerEvent forged = UpdateLobbyPlayerEvent.create(
-                LobbySlotType.OPEN, "Mallory", 4, 1, true, true,
+                LobbySlotType.OPEN, "Mallory", 4, true,
                 Collections.emptySet(), "ai-profile");
 
         Assert.assertTrue(forged.clearServerOwnedFields(), "Server-owned fields were present");
@@ -26,12 +26,10 @@ public class LobbySlotAuthorizationTest {
         Assert.assertNull(forged.getAiProfile(), "AI profile does not belong to a REMOTE slot");
 
         // Anything a client may legitimately change must survive untouched,
-        // including isDevMode and isArchenemy, which are gated on mayEdit() and
-        // are deliberately left alone.
+        // including isDevMode, which is gated on mayEdit() and
+        // is deliberately left alone.
         Assert.assertEquals(forged.getName(), "Mallory");
-        Assert.assertEquals(forged.getTeam(), Integer.valueOf(1));
         Assert.assertEquals(forged.getDevMode(), Boolean.TRUE);
-        Assert.assertEquals(forged.getArchenemy(), Boolean.TRUE);
 
         // A no-op for honest traffic, which carries none of the three.
         Assert.assertFalse(UpdateLobbyPlayerEvent.isReadyUpdate(true).clearServerOwnedFields());

@@ -13,6 +13,10 @@
   archenemy/scheme params + `LobbySlot` team fields stay (2.4 / engine deferred).
 - Part 2 / 2.3 `FormatChoices.VARIANTS` trimmed to Vanguard + Planechase (drives lobby Variants checkboxes +
   `restoreSetup` skip check; saved setups with dropped variants now skipped by design). GATE green: 2708 run / 11 skipped.
+- Part 2 / 2.4 `LobbySlot` + `UpdateLobbyPlayerEvent` team/isArchenemy fields, ctor params, `teamUpdate`, getters,
+  `apply()` lines, `toString` lines + `RegisteredPlayer.teamNumber`/getters all gone; 7 `new LobbySlot(` sites +
+  `VLobby.getSlot` + `LobbySlotAuthorizationTest` updated to new signatures. `Player.isArchenemy()` (scheme-based,
+  Archenemy engine) stays — deferred. GATE green: 2708 run / 11 skipped.
 
 ## Environment quirks
 - Always use a 600000 ms timeout on Maven runs (default 120 s kills long runs).
@@ -25,8 +29,6 @@
 - `Player.getAllies()` (Player.java:350) now always-empty; NOT in 1.4 scope per plan — ~20 forge-ai call sites degenerate to empty no-ops.
 - `GameStateEvaluator.getScoreForGameStateImpl` ally branch (teammates/teamLife vars, "Ally" debug lines) now dead but functionally
   correct (scores `2*aiLife`); left untouched, out of 1.4 scope.
-- `RegisteredPlayer.teamNumber` + `getTeamNumber`/`setTeamNumber` now zero refs (last caller removed in 2.1) → drop in 2.4 or 9.1 sweep.
-- `LobbySlot`/`UpdateLobbyPlayerEvent` still carry team/isArchenemy (2.4 scope); `LobbySlotAuthorizationTest` asserts them (2.4).
 - Orphaned i18n keys (java refs gone): `lblTeamWon` (1.3), `lblCommanderDealNDamageToTeam` (1.2), `lblTwoHeadedGiantNeedsFourPlayers` +
   `lblNotEnoughTeams` (2.1), `lblTeam`/`lblHeroes`/`lblSelectaSchemeDeck`/`lblSchemeDeckEditor` (2.2) → 2.5. `lblArchenemy` still
   referenced by the `GameType.Archenemy` entry (stays until a later part).

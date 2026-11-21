@@ -14,9 +14,9 @@ public final class ServerGameLobby extends GameLobby implements IHasForgeLog {
     public ServerGameLobby() {
         final int[] sleeveIndices = localSleeveIndices();
 
-        addSlot(new LobbySlot(LobbySlotType.LOCAL, localName(), sleeveIndices[0], 0, true, false, Collections.emptySet()));
+        addSlot(new LobbySlot(LobbySlotType.LOCAL, localName(), sleeveIndices[0], false, Collections.emptySet()));
         // Seeded while open so the seat has art the moment it is taken; a connecting client replaces both
-        addSlot(new LobbySlot(LobbySlotType.OPEN, null, sleeveIndices[1], 1, false, false, Collections.emptySet()));
+        addSlot(new LobbySlot(LobbySlotType.OPEN, null, sleeveIndices[1], false, Collections.emptySet()));
     }
 
     /**

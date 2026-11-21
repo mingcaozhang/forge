@@ -422,11 +422,9 @@ public class VLobby implements ILobbyView {
 
     private UpdateLobbyPlayerEvent getSlot(final int index) {
         final PlayerPanel panel = getPlayerPanel(index);
-        final LobbySlot slot = lobby.getSlot(index);
         return UpdateLobbyPlayerEvent.create(panel.getType(),
                 panel.getPlayerName(),
                 panel.getSleeveIndex(),
-                slot.getTeam(), slot.isArchenemy(),
                 panel.isDevMode(),
                 panel.getAiOptions(),
                 panel.getAiProfile());

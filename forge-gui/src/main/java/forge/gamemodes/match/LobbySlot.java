@@ -17,8 +17,6 @@ public final class LobbySlot implements Serializable {
     private LobbySlotType type;
     private String name;
     private int sleeveIndex;
-    private int team;
-    private boolean isArchenemy;
     private boolean isReady;
     private boolean isDevMode;
     private Deck deck;
@@ -29,12 +27,10 @@ public final class LobbySlot implements Serializable {
     private String DeckName;
     private String aiProfile;
 
-    public LobbySlot(final LobbySlotType type, final String name, final int sleeveIndex, final int team, final boolean isArchenemy, final boolean isReady, final Set<AIOption> aiOptions) {
+    public LobbySlot(final LobbySlotType type, final String name, final int sleeveIndex, final boolean isReady, final Set<AIOption> aiOptions) {
         this.type = type;
         this.name = name;
         this.sleeveIndex = sleeveIndex;
-        this.team = team;
-        this.isArchenemy = isArchenemy;
         this.isReady = isReady;
         this.isDevMode = false;
         this.setAiOptions(aiOptions);
@@ -45,8 +41,6 @@ public final class LobbySlot implements Serializable {
         changed |= setIfChanged(data.getType(),            this.type,           this::setType);
         changed |= setIfChanged(data.getName(),            this.name,           this::setName);
         changed |= setIntIfChanged(data.getSleeveIndex(),  this.sleeveIndex,    this::setSleeveIndex);
-        changed |= setIntIfChanged(data.getTeam(),         this.team,           this::setTeam);
-        changed |= setIfChanged(data.getArchenemy(),       this.isArchenemy,    this::setIsArchenemy);
         changed |= setIfChanged(data.getReady(),           this.isReady,        this::setIsReady);
         changed |= setIfChanged(data.getDevMode(),         this.isDevMode,      this::setIsDevMode);
         changed |= setIfChanged(data.getAiOptions(),       this.aiOptions,      this::setAiOptions);
@@ -101,13 +95,6 @@ public final class LobbySlot implements Serializable {
         this.sleeveIndex = sleeveIndex;
     }
 
-    public int getTeam() {
-        return team;
-    }
-    public void setTeam(final int team) {
-        this.team = team;
-    }
-
     public String getSchemeDeckName() { return SchemeDeckName; }
     public String getAvatarVanguard() { return AvatarVanguard; }
     public String getPlanarDeckName() { return PlanarDeckName; }
@@ -117,13 +104,6 @@ public final class LobbySlot implements Serializable {
     public void setAvatarVanguard(String avatarVanguard) { this.AvatarVanguard = avatarVanguard; }
     public void setPlanarDeckName(String planarDeckName) { this.PlanarDeckName = planarDeckName; }
     public void setDeckName(String DeckName) { this.DeckName = DeckName; }
-
-    public boolean isArchenemy() {
-        return isArchenemy;
-    }
-    public void setIsArchenemy(final boolean isArchenemy) {
-        this.isArchenemy = isArchenemy;
-    }
 
     public boolean isReady() {
         return type == LobbySlotType.AI || isReady;

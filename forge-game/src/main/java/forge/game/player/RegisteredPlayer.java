@@ -36,7 +36,6 @@ public class RegisteredPlayer {
     private List<PaperCard> commanders = Lists.newArrayList();
     private List<PaperCard> vanguardAvatars = null;
     private PaperCard planeswalker = null;
-    private int teamNumber = -1; // members of teams with negative id will play FFA.
     private Integer id = null;
     private boolean randomFoil = false;
     private boolean enableETBCountersEffect = false;
@@ -131,13 +130,6 @@ public class RegisteredPlayer {
         if (currentDeck.has(DeckSection.Conspiracy)) {
             conspiracies = currentDeck.get(DeckSection.Conspiracy).toFlatList();
         }
-    }
-
-    public int getTeamNumber() {
-        return teamNumber;
-    }
-    public void setTeamNumber(int teamNumber0) {
-        this.teamNumber = teamNumber0;
     }
 
     public static RegisteredPlayer forCommander(final Deck deck) {

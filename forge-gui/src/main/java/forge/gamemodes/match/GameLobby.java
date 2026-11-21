@@ -250,7 +250,7 @@ public abstract class GameLobby implements IHasGameType {
     public void addSlot() {
         final int newIndex = getNumberOfSlots();
         final LobbySlotType type = isAllowNetworking() ? LobbySlotType.OPEN : LobbySlotType.AI;
-        addSlot(new LobbySlot(type, null, newIndex, newIndex, false, !isAllowNetworking(), Collections.emptySet()));
+        addSlot(new LobbySlot(type, null, newIndex, !isAllowNetworking(), Collections.emptySet()));
     }
     protected final void addSlot(final LobbySlot slot) {
         if (slot == null) {

@@ -13,10 +13,10 @@ public final class OfflineLobby extends GameLobby {
         final String humanName = localName();
         final int[] sleeveIndices = localSleeveIndices();
 
-        final LobbySlot slot0 = new LobbySlot(LobbySlotType.LOCAL, humanName, sleeveIndices[0], 0, true, false, Collections.emptySet());
+        final LobbySlot slot0 = new LobbySlot(LobbySlotType.LOCAL, humanName, sleeveIndices[0], false, Collections.emptySet());
         addSlot(slot0);
 
-        final LobbySlot slot1 = new LobbySlot(LobbySlotType.OPEN, null, sleeveIndices[1], -1, false, false, Collections.emptySet());
+        final LobbySlot slot1 = new LobbySlot(LobbySlotType.OPEN, null, sleeveIndices[1], false, Collections.emptySet());
         addSlot(slot1);
     }
 

@@ -18,8 +18,6 @@ public final class UpdateLobbyPlayerEvent implements NetEvent {
     private LobbySlotType type = null;
     private String name = null;
     private int sleeveIndex = -1;
-    private int team = -1;
-    private Boolean isArchenemy = null;
     private Boolean isReady = null;
     private Boolean isDevMode = null;
     private Deck deck = null;
@@ -32,8 +30,8 @@ public final class UpdateLobbyPlayerEvent implements NetEvent {
     private String DeckName = null;
     private String aiProfile = null;
 
-    public static UpdateLobbyPlayerEvent create(final LobbySlotType type, final String name, final int sleeveIndex, final int team, final boolean isArchenemy, final boolean isDevMode, final Set<AIOption> aiOptions, final String aiProfile) {
-        return new UpdateLobbyPlayerEvent(type, name, sleeveIndex, team, isArchenemy, isDevMode, aiOptions, aiProfile);
+    public static UpdateLobbyPlayerEvent create(final LobbySlotType type, final String name, final int sleeveIndex, final boolean isDevMode, final Set<AIOption> aiOptions, final String aiProfile) {
+        return new UpdateLobbyPlayerEvent(type, name, sleeveIndex, isDevMode, aiOptions, aiProfile);
     }
     public static UpdateLobbyPlayerEvent deckUpdate(final Deck deck) {
         return new UpdateLobbyPlayerEvent(deck);
@@ -71,14 +69,8 @@ public final class UpdateLobbyPlayerEvent implements NetEvent {
         event.isDevMode = isDevMode;
         return event;
     }
-    public static UpdateLobbyPlayerEvent teamUpdate(int team) {
-        return new UpdateLobbyPlayerEvent(team);
-    }
     public static UpdateLobbyPlayerEvent setDeckSchemePlaneVanguard(final String DeckName, final String Scheme, final String Plane, final String Vanguard) {
         return new UpdateLobbyPlayerEvent(DeckName, Scheme, Plane, Vanguard);
-    }
-    private UpdateLobbyPlayerEvent(final int team) {
-        this.team = team;
     }
     private UpdateLobbyPlayerEvent(final String DeckName, final String Scheme, final String Plane, final String Vanguard) {
         this.SchemeDeckName = Scheme;
@@ -104,16 +96,12 @@ public final class UpdateLobbyPlayerEvent implements NetEvent {
             final LobbySlotType type,
             final String name,
             final int sleeveIndex,
-            final int team,
-            final boolean isArchenemy,
             final boolean isDevMode,
             final Set<AIOption> aiOptions,
             final String aiProfile) {
         this.type = type;
         this.name = name;
         this.sleeveIndex = sleeveIndex;
-        this.team = team;
-        this.isArchenemy = isArchenemy;
         this.isDevMode = isDevMode;
         this.aiOptions = aiOptions;
         this.aiProfile = aiProfile;
@@ -126,9 +114,9 @@ public final class UpdateLobbyPlayerEvent implements NetEvent {
      * the AI fields configure AI slots, which a REMOTE slot is not; the client
      * UI offers none of them, so this is a no-op for honest traffic.
      *
-     * <p>Left alone deliberately: {@code isDevMode} and {@code isArchenemy},
-     * which clients do set legitimately today — whether they should be able to
-     * is a game-design question, not a protocol-authorization one.
+     * <p>Left alone deliberately: {@code isDevMode}, which clients do set
+     * legitimately today — whether they should be able to is a game-design
+     * question, not a protocol-authorization one.
      *
      * <p>In place rather than into a copy: the event is freshly deserialized
      * and never re-broadcast, and a field-by-field copy would silently drop any
@@ -152,12 +140,6 @@ public final class UpdateLobbyPlayerEvent implements NetEvent {
     }
     public int getSleeveIndex() {
         return sleeveIndex;
-    }
-    public int getTeam() {
-        return team;
-    }
-    public Boolean getArchenemy() {
-        return isArchenemy;
     }
     public Boolean getReady() {
         return isReady;
@@ -201,8 +183,6 @@ public final class UpdateLobbyPlayerEvent implements NetEvent {
         if (type != null) { set.add("type=" + type); }
         if (name != null) { set.add("name=" + LogSafe.forLog(name)); }
         if (sleeveIndex != -1) { set.add("sleeve=" + sleeveIndex); }
-        if (team != -1) { set.add("team=" + team); }
-        if (isArchenemy != null) { set.add("archenemy=" + isArchenemy); }
         if (isReady != null) { set.add("ready=" + isReady); }
         if (isDevMode != null) { set.add("devMode=" + isDevMode); }
         if (deck != null) { set.add("deck=" + LogSafe.forLog(deck.getName())); }
