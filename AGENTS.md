@@ -18,4 +18,4 @@
 - Unused home-screen tabs, wizards, and menu entries not needed for single-player Commander, deck import, deck selection, or deck editing.
 
 ## Plan & Verification Rules
-- On the final phase of `PLAN.md`, run both `mvn package -DskipTests -T 1C` and `mvn test -T 1C` before marking `[x]` and committing.
+- Before finishing a final phase of PLAN.md—or before wrapping up a standalone task/milestone when no PLAN.md is used—run both mvn package -DskipTests -T 1C and mvn test -T 1C (with a 600000 ms timeout) before committing.
