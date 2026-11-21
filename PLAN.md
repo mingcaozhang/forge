@@ -201,7 +201,7 @@ Per `REWRITE.md`, this cleanup trims the JVM baseline BEFORE the rewrite phases 
 
 ## Phase 9 — Final Gate
 
-- [ ] **9.1 Full build + test + orphan sweep**
+- [x] **9.1 Full build + test + orphan sweep**
   - Run `PKG` (600000 ms), then `FULL` (600000 ms); both must exit 0.
   - Orphan i18n sweep: per locale file, diff keys present vs. keys referenced in Java; remove only orphans created by this iteration (the 6 features); leave pre-existing quest/gauntlet/puzzle orphans — list them in `PROGRESS.md` as follow-ups.
   - Final grep sweep: `rg -n -i "avatar|bracket|releasenotes|howtoplay|getnewrandomname|contentdownloaders" --type java -g '!target/**'` → only whitelisted matches (Vanguard, card names, `lblRestartPuzzle`/`lblQuitPuzzle`, `DeckSerializer.enclosedBracket`, `Tracker` "bracket a region", `CardDetailUtil` "Bracket P/T").
