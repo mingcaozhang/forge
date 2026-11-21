@@ -94,7 +94,7 @@ public class VField implements IVDoc<CField> {
     // Top-level containers
     private final FScrollPane scroller = new FScrollPane(false);
     private final PlayArea tabletop;
-    private final SkinnedPanel avatarArea = new SkinnedPanel() {
+    private final SkinnedPanel playerImageArea = new SkinnedPanel() {
         @Override
         protected void paintComponent(final Graphics g) {
             super.paintComponent(g);
@@ -108,9 +108,9 @@ public class VField implements IVDoc<CField> {
             paintAITimeoutBar(g);
         }
     };
-    private boolean avatarPanelHovered;
+    private boolean playerImagePanelHovered;
 
-    // ---- AI "thinking" timer bar over the avatar (shrinks to 0 at the AI timeout) ----
+    // ---- AI "thinking" timer bar over the player image (shrinks to 0 at the AI timeout) ----
     private static final Color BAR_BG = new Color(0, 0, 0, 165);
     private static final Color BAR_AMBER = new Color(255, 165, 0);
     private static final Set<VField> LIVE_FIELDS = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
@@ -136,10 +136,10 @@ public class VField implements IVDoc<CField> {
         final boolean show = AITimeoutTracker.getRemainingFraction(aiTimeoutKey()) >= 0f;
         if (show) {
             if (!aiTimeoutTimer.isRunning()) { aiTimeoutTimer.start(); }
-            avatarArea.repaint();
+            playerImageArea.repaint();
         } else {
             aiTimeoutTimer.stop();
-            if (aiTimeoutBarShown) { avatarArea.repaint(); } // clear it
+            if (aiTimeoutBarShown) { playerImageArea.repaint(); } // clear it
         }
         aiTimeoutBarShown = show;
     }
@@ -148,8 +148,8 @@ public class VField implements IVDoc<CField> {
         if (player == null) { return; }
         final float f = AITimeoutTracker.getRemainingFraction(aiTimeoutKey());
         if (f < 0f) { return; }
-        lblAvatar.getBounds(avatarBoundsScratch);
-        final Rectangle r = avatarBoundsScratch;
+        lblPlayerImage.getBounds(playerImageBoundsScratch);
+        final Rectangle r = playerImageBoundsScratch;
         final int barH = Math.max(4, r.height / 10);
         final int y = r.y + r.height - barH;
         g.setColor(BAR_BG);
@@ -162,10 +162,10 @@ public class VField implements IVDoc<CField> {
     private static final int PANEL_ARC = 12;
     private static final int PANEL_PAD = 2;
 
-    /** Paints the rounded, subtly gradient card backdrop (and hover fill) behind a player's avatar panel. */
+    /** Paints the rounded, subtly gradient card backdrop (and hover fill) behind a player's image panel. */
     private void paintPlayerPanelChrome(final Graphics graphics) {
-        final int w = avatarArea.getWidth();
-        final int h = avatarArea.getHeight();
+        final int w = playerImageArea.getWidth();
+        final int h = playerImageArea.getHeight();
         if (w <= PANEL_PAD * 2 || h <= PANEL_PAD * 2) {
             return;
         }
@@ -176,7 +176,7 @@ public class VField implements IVDoc<CField> {
             g2d.setPaint(new GradientPaint(0f, PANEL_PAD, theme.stepColor(-12).getColor(),
                     0f, h - PANEL_PAD, theme.stepColor(-20).getColor()));
             g2d.fillRoundRect(PANEL_PAD, PANEL_PAD, w - PANEL_PAD * 2, h - PANEL_PAD * 2, PANEL_ARC, PANEL_ARC);
-            if (avatarPanelHovered) {
+            if (playerImagePanelHovered) {
                 FSkin.setGraphicsColor(g2d, FSkin.getColor(FSkin.Colors.CLR_HOVER).alphaColor(110));
                 g2d.fillRoundRect(PANEL_PAD, PANEL_PAD, w - PANEL_PAD * 2, h - PANEL_PAD * 2, PANEL_ARC, PANEL_ARC);
             }
@@ -231,8 +231,8 @@ public class VField implements IVDoc<CField> {
 
     private final PlayerDetailsPanel detailsPanel;
 
-    // Avatar area
-    private final FLabel lblAvatar     = new FLabel.Builder().fontAlign(SwingConstants.CENTER).iconScaleFactor(1.0f).build();
+    // Player image area
+    private final FLabel lblPlayerImage     = new FLabel.Builder().fontAlign(SwingConstants.CENTER).iconScaleFactor(1.0f).build();
     private final FLabel lblLife       = new FLabel.Builder().fontAlign(SwingConstants.CENTER).fontStyle(Font.BOLD).build();
     private final FLabel lblPoison     = new FLabel.Builder().fontAlign(SwingConstants.CENTER).fontStyle(Font.BOLD).icon(FSkin.getImage(FSkinProp.IMG_POISON)).iconInBackground().build();
     private final FLabel lblEnergy     = new FLabel.Builder().fontAlign(SwingConstants.CENTER).fontStyle(Font.BOLD).icon(FSkin.getImage(FSkinProp.IMG_ENERGY)).iconInBackground().build();
@@ -240,18 +240,18 @@ public class VField implements IVDoc<CField> {
     private final FLabel lblTicket     = new FLabel.Builder().fontAlign(SwingConstants.CENTER).fontStyle(Font.BOLD).icon(FSkin.getImage(FSkinProp.IMG_TICKET)).iconInBackground().build();
     private final FLabel lblRad        = new FLabel.Builder().fontAlign(SwingConstants.CENTER).fontStyle(Font.BOLD).icon(FSkin.getImage(FSkinProp.IMG_RAD)).iconInBackground().build();
 
-    // Reused across the avatar panel's repaint so getLifeRowBounds()/paintAITimeoutBar
+    // Reused across the player image panel's repaint so getLifeRowBounds()/paintAITimeoutBar
     // don't allocate a new Rectangle (and array) every frame.
     private final FLabel[] lifeRowLabels = { lblLife, lblPoison, lblEnergy, lblExperience, lblTicket, lblRad };
     private final Rectangle lifeRowScratch = new Rectangle();
-    private final Rectangle avatarBoundsScratch = new Rectangle();
+    private final Rectangle playerImageBoundsScratch = new Rectangle();
 
     private final PhaseIndicator phaseIndicator = new PhaseIndicator();
 
-    private final Border borderAvatarSimple = new LineBorder(new Color(0, 0, 0, 0), 1);
-    private final Border borderAvatarHighlighted = new LineBorder(Color.red, 2);
+    private final Border borderPlayerImageSimple = new LineBorder(new Color(0, 0, 0, 0), 1);
+    private final Border borderPlayerImageHighlighted = new LineBorder(Color.red, 2);
     // dashed while the player can be picked as a target, solid red once picked
-    private final Border borderAvatarSelectable = BorderFactory.createDashedBorder(new Color(255, 215, 0), 2f, 5f, 3f, false);
+    private final Border borderPlayerImageSelectable = BorderFactory.createDashedBorder(new Color(255, 215, 0), 2f, 5f, 3f, false);
 
     private final TabDiffTracker tabDiff = new TabDiffTracker();
 
@@ -280,7 +280,7 @@ public class VField implements IVDoc<CField> {
 
         control = new CField(matchUI, player, this);
 
-        lblAvatar.setFocusable(false);
+        lblPlayerImage.setFocusable(false);
         lblLife.setFocusable(false);
         lblPoison.setFocusable(false);
         lblEnergy.setFocusable(false);
@@ -288,24 +288,24 @@ public class VField implements IVDoc<CField> {
         lblTicket.setFocusable(false);
         lblRad.setFocusable(false);
 
-        avatarArea.setOpaque(false);
-        avatarArea.setBackground(FSkin.getColor(FSkin.Colors.CLR_HOVER));
-        avatarArea.setLayout(new MigLayout("insets 0, gap 0"));
-        avatarArea.add(lblAvatar, "w 100%-6px!, h 100%-23px!, wrap, gap 3 3 3 0");
-        avatarArea.add(lblLife, "w 100%!, h 20px!, wrap");
+        playerImageArea.setOpaque(false);
+        playerImageArea.setBackground(FSkin.getColor(FSkin.Colors.CLR_HOVER));
+        playerImageArea.setLayout(new MigLayout("insets 0, gap 0"));
+        playerImageArea.add(lblPlayerImage, "w 100%-6px!, h 100%-23px!, wrap, gap 3 3 3 0");
+        playerImageArea.add(lblLife, "w 100%!, h 20px!, wrap");
 
         // Player area hover effect
-        avatarArea.addMouseListener(new MouseAdapter() {
+        playerImageArea.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(final MouseEvent e) {
-                avatarPanelHovered = true;
-                avatarArea.repaint();
+                playerImagePanelHovered = true;
+                playerImageArea.repaint();
             }
 
             @Override
             public void mouseExited(final MouseEvent e) {
-                avatarPanelHovered = false;
-                avatarArea.repaint();
+                playerImagePanelHovered = false;
+                playerImageArea.repaint();
             }
         });
 
@@ -322,7 +322,7 @@ public class VField implements IVDoc<CField> {
         final JPanel pnl = parentCell.getBody();
         pnl.setLayout(new MigLayout("insets 0, gap 0"));
 
-        pnl.add(avatarArea, "w 10%!, h 35%!");
+        pnl.add(playerImageArea, "w 10%!, h 35%!");
         pnl.add(phaseIndicator, "w 5%!, h 100%!, span 1 2");
         pnl.add(scroller, "w 85%!, h 100%!, span 1 2, wrap");
         pnl.add(detailsPanel, "w 10%!, h 64%!, gapleft 1px");
@@ -366,8 +366,8 @@ public class VField implements IVDoc<CField> {
         return player;
     }
 
-    public JPanel getAvatarArea() {
-        return this.avatarArea;
+    public JPanel getPlayerImageArea() {
+        return this.playerImageArea;
     }
 
     public PhaseIndicator getPhaseIndicator() {
@@ -383,16 +383,16 @@ public class VField implements IVDoc<CField> {
     }
 
     /** Solid red frame once the player is picked, dashed frame while the player can be picked, none otherwise. */
-    public void updateAvatarBorder() {
+    public void updatePlayerImageBorder() {
         final boolean highlighted = isHighlighted();
-        avatarArea.setBorder(highlighted ? borderAvatarHighlighted
-                : control.getMatchUI().isSelectable(player) ? borderAvatarSelectable : borderAvatarSimple);
-        avatarArea.repaint();
+        playerImageArea.setBorder(highlighted ? borderPlayerImageHighlighted
+                : control.getMatchUI().isSelectable(player) ? borderPlayerImageSelectable : borderPlayerImageSimple);
+        playerImageArea.repaint();
     }
 
-    public void setAvatar(final SkinImage avatar) {
-        lblAvatar.setIcon(avatar);
-        lblAvatar.getResizeTimer().start();
+    public void setPlayerImage(final SkinImage playerImage) {
+        lblPlayerImage.setIcon(playerImage);
+        lblPlayerImage.getResizeTimer().start();
     }
 
     public void updateManaPool() {
@@ -464,94 +464,94 @@ public class VField implements IVDoc<CField> {
         if (lblTicket.isShowing() || lblExperience.isShowing() || lblEnergy.isShowing() || lblPoison.isShowing()) {
             return; // experience, energy, poison take precedence
         }
-        avatarArea.remove(lblLife);
+        playerImageArea.remove(lblLife);
         lblLife.setIcon(FSkin.getImage(FSkinProp.ICO_QUEST_LIFE));
-        avatarArea.add(lblLife, "w 50%!, h 20px!, split 2");
-        avatarArea.add(lblTicket, "w 50%!, h 20px!, wrap");
+        playerImageArea.add(lblLife, "w 50%!, h 20px!, split 2");
+        playerImageArea.add(lblTicket, "w 50%!, h 20px!, wrap");
     }
 
     private void removeLblTicket() {
         if (!lblTicket.isShowing()) {
             return;
         }
-        avatarArea.remove(lblTicket);
-        avatarArea.remove(lblLife);
-        avatarArea.add(lblLife, "w 100%!, h 20px!, wrap");
+        playerImageArea.remove(lblTicket);
+        playerImageArea.remove(lblLife);
+        playerImageArea.add(lblLife, "w 100%!, h 20px!, wrap");
     }
 
     private void addLblRad() {
         if (lblRad.isShowing() || lblExperience.isShowing() || lblEnergy.isShowing() || lblPoison.isShowing()) {
             return;
         }
-        avatarArea.remove(lblLife);
+        playerImageArea.remove(lblLife);
         lblLife.setIcon(FSkin.getImage(FSkinProp.ICO_QUEST_LIFE));
-        avatarArea.add(lblLife, "w 50%!, h 20px!, split 2");
-        avatarArea.add(lblRad, "w 50%!, h 20px!, wrap");
+        playerImageArea.add(lblLife, "w 50%!, h 20px!, split 2");
+        playerImageArea.add(lblRad, "w 50%!, h 20px!, wrap");
     }
 
     private void removeLblRad() {
         if (!lblRad.isShowing()) {
             return;
         }
-        avatarArea.remove(lblRad);
-        avatarArea.remove(lblLife);
-        avatarArea.add(lblLife, "w 100%!, h 20px!, wrap");
+        playerImageArea.remove(lblRad);
+        playerImageArea.remove(lblLife);
+        playerImageArea.add(lblLife, "w 100%!, h 20px!, wrap");
     }
 
     private void addLblExperience() {
         if (lblExperience.isShowing() || lblEnergy.isShowing() || lblPoison.isShowing()) {
             return; // energy and poison take precedence
         }
-        avatarArea.remove(lblLife);
+        playerImageArea.remove(lblLife);
         lblLife.setIcon(FSkin.getImage(FSkinProp.ICO_QUEST_LIFE));
-        avatarArea.add(lblLife, "w 50%!, h 20px!, split 2");
-        avatarArea.add(lblExperience, "w 50%!, h 20px!, wrap");
+        playerImageArea.add(lblLife, "w 50%!, h 20px!, split 2");
+        playerImageArea.add(lblExperience, "w 50%!, h 20px!, wrap");
     }
 
     private void removeLblExperience() {
         if (!lblExperience.isShowing()) {
             return;
         }
-        avatarArea.remove(lblExperience);
-        avatarArea.remove(lblLife);
-        avatarArea.add(lblLife, "w 100%!, h 20px!, wrap");
+        playerImageArea.remove(lblExperience);
+        playerImageArea.remove(lblLife);
+        playerImageArea.add(lblLife, "w 100%!, h 20px!, wrap");
     }
 
     private void addLblEnergy() {
         if (lblEnergy.isShowing() || lblPoison.isShowing()) {
             return; // poison takes precedence
         }
-        avatarArea.remove(lblLife);
+        playerImageArea.remove(lblLife);
         lblLife.setIcon(FSkin.getImage(FSkinProp.ICO_QUEST_LIFE));
-        avatarArea.add(lblLife, "w 50%!, h 20px!, split 2");
-        avatarArea.add(lblEnergy, "w 50%!, h 20px!, wrap");
+        playerImageArea.add(lblLife, "w 50%!, h 20px!, split 2");
+        playerImageArea.add(lblEnergy, "w 50%!, h 20px!, wrap");
     }
     
     private void removeLblEnergy() {
         if (!lblEnergy.isShowing()) {
             return;
         }
-        avatarArea.remove(lblEnergy);
-        avatarArea.remove(lblLife);
-        avatarArea.add(lblLife, "w 100%!, h 20px!, wrap");
+        playerImageArea.remove(lblEnergy);
+        playerImageArea.remove(lblLife);
+        playerImageArea.add(lblLife, "w 100%!, h 20px!, wrap");
     }
 
     private void addLblPoison() {
         if (lblPoison.isShowing()) {
             return;
         }
-        avatarArea.remove(lblLife);
+        playerImageArea.remove(lblLife);
         lblLife.setIcon(FSkin.getImage(FSkinProp.ICO_QUEST_LIFE));
-        avatarArea.add(lblLife, "w 50%!, h 20px!, split 2");
-        avatarArea.add(lblPoison, "w 50%!, h 20px!, wrap");
+        playerImageArea.add(lblLife, "w 50%!, h 20px!, split 2");
+        playerImageArea.add(lblPoison, "w 50%!, h 20px!, wrap");
     }
     private void removeLblPoison() {
         if (!lblPoison.isShowing()) {
             return;
         }
-        avatarArea.remove(lblPoison);
-        avatarArea.remove(lblLife);
-        avatarArea.add(lblLife, "w 100%!, h 20px!, wrap");
+        playerImageArea.remove(lblPoison);
+        playerImageArea.remove(lblLife);
+        playerImageArea.add(lblLife, "w 100%!, h 20px!, wrap");
     }
 
     public void updateDetails() {
@@ -629,8 +629,8 @@ public class VField implements IVDoc<CField> {
             removeLblTicket();
         }
 
-        updateAvatarBorder();
-        this.avatarArea.setToolTipText(getPlayerDetailsHtml());
+        updatePlayerImageBorder();
+        this.playerImageArea.setToolTipText(getPlayerDetailsHtml());
     }
 
     private String getPlayerDetailsHtml() {

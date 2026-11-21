@@ -99,7 +99,7 @@ Per `REWRITE.md`, this cleanup trims the JVM baseline BEFORE the rewrite phases 
   - Verify: `GATE`; `rg -n "AvatarSelector|VSubmenuAvatars|CSubmenuAvatars|focusOnAvatar|setRandomAvatar|updateAvatarPrefs" --type java -g '!target/**'` → zero.
   - Commit: `chore(commander): remove avatar selection; lobby slots show deck commander image`.
 
-- [ ] **4.2 Match UI: player panels show commander card image; drop avatar image API**
+- [x] **4.2 Match UI: player panels show commander card image; drop avatar image API**
   - `CMatchUI.java`: remove `avatarImages` map (L180); replace `getPlayerAvatar(PlayerView,int)` (L417-424) with `getPlayerImage(PlayerView p)` — `p.getCommanders()` non-empty → `ImageCache.getIcon(p.getCommanders().get(0).getImageKey())`, else `FSkin.n(FSkinProp.ICO_PLAYERS)`; in `initMatch` drop the `FPref.UI_AVATARS` split (L438) and call `f.setPlayerImage(getPlayerImage(p))` (L454); remove `setPlayerAvatar(LobbyPlayer,IHasIcon)` (L1415-1418); `addSmallImageToStackModalPanel` (L1763-1768) → `getPlayerImage`; L1865 `getAvatarArea()` → `getPlayerImageArea()`.
   - `VField.java`: rename `avatarArea`→`playerImageArea`, `getAvatarArea()`→`getPlayerImageArea()`, `setAvatar(SkinImage)`→`setPlayerImage(SkinImage)`, `lblAvatar`→`lblPlayerImage`, `updateAvatarBorder()`→`updatePlayerImageBorder()`. The anchor panel STAYS (player select, full-control menu, targeting arrows, life row, AI thinking bar all hang off it).
   - `CField.java` (L136), `TargetingOverlay.java` (L395-402, L468): use `getPlayerImageArea()`.

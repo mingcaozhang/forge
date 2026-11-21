@@ -1,6 +1,5 @@
 package forge.gamemodes.net;
 
-import forge.LobbyPlayer;
 import forge.deck.CardPool;
 import forge.game.GameEntityView;
 import forge.game.event.GameEvent;
@@ -12,7 +11,6 @@ import forge.game.event.GameEventAddLog;
 import forge.game.card.CardView;
 import forge.game.phase.PhaseType;
 import forge.game.player.DelayedReveal;
-import forge.game.player.IHasIcon;
 import forge.game.player.PlayerView;
 import forge.game.spellability.SpellAbilityView;
 import forge.gamemodes.match.DrawOfferMessage;
@@ -485,11 +483,6 @@ public class ProtocolGuiGame extends NetworkGuiGame implements IHasForgeLog {
     @Override
     public void hideRevealedCards() {
         send(ProtocolMethod.hideRevealedCards);
-    }
-
-    @Override
-    public void setPlayerAvatar(final LobbyPlayer player, final IHasIcon ihi) {
-        // TODO Auto-generated method stub
     }
 
     @Override

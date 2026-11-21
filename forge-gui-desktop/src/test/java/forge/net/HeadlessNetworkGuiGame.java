@@ -6,13 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import forge.LobbyPlayer;
 import forge.deck.CardPool;
 import forge.game.GameEntityView;
 import forge.game.card.CardView;
 import forge.game.phase.PhaseType;
 import forge.game.player.DelayedReveal;
-import forge.game.player.IHasIcon;
 import forge.game.player.PlayerView;
 import forge.game.spellability.SpellAbilityView;
 import forge.gamemodes.net.NetworkGuiGame;
@@ -166,5 +164,4 @@ public class HeadlessNetworkGuiGame extends NetworkGuiGame {
     }
 
     @Override public void setCard(CardView card) { }
-    @Override public void setPlayerAvatar(LobbyPlayer player, IHasIcon ihi) { }
 }

@@ -267,8 +267,8 @@ public class VAssignCombatDamage {
             cp.addMouseListener(mad);
         } else if (defender instanceof PlayerView) {
             final PlayerView p = (PlayerView)defender;
-            SkinImage playerAvatar = matchUI.getPlayerAvatar(p, 0);
-            final MiscCardPanel mp = new MiscCardPanel(matchUI, p.getName(), playerAvatar);
+            SkinImage playerImage = matchUI.getPlayerImage(p);
+            final MiscCardPanel mp = new MiscCardPanel(matchUI, p.getName(), playerImage);
             mp.setCardBounds(0, 0, 105, 150);
             pnlDefenders.add(mp, "w 145px!, h 170px!, gap 5px 5px 3px 3px, ax center");
             mp.addMouseListener(mad);

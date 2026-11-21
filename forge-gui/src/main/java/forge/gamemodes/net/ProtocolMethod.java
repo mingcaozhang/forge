@@ -67,7 +67,6 @@ public enum ProtocolMethod implements IHasForgeLog {
     setSelection        (Mode.SERVER, Void.TYPE, Selection.class),
     showRevealedCards   (Mode.SERVER, Void.TYPE, Iterable/*CardView*/.class),
     hideRevealedCards   (Mode.SERVER, Void.TYPE),
-    // TODO case "setPlayerAvatar":
     awaitNextInput      (Mode.SERVER, Void.TYPE),
     applyDelta          (Mode.SERVER, Void.TYPE, DeltaPacket.class),
     /** Server→client push of authoritative yield-state changes. */

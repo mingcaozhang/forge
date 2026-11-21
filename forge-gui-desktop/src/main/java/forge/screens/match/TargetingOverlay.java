@@ -392,14 +392,14 @@ public class TargetingOverlay {
     }
 
     private Point getPlayerTargetingArrowPoint(final PlayerView p, final Point locOnScreen) {
-        final JPanel avatarArea = matchUI.getFieldViewFor(p).getAvatarArea();
-        if(!avatarArea.isShowing()) {
+        final JPanel playerImageArea = matchUI.getFieldViewFor(p).getPlayerImageArea();
+        if(!playerImageArea.isShowing()) {
             return null;
         }
 
-        final Point point = avatarArea.getLocationOnScreen();
-        point.x += avatarArea.getWidth() / 2 - locOnScreen.x;
-        point.y += avatarArea.getHeight() / 2 - locOnScreen.y;
+        final Point point = playerImageArea.getLocationOnScreen();
+        point.x += playerImageArea.getWidth() / 2 - locOnScreen.x;
+        point.y += playerImageArea.getHeight() / 2 - locOnScreen.y;
         return point;
     }
 
@@ -465,8 +465,8 @@ public class TargetingOverlay {
             }
             // if c is attacking a player
             if (defender instanceof PlayerView) {
-                final JPanel avatarArea = matchUI.getFieldViewFor((PlayerView)defender).getAvatarArea();
-                if(avatarArea.isShowing()) {
+                final JPanel playerImageArea = matchUI.getFieldViewFor((PlayerView)defender).getPlayerImageArea();
+                if(playerImageArea.isShowing()) {
                     Point locOnScreen = this.getPanel().getLocationOnScreen();
                     Point point = getPlayerTargetingArrowPoint((PlayerView)defender, locOnScreen);
                     addArc(point, endpoints.get(c.getId()), ArcConnection.FoesAttacking);

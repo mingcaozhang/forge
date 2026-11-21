@@ -49,7 +49,7 @@ public class CField implements ICDoc {
     private final VField view;
     private boolean initializedAlready = false;
 
-    private final MouseListener madAvatar = new MouseAdapter() {
+    private final MouseListener madPlayerImage = new MouseAdapter() {
         @Override
         public void mousePressed(final MouseEvent e) {
             if (SwingUtilities.isRightMouseButton(e)) {
@@ -133,7 +133,7 @@ public class CField implements ICDoc {
 
         // Listeners
         // Player select
-        this.view.getAvatarArea().addMouseListener(madAvatar);
+        this.view.getPlayerImageArea().addMouseListener(madPlayerImage);
     }
 
     @Override

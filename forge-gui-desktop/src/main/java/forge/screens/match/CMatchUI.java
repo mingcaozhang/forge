@@ -40,7 +40,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import forge.ImageCache;
-import forge.LobbyPlayer;
 import forge.Singletons;
 import forge.StaticData;
 import forge.card.CardStateName;
@@ -62,7 +61,6 @@ import forge.game.event.GameEventSpellRemovedFromStack;
 import forge.game.keyword.Keyword;
 import forge.game.phase.PhaseType;
 import forge.game.player.DelayedReveal;
-import forge.game.player.IHasIcon;
 import forge.game.player.PlayerController.FullControlFlag;
 import forge.game.player.PlayerView;
 import forge.game.spellability.SpellAbilityView;
@@ -177,7 +175,6 @@ public final class CMatchUI
     private final TargetingOverlay targetingOverlay = new TargetingOverlay(this);
 
     private FCollectionView<PlayerView> sortedPlayers;
-    private final Map<String, String> avatarImages = new HashMap<>();
     private boolean allHands;
     private boolean showOverlay = true;
     private JPopupMenu openAbilityMenu;
@@ -229,10 +226,6 @@ public final class CMatchUI
 
     private boolean isInGame() {
         return getGameView() != null;
-    }
-
-    public String getAvatarImage(final String playerName) {
-        return avatarImages.get(playerName);
     }
 
     @Override
@@ -380,13 +373,12 @@ public final class CMatchUI
         }
     }
 
-    public SkinImage getPlayerAvatar(final PlayerView p, final int defaultIndex) {
-        if (avatarImages.containsKey(p.getLobbyPlayerName())) {
-            return ImageCache.getIcon(avatarImages.get(p.getLobbyPlayerName()));
+    public SkinImage getPlayerImage(final PlayerView p) {
+        final List<CardView> commanders = p.getCommanders();
+        if (commanders != null && !commanders.isEmpty()) {
+            return ImageCache.getIcon(commanders.get(0).getCurrentState().getImageKey());
         }
-
-        final int avatarIdx = p.getAvatarIndex();
-        return FSkin.getAvatars().get(avatarIdx >= 0 ? avatarIdx : defaultIndex);
+        return FSkin.getIcon(FSkinProp.ICO_PLAYERS);
     }
 
     private void initMatch(final FCollectionView<PlayerView> sortedPlayers, final Collection<PlayerView> myPlayers) {
@@ -400,8 +392,6 @@ public final class CMatchUI
                         p.getId(), System.identityHashCode(p), (myPlayers != null && myPlayers.contains(p)));
             }
         }
-
-        final String[] indices = FModel.getPreferences().getPref(FPref.UI_AVATARS).split(",");
 
         final List<VField> fields = new ArrayList<>();
         Singletons.getView().getLpnDocument().add(targetingOverlay.getPanel(), FView.TARGETING_LAYER);
@@ -417,7 +407,7 @@ public final class CMatchUI
             fields.add(f);
             myDocs.put(fieldDoc, f);
 
-            f.setAvatar(getPlayerAvatar(p, Integer.parseInt(indices[i > 2 ? 1 : 0])));
+            f.setPlayerImage(getPlayerImage(p));
             f.getLayoutControl().initialize();
             i++;
         }
@@ -756,11 +746,11 @@ public final class CMatchUI
         return true; // stack entries are clicked in the stack panel (VStack)
     }
 
-    /** Repaints what shows the marks of players and stack entries: the avatar borders and the stack panel. */
+    /** Repaints what shows the marks of players and stack entries: the player image borders and the stack panel. */
     private void refreshStackTargetMarks() {
         if (getFieldViews() != null) {
             for (final VField f : getFieldViews()) {
-                f.updateAvatarBorder();
+                f.updatePlayerImageBorder();
             }
         }
         getCStack().getView().repaintSelection();
@@ -1376,11 +1366,6 @@ public final class CMatchUI
     }
 
     @Override
-    public void setPlayerAvatar(final LobbyPlayer player, final IHasIcon ihi) {
-        avatarImages.put(player.getName(), ihi.getIconImageKey());
-    }
-
-    @Override
     public void openZones(PlayerView controller, final Collection<ZoneType> zones, final Map<PlayerView, Object> playersWithTargetables) {
         final PlayerZoneUpdates zonesToUpdate = new PlayerZoneUpdates();
         for (final PlayerView view : playersWithTargetables.keySet()) {
@@ -1725,9 +1710,9 @@ public final class CMatchUI
             mainPanel.add(targetPanel, "cell 1 1, split " + numTarget+ ",  aligny bottom");
         } else if (gameEntityView instanceof PlayerView) {
             PlayerView playerView = (PlayerView) gameEntityView;
-            SkinImage playerAvatar = getPlayerAvatar(playerView, 0);
-            final FLabel lblIcon = new FLabel.Builder().icon(playerAvatar).build();
-            Dimension dimension = playerAvatar.getSizeForPaint(JOptionPane.getRootFrame().getGraphics());
+            SkinImage playerImage = getPlayerImage(playerView);
+            final FLabel lblIcon = new FLabel.Builder().icon(playerImage).build();
+            Dimension dimension = playerImage.getSizeForPaint(JOptionPane.getRootFrame().getGraphics());
             mainPanel.add(lblIcon, "cell 1 1, split " + numTarget+ ", w " + dimension.getWidth() + ", h " + dimension.getHeight() + ", aligny bottom");
         }
     }
@@ -1825,7 +1810,7 @@ public final class CMatchUI
         addFullControlEntry(menu, "lblAllowPaymentStartWithMissingResources", FullControlFlag.AllowPaymentStartWithMissingResources, controlFlags);
         addFullControlEntry(menu, "lblLayerTimestampOrder", FullControlFlag.LayerTimestampOrder, controlFlags);
 
-        menu.show(view.getControl().getFieldViewFor(pv).getAvatarArea(), e.getX(), e.getY());
+        menu.show(view.getControl().getFieldViewFor(pv).getPlayerImageArea(), e.getX(), e.getY());
     }
 
     private void addFullControlEntry(JPopupMenu menu, String label, FullControlFlag flag, Set<FullControlFlag> controlFlags) {

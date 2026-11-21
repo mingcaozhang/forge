@@ -1,6 +1,5 @@
 package forge.gui.interfaces;
 
-import forge.LobbyPlayer;
 import forge.deck.CardPool;
 import forge.game.GameEntityView;
 import forge.game.GameView;
@@ -13,7 +12,6 @@ import forge.game.event.GameEventSpellAbilityCast;
 import forge.game.event.GameEventSpellRemovedFromStack;
 import forge.game.phase.PhaseType;
 import forge.game.player.DelayedReveal;
-import forge.game.player.IHasIcon;
 import forge.game.player.PlayerView;
 import forge.game.spellability.SpellAbilityView;
 import forge.game.zone.ZoneType;
@@ -275,8 +273,6 @@ public interface IGuiGame {
     List<CardView> manipulateCardList(String title, final Iterable<CardView> cards, final Iterable<CardView> manipulable, boolean toTop, boolean toBottom, boolean toAnywhere);
 
     void setCard(CardView card);
-
-    void setPlayerAvatar(LobbyPlayer player, IHasIcon ihi);
 
     default void openZones(PlayerView controller, Collection<ZoneType> zones, Map<PlayerView, Object> players) {}
 
