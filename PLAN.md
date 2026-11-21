@@ -143,7 +143,7 @@ Per `REWRITE.md`, this cleanup trims the JVM baseline BEFORE the rewrite phases 
 
 ## Phase 6 — Commander Bracket
 
-- [ ] **6.1 Remove bracket UI surfaces (deck views, column, in-game tooltip)**
+- [x] **6.1 Remove bracket UI surfaces (deck views, column, in-game tooltip)**
   - Delete: `forge-gui-desktop .../itemmanager/views/CommanderBracketView.java`, `CommanderBracketTextView.java`, `CommanderBracketDeckView.java`; test `forge-gui-desktop/src/test/java/forge/deck/CommanderBracketDataTest.java`; `forge-gui/tools/scrape_bracket_details.py`.
   - `ColumnDef.java`: remove import (L41) + `DECK_BRACKET` constant (L323-331).
   - `SColumnUtil.java`: fold 3-arg `getDecksDefaultColumns` into the 2-arg form (L250-284), drop `includeBracket` block (L267-269).

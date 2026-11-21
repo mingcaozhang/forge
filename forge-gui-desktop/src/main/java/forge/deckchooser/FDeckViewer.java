@@ -13,7 +13,6 @@ import forge.itemmanager.CardManager;
 import forge.itemmanager.ItemManagerConfig;
 import forge.itemmanager.ItemManagerContainer;
 import forge.itemmanager.ItemManagerModel;
-import forge.itemmanager.views.CommanderBracketDeckView;
 import forge.itemmanager.views.ImageView;
 import forge.localinstance.properties.ForgePreferences;
 import forge.model.FModel;
@@ -53,27 +52,17 @@ public class FDeckViewer extends FDialog {
     private boolean isDisplayAlt = false;
 
     public static void show(final Deck deck) {
-        show(deck, false);
-    }
-
-    public static void show(final Deck deck, final boolean showCommanderBracket) {
         if (deck == null) { return; }
 
-        final FDeckViewer deckViewer = new FDeckViewer(deck, showCommanderBracket);
+        final FDeckViewer deckViewer = new FDeckViewer(deck);
         deckViewer.setVisible(true);
         deckViewer.dispose();
     }
 
-    private FDeckViewer(final Deck deck0, final boolean showCommanderBracket) {
+    private FDeckViewer(final Deck deck0) {
         this.deck = deck0;
         this.setTitle(deck.getName());
         this.cardManager = new CardManager(null, false, false, false) {
-            {
-                if (showCommanderBracket) {
-                    addView(new CommanderBracketDeckView(this, getModel(), FDeckViewer.this.deck));
-                }
-            }
-
             @Override //show hovered card in Image View in dialog instead of main Detail/Picture panes
             protected ImageView<PaperCard> createImageView(final ItemManagerModel<PaperCard> model0) {
                 return new ImageView<PaperCard>(this, model0, false) {

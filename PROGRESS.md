@@ -1,27 +1,25 @@
 # PROGRESS.md — Iteration 1 (pre-rewrite cleanup)
 
 ## Verified baseline facts
-- Branch `dev` (started from plan commit `399acbbd29a`, clean tree).
-- GATE green: reactor total 2787 tests (forge-game 23 + forge-gui 27 + desktop 2737), 0 failures/errors.
-- Desktop surefire quirk: "Results" line reads 2736/11-skipped vs 2737/12-skipped TestSuite line (off-by-one) — normal.
+- Branch `dev` (from plan commit `399acbbd29a`).
+- GATE green after 6.1: desktop TestSuite 2736 run / 12 skipped (was 2737; CommanderBracketDataTest removed), 0 failures/errors.
+- Desktop surefire quirk: "Results" line is 1 less than the TestSuite line (off-by-one) — normal.
 - `Localizer.getMessage` falls back locale → en-US: non-EN key deletion safe. `HomeNavigationRegistryTest` enforces submenu set.
 
 ## Completed items
-- 1.1 Content Downloader: deleted CSubmenu/VSubmenuDownloaders + 8 services + 2 tests; EDocID/VHomeUI/home.xml; i18n gone from all 10 locales.
-- 2.1 Release Notes: deleted CSubmenu/VSubmenuReleaseNotes + orphaned `CHANGES_FILE*` + `TextUtil.getFormattedChangelog`; i18n gone.
-- 3.1 How To Play: deleted `forge.gamemodes.tutorial` (7 classes), TutorialOverlayPanel, res/tutorial/, res/howto.txt + i18n.
-- 4.1 Avatar selection removed: deleted VSubmenuAvatars/CSubmenuAvatars/AvatarSelector; PlayerPanel shows commander card image (fallback ICO_PLAYERS); i18n gone.
-- 4.2 Match player panels: CMatchUI `getPlayerImage(PlayerView)`; VField/CField/TargetingOverlay/VAssign* → playerImage naming; `IHasIcon` deleted.
-- 4.3 Avatar index dropped from lobby/game model: avatar fields gone from LobbyPlayer/Player/PlayerView/TrackableProperty
-  (`setHasLost(false)` inlined in `dangerouslySetController`); LobbySlot 8→7 args (LocalLobby/GameLobby/OfflineLobby/ServerGameLobby);
-  avatar params dropped from UpdateLobbyPlayerEvent/LoginEvent/FServerManager/GameClientHandler; dead `avatarUpdate` deleted;
-  GamePlayerUtil overloads restructured (dropped dead `(name,profileOverride)`); VLobby.getSlot + LobbySlotAuthorizationTest updated. `GATE` green; grep zero.
-- 4.4 Avatar pref/skin/sprite removed: `FPref.UI_AVATARS`, `IGuiBase.getAvatarCount` (+ GuiDesktop/ForgeMatrixWriter overrides),
-  all FSkin avatar state (`avatars` map, bim*Avatars, f4/f5, assembleAvatars/getAvatars, splash 21→20), `SPRITE_AVATARS_FILE`,
-  deleted res/skins/default/sprite_avatars.png. `GATE` green; `rg -i avatar --type java` → only Vanguard/card matches.
-- 5.1 Random-name UI removed: PlayerPanel `nameRandomiser`/`createNameRandomizer`; VLobby `genderOptions`/`typeOptions`/`getNewName`
-  (+ now-unused `SkinImage` import caught by checkstyle); 6 i18n keys × 10 locales. Kept NameGenerator + auto-naming
-  (PlayerPanel open-slot AI naming, GameLobby.randomName, GuiDisplayUtil.getRandomAiName). `GATE` green; plan grep zero.
+- 1.1 Content Downloader section + 8 download services + i18n gone from all 10 locales.
+- 2.1 Release Notes section + Help entry + orphaned `CHANGES_FILE*`/`getFormattedChangelog` + i18n.
+- 3.1 How To Play tutorial (`forge.gamemodes.tutorial`, TutorialOverlayPanel, res/tutorial/, howto.txt) + i18n.
+- 4.1 Avatar selection UI gone; PlayerPanel shows commander card image (fallback `ICO_PLAYERS`) + i18n.
+- 4.2 Match panels show commander image: CMatchUI `getPlayerImage(PlayerView)`; VField `playerImageArea` naming; `IHasIcon` deleted.
+- 4.3 Avatar index dropped from lobby/game model (LobbyPlayer/Player/PlayerView/TrackableProperty; LobbySlot 8→7 args;
+  avatar params gone from UpdateLobbyPlayerEvent/LoginEvent/FServerManager/GameClientHandler; GamePlayerUtil restructured).
+- 4.4 Avatar pref/skin/sprite gone: `FPref.UI_AVATARS`, `IGuiBase.getAvatarCount`, all FSkin avatar state, `SPRITE_AVATARS_FILE`, sprite png.
+- 5.1 Random-name generator UI gone (PlayerPanel randomiser, VLobby `getNewName`, 6 keys × 10 locales); NameGenerator + auto-naming kept.
+- 6.1 Bracket UI gone: CommanderBracketView/TextView/DeckView + CommanderBracketDataTest + tools/scrape_bracket_details.py deleted;
+  `ColumnDef.DECK_BRACKET` removed; SColumnUtil 3-arg `getDecksDefaultColumns` folded to 2-arg (ItemManagerConfig 3 call sites);
+  DeckManager/FDeckViewer bracket views removed (FDeckChooser → 1-arg `show`); VField tooltip = plain `player.getDetailsHtml()`;
+  22 keys × 10 locales. `GATE` green. Remaining `CommanderBracket` refs = 6.2 (calculator/lobby cap/deckgen cap/protocol) + 6.3 (combos file/AI javadoc) only.
 
 ## Environment quirks
 - Always use a 600000 ms timeout on Maven runs (default 120 s kills long runs).

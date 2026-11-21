@@ -97,7 +97,7 @@ public class FDeckChooser extends JPanel implements IDecksComboBoxListener {
         isForCommander = forCommander;
         final UiCommand cmdViewDeck = () -> {
             if (selectedDeckType != DeckType.COLOR_DECK && selectedDeckType != DeckType.THEME_DECK) {
-                FDeckViewer.show(getDeck(), gameType.getDeckFormat() == DeckFormat.Commander);
+                FDeckViewer.show(getDeck());
             }
         };
         lstDecks.setItemActivateCommand(cmdViewDeck);
