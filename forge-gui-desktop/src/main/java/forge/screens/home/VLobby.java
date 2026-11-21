@@ -97,9 +97,6 @@ public class VLobby implements ILobbyView {
     private final Map<Integer, List<PaperCard>> commanderPicks = new HashMap<>();
 
     // Variants
-    private final List<FList<Object>> schemeDeckLists = new ArrayList<>();
-    private final List<FPanel> schemeDeckPanels = new ArrayList<>(MAX_PLAYERS);
-
     private final List<FList<Object>> planarDeckLists = new ArrayList<>();
     private final List<FPanel> planarDeckPanels = new ArrayList<>(MAX_PLAYERS);
 
@@ -289,10 +286,8 @@ public class VLobby implements ILobbyView {
                 panel.setSleeve(slot.getSleeveIndex(),
                         slotDeck == null ? "" : slotDeck.getSleeveArtKey(),
                         slotDeck == null ? Deck.DEFAULT_SLEEVE_OFFSET : slotDeck.getSleeveArtOffset());
-                panel.setTeam(slot.getTeam());
                 panel.setIsReady(slot.isReady());
                 panel.setIsDevMode(slot.isDevMode());
-                panel.setIsArchenemy(slot.isArchenemy());
                 panel.setUseAiSimulation(slot.getAiOptions());
                 panel.setMayEdit(lobby.mayEdit(i));
                 panel.setMayControl(lobby.mayControl(i));
@@ -318,7 +313,6 @@ public class VLobby implements ILobbyView {
                 if (fullUpdate && (type == LobbySlotType.LOCAL || isSlotAI)) {
                     // Deck section selection
                     panel.getDeckChooser().getLstDecks().getSelectCommand().run();
-                    selectSchemeDeck(i);
                     selectPlanarDeck(i);
                     selectVanguardAvatar(i);
                 }
@@ -428,10 +422,11 @@ public class VLobby implements ILobbyView {
 
     private UpdateLobbyPlayerEvent getSlot(final int index) {
         final PlayerPanel panel = getPlayerPanel(index);
+        final LobbySlot slot = lobby.getSlot(index);
         return UpdateLobbyPlayerEvent.create(panel.getType(),
                 panel.getPlayerName(),
                 panel.getSleeveIndex(),
-                panel.getTeam(), panel.isArchenemy(),
+                slot.getTeam(), slot.isArchenemy(),
                 panel.isDevMode(),
                 panel.getAiOptions(),
                 panel.getAiProfile());
@@ -441,9 +436,6 @@ public class VLobby implements ILobbyView {
      * These are added to a list which can be referenced to populate the deck panel appropriately. */
     @SuppressWarnings("serial")
     private void buildDeckPanels(final int playerIndex) {
-        // Scheme deck list
-        buildDeckPanel(localizer.getMessage("lblSchemeDeck"), playerIndex, schemeDeckLists, schemeDeckPanels, e -> selectSchemeDeck(playerIndex));
-
         // Planar deck list
         buildDeckPanel(localizer.getMessage("lblPlanarDeck"), playerIndex, planarDeckLists, planarDeckPanels, e -> selectPlanarDeck(playerIndex));
 
@@ -601,39 +593,6 @@ public class VLobby implements ILobbyView {
                 CommanderPicks.hasChoices(base, options, DeckFormat.Commander));
     }
 
-    private void selectSchemeDeck(final int playerIndex) {
-        if (playerIndex >= activePlayersNum || !(hasVariant(GameType.Archenemy) || hasVariant(GameType.ArchenemyRumble))) {
-            return;
-        }
-
-        final Object selected = getSchemeDeckLists().get(playerIndex).getSelectedValue();
-        final Deck deck = decks[playerIndex];
-        CardPool schemePool = null;
-        if (selected instanceof String) {
-            String sel = (String) selected;
-            if (sel.contains("Use deck's scheme section")) {
-                // deck is null until the player has a deck for the current game format,
-                // so a format with no decks yet falls through to Random rather than NPE.
-                if (deck != null && deck.has(DeckSection.Schemes)) {
-                    schemePool = deck.get(DeckSection.Schemes);
-                } else {
-                    sel = "Random";
-                }
-            }
-            if (sel.equals("Random")) {
-                final Deck randomDeck = RandomDeckGenerator.getRandomUserDeck(lobby, isPlayerAI(playerIndex));
-                schemePool = randomDeck.get(DeckSection.Schemes);
-            }
-        } else if (selected instanceof Deck) {
-            schemePool = ((Deck) selected).get(DeckSection.Schemes);
-        }
-        if (schemePool == null) { //Can be null if player deselects the list selection or chose Generate
-            schemePool = DeckgenUtil.generateSchemePool();
-        }
-        fireDeckSectionChangeListener(playerIndex, DeckSection.Schemes, schemePool);
-        getDeckChooser(playerIndex).saveState();
-    }
-
     private void selectPlanarDeck(final int playerIndex) {
         if (playerIndex >= activePlayersNum || !hasVariant(GameType.Planechase)) {
             return;
@@ -645,7 +604,8 @@ public class VLobby implements ILobbyView {
         if (selected instanceof String) {
             String sel = (String) selected;
             if (sel.contains("Use deck's planes section")) {
-                // Same null case as selectSchemeDeck: no deck yet for this game format.
+                // deck is null until the player has a deck for the current game format,
+                // so a format with no decks yet falls through to Random rather than NPE.
                 if (deck != null && deck.has(DeckSection.Planes)) {
                     planePool = deck.get(DeckSection.Planes);
                 } else {
@@ -725,17 +685,6 @@ public class VLobby implements ILobbyView {
                 decksFrame.add(cbSingletons, strCheckboxConstraints);
                 decksFrame.add(cbArtifacts, strCheckboxConstraints);
             }
-            break;
-        case Archenemy:
-        case ArchenemyRumble:
-            if (isPlayerArchenemy(playerWithFocus)) {
-                decksFrame.add(schemeDeckPanels.get(playerWithFocus), "grow, push");
-            } else {
-                populateDeckPanel(GameType.Constructed);
-            }
-            break;
-        case TwoHeadedGiant:
-            populateDeckPanel(GameType.Constructed);
             break;
         case Commander:
         case Oathbreaker:
@@ -1028,15 +977,6 @@ public class VLobby implements ILobbyView {
     /** Gets the list of planar deck lists. */
     public List<FList<Object>> getPlanarDeckLists() {
         return planarDeckLists;
-    }
-
-    /** Gets the list of scheme deck lists. */
-    public List<FList<Object>> getSchemeDeckLists() {
-        return schemeDeckLists;
-    }
-
-    public boolean isPlayerArchenemy(final int playernum) {
-        return getPlayerPanel(playernum).isArchenemy();
     }
 
     /** Gets the list of Vanguard avatar lists. */

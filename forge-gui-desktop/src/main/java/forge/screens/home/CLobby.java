@@ -48,12 +48,9 @@ public class CLobby {
 
     public void update() {
         SwingUtilities.invokeLater(() -> {
-            final Iterable<DeckProxy> schemeDecks = DeckProxy.getAllSchemeDecks();
             final Iterable<DeckProxy> planarDecks = DeckProxy.getAllPlanarDecks();
 
             for (int i = 0; i < VLobby.MAX_PLAYERS; i++) {
-                addDecks(schemeDecks, view.getSchemeDeckLists().get(i),
-                        "Use deck's scheme section (random if unavailable)");
                 addDecks(planarDecks, view.getPlanarDeckLists().get(i),
                         "Use deck's planes section (random if unavailable)");
                 view.updateVanguardList(i);

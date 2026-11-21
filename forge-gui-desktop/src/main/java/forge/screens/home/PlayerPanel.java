@@ -84,18 +84,11 @@ public class PlayerPanel extends FPanel {
     private final FLabel aiPickerLabel = new FLabel.Builder().text(localizer.getMessage("lblAiPickerPanel") + ":").build();
     private FComboBoxWrapper<Object> aiPickerComboBox = new FComboBoxWrapper<>();
 
-    private final FComboBoxWrapper<Object> teamComboBox = new FComboBoxWrapper<>();
-    private final FComboBoxWrapper<Object> aeTeamComboBox = new FComboBoxWrapper<>();
-
     private final FLabel closeBtn;
     private final FLabel deckBtn = new FLabel.ButtonBuilder().text(localizer.getMessage("lblSelectaDeck")).build();
     private final FLabel deckLabel;
 
     private final String variantBtnConstraints = "height 30px, hidemode 3";
-
-    private final FLabel scmDeckSelectorBtn = new FLabel.ButtonBuilder().text(localizer.getMessage("lblSelectaSchemeDeck")).build();
-    private final FLabel scmDeckEditor = new FLabel.ButtonBuilder().text(localizer.getMessage("lblSchemeDeckEditor")).build();
-    private final FLabel scmLabel;
 
     private final FLabel cmdDeckSelectorBtn = new FLabel.ButtonBuilder().text(localizer.getMessage("lblSelectaCommanderDeck")).build();
     private final FLabel cmdLabel;
@@ -127,7 +120,6 @@ public class PlayerPanel extends FPanel {
         this.allowNetworking = lobby.getLobby().isAllowNetworking();
 
         this.deckLabel = lobby.newLabel(localizer.getMessage("lblDeck") + ":");
-        this.scmLabel = lobby.newLabel(localizer.getMessage("lblSchemeDeck") + ":");
         this.cmdLabel = lobby.newLabel(localizer.getMessage("lblCommanderDeck") + ":");
         this.cmdPickLabel = lobby.newLabel(localizer.getMessage("lblCommanderPick") + ":");
         this.pchLabel = lobby.newLabel(localizer.getMessage("lblPlanarDeck") + ":");
@@ -152,27 +144,13 @@ public class PlayerPanel extends FPanel {
         this.add(radioHuman, "gapright 5px");
         this.add(radioAi, "wrap");
 
-        int cellY = 1;
         if (prefs.getPrefBoolean(FPref.UI_ENABLE_AI_PICKER)) {
             this.add(aiPickerLabel, "w 40px, h 30px");
             populateAiPickerComboBox();
             aiPickerComboBox.addTo(this, "h 30px, pushx, growx, wrap");
             aiPickerComboBox.addActionListener(aiPickerListener);
-            cellY += 1;
         }
         this.setAiProfile(slot.getAiProfile());
-
-        this.add(lobby.newLabel(localizer.getMessage("lblTeam") + ":"), "cell 0 " + cellY +", sx 2, ax right, w 40px, h 30px");
-        populateTeamsComboBoxes();
-
-        // Set these before action listeners are added
-        this.setTeam(slot == null ? index : slot.getTeam());
-        this.setIsArchenemy(slot != null && slot.isArchenemy());
-
-        teamComboBox.addActionListener(teamListener);
-        aeTeamComboBox.addActionListener(teamListener);
-        teamComboBox.addTo(this, variantBtnConstraints + ", cell 2 " + cellY + ", growx, gaptop 5px, wrap");
-        aeTeamComboBox.addTo(this, variantBtnConstraints + ", cell 2 " + cellY + ", growx, gaptop 5px, wrap");
 
         createReadyButton();
         if (allowNetworking) {
@@ -193,16 +171,12 @@ public class PlayerPanel extends FPanel {
         this.add(cmdPickBtn, variantBtnConstraints + ", cell 2 3, pushx, growx, wmax 100%-153px, h 30px, spanx 4, wrap");
         cmdPickBtn.setToolTipText(localizer.getMessage("lblChooseCommanderHint"));
 
-        this.add(scmLabel, variantBtnConstraints + ", cell 0 4, sx 2, ax right");
-        this.add(scmDeckSelectorBtn, variantBtnConstraints + ", cell 2 4, growx, pushx");
-        this.add(scmDeckEditor, variantBtnConstraints + ", cell 3 4, sx 3, growx, wrap");
+        this.add(pchLabel, variantBtnConstraints + ", cell 0 4, sx 2, ax right");
+        this.add(pchDeckSelectorBtn, variantBtnConstraints + ", cell 2 4, growx, pushx");
+        this.add(pchDeckEditor, variantBtnConstraints + ", cell 3 4, sx 3, growx, wrap");
 
-        this.add(pchLabel, variantBtnConstraints + ", cell 0 5, sx 2, ax right");
-        this.add(pchDeckSelectorBtn, variantBtnConstraints + ", cell 2 5, growx, pushx");
-        this.add(pchDeckEditor, variantBtnConstraints + ", cell 3 5, sx 3, growx, wrap");
-
-        this.add(vgdLabel, variantBtnConstraints + ", cell 0 6, sx 2, ax right");
-        this.add(vgdSelectorBtn, variantBtnConstraints + ", cell 2 6, sx 4, growx, wrap");
+        this.add(vgdLabel, variantBtnConstraints + ", cell 0 5, sx 2, ax right");
+        this.add(vgdSelectorBtn, variantBtnConstraints + ", cell 2 5, sx 4, growx, wrap");
 
         addHandlersToVariantsControls();
 
@@ -242,7 +216,6 @@ public class PlayerPanel extends FPanel {
         aiPickerComboBox.setVisible(enableAiPicker);
         aiPickerComboBox.setEnabled(enableAiPicker);
 
-        teamComboBox.setEnabled(mayEdit && !lobby.hasVariant(GameType.TwoHeadedGiant));
         deckLabel.setVisible(mayEdit);
         deckBtn.setVisible(mayEdit);
         chkReady.setVisible(type == LobbySlotType.LOCAL || type == LobbySlotType.REMOTE);
@@ -337,8 +310,6 @@ public class PlayerPanel extends FPanel {
         // Variants layered on top of the format, each with its own per-player selection.
         final boolean isPlanechaseApplied = mayEdit && lobby.hasVariant(GameType.Planechase);
         final boolean isVanguardApplied = mayEdit && lobby.hasVariant(GameType.Vanguard);
-        final boolean isArchenemyApplied = mayEdit && lobby.hasVariant(GameType.Archenemy);
-        final boolean archenemyVisiblity = mayEdit && lobby.hasVariant(GameType.ArchenemyRumble) || (isArchenemyApplied && isArchenemy());
 
         // Deck building is always available for editable slots that have no format-generated variant.
         final boolean isDeckBuildingAllowed = mayEdit && !isCommanderApplied && !isDeckGeneratedByFormat;
@@ -353,13 +324,6 @@ public class PlayerPanel extends FPanel {
                 && (type == LobbySlotType.LOCAL || type == LobbySlotType.AI) && hasCommanderChoices;
         cmdPickBtn.setVisible(isCommanderPickable);
         cmdPickLabel.setVisible(isCommanderPickable);
-
-        scmDeckSelectorBtn.setVisible(archenemyVisiblity);
-        scmDeckEditor.setVisible(archenemyVisiblity);
-        scmLabel.setVisible(archenemyVisiblity);
-
-        teamComboBox.setVisible(!isArchenemyApplied);
-        aeTeamComboBox.setVisible(isArchenemyApplied);
 
         pchDeckSelectorBtn.setVisible(isPlanechaseApplied);
         pchDeckEditor.setVisible(isPlanechaseApplied);
@@ -411,10 +375,6 @@ public class PlayerPanel extends FPanel {
     public void setUseAiSimulation(Set<AIOption> options) {
         ((JRadioButtonMenuItem) radioAiUseSimulation.getComponent(options.contains(AIOption.USE_FULL_SIMULATION) ? 2 : options.contains(AIOption.USE_HYBRID_SIMULATION) ? 1 : 0))
                 .setSelected(true);
-    }
-
-    public boolean isArchenemy() {
-        return aeTeamComboBox.getSelectedIndex() == 0;
     }
 
     public void setType(final LobbySlotType type) {
@@ -479,30 +439,6 @@ public class PlayerPanel extends FPanel {
         aiPickerComboBox.setEnabled(true);
     }
 
-    private void populateTeamsComboBoxes() {
-        aeTeamComboBox.addItem(localizer.getMessage("lblArchenemy"));
-        aeTeamComboBox.addItem(localizer.getMessage("lblHeroes"));
-
-        for (int i = 1; i <= VLobby.MAX_PLAYERS; i++) {
-            teamComboBox.addItem(i);
-        }
-        teamComboBox.setEnabled(true);
-    }
-
-    private final ActionListener teamListener = new ActionListener() {
-        @SuppressWarnings("unchecked")
-        @Override public void actionPerformed(final ActionEvent e) {
-            final FComboBox<Object> cb = (FComboBox<Object>) e.getSource();
-            cb.requestFocusInWindow();
-            final Object selection = cb.getSelectedItem();
-
-            if (null != selection) {
-                lobby.changePlayerFocus(index);
-                lobby.firePlayerChangeListener(index);
-            }
-        }
-    };
-
     private final ActionListener aiPickerListener = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -519,22 +455,6 @@ public class PlayerPanel extends FPanel {
     };
 
     private void addHandlersToVariantsControls() {
-        // Archenemy buttons
-        scmDeckSelectorBtn.setCommand((Runnable) () -> {
-            lobby.setCurrentGameMode(lobby.hasVariant(GameType.Archenemy) ? GameType.Archenemy : GameType.ArchenemyRumble);
-            scmDeckSelectorBtn.requestFocusInWindow();
-            lobby.changePlayerFocus(index);
-        });
-
-        scmDeckEditor.setCommand((UiCommand) () -> {
-            lobby.setCurrentGameMode(lobby.hasVariant(GameType.Archenemy) ? GameType.Archenemy : GameType.ArchenemyRumble);
-            final Predicate<PaperCard> predSchemes = arg0 -> arg0.getRules().getType().isScheme();
-
-            Singletons.getControl().setCurrentScreen(FScreen.DECK_EDITOR_ARCHENEMY);
-            CDeckEditorUI.SINGLETON_INSTANCE.setEditorController(
-                    new CEditorVariant(FModel.getDecks().getScheme(), predSchemes, DeckSection.Schemes, FScreen.DECK_EDITOR_ARCHENEMY, CDeckEditorUI.SINGLETON_INSTANCE.getCDetailPicture()));
-        });
-
         // Commander buttons
         cmdDeckSelectorBtn.setCommand((Runnable) () -> {
             lobby.setCurrentGameMode(
@@ -829,26 +749,6 @@ public class PlayerPanel extends FPanel {
             sleeveArtOffset = artOffset;
             showCardArtOnSleeveLabel(artKey);
         }
-    }
-
-    public int getTeam() {
-        return lobby.hasVariant(GameType.Archenemy)
-                ? aeTeamComboBox.getSelectedIndex()
-                : teamComboBox.getSelectedIndex();
-    }
-    public void setTeam(final int team) {
-        teamComboBox.suppressActionListeners();
-        teamComboBox.setSelectedIndex(team);
-        teamComboBox.unsuppressActionListeners();
-    }
-
-    public int getArchenemyTeam() {
-        return aeTeamComboBox.getSelectedIndex();
-    }
-    public void setIsArchenemy(final boolean isArchenemy) {
-        aeTeamComboBox.suppressActionListeners();
-        aeTeamComboBox.setSelectedIndex(isArchenemy ? 0 : 1);
-        aeTeamComboBox.unsuppressActionListeners();
     }
 
     public boolean isReady() {
