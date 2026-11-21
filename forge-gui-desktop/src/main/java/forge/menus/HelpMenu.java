@@ -60,8 +60,6 @@ public final class HelpMenu {
     private static JMenu getMenu_GettingStarted() {
         final Localizer localizer = Localizer.getInstance();
         JMenu mnu = new JMenu(localizer.getMessage("lblGettingStarted"));
-        mnu.add(getMenuItem_HowToPlayFile());
-        mnu.addSeparator();
         mnu.add(getMenuItem_UrlLink("Forge Wiki", GITHUB_FORGE_URL + "wiki", KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0)));
         return mnu;
     }
@@ -70,13 +68,6 @@ public final class HelpMenu {
         final Localizer localizer = Localizer.getInstance();
         JMenuItem menuItem = new JMenuItem(localizer.getMessage("lblKeyboardShortcuts"));
         menuItem.addActionListener(e -> new KeyboardShortcutsDialog().setVisible(true));
-        return menuItem;
-    }
-
-    private static JMenuItem getMenuItem_HowToPlayFile() {
-        final Localizer localizer = Localizer.getInstance();
-        JMenuItem menuItem = new JMenuItem(localizer.getMessage("lblHowtoPlay"));
-        menuItem.addActionListener(getOpenFileAction(getFile(ForgeConstants.HOWTO_FILE)));
         return menuItem;
     }
 

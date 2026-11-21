@@ -71,7 +71,7 @@ Per `REWRITE.md`, this cleanup trims the JVM baseline BEFORE the rewrite phases 
 
 ## Phase 3 — How To Play Tutorial
 
-- [ ] **3.1 Remove How To Play tutorial + howto.txt**
+- [x] **3.1 Remove How To Play tutorial + howto.txt**
   - Delete files: entire `forge-gui/src/main/java/forge/gamemodes/tutorial/` package (`HowToPlay`, `Puzzle`, `PuzzleIO`, `TutorialDirector`, `TutorialGameController`, `TutorialLayout`, `TutorialTarget`); `forge-gui-desktop/src/main/java/forge/screens/match/TutorialOverlayPanel.java`; `forge-gui/res/tutorial/` (dir + `HowToPlay.pzl`); `forge-gui/res/howto.txt`.
   - Surgical:
     - `IGuiBase.java`: imports L4-5 + defaults `showCoach` (L43), `hideCoach` (L47), `isTutorialBoardReady` (L53), `getTutorialLayout` (L58), `highlightGui` (L65). KEEP `isMatchInProgress()`.

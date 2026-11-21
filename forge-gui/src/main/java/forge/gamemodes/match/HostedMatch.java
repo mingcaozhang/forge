@@ -50,8 +50,6 @@ public class HostedMatch {
     private String title;
     private MusicPlaylist matchPlaylist = null;
     public HashMap<LobbySlot, IGameController> gameControllers = null;
-    private Runnable startGameHook = null;
-    private Runnable endGameHook = null;
     private Runnable onMatchOver = null;
     private final List<PlayerControllerHuman> humanControllers = Lists.newArrayList();
     private Map<RegisteredPlayer, IGuiGame> guis;
@@ -64,10 +62,6 @@ public class HostedMatch {
 
     public HostedMatch() {}
 
-    public void setStartGameHook(Runnable hook) {
-        startGameHook = hook;
-    }
-    public void setEndGameHook(Runnable hook) { endGameHook = hook; }
     public void setOnMatchOver(Runnable callback) { onMatchOver = callback; }
 
     private static GameRules getDefaultRules(final GameType gameType) {
@@ -287,16 +281,12 @@ public class HostedMatch {
             }
             // Actually start the game!
             try {
-                match.startGame(currentGame, startGameHook);
+                match.startGame(currentGame, null);
             } catch (final RuntimeException | Error ex) {
                 if (replay != null) {
                     replay.abort();
                 }
                 throw ex;
-            }
-            // this function waits?
-            if (endGameHook != null) {
-                endGameHook.run();
             }
 
             // Flush any buffered game events to remote clients so they receive

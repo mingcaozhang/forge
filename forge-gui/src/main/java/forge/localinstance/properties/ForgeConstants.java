@@ -83,7 +83,6 @@ public final class ForgeConstants {
     public static final String COMMANDER_BRACKET_CHAINED_EXTRA_TURNS_FILE = LISTS_DIR + "chained-extra-turns.txt";
 
     public static final String LICENSE_FILE                 = ASSETS_DIR + "LICENSE.txt";
-    public static final String HOWTO_FILE                   = RES_DIR + "howto.txt";
 
     public static final String CARD_DATA_DIR                = RES_DIR + "cardsfolder" + PATH_SEPARATOR;
     public static final String TOKEN_DATA_DIR               = RES_DIR + "tokenscripts" + PATH_SEPARATOR;
@@ -96,7 +95,6 @@ public final class ForgeConstants {
     public static final String SKIN_DIR                     = "skin" + PATH_SEPARATOR;
     public static final String LANG_DIR                     = RES_DIR + "languages" + PATH_SEPARATOR;
     public static final String EFFECTS_DIR                  = RES_DIR + "effects" + PATH_SEPARATOR;
-    public static final String TUTORIAL_DIR                 = RES_DIR + "tutorial" + PATH_SEPARATOR;
     public static final String DECK_GEN_DIR                 = RES_DIR + "deckgendecks" + PATH_SEPARATOR;
     public static final String GENETIC_AI_DECK_DIR          = RES_DIR + "geneticaidecks" + PATH_SEPARATOR;
 
@@ -214,7 +212,6 @@ public final class ForgeConstants {
     public static final String USER_PREFS_DIR             = USER_DIR + "preferences" + PATH_SEPARATOR;
     public static final String USER_GAMES_DIR             = USER_DIR + "games" + PATH_SEPARATOR;
     public static final String USER_REPLAYS_DIR           = USER_DIR + "replays" + PATH_SEPARATOR;
-    public static final String USER_PUZZLE_DIR            = USER_DIR + "puzzle" + PATH_SEPARATOR;
     public static final String LOG_FILE                   = USER_DIR + "forge.log";
     public static final String NETWORK_LOGS_DIR           = USER_DIR + "networklogs" + PATH_SEPARATOR;
     public static final String ACHIEVEMENTS_DIR           = USER_DIR + "achievements" + PATH_SEPARATOR;

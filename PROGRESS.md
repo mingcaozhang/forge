@@ -3,35 +3,35 @@
 ## Verified baseline facts
 - Branch `dev` (work started from plan commit `399acbbd29a`, clean tree).
 - `PKG` → BUILD SUCCESS. `GATE` baseline → 2736 tests, 0 failures/errors, 11 skipped (~75 s).
-- `Localizer.getMessage` falls back locale → en-US bundle (forge-core .../util/Localizer.java:97-114),
-  so deleting non-EN key lines is safe when en-US is edited in place.
+- `Localizer.getMessage` falls back locale → en-US (forge-core .../util/Localizer.java:97-114):
+  deleting non-EN key lines is safe when en-US is edited in place.
 - forge-core/forge-ai have no test sources; GATE reports only for forge-game/gui/gui-desktop.
-  `HomeNavigationRegistryTest` parses sources (no skin stack needed) and enforces the surfaced-submenu set.
+  `HomeNavigationRegistryTest` parses sources and enforces the surfaced-submenu set.
 
-## Item 1.1 (Content Downloader) — done
-- `GATE` green; rg sweep for deleted classes → zero. `lblHowToPlay` removed from all 10 locales
-  (item 3.1 will only find `lblHowToPlayTooltip`/`lblHowtoPlay` left).
-
-## Item 2.1 (Release Notes) — done
-- Deleted CSubmenu/VSubmenuReleaseNotes; surgical edits in EDocID, VHomeUI (reg + hero-icon case),
-  HelpMenu (menu entry + method), HomeNavigationRegistryTest (surfaced set + doc-id map).
-- Removed orphaned `ForgeConstants.CHANGES_FILE`/`CHANGES_FILE_NO_RELEASE` (sole refs were deleted UI;
-  bundled README.txt/CHANGES.txt + git-changelog-maven-plugin block untouched) and
-  `TextUtil.getFormattedChangelog` (+ `changes` field + 6 orphaned imports; `getSimpleDate` kept).
-- i18n: `ReleaseNotes` + `lblReleaseNotes` deleted from all 10 locales.
-- `GATE` → BUILD SUCCESS, 0 failures/errors; `rg -i "releasenotes|release.notes" --type java` → zero.
+## Completed items
+- 1.1 Content Downloader: deleted CSubmenu/VSubmenuDownloaders + 8 download services + 2 tests;
+  surgical EDocID/VHomeUI/home.xml/test edits; i18n keys gone from all 10 locales. `GATE` green.
+- 2.1 Release Notes: deleted CSubmenu/VSubmenuReleaseNotes; surgical EDocID/VHomeUI/HelpMenu/test edits;
+  orphaned `CHANGES_FILE*` consts + `TextUtil.getFormattedChangelog`; i18n gone from all 10 locales. `GATE` green.
+- 3.1 How To Play tutorial: deleted `forge.gamemodes.tutorial` (7 classes), `TutorialOverlayPanel`,
+  `res/tutorial/HowToPlay.pzl`, `res/howto.txt`. Surgical: IGuiBase (coach/layout/highlight defaults),
+  GuiDesktop (currentMatchUI + overrides), CMatchUI (overlay + doc accessor + detach), ViewWinLose
+  (ternaries collapsed; `GameType.Puzzle` branch kept), VHomeUI (panel + height math), HelpMenu (file item),
+  HostedMatch (start/endGameHook → `match.startGame(currentGame, null)`; `Match` Runnable seam kept),
+  ForgeConstants (HOWTO_FILE/TUTORIAL_DIR/USER_PUZZLE_DIR). i18n: 195 en-US + 99/non-EN tutorial keys,
+  `lblHowToPlayTooltip`/`lblHowtoPlay`, `#VSubmenuTutorial`/`lblTutorial`/`lblTutorialMode` removed;
+  `lblRestartPuzzle`/`lblQuitPuzzle` + dev `lblTutor` kept. `GATE` → 2736 tests, 0 failures/errors.
 
 ## Environment quirks
 - Always use a 600000 ms timeout on Maven runs (default 120 s kills long runs).
-- `-pl <module>` must always be paired with `-am`; `-Dtest=` needs
-  `-DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false` (Surefire 3.1.2 fails early modules).
-- Non-failing test-log noise to ignore: "card ... not assigned to any set", "Upcoming set ... dated in the future",
+- `-pl <module>` must pair with `-am`; `-Dtest=` needs `-DfailIfNoTests=false
+  -Dsurefire.failIfNoSpecifiedTests=false` (Surefire 3.1.2 fails early modules).
+- Non-failing test-log noise: "card ... not assigned to any set", "Upcoming set ... dated in the future",
   `FSkin > can't find skins directory!`.
-- Scratch artifacts only under `/tmp/opencode/` (e.g. `/tmp/opencode/forge-ui-e2e`).
+- Scratch artifacts only under `/tmp/opencode/`. Locale files have no trailing newline; preserve when editing.
 
 ## Active caveats / follow-ups
-- i18n key removal requires `rg -n "<key>" --type java` to show zero refs first; 10 locale files in
-  `forge-gui/res/languages/` must be edited consistently (en-US line numbers differ per locale).
+- i18n key removal requires `rg -n "<key>" --type java` zero refs first; 10 locale files must stay consistent.
 - `res/lists/commander-bracket-combos.txt` feeds AI combo knowledge → keep data, rename in 6.3.
 - Per-format banlist validation (`DeckFormat`, `res/formats/**`) is NOT the Commander bracket system — keep.
 - Vanguard "avatar" feature (`DeckSection.Avatar`, `GamePieceType.AVATAR`, `AvatarVanguard`) is unrelated — keep.
