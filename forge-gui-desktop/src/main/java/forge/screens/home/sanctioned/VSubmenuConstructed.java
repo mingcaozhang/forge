@@ -33,8 +33,8 @@ public enum VSubmenuConstructed implements IVSubmenu<CSubmenuConstructed> {
     private final VLobby vLobby = new VLobby(lobby);
     VSubmenuConstructed() {
         lobby.restoreSetup();
-        // Single-player Commander/EDH: the New Game dialog defaults to Commander. The format dropdown
-        // only offers Commander-family game types (see FormatChoices.getCommanderOnly()).
+        // Single-player Commander/EDH: the New Game dialog defaults to Commander, and the format
+        // dropdown only offers Commander (see FormatChoices.getCommanderOnly()).
         lobby.setFormatChoice(GameType.Commander);
         lobby.setListener(vLobby);
 

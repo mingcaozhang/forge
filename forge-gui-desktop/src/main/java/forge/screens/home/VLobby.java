@@ -933,21 +933,6 @@ public class VLobby implements ILobbyView {
                 deckType = iSlot == 0 ? DeckType.COMMANDER_DECK : DeckType.RANDOM_CARDGEN_COMMANDER_DECK;
                 prefKey = FPref.COMMANDER_DECK_STATES[iSlot];
                 break;
-            case TinyLeaders:
-                forCommander = true;
-                deckType = iSlot == 0 ? DeckType.TINY_LEADERS_DECK : DeckType.RANDOM_CARDGEN_COMMANDER_DECK;
-                prefKey = FPref.TINY_LEADER_DECK_STATES[iSlot];
-                break;
-            case Oathbreaker:
-                forCommander = true;
-                deckType = iSlot == 0 ? DeckType.OATHBREAKER_DECK : DeckType.RANDOM_CARDGEN_COMMANDER_DECK;
-                prefKey = FPref.OATHBREAKER_DECK_STATES[iSlot];
-                break;
-            case Brawl:
-                forCommander = true;
-                deckType = iSlot == 0 ? DeckType.BRAWL_DECK : DeckType.CUSTOM_DECK;
-                prefKey = FPref.BRAWL_DECK_STATES[iSlot];
-                break;
             default:
                 forCommander = false;
                 deckType = iSlot == 0 ? DeckType.PRECONSTRUCTED_DECK : DeckType.COLOR_DECK;

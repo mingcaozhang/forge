@@ -18,8 +18,7 @@ import forge.util.Localizer;
 
 /** The entries of the Format dropdowns in the lobby and the deck editor. Each entry is a GameType, a GameFormat, a ListHeading or ARCHIVED. */
 public final class FormatChoices {
-    public static final List<GameType> COMMANDER_GAME_TYPES = List.of(
-            GameType.Commander, GameType.Oathbreaker, GameType.Brawl, GameType.TinyLeaders);
+    public static final List<GameType> COMMANDER_GAME_TYPES = List.of(GameType.Commander);
     public static final List<GameType> GENERATED_GAME_TYPES = List.of(GameType.MomirBasic, GameType.MoJhoSto);
     /** Game types that replace Constructed's deck rules. Only one of them can be applied at a time. */
     public static final List<GameType> FORMAT_GAME_TYPES = Stream.concat(

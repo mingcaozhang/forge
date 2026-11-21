@@ -144,15 +144,6 @@ public class FDeckChooser extends JPanel implements IDecksComboBoxListener {
         case Commander:
             updateDecks(DeckProxy.getAllCommanderDecks(), ItemManagerConfig.COMMANDER_DECKS);
             break;
-        case Oathbreaker:
-            updateDecks(DeckProxy.getAllOathbreakerDecks(), ItemManagerConfig.COMMANDER_DECKS);
-            break;
-        case Brawl:
-            updateDecks(DeckProxy.getAllBrawlDecks(), ItemManagerConfig.COMMANDER_DECKS);
-            break;
-        case TinyLeaders:
-            updateDecks(DeckProxy.getAllTinyLeadersDecks(), ItemManagerConfig.COMMANDER_DECKS);
-            break;
         default:
             updateDecks(DeckProxy.getAllConstructedDecks(), ItemManagerConfig.CONSTRUCTED_DECKS);
             break;
