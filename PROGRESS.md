@@ -7,15 +7,12 @@
 ## Completed items
 - Part 2 / 1.1–1.5 Game engine team/2HG mechanics fully removed + rebased single-player (each item GATE-green;
   `Player` team API gone, `YourTeam`/`YourTeamCtrl` script names kept, 2HG rule entry points gone).
-- Part 2 / 2.1 GameLobby archenemy/team selection removed: `lastArchenemy`, `applyVariantTeams`/`isEnoughTeams`, 2HG
-  4-player check, `case TwoHeadedGiant` + `remove(TwoHeadedGiant)` lines, startGame isArchenemy/team capture.
-  `forVariants` archenemy/scheme params stay (engine deferred).
-- Part 2 / 2.2 Lobby UI team/2HG/Archenemy/scheme-deck UI removed: PlayerPanel team row (teamComboBox/aeTeamComboBox/
-  populateTeamsComboBoxes/teamListener/getTeam/setTeam/getArchenemyTeam/setIsArchenemy/isArchenemy) + scheme controls
-  (scm* buttons, CEditorVariant archenemy cmd); VLobby schemeDeck lists/panels/selectSchemeDeck/isPlayerArchenemy +
-  populateDeckPanel Archenemy/ArchenemyRumble/TwoHeadedGiant cases; CLobby scheme deck list; `FScreen.DECK_EDITOR_ARCHENEMY`
-  (orphaned; keeps `lblSchemeDeckEditor` at zero refs for 2.5). pch/vgd panel rows renumbered 5→4, 6→5. `VLobby.getSlot`
-  now reads team/archenemy from `LobbySlot` (data model keeps them until 2.4). GATE green: 2708 run / 11 skipped.
+- Part 2 / 2.1–2.2 GameLobby archenemy/team selection + lobby team/2HG/Archenemy/scheme UI removed (`lastArchenemy`,
+  `applyVariantTeams`/`isEnoughTeams`, PlayerPanel team row + scheme controls, VLobby scheme panels +
+  populateDeckPanel Archenemy/ArchenemyRumble/TwoHeadedGiant cases, `FScreen.DECK_EDITOR_ARCHENEMY`). `forVariants`
+  archenemy/scheme params + `LobbySlot` team fields stay (2.4 / engine deferred).
+- Part 2 / 2.3 `FormatChoices.VARIANTS` trimmed to Vanguard + Planechase (drives lobby Variants checkboxes +
+  `restoreSetup` skip check; saved setups with dropped variants now skipped by design). GATE green: 2708 run / 11 skipped.
 
 ## Environment quirks
 - Always use a 600000 ms timeout on Maven runs (default 120 s kills long runs).
