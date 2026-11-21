@@ -312,30 +312,6 @@ public class ForgePreferences extends AbstractPreferences<ForgePreferences.FPref
         COMMANDER_P6_DECK_STATE(""),
         COMMANDER_P7_DECK_STATE(""),
         COMMANDER_P8_DECK_STATE(""),
-        OATHBREAKER_P1_DECK_STATE(""),
-        OATHBREAKER_P2_DECK_STATE(""),
-        OATHBREAKER_P3_DECK_STATE(""),
-        OATHBREAKER_P4_DECK_STATE(""),
-        OATHBREAKER_P5_DECK_STATE(""),
-        OATHBREAKER_P6_DECK_STATE(""),
-        OATHBREAKER_P7_DECK_STATE(""),
-        OATHBREAKER_P8_DECK_STATE(""),
-        TINY_LEADER_P1_DECK_STATE(""),
-        TINY_LEADER_P2_DECK_STATE(""),
-        TINY_LEADER_P3_DECK_STATE(""),
-        TINY_LEADER_P4_DECK_STATE(""),
-        TINY_LEADER_P5_DECK_STATE(""),
-        TINY_LEADER_P6_DECK_STATE(""),
-        TINY_LEADER_P7_DECK_STATE(""),
-        TINY_LEADER_P8_DECK_STATE(""),
-        BRAWL_P1_DECK_STATE(""),
-        BRAWL_P2_DECK_STATE(""),
-        BRAWL_P3_DECK_STATE(""),
-        BRAWL_P4_DECK_STATE(""),
-        BRAWL_P5_DECK_STATE(""),
-        BRAWL_P6_DECK_STATE(""),
-        BRAWL_P7_DECK_STATE(""),
-        BRAWL_P8_DECK_STATE(""),
 
         SHORTCUT_SHOWSTACK ("83"),
         SHORTCUT_SHOWCOMBAT ("67"),
@@ -390,24 +366,6 @@ public class ForgePreferences extends AbstractPreferences<ForgePreferences.FPref
                 COMMANDER_P3_DECK_STATE, COMMANDER_P4_DECK_STATE,
                 COMMANDER_P5_DECK_STATE, COMMANDER_P6_DECK_STATE,
                 COMMANDER_P7_DECK_STATE, COMMANDER_P8_DECK_STATE };
-
-        public static FPref[] OATHBREAKER_DECK_STATES = {
-                OATHBREAKER_P1_DECK_STATE, OATHBREAKER_P2_DECK_STATE,
-                OATHBREAKER_P3_DECK_STATE, OATHBREAKER_P4_DECK_STATE,
-                OATHBREAKER_P5_DECK_STATE, OATHBREAKER_P6_DECK_STATE,
-                OATHBREAKER_P7_DECK_STATE, OATHBREAKER_P8_DECK_STATE };
-
-        public static FPref[] TINY_LEADER_DECK_STATES = {
-                TINY_LEADER_P1_DECK_STATE, TINY_LEADER_P2_DECK_STATE,
-                TINY_LEADER_P3_DECK_STATE, TINY_LEADER_P4_DECK_STATE,
-                TINY_LEADER_P5_DECK_STATE, TINY_LEADER_P6_DECK_STATE,
-                TINY_LEADER_P7_DECK_STATE, TINY_LEADER_P8_DECK_STATE };
-
-        public static FPref[] BRAWL_DECK_STATES = {
-                BRAWL_P1_DECK_STATE, BRAWL_P2_DECK_STATE,
-                BRAWL_P3_DECK_STATE, BRAWL_P4_DECK_STATE,
-                BRAWL_P5_DECK_STATE, BRAWL_P6_DECK_STATE,
-                BRAWL_P7_DECK_STATE, BRAWL_P8_DECK_STATE };
 
         /** Phase stop prefs in PhaseType order (UPKEEP through CLEANUP, skipping UNTAP). */
         public static FPref[] PHASES_AI = {

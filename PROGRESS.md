@@ -14,6 +14,9 @@
   TinyLeaders/Oathbreaker/Brawl cases dropped; `PlayerPanel.formatUsesCommandZone` + `cmdDeckSelectorBtn`
   chain → Commander; `FDeckChooser.updateCustom` 3 DeckFormat cases dropped; `VSubmenuConstructed` comment
   updated. GATE green: 2708 run / 11 skipped.
+- Part 2 / 3.2: removed 24 Oathbreaker/TinyLeaders/Brawl `*_P{1..8}_DECK_STATE` FPref entries + the 3
+  `*_DECK_STATES` arrays from `ForgePreferences` (all refs gone after 3.1, verified with rg). GATE green:
+  2708 run / 11 skipped.
 
 ## Environment quirks
 - Always use a 600000 ms timeout on Maven runs (default 120 s kills long runs).
