@@ -43,8 +43,7 @@ public class HomeNavigationRegistryTest {
     private static final Set<String> EXPECTED_SURFACED_SUBMENUS = new TreeSet<>(List.of(
             "VSubmenuConstructed",
             "VSubmenuPreferences",
-            "VSubmenuAchievements",
-            "VSubmenuAvatars"));
+            "VSubmenuAchievements"));
 
     /** Multiplayer/online submenus that must remain hidden from the dashboard. */
     private static final Set<String> EXPECTED_ONLINE_SUBMENUS = new TreeSet<>(List.of(
@@ -62,7 +61,6 @@ public class HomeNavigationRegistryTest {
         EXPECTED_SUBMENU_DOC_ID.put("VSubmenuConstructed", "HOME_CONSTRUCTED");
         EXPECTED_SUBMENU_DOC_ID.put("VSubmenuPreferences", "HOME_PREFERENCES");
         EXPECTED_SUBMENU_DOC_ID.put("VSubmenuAchievements", "HOME_ACHIEVEMENTS");
-        EXPECTED_SUBMENU_DOC_ID.put("VSubmenuAvatars", "HOME_AVATARS");
 
         EXPECTED_ONLINE_DOC_ID.put("VSubmenuOnlineLobby", "HOME_NETWORK");
         EXPECTED_ONLINE_DOC_ID.put("VSubmenuOnlineDecks", "HOME_NET_DECKS");

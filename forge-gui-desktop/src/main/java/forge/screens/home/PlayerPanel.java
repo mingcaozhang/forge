@@ -38,7 +38,6 @@ import forge.localinstance.skin.FSkinProp;
 import forge.model.FModel;
 import forge.screens.deckeditor.CDeckEditorUI;
 import forge.screens.deckeditor.controllers.CEditorVariant;
-import forge.screens.home.sanctioned.AvatarSelector;
 import forge.screens.home.sanctioned.SleeveSelector;
 import forge.toolbox.FCheckBox;
 import forge.toolbox.FComboBox;
@@ -68,9 +67,9 @@ public class PlayerPanel extends FPanel {
     private boolean mayEdit, mayControl, mayRemove;
 
     private final FLabel nameRandomiser;
-    private final FLabel avatarLabel = new FLabel.Builder().opaque(true).hoverable(true).iconScaleFactor(0.99f).iconInBackground(true).build();
+    private final FLabel playerImageLabel = new FLabel.Builder().opaque(true).iconScaleFactor(0.99f).iconInBackground(true).build();
     private final FLabel sleeveLabel = new FLabel.Builder().opaque(true).hoverable(true).iconScaleFactor(0.99f).iconInBackground(true).build();
-    private int avatarIndex, sleeveIndex;
+    private int sleeveIndex;
     private String sleeveArtKey = "";
     private int sleeveArtOffset = Deck.DEFAULT_SLEEVE_OFFSET;
 
@@ -141,8 +140,7 @@ public class PlayerPanel extends FPanel {
         closeBtn = createCloseButton();
         this.add(closeBtn, "w 20, h 20, pos (container.w-20) 0");
 
-        createAvatar();
-        this.add(avatarLabel, "cell 0 0, spany 2, split 2, width 80px, height 80px");
+        this.add(playerImageLabel, "cell 0 0, spany 2, split 2, width 80px, height 80px");
 
         createSleeve();
         this.add(sleeveLabel, "width 58px, height 80px, gapleft 5px");
@@ -212,12 +210,6 @@ public class PlayerPanel extends FPanel {
 
         addHandlersToVariantsControls();
 
-        this.addMouseListener(new FMouseAdapter() {
-            @Override public void onLeftMouseDown(final MouseEvent e) {
-                avatarLabel.requestFocusInWindow();
-            }
-        });
-
         if (isNetworkHost()) {
             createDevModeButton();
             this.add(chkDevMode);
@@ -225,7 +217,6 @@ public class PlayerPanel extends FPanel {
 
         this.type = slot == null ? LobbySlotType.LOCAL : slot.getType();
         this.setPlayerName(slot == null ? "" : slot.getName());
-        this.setAvatarIndex(slot == null ? 0 : slot.getAvatarIndex());
 
         update();
     }
@@ -235,9 +226,9 @@ public class PlayerPanel extends FPanel {
     }
 
     void update() {
-        avatarLabel.setEnabled(mayEdit);
-        avatarLabel.setIcon(FSkin.getAvatars().get(type == LobbySlotType.OPEN ? -1 : avatarIndex));
-        avatarLabel.repaintSelf();
+        playerImageLabel.setEnabled(mayEdit);
+        final LobbySlot slot = lobby.getLobby().getSlot(index);
+        refreshPlayerImageFromDeck(slot == null ? null : slot.getDeck());
 
         sleeveLabel.setEnabled(mayEdit);
         if (type != LobbySlotType.OPEN && sleeveArtKey != null && !sleeveArtKey.isEmpty()) {
@@ -297,7 +288,6 @@ public class PlayerPanel extends FPanel {
                     setPlayerName(newName);
                 }
                 lobby.firePlayerChangeListener(index);
-                avatarLabel.requestFocusInWindow();
                 lobby.updateVanguardList(index);
             }
         };
@@ -326,14 +316,6 @@ public class PlayerPanel extends FPanel {
                 }
                 lobby.firePlayerChangeListener(index);
             }
-        }
-    };
-
-    /** Listens to avatar buttons and gives the appropriate player focus. */
-    private final FocusAdapter avatarFocusListener = new FocusAdapter() {
-        @Override
-        public void focusGained(final FocusEvent e) {
-            lobby.changePlayerFocus(index);
         }
     };
 
@@ -486,10 +468,6 @@ public class PlayerPanel extends FPanel {
         cmdPickBtn.setText(text);
         hasCommanderChoices = hasChoices;
         updateVariantControlsVisibility();
-    }
-
-    public void focusOnAvatar() {
-        avatarLabel.requestFocusInWindow();
     }
 
     /**
@@ -714,50 +692,6 @@ public class PlayerPanel extends FPanel {
         return closeBtn;
     }
 
-    private void createAvatar() {
-        final String[] currentPrefs = FModel.getPreferences().getPref(FPref.UI_AVATARS).split(",");
-        if (index < currentPrefs.length) {
-            avatarIndex = Integer.parseInt(currentPrefs[index]);
-            avatarLabel.setIcon(FSkin.getAvatars().get(avatarIndex));
-        } else {
-            setRandomAvatar(false);
-        }
-
-        avatarLabel.setToolTipText(localizer.getMessage("ttlblAvatar"));
-        avatarLabel.addFocusListener(avatarFocusListener);
-        avatarLabel.setCommand((UiCommand) () -> {
-            lobby.changePlayerFocus(index);
-            avatarLabel.requestFocusInWindow();
-
-            final AvatarSelector aSel = new AvatarSelector(playerName, avatarIndex, lobby.getUsedAvatars());
-            for (final FLabel lbl : aSel.getSelectables()) {
-                lbl.setCommand((UiCommand) () -> {
-                    setAvatarIndex(Integer.parseInt(lbl.getName().substring(11)));
-                    aSel.setVisible(false);
-                });
-            }
-
-            aSel.setVisible(true);
-            aSel.dispose();
-
-            if (index < 2) {
-                lobby.updateAvatarPrefs();
-            }
-
-            lobby.firePlayerChangeListener(index);
-        });
-        avatarLabel.setRightClickCommand((UiCommand) () -> {
-            lobby.changePlayerFocus(index);
-            avatarLabel.requestFocusInWindow();
-
-            setRandomAvatar();
-
-            if (index < 2) {
-                lobby.updateAvatarPrefs();
-            }
-        });
-    }
-
     private void createSleeve() {
         final String[] currentPrefs = FModel.getPreferences().getPref(FPref.UI_SLEEVES).split(",");
         if (index < currentPrefs.length) {
@@ -825,6 +759,16 @@ public class PlayerPanel extends FPanel {
         }
     }
 
+    /** Updates the player image from a deck's commander card, or the generic player icon if it has none. */
+    public void refreshPlayerImageFromDeck(final Deck deck) {
+        if (deck != null && !deck.getCommanders().isEmpty()) {
+            playerImageLabel.setIcon(ImageCache.getIcon(deck.getCommanders().get(0).getImageKey(false)));
+        } else {
+            playerImageLabel.setIcon(FSkin.getIcon(FSkinProp.ICO_PLAYERS));
+        }
+        playerImageLabel.repaintSelf();
+    }
+
     // Writes the chosen sleeve onto the currently selected deck and saves it (no-op for read-only decks)
     private void persistSleeveToDeck(final String key, final int offset) {
         final FDeckChooser chooser = getDeckChooser();
@@ -855,24 +799,6 @@ public class PlayerPanel extends FPanel {
         }
     }
 
-    /** Applies a random avatar, avoiding avatars already used. */
-    private void setRandomAvatar() {
-        setRandomAvatar(true);
-    }
-    private void setRandomAvatar(final boolean fireListeners) {
-        int random = 0;
-
-        final List<Integer> usedAvatars = lobby.getUsedAvatars();
-        do {
-            random = MyRandom.getRandom().nextInt(FSkin.getAvatars().size());
-        } while (usedAvatars.contains(random));
-        setAvatarIndex(random);
-
-        if (fireListeners) {
-            lobby.firePlayerChangeListener(index);
-        }
-    }
-
     /** Applies a random sleeve, avoiding sleeve already used. */
     private void setRandomSleeve() {
         setRandomSleeve(true);
@@ -895,7 +821,7 @@ public class PlayerPanel extends FPanel {
     private final FSkin.LineSkinBorder defaultBorder = new FSkin.LineSkinBorder(FSkin.getColor(FSkin.Colors.CLR_THEME).alphaColor(200), 2);
 
     public void setFocused(final boolean focused) {
-        avatarLabel.setBorder(focused ? focusedBorder : defaultBorder);
+        playerImageLabel.setBorder(focused ? focusedBorder : defaultBorder);
     }
 
     String getPlayerName() {
@@ -904,16 +830,6 @@ public class PlayerPanel extends FPanel {
     public void setPlayerName(final String string) {
         playerName = string;
         txtPlayerName.setText(string);
-    }
-
-    public int getAvatarIndex() {
-        return avatarIndex;
-    }
-    public void setAvatarIndex(final int avatarIndex0) {
-        avatarIndex = avatarIndex0;
-        final SkinImage icon = FSkin.getAvatars().get(avatarIndex);
-        avatarLabel.setIcon(icon);
-        avatarLabel.repaintSelf();
     }
 
     public int getSleeveIndex() {

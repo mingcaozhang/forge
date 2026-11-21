@@ -167,7 +167,6 @@ public enum VSubmenuOnlineLobby implements IVSubmenu<CSubmenuOnlineLobby>, IOnli
 
         for (final FDeckChooser fdc : lobby.getDeckChoosers()) {
             fdc.populate();
-            fdc.getDecksComboBox().addListener(ev -> lobby.focusOnAvatar());
         }
 
         container.add(lobby.getConstructedFrame(), "gap 20px 20px 10px 0px, push, grow");

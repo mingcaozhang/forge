@@ -220,10 +220,6 @@ public class VLobby implements ILobbyView {
         }
     }
 
-    public void focusOnAvatar() {
-        getPlayerPanelWithFocus().focusOnAvatar();
-    }
-
     private PlayerPanel getPlayerPanel(int slot) {
         return playerPanels.get(slot);
     }
@@ -309,7 +305,6 @@ public class VLobby implements ILobbyView {
                 final LobbySlotType type = slot.getType();
                 panel.setType(type);
                 panel.setPlayerName(slot.getName());
-                panel.setAvatarIndex(slot.getAvatarIndex());
                 final Deck slotDeck = slot.getDeck();
                 panel.setSleeve(slot.getSleeveIndex(),
                         slotDeck == null ? "" : slotDeck.getSleeveArtKey(),
@@ -423,6 +418,7 @@ public class VLobby implements ILobbyView {
     private void fireDeckChangeListener(final int index, final Deck deck) {
         decks[index] = deck;
         getPlayerPanel(index).refreshSleeveFromDeck(deck);
+        getPlayerPanel(index).refreshPlayerImageFromDeck(deck);
         if (playerChangeListener != null) {
             playerChangeListener.update(index, UpdateLobbyPlayerEvent.deckUpdate(deck));
         }
@@ -454,7 +450,7 @@ public class VLobby implements ILobbyView {
         final PlayerPanel panel = getPlayerPanel(index);
         return UpdateLobbyPlayerEvent.create(panel.getType(),
                 panel.getPlayerName(),
-                panel.getAvatarIndex(), panel.getSleeveIndex(),
+                0, panel.getSleeveIndex(),
                 panel.getTeam(), panel.isArchenemy(),
                 panel.isDevMode(),
                 panel.getAiOptions(),
@@ -885,15 +881,6 @@ public class VLobby implements ILobbyView {
         pnlStart.repaint();
     }
 
-    /** Saves avatar prefs for players one and two. */
-    void updateAvatarPrefs() {
-        final int pOneIndex = getPlayerPanel(0).getAvatarIndex();
-        final int pTwoIndex = getPlayerPanel(1).getAvatarIndex();
-
-        prefs.setPref(FPref.UI_AVATARS, pOneIndex + "," + pTwoIndex);
-        prefs.save();
-    }
-
     /** Saves sleeve prefs for players one and two. */
     void updateSleevePrefs() {
         final int pOneIndex = getPlayerPanel(0).getSleeveIndex();
@@ -906,14 +893,6 @@ public class VLobby implements ILobbyView {
     /** Adds a pre-styled FLabel component with the specified title. */
     FLabel newLabel(final String title) {
         return new FLabel.Builder().text(title).fontSize(14).fontStyle(Font.ITALIC).build();
-    }
-
-    List<Integer> getUsedAvatars() {
-        final List<Integer> usedAvatars = Lists.newArrayListWithCapacity(MAX_PLAYERS);
-        for (final PlayerPanel pp : playerPanels) {
-            usedAvatars.add(pp.getAvatarIndex());
-        }
-        return usedAvatars;
     }
 
     List<Integer> getUsedSleeves() {

@@ -89,7 +89,7 @@ Per `REWRITE.md`, this cleanup trims the JVM baseline BEFORE the rewrite phases 
 
 ## Phase 4 — Avatars → Commander Card Image
 
-- [ ] **4.1 Remove avatar selection UI + home submenu; lobby slots show deck commander image**
+- [x] **4.1 Remove avatar selection UI + home submenu; lobby slots show deck commander image**
   - Delete: `forge-gui-desktop .../screens/home/settings/VSubmenuAvatars.java`, `.../CSubmenuAvatars.java`, `.../screens/home/sanctioned/AvatarSelector.java`.
   - Surgical: `EDocID.java` (import L17 + `HOME_AVATARS` L46); `VHomeUI.java` (import L55, registration L151, hero-icon case L251-252); `home.xml` (remove `<doc>HOME_AVATARS</doc>`); `HomeNavigationRegistryTest.java` (L47 + mapping L67).
   - `PlayerPanel.java`: replace `createAvatar()` (L717-759) with a player-image label: `slot.getDeck()` non-null and `deck.getCommanders()` non-empty → `ImageCache.getIcon(deck.getCommanders().get(0).getImageKey())`, else `FSkin.n(FSkinProp.ICO_PLAYERS)`; refresh the icon in `update()` (L237); remove `avatarIndex` field (L73), `setAvatarIndex` call (L228), avatar-icon lines in `update()` (L238-240), avatar-focus listeners (L215-219, L300, L332-338), `focusOnAvatar()` (L491-493), `setRandomAvatar` (L858-874), `getAvatarIndex`/`setAvatarIndex` (L909-917), `AvatarSelector` import (L41); move the focus border (L898) from `avatarLabel` to the panel/player-image label.
