@@ -17,6 +17,10 @@
   `apply()` lines, `toString` lines + `RegisteredPlayer.teamNumber`/getters all gone; 7 `new LobbySlot(` sites +
   `VLobby.getSlot` + `LobbySlotAuthorizationTest` updated to new signatures. `Player.isArchenemy()` (scheme-based,
   Archenemy engine) stays — deferred. GATE green: 2708 run / 11 skipped.
+- Part 2 / 2.5 Removed 8 orphaned i18n keys (`lblTeam`, `lblHeroes`, `lblNotEnoughTeams`,
+  `lblTwoHeadedGiantNeedsFourPlayers`, `lblSelectaSchemeDeck`, `lblSchemeDeckEditor`, `lblCommanderDealNDamageToTeam`,
+  `lblTeamWon`) from all 10 locale files (62 lines; `lblAgainstTeam` already gone in 1.4, `lblSchemeDeck` kept per plan).
+  GATE green: 2708 run / 11 skipped.
 
 ## Environment quirks
 - Always use a 600000 ms timeout on Maven runs (default 120 s kills long runs).
@@ -29,8 +33,6 @@
 - `Player.getAllies()` (Player.java:350) now always-empty; NOT in 1.4 scope per plan — ~20 forge-ai call sites degenerate to empty no-ops.
 - `GameStateEvaluator.getScoreForGameStateImpl` ally branch (teammates/teamLife vars, "Ally" debug lines) now dead but functionally
   correct (scores `2*aiLife`); left untouched, out of 1.4 scope.
-- Orphaned i18n keys (java refs gone): `lblTeamWon` (1.3), `lblCommanderDealNDamageToTeam` (1.2), `lblTwoHeadedGiantNeedsFourPlayers` +
-  `lblNotEnoughTeams` (2.1), `lblTeam`/`lblHeroes`/`lblSelectaSchemeDeck`/`lblSchemeDeckEditor` (2.2) → 2.5. `lblArchenemy` still
-  referenced by the `GameType.Archenemy` entry (stays until a later part).
+- `lblArchenemy` still referenced by the `GameType.Archenemy` entry (stays until a later part).
 - GATE covers forge-core/game/ai/gui/gui-desktop tests; final phase 4.1 gate is GATE + PKG. Pre-existing orphan i18n keys
   (quest/gauntlet/puzzle/adv*/misc) left as follow-ups.
