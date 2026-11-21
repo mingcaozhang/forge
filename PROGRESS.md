@@ -18,6 +18,8 @@
   rebased to self/equals, AgainstAllOdds team tiers dropped (4-tier ctor: 3/7 individuals → common/uncommon; rare/mythic same desc,
   thresholds 3/4 unreachable), `lblAgainstTeam` removed from 10 locales, GameCopier setTeam line deleted, `setTeam(...)` stripped from
   22 AI test files, `GameStateEvaluatorTest.testAlliedResourcesImproveTeamScore` deleted (team-only premise). GATE green: 2708 run / 11 skipped.
+- Part 2 / 1.5 2HG rule entry points removed: `GameRules.hasSharedTeamTurns` (zero refs), `getPoisonCountersToLose` → always returns
+  `poisonCountersToLose` (2HG 15-branch gone), `RegisteredPlayer.forVariants` 2HG shared-life block deleted. GATE green: 2708 run / 11 skipped.
 
 ## Environment quirks
 - Always use a 600000 ms timeout on Maven runs (default 120 s kills long runs).
@@ -30,7 +32,7 @@
   (AiAttackController, SpellAbilityAi, TargetOnlyAi, PumpAi, ScryAi, DrawAi, ...). Candidate for later cleanup.
 - `GameStateEvaluator.getScoreForGameStateImpl` ally branch (teammates/teamLife vars, "Ally" debug lines) now dead but functionally correct
   (scores `2*aiLife`); left untouched, out of 1.4 scope.
-- `RegisteredPlayer.teamNumber` + `forVariants` 2HG shared-life block + `GameRules.hasSharedTeamTurns`/`getPoisonCountersToLose` 2HG branch → 1.5.
+- `RegisteredPlayer.teamNumber` + `getTeamNumber` (zero refs) / `setTeamNumber` (only caller `GameLobby.startGame` L702) → 2.1/2.4.
 - Orphaned i18n keys (java refs gone): `lblTeamWon` (1.3) + `lblCommanderDealNDamageToTeam` (1.2, en-US only) → 2.5.
 - GATE covers forge-core/game/ai/gui/gui-desktop tests; final phase 4.1 gate is GATE + PKG. Pre-existing orphan i18n keys (quest/gauntlet/
   puzzle/adv*/misc) left as follow-ups.

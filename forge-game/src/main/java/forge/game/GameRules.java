@@ -7,7 +7,7 @@ public class GameRules {
     private final GameType gameType;
     private boolean manaBurn;
     private boolean orderCombatants;
-    private int poisonCountersToLose = 10; // is commonly 10, but turns into 15 for 2HG
+    private int poisonCountersToLose = 10;
     private int gamesPerMatch = 3;
     private int gamesToWinMatch = 2;
     private boolean playForAnte = false;
@@ -48,7 +48,7 @@ public class GameRules {
     }
 
     public int getPoisonCountersToLose() {
-        return hasAppliedVariant(GameType.TwoHeadedGiant) ? 15 : poisonCountersToLose; // 810.8d
+        return poisonCountersToLose;
     }
     public void setPoisonCountersToLose(final int amount) {
         this.poisonCountersToLose = amount;
@@ -126,11 +126,6 @@ public class GameRules {
                 || appliedVariants.contains(GameType.Oathbreaker)
                 || appliedVariants.contains(GameType.TinyLeaders)
                 || appliedVariants.contains(GameType.Brawl);
-    }
-
-    /** Teams take turns and hold priority together (CR 805), as in Two-Headed Giant. */
-    public boolean hasSharedTeamTurns() {
-        return appliedVariants.contains(GameType.TwoHeadedGiant);
     }
 
     public boolean useGrayText() {
