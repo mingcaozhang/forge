@@ -421,49 +421,12 @@ public class DeckProxy implements InventoryItem {
         return result;
     }
 
-    public static Iterable<DeckProxy> getAllOathbreakerDecks() {
-        return getAllOathbreakerDecks(null);
-    }
-    public static Iterable<DeckProxy> getAllOathbreakerDecks(final Predicate<Deck> filter) {
-        final List<DeckProxy> result = new ArrayList<>();
-        addDecksRecursivelly("Oathbreaker", GameType.Oathbreaker, result, "", FModel.getDecks().getOathbreaker(), filter);
-        return result;
-    }
-
     public static Iterable<DeckProxy> getAllCommanderPreconDecks() {
         return getAllCommanderPreconDecks(null);
     }
     public static Iterable<DeckProxy> getAllCommanderPreconDecks(final Predicate<Deck> filter) {
         final List<DeckProxy> result = new ArrayList<>();
         addDecksRecursivelly("Commander Precon", GameType.Commander, result, "", FModel.getDecks().getCommanderPrecons(), filter);
-        return result;
-    }
-
-    public static Iterable<DeckProxy> getAllTinyLeadersDecks() {
-        return getAllTinyLeadersDecks(null);
-    }
-    public static Iterable<DeckProxy> getAllTinyLeadersDecks(Predicate<Deck> filter) {
-        final List<DeckProxy> result = new ArrayList<>();
-        if (filter == null) {
-            filter = DeckFormat.TinyLeaders.hasLegalCardsPredicate(FModel.getPreferences().getPrefBoolean(FPref.ENFORCE_DECK_LEGALITY));
-        } else {
-            filter = filter.and(DeckFormat.TinyLeaders.hasLegalCardsPredicate(FModel.getPreferences().getPrefBoolean(FPref.ENFORCE_DECK_LEGALITY)));
-        }
-        addDecksRecursivelly("Tiny Leaders", GameType.TinyLeaders, result, "", FModel.getDecks().getTinyLeaders(), filter);
-        return result;
-    }
-
-    public static Iterable<DeckProxy> getAllBrawlDecks() {
-        return getAllBrawlDecks(null);
-    }
-    public static Iterable<DeckProxy> getAllBrawlDecks(Predicate<Deck> filter) {
-        final List<DeckProxy> result = new ArrayList<>();
-        if (filter == null) {
-            filter = DeckFormat.Brawl.hasLegalCardsPredicate(FModel.getPreferences().getPrefBoolean(FPref.ENFORCE_DECK_LEGALITY));
-        } else {
-            filter = filter.and(DeckFormat.Brawl.hasLegalCardsPredicate(FModel.getPreferences().getPrefBoolean(FPref.ENFORCE_DECK_LEGALITY)));
-        }
-        addDecksRecursivelly("Brawl", GameType.Brawl, result, "", FModel.getDecks().getBrawl(), filter);
         return result;
     }
 

@@ -6,17 +6,18 @@
 
 ## Completed items
 - Part 2 / 1.1–1.5: game engine team/2HG mechanics removed + rebased single-player (Player team API gone,
-  `YourTeam`/`YourTeamCtrl` script names kept, 2HG rule entry points gone).
-- Part 2 / 2.1–2.5: GameLobby archenemy/team selection, lobby team/2HG/Archenemy/scheme UI,
-  `LobbySlot`/`UpdateLobbyPlayerEvent` team fields, `FormatChoices.VARIANTS` → Vanguard + Planechase, and
-  8 orphaned team i18n keys removed. GATE green: 2708 run / 11 skipped.
-- Part 2 / 3.1: `FormatChoices.COMMANDER_GAME_TYPES` → Commander only; `VLobby.createDeckChooser`
-  TinyLeaders/Oathbreaker/Brawl cases dropped; `PlayerPanel.formatUsesCommandZone` + `cmdDeckSelectorBtn`
-  chain → Commander; `FDeckChooser.updateCustom` 3 DeckFormat cases dropped; `VSubmenuConstructed` comment
-  updated. GATE green: 2708 run / 11 skipped.
-- Part 2 / 3.2: removed 24 Oathbreaker/TinyLeaders/Brawl `*_P{1..8}_DECK_STATE` FPref entries + the 3
-  `*_DECK_STATES` arrays from `ForgePreferences` (all refs gone after 3.1, verified with rg). GATE green:
-  2708 run / 11 skipped.
+  `YourTeam`/`YourTeamCtrl` script names kept, 2HG rule entry points gone). GATE green.
+- Part 2 / 2.1–2.5: lobby team/2HG/Archenemy/scheme selection + UI, `LobbySlot`/`UpdateLobbyPlayerEvent`
+  team fields, `FormatChoices.VARIANTS` → Vanguard + Planechase, 8 orphaned team i18n keys removed. GATE green.
+- Part 2 / 3.1: `FormatChoices.COMMANDER_GAME_TYPES` → Commander only; lobby deck-chooser +
+  `formatUsesCommandZone` chains trimmed to Commander. GATE green.
+- Part 2 / 3.2: 24 Oathbreaker/TinyLeaders/Brawl `*_P{1..8}_DECK_STATE` FPref entries + 3 `*_DECK_STATES`
+  arrays removed from `ForgePreferences`. GATE green.
+- Part 2 / 3.3: deck-editor variant tabs gone — V/C{OathbreakerDecks,BrawlDecks,TinyLeadersDecks} deleted;
+  `CDeckEditorUI` variant fields/caption cases, `EDocID.EDITOR_{OATHBREAKER,BRAWL,TINY_LEADERS}`,
+  `SEditorIO` save cases, `editor.xml` docs, `DeckType.{OATHBREAKER,TINY_LEADERS,BRAWL}_DECK`,
+  `DeckProxy.getAll*Decks` accessors removed; `RandomDeckGenerator` variant switch cases dropped.
+  GATE green: 2708 run / 11 skipped.
 
 ## Environment quirks
 - Always use a 600000 ms timeout on Maven runs (default 120 s kills long runs).
@@ -28,9 +29,11 @@
 ## Active caveats / follow-ups
 - `VLobby.populateDeckPanel` still has Oathbreaker/TinyLeaders/Brawl case labels (unreachable now; go with the
   GameType entries in a later part).
-- `Player.getAllies()` (Player.java:350) now always-empty; NOT in 1.4 scope per plan — ~20 forge-ai call sites degenerate to empty no-ops.
-- `GameStateEvaluator.getScoreForGameStateImpl` ally branch (teammates/teamLife vars, "Ally" debug lines) now dead but functionally
-  correct (scores `2*aiLife`); left untouched, out of 1.4 scope.
+- `DeckManager.editDeck`/`getFilteredSetCodesInCatalog` variant branches + `DeckPreferences.{oathbreaker,
+  tinyLeaders,brawl}Deck` preferred-deck fields are dead (views gone); go with GameType entries, later part.
+- `Player.getAllies()` (Player.java:350) now always-empty; ~20 forge-ai call sites degenerate to empty no-ops.
+- `GameStateEvaluator` ally branch (teammates/teamLife vars, "Ally" debug lines) now dead but functionally
+  correct (scores `2*aiLife`); left untouched.
 - `lblArchenemy` still referenced by the `GameType.Archenemy` entry (stays until a later part).
-- GATE covers forge-core/game/ai/gui/gui-desktop tests; final phase 4.1 gate is GATE + PKG. Pre-existing orphan i18n keys
-  (quest/gauntlet/puzzle/adv*/misc) left as follow-ups.
+- GATE covers forge-core/game/ai/gui/gui-desktop; phase 4.1 final gate is GATE + PKG. Pre-existing orphan
+  i18n keys (quest/gauntlet/puzzle/adv*/misc) left as follow-ups.

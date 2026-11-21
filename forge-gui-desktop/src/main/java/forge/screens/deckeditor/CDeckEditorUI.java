@@ -71,9 +71,6 @@ public enum CDeckEditorUI implements ICDoc {
     private final CDetailPicture cDetailPicture;
     private final VAllDecks vAllDecks;
     private final VCommanderDecks vCommanderDecks;
-    private final VOathbreakerDecks vOathbreakerDecks;
-    private final VBrawlDecks vBrawlDecks;
-    private final VTinyLeadersDecks vTinyLeadersDecks;
     private final VEditorLog vEditorLog;
 
     CDeckEditorUI() {
@@ -83,12 +80,6 @@ public enum CDeckEditorUI implements ICDoc {
         this.vAllDecks.setCDetailPicture(cDetailPicture);
         this.vCommanderDecks = VCommanderDecks.SINGLETON_INSTANCE;
         this.vCommanderDecks.setCDetailPicture(cDetailPicture);
-        this.vOathbreakerDecks = VOathbreakerDecks.SINGLETON_INSTANCE;
-        this.vOathbreakerDecks.setCDetailPicture(cDetailPicture);
-        this.vBrawlDecks = VBrawlDecks.SINGLETON_INSTANCE;
-        this.vBrawlDecks.setCDetailPicture(cDetailPicture);
-        this.vTinyLeadersDecks = VTinyLeadersDecks.SINGLETON_INSTANCE;
-        this.vTinyLeadersDecks.setCDetailPicture(cDetailPicture);
         this.vEditorLog = VEditorLog.SINGLETON_INSTANCE;
     }
 
@@ -233,11 +224,8 @@ public enum CDeckEditorUI implements ICDoc {
     private static String formatTabCaptionKey(final GameType gt) {
         if (gt == null) { return "lblDeckEditorWithSpaces"; }
         switch (gt) {
-            case Commander:   return "lblCommanderDeckEditor";
-            case Oathbreaker: return "lblOathbreakerDeckEditor";
-            case Brawl:       return "lblBrawlDeckEditor";
-            case TinyLeaders: return "lblTinyLeadersDeckEditor";
-            default:          return "lblDeckEditorWithSpaces";
+            case Commander: return "lblCommanderDeckEditor";
+            default:        return "lblDeckEditorWithSpaces";
         }
     }
 
