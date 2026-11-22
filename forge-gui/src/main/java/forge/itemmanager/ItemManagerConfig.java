@@ -260,15 +260,27 @@ public enum ItemManagerConfig {
         viewIndex.setValue(value0);
     }
 
+    @SuppressWarnings("unchecked")
+    private static <E extends Enum<E>> E parseEnum(Class<E> enumClass, String name) {
+        try {
+            return Enum.valueOf(enumClass, name);
+        } catch (IllegalArgumentException e) {
+            return null; //stale value from a mode removed in a later version; skip silently
+        }
+    }
+
     public static void load() {
         try {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             final Document document = builder.parse(new File(ForgeConstants.ITEM_VIEW_PREFS_FILE));
             final NodeList configs = document.getElementsByTagName("config");
             for (int i = 0; i < configs.getLength(); i++) {
-                try { //capture enum parse errors without losing other preferences
-                    final Element el = (Element) configs.item(i);
-                    final ItemManagerConfig config = Enum.valueOf(ItemManagerConfig.class, el.getAttribute("name"));
+                final Element el = (Element) configs.item(i);
+                final ItemManagerConfig config = parseEnum(ItemManagerConfig.class, el.getAttribute("name"));
+                if (config == null) {
+                    continue; //stale config for a removed mode; skip silently
+                }
+                try {
                     if (el.hasAttribute("uniqueCardsOnly")) {
                         config.uniqueCardsOnly.value = Boolean.parseBoolean(el.getAttribute("uniqueCardsOnly"));
                     }
@@ -283,7 +295,10 @@ public enum ItemManagerConfig {
                         if (value.isEmpty()) {
                             config.groupBy.value = null;
                         } else {
-                            config.groupBy.value = Enum.valueOf(GroupDef.class, value);
+                            GroupDef groupBy = parseEnum(GroupDef.class, value);
+                            if (groupBy != null) {
+                                config.groupBy.value = groupBy;
+                            }
                         }
                     }
                     if (el.hasAttribute("pileBy")) {
@@ -291,7 +306,10 @@ public enum ItemManagerConfig {
                         if (value.isEmpty()) {
                             config.pileBy.value = null;
                         } else {
-                            config.pileBy.value = Enum.valueOf(ColumnDef.class, value);
+                            ColumnDef pileBy = parseEnum(ColumnDef.class, value);
+                            if (pileBy != null) {
+                                config.pileBy.value = pileBy;
+                            }
                         }
                     }
                     if (el.hasAttribute("imageColumnCount")) {
@@ -300,32 +318,39 @@ public enum ItemManagerConfig {
                     if (el.hasAttribute("viewIndex")) {
                         config.viewIndex.value = Integer.parseInt(el.getAttribute("viewIndex"));
                     }
-                    final NodeList cols = el.getElementsByTagName("col");
-                    for (int j = 0; j < cols.getLength(); j++) {
-                        try { //capture enum parse errors without losing other column preferences
-                            final Element colEl = (Element) cols.item(j);
-                            ItemColumnConfig colConfig = config.cols.get(Enum.valueOf(ColumnDef.class, colEl.getAttribute("name")));
-                            if (colEl.hasAttribute("width")) {
-                                colConfig.setPreferredWidth(Integer.parseInt(colEl.getAttribute("width")));
-                            }
-                            if (colEl.hasAttribute("sortPriority")) {
-                                colConfig.setSortPriority(Integer.parseInt(colEl.getAttribute("sortPriority")));
-                            }
-                            if (colEl.hasAttribute("sortState")) {
-                                colConfig.setSortState(Enum.valueOf(SortState.class, colEl.getAttribute("sortState")));
-                            }
-                            if (colEl.hasAttribute("index")) {
-                                colConfig.setIndex(Integer.parseInt(colEl.getAttribute("index")));
-                            }
-                            if (colEl.hasAttribute("visible")) {
-                                colConfig.setVisible(Boolean.parseBoolean(colEl.getAttribute("visible")));
-                            }
-                        } catch (final Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
                 } catch (final Exception e) {
-                    e.printStackTrace();
+                    e.printStackTrace(); //capture unexpected parse errors without losing other preferences
+                }
+                final NodeList cols = el.getElementsByTagName("col");
+                for (int j = 0; j < cols.getLength(); j++) {
+                    final Element colEl = (Element) cols.item(j);
+                    final ColumnDef def = parseEnum(ColumnDef.class, colEl.getAttribute("name"));
+                    final ItemColumnConfig colConfig = def == null ? null : config.cols.get(def);
+                    if (colConfig == null) {
+                        continue; //stale column for a removed mode; skip silently
+                    }
+                    try {
+                        if (colEl.hasAttribute("width")) {
+                            colConfig.setPreferredWidth(Integer.parseInt(colEl.getAttribute("width")));
+                        }
+                        if (colEl.hasAttribute("sortPriority")) {
+                            colConfig.setSortPriority(Integer.parseInt(colEl.getAttribute("sortPriority")));
+                        }
+                        if (colEl.hasAttribute("sortState")) {
+                            SortState sortState = parseEnum(SortState.class, colEl.getAttribute("sortState"));
+                            if (sortState != null) {
+                                colConfig.setSortState(sortState);
+                            }
+                        }
+                        if (colEl.hasAttribute("index")) {
+                            colConfig.setIndex(Integer.parseInt(colEl.getAttribute("index")));
+                        }
+                        if (colEl.hasAttribute("visible")) {
+                            colConfig.setVisible(Boolean.parseBoolean(colEl.getAttribute("visible")));
+                        }
+                    } catch (final Exception e) {
+                        e.printStackTrace(); //capture unexpected parse errors without losing other column preferences
+                    }
                 }
             }
         } catch (FileNotFoundException e) {
