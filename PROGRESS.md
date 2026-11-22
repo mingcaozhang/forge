@@ -1,4 +1,4 @@
-# PROGRESS.md — Pre-rewrite cleanup (Part 5: 16.1–16.6 done)
+# PROGRESS.md — Pre-rewrite cleanup (Part 5: 16.1–17.1 done)
 
 ## Verified baseline facts
 - Branch `dev`, clean tree. Per-item verify: `GATE` = `mvn test -pl forge-gui-desktop -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` (600000 ms). Final gates add `PKG` = `mvn package -DskipTests -T 1C`.
@@ -9,22 +9,23 @@
 - Scratch artifacts only under `/tmp/opencode/`. Locale files have no trailing newline; preserve when editing. i18n keys are plain string literals via `Localizer.getMessage` (no I18N enum) — deletion = property lines only.
 
 ## Recently completed
+- 17.1: Final sweep. Removed ALL remaining orphaned i18n keys from all 10 locales (13,881 key lines + 872 stale `#` section
+  comments; ~300/locale were stale translations of keys already gone from en-US). Verified via full Java string-literal diff
+  (2,058 .java files) + zero non-Java refs. Hard-KEEP protected: `lblPuzzle*`/`lblRestartPuzzle`/`lblQuitPuzzle` (puzzle
+  follow-up) + 9 vanguard i18n keys. Also deleted orphaned `forge-gui/server.preferences.example`. GATE (2686 desktop tests) + PKG green.
 - 16.6: Deleted `LobbySlotAuthorizationTest` + `HeadlessNetworkGuiGame` (last `forge.net` harness files).
-  `HeadlessGuiDesktop`: dropped `getNewGuiGame()` override (now inherits `GuiDesktop`'s `return new CMatchUI()`),
-  dead `lastMatch`/`getLastMatch`/`clearLastMatch` + stale `NetworkLogConfig.setTestMode` comment; KEPT `hostMatch()`
-  override (inherited `GuiDesktop.hostMatch()` would NPE on `Singletons.getControl()`, null in tests). Verified the 7 kept
-  net tests reference only kept classes (`WireClassFilterTest`/`WireDeserializationTest` live in
-  `forge-gui-desktop/src/test/.../gamemodes/net/`, not forge-gui as PLAN phrased). GATE green.
+  `HeadlessGuiDesktop`: dropped `getNewGuiGame()` override (inherits `GuiDesktop`'s `return new CMatchUI()`),
+  dead `lastMatch`/`getLastMatch`/`clearLastMatch`; KEPT `hostMatch()` override (inherited one NPEs on null `Singletons.getControl()`).
+  Verified 7 kept net tests reference only kept classes. GATE green.
 - 16.5: Relocated test harness `forge.net/{HeadlessGuiDesktop,TestUtils}` → `forge.headless` (git mv); updated imports.
-- 16.4: Deleted 62 online i18n keys (531 lines) from all 10 locale files. KEPT `lblHost` (`CardType.Host`).
-- 16.3/16.2: Deleted net prefs + server stack; KEPT `NetGameController`/`GameProtocolSender`/heartbeat events;
-  delta engine moved NetworkGuiGame → AbstractGuiGame. Part 5 (O/B/TL: 14.1–15.4) fully complete. See git log.
+
+## 17.1 sweep — verified expected survivors
+- Kept net transport subset (16.2): `FGameClient`/`GameClientHandler`/`NetGameController`/`ReplayClient`/`NetworkLogConfig`
+  (+ its `ForgeConstants.NETWORK_LOGS_DIR` dependency), javadoc refs in `IGuiGame`/`YieldController`/`YieldUpdate`/`AbstractGuiGame`, kept net tests.
+- Card names in card data/docs (brawler/oathbreaker cards; "Brawl"/"Historic-Brawl" in `tools/DeckConversionTools/mtgdecksnet_convert.py` are MTG format names).
+- `res/quest/**`, `quest-opponent-icons.txt`, `formats/Archived/**` (card names) — quest mode, later part.
+- `org.jupnp` imports in IGuiBase/GuiDesktop/IDeviceAdapter/ForgeMatrixWriter = device/display adapters, not multiplayer.
 
 ## Active caveats / follow-ups
-- 17.1: extra orphaned online keys (0 Java refs, not in 16.4 list): `lblReconnectedToast`, `lblReconnectRejoin`,
-  `lblUPnP{Title,Question,Success,Failed}`, `lblNotNow`, `lblAsk`, `lblJustOnce`, `lblInterface`, `lblAddress`, `lblCopy{External,Local}URL`,
-  `lblForgeUnableDetermineYourExternalIP`, `lblEnterMessageToSend`, `lblNetworkDeckFilter`, `lblNetworkNewEventButton`,
-  `lblNetworkSetUpEventPrompt`, `lblDisconnect`, `lblShowDraftPanel` — rg-verify each before removing
-  (`lblAlways`/`lblNever` stay — used by `DeclineScope`).
-- `org.jupnp` imports in IGuiBase/GuiDesktop/IDeviceAdapter/ForgeMatrixWriter = device/display adapters, NOT multiplayer — expected 17.1-sweep survivors.
-- Deferred (later parts): Archenemy* + scheme engine; ante; Puzzle remnants; `LEGACY_*` prefs; other non-Commander modes.
+- Deferred (later parts): Archenemy* + scheme engine; ante; Puzzle core remnants + `lblPuzzle*` keys (hard-KEEP);
+  `LEGACY_*` prefs; quest/gauntlet/adventure remnants (`res/quest/`, `forge-gui/tools/adventure_i18n.py` + README).
