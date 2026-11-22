@@ -78,6 +78,7 @@ public class ForgeProfileProperties {
         FileUtil.ensureDirectoryExists(userDir);
         FileUtil.ensureDirectoryExists(cacheDir);
         FileUtil.ensureDirectoryExists(cardPicsDir);
+        FileUtil.ensureDirectoryExists(cacheDir + "skins" + File.separator);
     }
 
     public static String getUserDir() {

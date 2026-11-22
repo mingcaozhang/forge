@@ -1483,9 +1483,7 @@ public class FSkin {
 
         final File dir = new File(ForgeConstants.CACHE_SKINS_DIR);
         final String[] children = dir.list();
-        if (children == null) {
-            System.err.println("FSkin > can't find skins directory!");
-        } else {
+        if (children != null) {
             for (String aChildren : children) {
                 if (aChildren.equalsIgnoreCase(".svn")) {
                     continue;
