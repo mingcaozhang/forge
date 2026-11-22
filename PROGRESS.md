@@ -13,11 +13,11 @@
   `formatUsesCommandZone` chains trimmed to Commander. GATE green.
 - Part 2 / 3.2: 24 Oathbreaker/TinyLeaders/Brawl `*_P{1..8}_DECK_STATE` FPref entries + 3 `*_DECK_STATES`
   arrays removed from `ForgePreferences`. GATE green.
-- Part 2 / 3.3: deck-editor variant tabs gone — V/C{OathbreakerDecks,BrawlDecks,TinyLeadersDecks} deleted;
-  `CDeckEditorUI` variant fields/caption cases, `EDocID.EDITOR_{OATHBREAKER,BRAWL,TINY_LEADERS}`,
-  `SEditorIO` save cases, `editor.xml` docs, `DeckType.{OATHBREAKER,TINY_LEADERS,BRAWL}_DECK`,
-  `DeckProxy.getAll*Decks` accessors removed; `RandomDeckGenerator` variant switch cases dropped.
-  GATE green: 2708 run / 11 skipped.
+- Part 2 / 3.3: deck-editor variant tabs gone (V/C{Oathbreaker,Brawl,TinyLeaders}Decks, `EDocID` entries,
+  `CDeckEditorUI` cases, `SEditorIO`/`editor.xml`, `DeckType`, `DeckProxy.getAll*Decks`, `RandomDeckGenerator`
+  cases). GATE green: 2708 run / 11 skipped.
+- Part 2 / 3.4: 6 orphaned variant i18n keys (`lbl{Brawl,Oathbreaker,TinyLeaders}{Decks,DeckEditor}`) removed
+  from all 10 locale files (60 lines); KEEP `lbl{Brawl,Oathbreaker,TinyLeaders}{,Desc}` (GameType refs). GATE green.
 
 ## Environment quirks
 - Always use a 600000 ms timeout on Maven runs (default 120 s kills long runs).
