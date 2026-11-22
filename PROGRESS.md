@@ -1,4 +1,4 @@
-# PROGRESS.md — Pre-rewrite cleanup (Part 3 in progress: Phase 7 — 7.3 done, next 7.4)
+# PROGRESS.md — Pre-rewrite cleanup (Part 3 in progress: Phase 7 — 7.4 done, next 7.5)
 
 ## Verified baseline facts
 - Branch `dev`, clean tree. Per-item verify: `GATE` = `mvn test -pl forge-gui-desktop -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` (600000 ms). Final gates add `PKG` = `mvn package -DskipTests -T 1C`.
@@ -7,19 +7,19 @@
 - Checkstyle runs at `validate` with root `checkstyle.xml` — fails on unused imports; `mvn test-compile` catches it fast.
 
 ## Recently completed
-- 7.3: `GameAction.startGame` single-game — deleted 1-arg `startGame(GameOutcome)` overload (zero refs);
-  `startGame(GameOutcome, Runnable)` → `startGame(Runnable)` (KEEP-seam param); callers rebased: `Match.startGame`
-  (no longer passes `this.outcome`) + `SubgameEffect:162` (`startGame(null)`); `determineFirstTurnPlayer()` takes no
-  outcome — always `Aggregates.random` starter, always fires `GameEventFlipCoin`, hotseat `get(0)` fallback kept,
-  `chooseStartingPlayer(true)` (the `boolean` param on the `PlayerController` API stays; `lblYouLostTheLastGame`
-  still referenced by `PlayerControllerHuman`). GATE green (2708 tests).
-- 7.2: `Match` single-outcome — one `GameOutcome outcome` field; `recordOutcome(Game)` (called from `Game.gameOver`) +
-  `getOutcome()`; dropped `getOutcomes`/`getLastOutcome`/`isMatchOver`/`getGamesWonBy`/`getGamesWon`/`isWonBy`/`getWinner`/
-  `clearGamesPlayed`/`getPlayedMain`/1-arg `startGame`; `getTitle` plain; `getAnteResult` reads the single outcome (empty
-  when null); `prepareAllZones` sideboard machinery + else card-reset branch gone; `GameType.isSideboardingAllowed()` deleted.
-  GATE green.
-- 7.1: games-per-match rules + lobby selector gone. 6.x/5.x: `PlayerStatistics` + achievements removed.
-  Part 2 (team/2HG/variants) complete: GATE+PKG green.
+- 7.4: `GameEventGameOutcome` — dropped `matchSummary` record component (1-arg ctor was already in use at
+  `Game:616`); `GameLogFormatter.visit(GameEventGameOutcome)` keeps the GAME_OUTCOME lines (duration/turn/outcomes)
+  and now `return null` (safe: `AbstractGuiGame:861` re-feed only adds non-null entries); deleted
+  `GameLogEntryType.MATCH_RESULTS` + LOW/MEDIUM `GameLogVerbosity` entries; `ViewWinLose` — `showPlayerScores` +
+  `removePlayerTypeFromLogMessage` + `lblStats` placeholder (field/styling/layout) gone; `ReplaySession.title`
+  drops the `(game N)` suffix. `GameLog.markMatchStartIfNeeded`/`getMatchStartMillis` kept (naming only).
+  GATE green (2708 tests).
+- 7.3: `GameAction.startGame` single-game — `startGame(Runnable)` KEEP-seam; `determineFirstTurnPlayer()` no
+  outcome param, always `Aggregates.random` starter, always fires `GameEventFlipCoin`; `lblYouLostTheLastGame`
+  still referenced by `PlayerControllerHuman`.
+- 7.2: `Match` single-outcome (`recordOutcome`/`getOutcome`), sideboard zone-prep machinery gone,
+  `GameType.isSideboardingAllowed()` deleted. 7.1: games-per-match rules + lobby selector gone.
+  6.x/5.x: `PlayerStatistics` + achievements removed. Part 2 (team/2HG/variants) complete.
 
 ## Environment quirks
 - Always use a 600000 ms timeout on Maven runs (default 120 s kills long runs).
@@ -29,12 +29,11 @@
 - `AiReportScenarioTest` is flaky under full parallel GATE (APPROX scenarios fail occasionally; green in isolation and on full rerun).
 
 ## Active caveats / follow-ups
-- Next: **Part 3 item 7.4** — `GameEventGameOutcome`: drop `matchSummary` component + 2-arg ctor `computeMatchSummary`;
-  `Game:633` → 1-arg ctor; `GameLogFormatter.visit`: keep GAME_OUTCOME lines, `return null`; delete
-  `GameLogEntryType.MATCH_RESULTS` + `GameLogVerbosity` entries; `ViewWinLose.showPlayerScores` + `lblStats` placeholder;
-  `ReplaySession` title: drop `(game N)` suffix. `GameLog.markMatchStartIfNeeded`/`getMatchStartMillis` stay.
-- 7.5: delete now-zero-ref `GameView.isMatchWonBy`/`getOutcomesOfMatch`/`getGamesWonBy` + `NumGamesInMatch`/
-  `NumPlayedGamesInMatch` trackables.
+- Next: **Part 3 item 7.5** — `TrackableProperty`: delete `NumGamesInMatch`/`NumPlayedGamesInMatch` (keep `MatchOver`);
+  `GameView`: ctor L52/L54, `updateGameOver` → `set(MatchOver, game.isGameOver())`, delete `getNumGamesInMatch`/
+  `getNumPlayedGamesInMatch`/`isMatchWonBy`/`getOutcomesOfMatch`/`getGamesWonBy`; `getOutcome` → `getMatch().getOutcome()`.
+- 7.6: `ViewWinLose` drop `btnContinue`/`getBtnContinue`; `NextGameDecision.CONTINUE` + `HostedMatch.continueMatch`
+  gone → single `QUIT` flow; `CPrompt` tooltip drops "G:x/y" + "Game #x of y".
 - `VLobby.populateDeckPanel` Oathbreaker/TinyLeaders/Brawl case labels + `DeckManager` variant branches +
   `DeckPreferences.{oathbreaker,tinyLeaders,brawl}Deck` fields are dead (go with GameType entries, later part).
 - Pre-existing orphan i18n keys (incl. `lblGamesInMatch`) left for the 9.1 sweep.

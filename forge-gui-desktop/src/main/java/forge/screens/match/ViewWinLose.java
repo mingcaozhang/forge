@@ -46,7 +46,6 @@ public class ViewWinLose implements IWinLoseView<FButton> {
     private final SkinnedPanel pnlCustom;
 
     private final SkinnedLabel lblTitle = new SkinnedLabel("WinLoseFrame > lblTitle needs updating.");
-    private final SkinnedLabel lblStats = new SkinnedLabel("WinLoseFrame > lblStats needs updating.");
     private final JPanel pnlOutcomes = new JPanel(new MigLayout("wrap, ax center, ay center"));
 
     /**
@@ -98,10 +97,6 @@ public class ViewWinLose implements IWinLoseView<FButton> {
         lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
         lblTitle.setFont(FSkin.getRelativeBoldFont(30));
 
-        lblStats.setForeground(Color.white);
-        lblStats.setHorizontalAlignment(SwingConstants.CENTER);
-        lblStats.setFont(FSkin.getRelativeFont(26));
-
         final Localizer localizer = Localizer.getInstance();
         // A puzzle is one fixed game: there is no "next game" and no new match to start, only trying it again.
         final boolean puzzle = !replay && game0.getGameType() == GameType.Puzzle;
@@ -146,7 +141,6 @@ public class ViewWinLose implements IWinLoseView<FButton> {
         pnlOutcomes.setOpaque(false);
         pnlLeft.add(lblTitle, "h 60px!, center");
         pnlLeft.add(pnlOutcomes, "center");
-        pnlLeft.add(lblStats, "h 60px!, center");
 
         // A container must be made to ensure proper centering.
         final JPanel pnlButtons = new JPanel(new MigLayout("insets 0, wrap, ax center"));
@@ -190,7 +184,6 @@ public class ViewWinLose implements IWinLoseView<FButton> {
         });
 
         showGameOutcomeSummary();
-        showPlayerScores();
     }
 
     public final ControlWinLose getControl() {
@@ -242,16 +235,6 @@ public class ViewWinLose implements IWinLoseView<FButton> {
         for (final GameLogEntry o : game.getGameLog().getLogEntriesExact(GameLogEntryType.GAME_OUTCOME)) {
             pnlOutcomes.add(new FLabel.Builder().text(o.message()).fontSize(14).build(), "h 20!");
         }
-    }
-
-    private void showPlayerScores() {
-        for (final GameLogEntry o : game.getGameLog().getLogEntriesExact(GameLogEntryType.MATCH_RESULTS)) {
-            lblStats.setText(removePlayerTypeFromLogMessage(o.message()));
-        }
-    }
-
-    private static String removePlayerTypeFromLogMessage(final String message) {
-        return message.replaceAll("\\[[^\\]]*\\]", "");
     }
 
     @Override

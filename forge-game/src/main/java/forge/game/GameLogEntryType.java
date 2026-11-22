@@ -2,7 +2,6 @@ package forge.game;
 
 public enum GameLogEntryType {
     GAME_OUTCOME("Game Outcome"),
-    MATCH_RESULTS("Match Result"),
     SIDEBOARD("Sideboard"),
     TURN("Turn"),
     MULLIGAN("Mulligan"),

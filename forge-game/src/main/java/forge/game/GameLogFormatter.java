@@ -47,7 +47,7 @@ public class GameLogFormatter extends IGameEventVisitor.Base<GameLogEntry> {
         for (String outcome : ev.outcomeStrings()) {
             log.add(GameLogEntryType.GAME_OUTCOME, outcome);
         }
-        return new GameLogEntry(GameLogEntryType.MATCH_RESULTS, ev.matchSummary());
+        return null;
     }
 
     @Override
