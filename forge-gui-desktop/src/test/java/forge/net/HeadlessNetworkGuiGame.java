@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import forge.deck.CardPool;
 import forge.game.GameEntityView;
 import forge.game.card.CardView;
 import forge.game.phase.PhaseType;
@@ -15,7 +14,6 @@ import forge.game.player.PlayerView;
 import forge.game.spellability.SpellAbilityView;
 import forge.gamemodes.net.NetworkGuiGame;
 import forge.gui.interfaces.IGuiGame;
-import forge.item.PaperCard;
 import forge.localinstance.skin.FSkinProp;
 import forge.trackable.TrackableCollection;
 import forge.util.FSerializableFunction;
@@ -126,13 +124,8 @@ public class HeadlessNetworkGuiGame extends NetworkGuiGame {
     }
 
     @Override
-    public <T> IGuiGame.OrderResult<T> order(String title, String top, int remainingObjectsMin, int remainingObjectsMax, List<T> sourceChoices, List<T> destChoices, CardView referenceCard, boolean sideboardingMode, boolean showRememberCheckbox) {
+    public <T> IGuiGame.OrderResult<T> order(String title, String top, int remainingObjectsMin, int remainingObjectsMax, List<T> sourceChoices, List<T> destChoices, CardView referenceCard, boolean showRememberCheckbox) {
         return new IGuiGame.OrderResult<>(sourceChoices != null ? sourceChoices : Collections.emptyList(), false);
-    }
-
-    @Override
-    public List<PaperCard> sideboard(CardPool sideboard, CardPool main, String message) {
-        return Collections.emptyList();
     }
 
     @Override

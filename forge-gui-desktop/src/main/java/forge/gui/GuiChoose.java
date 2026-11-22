@@ -3,7 +3,6 @@ package forge.gui;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
@@ -224,28 +223,21 @@ public class GuiChoose {
         return null;
     }
 
-    public static <T extends Comparable<? super T>> List<T> sideboard(final CMatchUI matchUI, final List<T> sideboard, final List<T> deck, final String message) {
-        Collections.sort(deck);
-        Collections.sort(sideboard);
-        return order(Localizer.getInstance().getMessage("lblSideboardForPlayer", message), Localizer.getInstance().getMessage("ttMain"), -1, -1, sideboard, deck, null, true, matchUI);
-    }
-
     public static <T> List<T> order(final String title, final String top, final int remainingObjectsMin, final int remainingObjectsMax,
             final List<T> sourceChoices, final List<T> destChoices) {
-        return order(title, top, remainingObjectsMin, remainingObjectsMax, sourceChoices, destChoices, null, false, null);
+        return order(title, top, remainingObjectsMin, remainingObjectsMax, sourceChoices, destChoices, null, null);
     }
     public static <T> List<T> order(final String title, final String top, final int remainingObjectsMin, final int remainingObjectsMax,
-            final List<T> sourceChoices, final List<T> destChoices, final CardView referenceCard, final boolean sideboardingMode, final CMatchUI matchUI) {
-        return order(title, top, remainingObjectsMin, remainingObjectsMax, sourceChoices, destChoices, referenceCard, sideboardingMode, false, matchUI).ordered();
+            final List<T> sourceChoices, final List<T> destChoices, final CardView referenceCard, final CMatchUI matchUI) {
+        return order(title, top, remainingObjectsMin, remainingObjectsMax, sourceChoices, destChoices, referenceCard, false, matchUI).ordered();
     }
 
     public static <T> OrderResult<T> order(final String title, final String top, final int remainingObjectsMin, final int remainingObjectsMax,
-            final List<T> sourceChoices, final List<T> destChoices, final CardView referenceCard, final boolean sideboardingMode, final boolean showRememberCheckbox, final CMatchUI matchUI) {
+            final List<T> sourceChoices, final List<T> destChoices, final CardView referenceCard, final boolean showRememberCheckbox, final CMatchUI matchUI) {
         final Callable<OrderResult<T>> callable = () -> {
             final DualListBox<T> dual = new DualListBox<>(remainingObjectsMin, remainingObjectsMax, sourceChoices, destChoices, matchUI);
             dual.setSecondColumnLabelText(top);
             dual.setRememberDecisionVisible(showRememberCheckbox);
-            dual.setSideboardMode(sideboardingMode);
             dual.setTitle(title);
             dual.pack();
             dual.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);

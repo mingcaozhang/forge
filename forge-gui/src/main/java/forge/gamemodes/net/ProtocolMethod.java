@@ -1,6 +1,5 @@
 package forge.gamemodes.net;
 
-import forge.deck.CardPool;
 import forge.game.GameEntityView;
 import forge.game.GameView;
 
@@ -58,8 +57,7 @@ public enum ProtocolMethod implements IHasForgeLog {
     showInputDialog     (Mode.SERVER, String.class, String.class, String.class, FSkinProp.class, String.class, List/*String*/.class, Boolean.TYPE),
     confirm             (Mode.SERVER, Boolean.TYPE, CardView.class, String.class, Boolean.TYPE, List/*String*/.class),
     getChoices          (Mode.SERVER, List.class, String.class, Integer.TYPE, Integer.TYPE, List.class, List.class, FSerializableFunction.class),
-    order               (Mode.SERVER, OrderResult.class, String.class, String.class, Integer.TYPE, Integer.TYPE, List.class, List.class, CardView.class, Boolean.TYPE, Boolean.TYPE),
-    sideboard           (Mode.SERVER, List.class, CardPool.class, CardPool.class, String.class),
+    order               (Mode.SERVER, OrderResult.class, String.class, String.class, Integer.TYPE, Integer.TYPE, List.class, List.class, CardView.class, Boolean.TYPE),
     chooseSingleEntityForEffect(Mode.SERVER, GameEntityView.class, String.class, List.class, DelayedReveal.class, Boolean.TYPE),
     chooseEntitiesForEffect(Mode.SERVER, List.class, String.class, List.class, Integer.TYPE, Integer.TYPE, DelayedReveal.class),
     manipulateCardList   (Mode.SERVER, List.class, String.class, Iterable.class, Iterable.class, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE),

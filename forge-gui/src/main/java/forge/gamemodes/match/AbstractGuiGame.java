@@ -819,7 +819,7 @@ public abstract class AbstractGuiGame implements IGuiGame, IMayViewCards {
         }
         final int m2 = min >= 0 ? sourceChoices.size() - min : -1;
         final int m1 = max >= 0 ? sourceChoices.size() - max : -1;
-        return order(title, topCaption, m1, m2, sourceChoices, destChoices, c, false);
+        return order(title, topCaption, m1, m2, sourceChoices, destChoices, c, false).ordered();
     }
 
     /**

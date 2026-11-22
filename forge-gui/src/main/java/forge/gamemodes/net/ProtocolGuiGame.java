@@ -1,6 +1,5 @@
 package forge.gamemodes.net;
 
-import forge.deck.CardPool;
 import forge.game.GameEntityView;
 import forge.game.event.GameEvent;
 import forge.game.event.GameEventPlayerControl;
@@ -21,7 +20,6 @@ import forge.util.IHasForgeLog;
 import forge.gui.control.GameEventForwarder;
 import forge.gui.interfaces.IGuiGame;
 import forge.interfaces.IMacroSystem;
-import forge.item.PaperCard;
 import forge.localinstance.skin.FSkinProp;
 import forge.trackable.TrackableCollection;
 import forge.trackable.Tracker;
@@ -430,13 +428,8 @@ public class ProtocolGuiGame extends NetworkGuiGame implements IHasForgeLog {
     }
 
     @Override
-    public <T> IGuiGame.OrderResult<T> order(final String title, final String top, final int remainingObjectsMin, final int remainingObjectsMax, final List<T> sourceChoices, final List<T> destChoices, final CardView referenceCard, final boolean sideboardingMode, final boolean showRememberCheckbox) {
-        return syncAndSendAndWait(ProtocolMethod.order, title, top, remainingObjectsMin, remainingObjectsMax, sourceChoices, destChoices, referenceCard, sideboardingMode, showRememberCheckbox);
-    }
-
-    @Override
-    public List<PaperCard> sideboard(final CardPool sideboard, final CardPool main, final String message) {
-        return syncAndSendAndWait(ProtocolMethod.sideboard, sideboard, main, message);
+    public <T> IGuiGame.OrderResult<T> order(final String title, final String top, final int remainingObjectsMin, final int remainingObjectsMax, final List<T> sourceChoices, final List<T> destChoices, final CardView referenceCard, final boolean showRememberCheckbox) {
+        return syncAndSendAndWait(ProtocolMethod.order, title, top, remainingObjectsMin, remainingObjectsMax, sourceChoices, destChoices, referenceCard, showRememberCheckbox);
     }
 
     @Override

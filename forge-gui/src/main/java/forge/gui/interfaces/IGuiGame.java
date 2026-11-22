@@ -1,6 +1,5 @@
 package forge.gui.interfaces;
 
-import forge.deck.CardPool;
 import forge.game.GameEntityView;
 import forge.game.GameView;
 import forge.game.card.CardView;
@@ -24,7 +23,6 @@ import forge.gui.GuiBase;
 import forge.gui.control.PlaybackSpeed;
 import forge.interfaces.IGameController;
 import forge.interfaces.IMacroSystem;
-import forge.item.PaperCard;
 import forge.localinstance.skin.FSkinProp;
 import forge.player.PlayerZoneUpdate;
 import forge.trackable.TrackableCollection;
@@ -244,12 +242,9 @@ public interface IGuiGame {
     <T> List<T> many(String title, String topCaption, int min, int max, List<T> sourceChoices, List<T> destChoices, CardView c);
 
     default <T> List<T> order(String title, String top, List<T> sourceChoices, CardView c) {
-        return order(title, top, 0, 0, sourceChoices, null, c, false, false).ordered();
+        return order(title, top, 0, 0, sourceChoices, null, c, false).ordered();
     }
-    default <T> List<T> order(String title, String top, int remainingObjectsMin, int remainingObjectsMax, List<T> sourceChoices, List<T> destChoices, CardView referenceCard, boolean sideboardingMode) {
-        return order(title, top, remainingObjectsMin, remainingObjectsMax, sourceChoices, destChoices, referenceCard, sideboardingMode, false).ordered();
-    }
-    <T> OrderResult<T> order(String title, String top, int remainingObjectsMin, int remainingObjectsMax, List<T> sourceChoices, List<T> destChoices, CardView referenceCard, boolean sideboardingMode, boolean showRememberCheckbox);
+    <T> OrderResult<T> order(String title, String top, int remainingObjectsMin, int remainingObjectsMax, List<T> sourceChoices, List<T> destChoices, CardView referenceCard, boolean showRememberCheckbox);
 
     /**
      * Ask the user to insert an object into a list of other objects. The
@@ -262,8 +257,6 @@ public interface IGuiGame {
      * @return A shallow copy of the list of objects, with newItem inserted.
      */
     <T> List<T> insertInList(String title, T newItem, List<T> oldItems);
-
-    List<PaperCard> sideboard(CardPool sideboard, CardPool main, String message);
 
     GameEntityView chooseSingleEntityForEffect(String title, List<? extends GameEntityView> optionList, DelayedReveal delayedReveal, boolean isOptional);
 

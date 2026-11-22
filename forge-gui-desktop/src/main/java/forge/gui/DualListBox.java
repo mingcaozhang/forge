@@ -68,7 +68,6 @@ public class DualListBox<T> extends FDialog {
     private final int targetRemainingSourcesMin;
     private final int targetRemainingSourcesMax;
 
-    private boolean sideboardingMode = false;
     private boolean showCard = true;
 
     private final CMatchUI matchUI;
@@ -247,17 +246,6 @@ public class DualListBox<T> extends FDialog {
 
     public void setSecondColumnLabelText(String label) {
         orderedLabel.setText(label);
-    }
-
-    public void setSideboardMode(boolean isSideboardMode) {
-        sideboardingMode = isSideboardMode;
-        if (sideboardingMode) {
-            addAllButton.setVisible(false);
-            removeAllButton.setVisible(false);
-            autoButton.setEnabled(false);
-            selectOrder.setText(Localizer.getInstance().getMessage("lblSideboard") + String.format(" (%d):", sourceListModel.getSize()));
-            orderedLabel.setText(Localizer.getInstance().getMessage("ttMain") + String.format(" (%d):", destListModel.getSize()));
-        }
     }
 
     public void setRememberDecisionVisible(final boolean visible) {
@@ -471,19 +459,12 @@ public class DualListBox<T> extends FDialog {
     }
 
     private void _setButtonState() {
-        if (sideboardingMode) {
-            removeAllButton.setVisible(false);
-            addAllButton.setVisible(false);
-            selectOrder.setText(Localizer.getInstance().getMessage("lblSideboard") + String.format(" (%d):", sourceListModel.getSize()));
-            orderedLabel.setText(Localizer.getInstance().getMessage("ttMain") + String.format(" (%d):", destListModel.getSize()));
-        }
-
         boolean anySize = targetRemainingSourcesMax < 0;
         boolean canAdd = sourceListModel.getSize() != 0 && (anySize || targetRemainingSourcesMin <= sourceListModel.getSize());
         boolean canRemove = destListModel.getSize() != 0;
         boolean targetReached = anySize || targetRemainingSourcesMin <= sourceListModel.getSize() && targetRemainingSourcesMax >= sourceListModel.getSize();
 
-        autoButton.setEnabled(targetRemainingSourcesMax == 0 && !targetReached && !sideboardingMode);
+        autoButton.setEnabled(targetRemainingSourcesMax == 0 && !targetReached);
 
         addButton.setEnabled(canAdd);
         addAllButton.setEnabled(canAdd);

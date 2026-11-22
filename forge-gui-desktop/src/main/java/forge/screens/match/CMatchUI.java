@@ -44,7 +44,6 @@ import forge.Singletons;
 import forge.StaticData;
 import forge.card.CardStateName;
 import forge.control.KeyboardShortcuts;
-import forge.deck.CardPool;
 import forge.deck.Deck;
 import forge.deckchooser.FDeckViewer;
 import forge.game.GameEntityView;
@@ -1339,13 +1338,8 @@ public final class CMatchUI
 
     @Override
     public <T> OrderResult<T> order(final String title, final String top, final int remainingObjectsMin, final int remainingObjectsMax,
-            final List<T> sourceChoices, final List<T> destChoices, final CardView referenceCard, final boolean sideboardingMode, final boolean showRememberCheckbox) {
-        return GuiChoose.order(title, top, remainingObjectsMin, remainingObjectsMax, sourceChoices, destChoices, referenceCard, sideboardingMode, showRememberCheckbox, this);
-    }
-
-    @Override
-    public List<PaperCard> sideboard(final CardPool sideboard, final CardPool main, final String message) {
-        return GuiChoose.sideboard(this, sideboard.toFlatList(), main.toFlatList(), message);
+            final List<T> sourceChoices, final List<T> destChoices, final CardView referenceCard, final boolean showRememberCheckbox) {
+        return GuiChoose.order(title, top, remainingObjectsMin, remainingObjectsMax, sourceChoices, destChoices, referenceCard, showRememberCheckbox, this);
     }
 
     @Override
@@ -1364,7 +1358,7 @@ public final class CMatchUI
         if (delayedReveal != null) {
             reveal(delayedReveal.getMessagePrefix(), delayedReveal.getCards()); //TODO: Merge this into search dialog
         }
-        return (List<GameEntityView>) order(title,Localizer.getInstance().getMessage("lblSelected"), optionList.size() - max, optionList.size() - min, optionList, null, null, false);
+        return (List<GameEntityView>) order(title,Localizer.getInstance().getMessage("lblSelected"), optionList.size() - max, optionList.size() - min, optionList, null, null, false).ordered();
     }
 
     @Override

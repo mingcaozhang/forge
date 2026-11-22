@@ -832,7 +832,7 @@ public class PlayerControllerHuman extends PlayerController implements IGameCont
     public List<Card> exertAttackers(List<Card> attackers) {
         GameEntityViewMap<Card, CardView> gameCacheExert = GameEntityView.getMap(attackers);
         List<CardView> chosen = getGui().order(localizer.getMessage("lblExertAttackersConfirm"), localizer.getMessage("lblExerted"),
-                0, gameCacheExert.size(), gameCacheExert.getTrackableKeys(), null, null, false);
+                0, gameCacheExert.size(), gameCacheExert.getTrackableKeys(), null, null, false).ordered();
 
         List<Card> chosenCards = new CardCollection();
         gameCacheExert.addToList(chosen, chosenCards);
@@ -843,7 +843,7 @@ public class PlayerControllerHuman extends PlayerController implements IGameCont
     public List<Card> enlistAttackers(List<Card> attackers) {
         GameEntityViewMap<Card, CardView> gameCacheExert = GameEntityView.getMap(attackers);
         List<CardView> chosen = getGui().order(localizer.getMessage("lblEnlistAttackersConfirm"), localizer.getMessage("lblEnlisted"),
-                0, gameCacheExert.size(), gameCacheExert.getTrackableKeys(), null, null, false);
+                0, gameCacheExert.size(), gameCacheExert.getTrackableKeys(), null, null, false).ordered();
 
         List<Card> chosenCards = new CardCollection();
         gameCacheExert.addToList(chosen, chosenCards);
@@ -856,7 +856,7 @@ public class PlayerControllerHuman extends PlayerController implements IGameCont
             return costs;
         }
         List<CostPart> chosen = getGui().order(localizer.getMessage("lblOrderCosts"), localizer.getMessage("lblPayFirst"),
-                0, 0, costs, null, null, false);
+                0, 0, costs, null, null, false).ordered();
         return chosen;
     }
 
@@ -2173,7 +2173,7 @@ public class PlayerControllerHuman extends PlayerController implements IGameCont
         final IGuiGame.OrderResult<ReplacementEffectView> orderResult = getGui().order(
                 localizer.getMessage(reordering ? "lblReorderReplacementEffects" : "lblSelectOrderForReplacementEffects"),
                 localizer.getMessage("lblApplyFirst"), 0, possibleReplacers.size() - 1,
-                sourceREVs, orderedREVs, null, false, true);
+                sourceREVs, orderedREVs, null, true);
 
         final List<ReplacementEffectView> chosen = orderResult == null ? null : orderResult.ordered();
         if (chosen == null || chosen.isEmpty()) {
@@ -2345,11 +2345,11 @@ public class PlayerControllerHuman extends PlayerController implements IGameCont
         if (savedOrder != null) {
             orderResult = getGui().order(localizer.getMessage("lblReorderSimultaneousAbilities"),
                     localizer.getMessage("lblResolveFirst"), 0, 0,
-                    Lists.newArrayList(), orderedSAVs, null, false, true);
+                    Lists.newArrayList(), orderedSAVs, null, true);
         } else {
             orderResult = getGui().order(localizer.getMessage("lblSelectOrderForSimultaneousAbilities"),
                     localizer.getMessage("lblResolveFirst"), 0, 0,
-                    orderedSAVs, Lists.newArrayList(), null, false, true);
+                    orderedSAVs, Lists.newArrayList(), null, true);
         }
         final List<SpellAbilityView> chosen = orderResult.ordered();
         if (chosen == null) {
