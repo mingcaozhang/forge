@@ -142,12 +142,6 @@ public enum AiProps {
     SACRIFICE_DEFAULT_PREF_MAX_CMC("2"),
     SACRIFICE_DEFAULT_PREF_ALLOW_TOKENS("true"),
     SACRIFICE_DEFAULT_PREF_MAX_CREATURE_EVAL("135"),
-    SIDEBOARDING_ENABLE("true"),
-    SIDEBOARDING_CHANCE_PER_CARD("50"),
-    SIDEBOARDING_CHANCE_ON_WIN("0"),
-    SIDEBOARDING_IN_LIMITED_FORMATS("false"),
-    SIDEBOARDING_SHARED_TYPE_ONLY("false"),
-    SIDEBOARDING_PLANESWALKER_EQ_CREATURE("false"),
     // Flat Monte Carlo refinement of main phase plays (only used when the "AI flat Monte Carlo" match preference is on).
     // See FlatMonteCarloPicker for how these are used.
     FLAT_MC_MAX_CANDIDATES("5"),
