@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class NetDeckCategory extends NetDeckStorageBase {
     public static final String PREFIX = "NET_DECK_";
-    private static Map<String, NetDeckCategory> constructed, brawl, oathbreaker, tinyleaders;
+    private static Map<String, NetDeckCategory> constructed;
 
     private static Map<String, NetDeckCategory> loadCategories(String filename) {
         return loadCategories(filename, NetDeckCategory::new);
@@ -35,24 +35,6 @@ public class NetDeckCategory extends NetDeckStorageBase {
             }
             categories = constructed;
             break;
-            case Brawl:
-                if (brawl == null) {
-                    brawl = loadCategories(ForgeConstants.NET_DECKS_BRAWL_LIST_FILE);
-                }
-                categories = brawl;
-                break;
-            case Oathbreaker:
-                if (oathbreaker == null) {
-                    oathbreaker = loadCategories(ForgeConstants.NET_DECKS_OATHBREAKER_LIST_FILE);
-                }
-                categories = oathbreaker;
-                break;
-            case TinyLeaders:
-                if (tinyleaders == null) {
-                    tinyleaders = loadCategories(ForgeConstants.NET_DECKS_TINYLEADERS_LIST_FILE);
-                }
-                categories = tinyleaders;
-                break;
         default:
             return null;
         }

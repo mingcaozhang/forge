@@ -92,10 +92,7 @@ public class GameRules {
     }
 
     public boolean hasCommander() {
-        return appliedVariants.contains(GameType.Commander)
-                || appliedVariants.contains(GameType.Oathbreaker)
-                || appliedVariants.contains(GameType.TinyLeaders)
-                || appliedVariants.contains(GameType.Brawl);
+        return appliedVariants.contains(GameType.Commander);
     }
 
     public boolean useGrayText() {

@@ -671,9 +671,6 @@ public class VLobby implements ILobbyView {
             }
             break;
         case Commander:
-        case Oathbreaker:
-        case TinyLeaders:
-        case Brawl:
             decksFrame.add(getDeckChooser(playerWithFocus), "grow, push");
             break;
         case Planechase:

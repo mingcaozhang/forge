@@ -323,20 +323,8 @@ public class CardView extends GameEntityView {
         boolean isCommander = c.isCommander();
         set(TrackableProperty.IsCommander, isCommander);
         if (isCommander) {
-            if (c.getGame().getRules().hasAppliedVariant(GameType.Oathbreaker)) {
-                //store alternate type for oathbreaker or signature spell for display in card text
-                if (c.getPaperCard().getRules().canBeSignatureSpell()) {
-                    set(TrackableProperty.CommanderAltType, "Signature Spell");
-                } else {
-                    set(TrackableProperty.CommanderAltType, "Oathbreaker");
-                }
-            } else {
-                set(TrackableProperty.CommanderAltType, "Commander");
-            }
+            set(TrackableProperty.CommanderAltType, "Commander");
         }
-    }
-    public String getCommanderType() {
-        return get(TrackableProperty.CommanderAltType);
     }
 
     public boolean hasSamePT(CardView otherCard) {
@@ -857,7 +845,7 @@ public class CardView extends GameEntityView {
             sb.append(rulesText).append("\r\n\r\n");
         }
         if (isCommander()) {
-            sb.append(getOwner()).append("'s ").append(getCommanderType()).append("\r\n");
+            sb.append(getOwner()).append("'s Commander\r\n");
             sb.append(getOwner().getCommanderInfo(this)).append("\r\n");
         }
 

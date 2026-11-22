@@ -104,30 +104,6 @@ public final class CEditorConstructed extends CDeckEditor<Deck> {
 
                 wantUnique = true;
                 break;
-            case TinyLeaders:
-                allSections.add(DeckSection.Commander);
-
-                commanderPool = FModel.getTinyLeadersCommander();
-                normalPool = FModel.getAllCards();
-
-                wantUnique = true;
-                break;
-            case Oathbreaker:
-                allSections.add(DeckSection.Commander);
-
-                commanderPool = FModel.getOathbreakerCommander();
-                normalPool = FModel.getAllCards();
-
-                wantUnique = true;
-                break;
-            case Brawl:
-                allSections.add(DeckSection.Commander);
-
-                commanderPool = FModel.getBrawlCommander();
-                normalPool = ItemPool.createFrom(FModel.getFormats().get("Brawl").getAllCards(), PaperCard.class);
-
-                wantUnique = true;
-                break;
             default:
         }
 
@@ -170,15 +146,6 @@ public final class CEditorConstructed extends CDeckEditor<Deck> {
             case Commander:
                 this.controller = new DeckController<>(FModel.getDecks().getCommander(), this, newCreator);
                 break;
-            case Oathbreaker:
-                this.controller = new DeckController<>(FModel.getDecks().getOathbreaker(), this, newCreator);
-                break;
-            case Brawl:
-                this.controller = new DeckController<>(FModel.getDecks().getBrawl(), this, newCreator);
-                break;
-            case TinyLeaders:
-                this.controller = new DeckController<>(FModel.getDecks().getTinyLeaders(), this, newCreator);
-                break;
             default:
         }
 
@@ -197,9 +164,6 @@ public final class CEditorConstructed extends CDeckEditor<Deck> {
                 case Constructed:
                     return CardLimit.Default;
                 case Commander:
-                case Oathbreaker:
-                case TinyLeaders:
-                case Brawl:
                     return CardLimit.Singleton;
                 default:
             }
@@ -217,25 +181,15 @@ public final class CEditorConstructed extends CDeckEditor<Deck> {
             PaperCard newCard = items.iterator().next().getKey(); //can only add one card at a time when on commander section
             if (!confirmCommander(editor.gameType, newCard, null)) { return; }
             int count = editor.getDeckManager().getItemCount();
-            if (count > 0) {
-                if (editor.gameType == GameType.Oathbreaker) { //replace oathbreaker or signature spell if needed
-                    for (Entry<PaperCard, Integer> entry : editor.getDeckManager().getPool()) {
-                        if (entry.getKey().getRules().canBeOathbreaker() == newCard.getRules().canBeOathbreaker()) {
-                            editor.getDeckManager().removeItem(entry.getKey(), entry.getValue());
-                            break;
-                        }
-                    }
-                }
-                else { //replace existing commander unless new commander is valid partner commander
-                    if (count == 1 && newCard.getRules().canBePartnerCommander()) { //replace existing partners regardless
-                        PaperCard commander = editor.getDeckManager().getPool().toFlatList().get(0);
-                        if (!commander.getRules().canBePartnerCommanders(newCard.getRules())) {
-                            editor.getDeckManager().removeAllItems();
-                        }
-                    }
-                    else {
+            if (count > 0) { //replace existing commander unless new commander is valid partner commander
+                if (count == 1 && newCard.getRules().canBePartnerCommander()) { //replace existing partners regardless
+                    PaperCard commander = editor.getDeckManager().getPool().toFlatList().get(0);
+                    if (!commander.getRules().canBePartnerCommanders(newCard.getRules())) {
                         editor.getDeckManager().removeAllItems();
                     }
+                }
+                else {
+                    editor.getDeckManager().removeAllItems();
                 }
             }
             break;
@@ -327,18 +281,7 @@ public final class CEditorConstructed extends CDeckEditor<Deck> {
             addCommanderEntryIfApplicable(cmb, gameType, true);
             break;
         case Commander:
-            if (gameType == GameType.Oathbreaker) {
-                PaperCard pc = cmb.getItemManager().getSelectedItem();
-                if (pc != null && pc.getRules().canBeSignatureSpell()) {
-                    cmb.addMoveItems(localizer.getMessage("lblSetEdition"), localizer.getMessage("lblassignaturespell"));
-                }
-                else {
-                    cmb.addMoveItems(localizer.getMessage("lblSetEdition"), localizer.getMessage("lblasoathbreaker"));
-                }
-            }
-            else {
-                cmb.addMoveItems(localizer.getMessage("lblSetEdition"), localizer.getMessage("lblascommander"));
-            }
+            cmb.addMoveItems(localizer.getMessage("lblSetEdition"), localizer.getMessage("lblascommander"));
             break;
         case Avatar:
             cmb.addMoveItems(localizer.getMessage("lblSetEdition"), localizer.getMessage("lblasavatar"));
@@ -467,10 +410,7 @@ public final class CEditorConstructed extends CDeckEditor<Deck> {
 
     private static String commanderSlotKey(CardRules rules, DeckFormat df) {
         if (df.isAllowedCommander(rules, FModel.getPreferences().getPrefBoolean(FPref.ENFORCE_DECK_LEGALITY))) {
-            return df.hasSignatureSpell() ? "lblasoathbreaker" : "lblascommander";
-        }
-        if (df.hasSignatureSpell() && rules.canBeSignatureSpell()) {
-            return "lblassignaturespell";
+            return "lblascommander";
         }
         return null;
     }
@@ -501,14 +441,7 @@ public final class CEditorConstructed extends CDeckEditor<Deck> {
         Deck deck = controller.getModel();
         CardPool dest = deck.getOrCreate(DeckSection.Commander);
 
-        if (gameType == GameType.Oathbreaker) {
-            boolean newIsOathbreaker = card.getRules().canBeOathbreaker();
-            PaperCard sameSlot = dest.find(c -> c.getRules().canBeOathbreaker() == newIsOathbreaker);
-            if (sameSlot != null) {
-                deck.getMain().add(sameSlot, dest.count(sameSlot));
-                dest.remove(sameSlot, dest.count(sameSlot));
-            }
-        } else if (!asPartner) {
+        if (!asPartner) {
             deck.getMain().addAll(dest);
             dest.clear();
         }

@@ -329,16 +329,6 @@ public final class DeckManager extends ItemManager<DeckProxy> implements IHasGam
         });
     }
 
-    @Override
-    protected List<String> getFilteredSetCodesInCatalog(){
-        GameType gameType = getGameType();
-        if (gameType == GameType.Brawl) {
-            filteredSetCodesInCatalog = FModel.getFormats().get("Brawl").getAllowedSetCodes();
-            return filteredSetCodesInCatalog;
-        }
-        return super.getFilteredSetCodesInCatalog();
-    }
-
     public void editDeck(final DeckProxy deck) {
         ACEditorBase<? extends InventoryItem, ? extends DeckBase> editorCtrl = null;
         FScreen screen = null;
@@ -352,21 +342,6 @@ public final class DeckManager extends ItemManager<DeckProxy> implements IHasGam
             case Commander:
                 screen = FScreen.DECK_EDITOR_CONSTRUCTED;  // re-use "Deck Editor", rather than creating a new top level tab
                 DeckPreferences.setCommanderDeck((deck != null) ? deck.toString() : "");
-                editorCtrl = new CEditorConstructed(getCDetailPicture(), this.gameType);
-                break;
-            case Oathbreaker:
-                screen = FScreen.DECK_EDITOR_CONSTRUCTED;  // re-use "Deck Editor", rather than creating a new top level tab
-                DeckPreferences.setCommanderDeck((deck != null) ? deck.toString() : "");
-                editorCtrl = new CEditorConstructed(getCDetailPicture(), this.gameType);
-                break;
-            case Brawl:
-                screen = FScreen.DECK_EDITOR_CONSTRUCTED;  // re-use "Deck Editor", rather than creating a new top level tab
-                DeckPreferences.setBrawlDeck((deck != null) ? deck.toString() : "");
-                editorCtrl = new CEditorConstructed(getCDetailPicture(), this.gameType);
-                break;
-            case TinyLeaders:
-                screen = FScreen.DECK_EDITOR_CONSTRUCTED;  // re-use "Deck Editor", rather than creating a new top level tab
-                DeckPreferences.setTinyLeadersDeck((deck != null) ? deck.toString() : "");
                 editorCtrl = new CEditorConstructed(getCDetailPicture(), this.gameType);
                 break;
 
@@ -408,10 +383,7 @@ public final class DeckManager extends ItemManager<DeckProxy> implements IHasGam
 
         // consider using deck proxy's method to delete deck
         switch(this.gameType) {
-            case Brawl:
             case Commander:
-            case Oathbreaker:
-            case TinyLeaders:
             case Constructed:
             case Draft:
             case Sealed:

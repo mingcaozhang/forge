@@ -647,11 +647,8 @@ public class Player extends GameEntity implements Comparable<Player> {
             addPoisonCounters(poisonCounters, source.getController(), counterTable);
         }
 
-        //Oathbreaker, Tiny Leaders, and Brawl ignore commander damage rule
-        if (source.isCommander() && isCombat
-                && !this.getGame().getRules().hasAppliedVariant(GameType.Oathbreaker)
-                && !this.getGame().getRules().hasAppliedVariant(GameType.TinyLeaders)
-                && !this.getGame().getRules().hasAppliedVariant(GameType.Brawl)) {
+        //Commander games track commander damage (rule 903.8)
+        if (source.isCommander() && isCombat && this.getGame().getRules().hasCommander()) {
             // In case that commander is merged permanent, get the real commander card
             final Card realCommander = source.getRealCommander();
             addCommanderDamage(realCommander, amount);
@@ -3218,38 +3215,11 @@ public class Player extends GameEntity implements Comparable<Player> {
 
         DetachedCardEffect eff = new DetachedCardEffect(this, "Commander Effect");
 
-        String validCommander = "Card.IsCommander+YouOwn";
-        if (game.getRules().hasAppliedVariant(GameType.Oathbreaker)) {
-            //signature spells can only reside on the stack or in the command zone
-            String effStr = "DB$ ChangeZone | Origin$ Stack | Destination$ Command | Defined$ ReplacedCard";
-
-            String moved = "Event$ Moved | ValidCard$ Spell.IsCommander+YouOwn | Secondary$ True | Destination$ Graveyard,Exile,Hand,Library | " +
-                    "Description$ If a signature spell would be put into another zone from the stack, put it into the command zone instead.";
-            ReplacementEffect re = ReplacementHandler.parseReplacement(moved, eff, true);
-            re.setOverridingAbility(AbilityFactory.getAbility(effStr, eff));
-            eff.addReplacementEffect(re);
-
-            //TODO: Actual recognition for signature spells as their own thing, separate from commanders.
-            validCommander = "Permanent.IsCommander+YouOwn";
-
-            //signature spells can only be cast if your oathbreaker is in on the battlefield under your control
-            String castRestriction = "Mode$ CantBeCast | ValidCard$ Spell.IsCommander+YouOwn | EffectZone$ Command | IsPresent$ Permanent.IsCommander+YouOwn+YouCtrl | PresentZone$ Battlefield | PresentCompare$ EQ0 | " +
-                    "Description$ Signature spell can only be cast if your oathbreaker is on the battlefield under your control.";
-            eff.addStaticAbility(castRestriction);
-        }
-
         String effStr = "DB$ ChangeZone | Origin$ Battlefield,Graveyard,Exile,Library,Hand | Destination$ Command | Defined$ ReplacedCard";
 
-        String moved = "Event$ Moved | ValidCard$ " + validCommander + " | Secondary$ True | Optional$ True | OptionalDecider$ You | CommanderMoveReplacement$ True ";
-        if (game.getRules().hasAppliedVariant(GameType.TinyLeaders)) {
-            moved += " | Destination$ Graveyard,Exile | Description$ If a commander would be put into its owner's graveyard or exile from anywhere, that player may put it into the command zone instead.";
-        }
-        else if (game.getRules().hasAppliedVariant(GameType.Oathbreaker)) {
-            moved += " | Destination$ Graveyard,Exile,Hand,Library | Description$ If a commander would be exiled or put into hand, graveyard, or library from anywhere, that player may put it into the command zone instead.";
-        } else {
-            // rule 903.9b
-            moved += " | Destination$ Hand,Library | Description$ If a commander would be put into its owner's hand or library from anywhere, its owner may put it into the command zone instead.";
-        }
+        String moved = "Event$ Moved | ValidCard$ Card.IsCommander+YouOwn | Secondary$ True | Optional$ True | OptionalDecider$ You | CommanderMoveReplacement$ True ";
+        // rule 903.9b
+        moved += " | Destination$ Hand,Library | Description$ If a commander would be put into its owner's hand or library from anywhere, its owner may put it into the command zone instead.";
         ReplacementEffect re = ReplacementHandler.parseReplacement(moved, eff, true);
         re.setOverridingAbility(AbilityFactory.getAbility(effStr, eff));
         eff.addReplacementEffect(re);

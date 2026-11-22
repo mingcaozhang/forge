@@ -41,12 +41,6 @@ public class RandomDeckGenerator extends DeckProxy {
             case CommanderGauntlet:
             case Commander:
                 return DeckgenUtil.generateCommanderDeck(isAi, GameType.Commander);
-            case Oathbreaker:
-                return DeckgenUtil.generateCommanderDeck(isAi, GameType.Oathbreaker);
-            case TinyLeaders:
-                return DeckgenUtil.generateCommanderDeck(isAi, GameType.TinyLeaders);
-            case Brawl:
-                return DeckgenUtil.generateCommanderDeck(isAi, GameType.Brawl);
             case Archenemy:
                 return DeckgenUtil.generateSchemeDeck();
             case Planechase:

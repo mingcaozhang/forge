@@ -27,7 +27,6 @@ import com.google.common.collect.MultimapBuilder;
 
 import forge.card.CardStateName;
 import forge.game.Game;
-import forge.game.GameType;
 import forge.game.card.*;
 import forge.game.event.EventValueChangeType;
 import forge.game.event.GameEventZone;
@@ -105,10 +104,6 @@ public class Zone implements java.io.Serializable, Iterable<Card> {
         //ensure commander returns to being first card in command zone
         if (index == null && zoneType == ZoneType.Command && c.isCommander()) {
             index = 0;
-            if (game.getRules().hasAppliedVariant(GameType.Oathbreaker) && c.getRules().canBeSignatureSpell()
-                    && !cardList.isEmpty() && cardList.get(0).isCommander()) {
-                index = 1; //signature spell should return to being second card in command zone if oathbreaker is there too
-            }
         }
 
         if (!rollback) {
