@@ -1,4 +1,4 @@
-# PROGRESS.md — Pre-rewrite cleanup (Part 3 done, next: Part 4 item 10.1)
+# PROGRESS.md — Pre-rewrite cleanup (Part 4 in progress, next: item 10.2)
 
 ## Verified baseline facts
 - Branch `dev`, clean tree. Per-item verify: `GATE` = `mvn test -pl forge-gui-desktop -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` (600000 ms). Final gates add `PKG` = `mvn package -DskipTests -T 1C`.
@@ -7,6 +7,11 @@
 - Checkstyle runs at `validate` with root `checkstyle.xml` — fails on unused imports; `mvn test-compile` catches it fast.
 
 ## Recently completed
+- 10.1: deleted deck-gen tab — `CDeckgen`/`VDeckgen`, `EDocID.EDITOR_DECKGEN`,
+  `editor.xml` doc, `CEditorVariant`/`CEditorTokenViewer` tab remove/re-add (kept
+  `ACEditorBase.removeTab` for VAllDecks/VProbabilities). Stale user layouts that still
+  reference `EDITOR_DECKGEN` self-heal via `InvalidLayoutFileException` → delete + retry.
+  GATE exit 0 (2707 tests).
 - 9.1: Part 3 final sweep — removed `AiProps.SIDEBOARDING_*` consts (6) + their comment/property
   blocks in all 6 `res/ai/*.ai` profiles (must stay in sync: `AiProfileUtil.loadProfile` does
   `AiProps.valueOf(line)` — orphaned `.ai` lines would throw on load); removed orphaned i18n keys
@@ -26,8 +31,9 @@
 - `AiReportScenarioTest` is flaky under full parallel GATE (APPROX scenarios fail occasionally; green in isolation and on full rerun).
 
 ## Active caveats / follow-ups
-- Next: **Part 4 item 10.1** (PLAN.md L115) — delete deck-gen tab `CDeckgen`/`VDeckgen` +
-  `EDocID.EDITOR_DECKGEN` + editor.xml doc + `CEditorVariant`/`CEditorTokenViewer` tab re-adds.
+- Next: **Part 4 item 10.2** (PLAN.md L116) — i18n: remove `lblDeckGeneration`,
+  `btnRandCardpool`/`ttbtnRandCardpool`, `btnRandDeck2/3/5` + tooltips across
+  `forge-gui/res/languages/*` (+ the `#VDeckgen.java` section headers in those files).
 - `VLobby.populateDeckPanel` Oathbreaker/TinyLeaders/Brawl case labels + `DeckManager` variant
   branches + `DeckPreferences.{oathbreaker,tinyLeaders,brawl}Deck` fields are dead (go with
   GameType entries, later part).

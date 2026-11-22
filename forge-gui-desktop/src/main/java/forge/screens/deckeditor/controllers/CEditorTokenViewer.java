@@ -14,7 +14,6 @@ import forge.model.FModel;
 import forge.screens.deckeditor.views.VAllDecks;
 import forge.screens.deckeditor.views.VCardCatalog;
 import forge.screens.deckeditor.views.VCurrentDeck;
-import forge.screens.deckeditor.views.VDeckgen;
 import forge.screens.deckeditor.views.VProbabilities;
 import forge.screens.match.controllers.CDetailPicture;
 import forge.util.Localizer;
@@ -22,7 +21,6 @@ import forge.util.Localizer;
 public class CEditorTokenViewer extends ACEditorBase<PaperToken, DeckBase> {
 
     private DragCell allDecksParent = null;
-    private DragCell deckGenParent = null;
     private DragCell probsParent = null;
 
     private List<PaperToken> fullCatalogCards;
@@ -128,7 +126,6 @@ public class CEditorTokenViewer extends ACEditorBase<PaperToken, DeckBase> {
         this.getBtnRemove4().setVisible(false);
 
 
-        deckGenParent = removeTab(VDeckgen.SINGLETON_INSTANCE);
         allDecksParent = removeTab(VAllDecks.SINGLETON_INSTANCE);
         probsParent = removeTab(VProbabilities.SINGLETON_INSTANCE);
     }
@@ -163,9 +160,6 @@ public class CEditorTokenViewer extends ACEditorBase<PaperToken, DeckBase> {
         //TODO: Remove filter for SItemManagerUtil.StatTypes.PACK
 
         //Re-add tabs
-        if (deckGenParent != null) {
-            deckGenParent.addDoc(VDeckgen.SINGLETON_INSTANCE);
-        }
         if (allDecksParent != null) {
             allDecksParent.addDoc(VAllDecks.SINGLETON_INSTANCE);
         }

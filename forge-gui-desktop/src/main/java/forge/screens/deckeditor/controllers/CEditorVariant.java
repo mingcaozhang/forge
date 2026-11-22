@@ -30,7 +30,6 @@ import forge.localinstance.properties.ForgePreferences.FPref;
 import forge.model.FModel;
 import forge.screens.deckeditor.SEditorIO;
 import forge.screens.deckeditor.views.VAllDecks;
-import forge.screens.deckeditor.views.VDeckgen;
 import forge.screens.match.controllers.CDetailPicture;
 import forge.util.ItemPool;
 import forge.util.Localizer;
@@ -53,7 +52,6 @@ import java.util.function.Supplier;
 public final class CEditorVariant extends CDeckEditor<Deck> {
     private final DeckController<Deck> controller;
     private DragCell allDecksParent = null;
-    private DragCell deckGenParent = null;
     private final Predicate<PaperCard> cardPoolCondition;
 
     //=========== Constructor
@@ -172,7 +170,6 @@ public final class CEditorVariant extends CDeckEditor<Deck> {
 
         resetUI();
 
-        deckGenParent = removeTab(VDeckgen.SINGLETON_INSTANCE);
         allDecksParent = removeTab(VAllDecks.SINGLETON_INSTANCE);
 
         this.controller.refreshModel();
@@ -192,9 +189,6 @@ public final class CEditorVariant extends CDeckEditor<Deck> {
     @Override
     public void resetUIChanges() {
         //Re-add tabs
-        if (deckGenParent != null) {
-            deckGenParent.addDoc(VDeckgen.SINGLETON_INSTANCE);
-        }
         if (allDecksParent != null) {
             allDecksParent.addDoc(VAllDecks.SINGLETON_INSTANCE);
         }
