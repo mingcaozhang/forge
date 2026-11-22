@@ -65,7 +65,7 @@ Per `REWRITE.md`, this cleanup trims the JVM baseline BEFORE the rewrite phases 
 - [x] 3.4 i18n: remove now-orphaned keys across `forge-gui/res/languages/*` (verify each with `rg`): `lblBrawlDecks`, `lblOathbreakerDecks`, `lblTinyLeadersDecks`, `lblBrawlDeckEditor`, `lblOathbreakerDeckEditor`, `lblTinyLeadersDeckEditor`. KEEP `lblBrawl`/`lblBrawlDesc`/`lblOathbreaker`/`lblOathbreakerDesc`/`lblTinyLeaders`/`lblTinyLeadersDesc` (GameType entries stay until a later part). Verify: `GATE` exit 0, then commit.
 
 ### Phase 4 — Final: GameType.TwoHeadedGiant + 2HG i18n
-- [ ] 4.1 Delete `GameType.TwoHeadedGiant` (L45) — zero refs after Phases 1-3 (verify `rg -n "TwoHeadedGiant" -t java` shows only i18n) — and remove `lblTwoHeadedGiant`/`lblTwoHeadedGiantDesc` from all locale files. Final gate: `GATE` + `PKG` both exit 0, then commit.
+- [x] 4.1 Delete `GameType.TwoHeadedGiant` (L45) — zero refs after Phases 1-3 (verify `rg -n "TwoHeadedGiant" -t java` shows only i18n) — and remove `lblTwoHeadedGiant`/`lblTwoHeadedGiantDesc` from all locale files. Final gate: `GATE` + `PKG` both exit 0, then commit.
 
 ## Part 3 — Achievements, In-Game Stats, Multi-Game Match Logic (single game only)
 
