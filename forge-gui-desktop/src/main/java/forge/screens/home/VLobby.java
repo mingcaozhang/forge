@@ -1,31 +1,23 @@
 package forge.screens.home;
 
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Font;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
 import java.util.*;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionListener;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import forge.deck.*;
 import forge.deckchooser.FDeckChooser;
 import forge.game.GameFormat;
 import forge.game.GameType;
-import forge.game.card.CardView;
 import forge.gamemodes.match.GameLobby;
 import forge.gamemodes.match.LobbySlot;
 import forge.gamemodes.match.LobbySlotType;
 import forge.gamemodes.net.event.UpdateLobbyPlayerEvent;
-import forge.gui.CardDetailPanel;
 import forge.gui.CommanderChooser;
 import forge.gui.FThreads;
-import forge.gui.GuiChoose;
 import forge.gui.interfaces.ILobbyView;
 import forge.gui.util.SOptionPane;
 import forge.interfaces.IPlayerChangeListener;
@@ -60,16 +52,6 @@ public class VLobby implements ILobbyView {
     private final JPanel pnlStart = new JPanel(new MigLayout("insets 0, gap 0, wrap 2"));
     private final JPanel constructedFrame = new JPanel(new MigLayout("insets 0, gap 0, wrap 2, hidemode 3")); // Main content frame
 
-    // Variants frame and variables
-    private final FPanel variantsPanel = new FPanel(new MigLayout("insets 10, gapx 10"));
-    private final List<VariantCheckBox> vntBoxes =
-            FormatChoices.VARIANTS.stream().map(VariantCheckBox::new).toList();
-    private final VariantCheckBox vntVanguard = Iterables.find(vntBoxes, vcb -> vcb.variant == GameType.Vanguard);
-
-    private final FComboBoxPanel<Object> cboFormatPanel =
-            new FComboBoxPanel<>(Localizer.getInstance().getMessage("lblFormat") + ":", FormatChoices.getCommanderOnly());
-    private boolean suppressFormatListener = false;
-
     // Player frame elements
     private final JPanel playersFrame = new JPanel(new MigLayout("insets 0, gap 0 5, wrap, hidemode 3"));
     private final FScrollPanel playersScroll = new FScrollPanel(new MigLayout("insets 0, gap 0, wrap, hidemode 3"), true);
@@ -90,19 +72,6 @@ public class VLobby implements ILobbyView {
     private final Map<Integer, List<CommanderOptions.Option>> commanderOptions = new HashMap<>();
     private final Map<Integer, List<PaperCard>> commanderPicks = new HashMap<>();
 
-    // Variants
-    private final List<FList<Object>> planarDeckLists = new ArrayList<>();
-    private final List<FPanel> planarDeckPanels = new ArrayList<>(MAX_PLAYERS);
-
-    private final List<FList<Object>> vgdAvatarLists = new ArrayList<>();
-    private final List<FPanel> vgdPanels = new ArrayList<>(MAX_PLAYERS);
-    private final List<CardDetailPanel> vgdAvatarDetails = new ArrayList<>();
-    private final List<PaperCard> vgdAllAvatars = new ArrayList<>();
-    private final List<PaperCard> nonRandomHumanAvatars = new ArrayList<>();
-    private final List<PaperCard> nonRandomAiAvatars = new ArrayList<>();
-    private final Vector<Object> humanListData = new Vector<>();
-    private final Vector<Object> aiListData = new Vector<>();
-
     private boolean refreshGeneratedDecks = false;
 
     public VLobby(final GameLobby lobby) {
@@ -112,27 +81,6 @@ public class VLobby implements ILobbyView {
         new CLobby(this);
 
         lblTitle.setBackground(FSkin.getColor(FSkin.Colors.CLR_THEME2));
-
-        ////////////////////////////////////////////////////////
-        //////////////////// Game Format ///////////////////////
-        cboFormatPanel.addActionListener(e -> onGameFormatChanged());
-        for (final Component c : cboFormatPanel.getComponents()) {
-            c.setFont(FSkin.getBoldFont(14).getBaseFont());
-        }
-        constructedFrame.add(cboFormatPanel, "w 100%, h 28px!, gapbottom 10px, spanx 2, wrap");
-
-        ////////////////////////////////////////////////////////
-        //////////////////// Variants Panel ////////////////////
-        variantsPanel.setOpaque(false);
-        variantsPanel.add(newLabel(localizer.getMessage("lblVariants")));
-        for (final VariantCheckBox vcb : vntBoxes) {
-            variantsPanel.add(vcb);
-        }
-
-        constructedFrame.add(new FScrollPane(variantsPanel, false, true,
-                ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER,
-                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED),
-                "w 100%, h 45px!, gapbottom 10px, spanx 2, wrap");
 
         playersFrame.setOpaque(false);
         playersFrame.add(playersScroll, "w 100%, h 100%-35px");
@@ -147,10 +95,6 @@ public class VLobby implements ILobbyView {
 
         ////////////////////////////////////////////////////////
         ////////////////////// Deck Panel //////////////////////
-        populateVanguardLists();
-        for (int i = 0; i < MAX_PLAYERS; i++) {
-            buildDeckPanels(i);
-        }
         constructedFrame.add(decksFrame, "w 50%-5px, growy, pushy");
         constructedFrame.setOpaque(false);
         decksFrame.setOpaque(false);
@@ -226,23 +170,6 @@ public class VLobby implements ILobbyView {
         activePlayersNum = lobby.getNumberOfSlots();
         addPlayerBtn.setEnabled(activePlayersNum < lobby.getSlotLimit());
 
-        syncGameFormatCombo();
-
-        for (final VariantCheckBox vcb : vntBoxes) {
-            vcb.setSelected(hasVariant(vcb.variant));
-            vcb.setEnabled(lobby.hasControl());
-        }
-
-        // Momir Basic and MoJhoSto write the Avatar section themselves, so Vanguard
-        // cannot be layered on top. applyVariant already unticks it; say why.
-        final boolean avatarSetByFormat = hasVariant(GameType.MomirBasic) || hasVariant(GameType.MoJhoSto);
-        if (avatarSetByFormat) {
-            vntVanguard.setEnabled(false);
-            vntVanguard.setToolTipText(localizer.getMessage("ttVanguardSetByFormat"));
-        } else {
-            vntVanguard.setToolTipText(GameType.Vanguard.getDescription());
-        }
-
         for (int i = 0; i < MAX_PLAYERS; i++) {
             final boolean hasPanel = i < playerPanels.size();
             if (i < activePlayersNum) {
@@ -298,8 +225,6 @@ public class VLobby implements ILobbyView {
                 if (fullUpdate && (type == LobbySlotType.LOCAL || isSlotAI)) {
                     // Deck section selection
                     panel.getDeckChooser().getLstDecks().getSelectCommand().run();
-                    selectPlanarDeck(i);
-                    selectVanguardAvatar(i);
                 }
                 if (isNewPanel) {
                     panel.setVisible(true);
@@ -413,43 +338,6 @@ public class VLobby implements ILobbyView {
                 panel.isDevMode(),
                 panel.getAiOptions(),
                 panel.getAiProfile());
-    }
-
-    /** Builds the actual deck panel layouts for each player.
-     * These are added to a list which can be referenced to populate the deck panel appropriately. */
-    @SuppressWarnings("serial")
-    private void buildDeckPanels(final int playerIndex) {
-        // Planar deck list
-        buildDeckPanel(localizer.getMessage("lblPlanarDeck"), playerIndex, planarDeckLists, planarDeckPanels, e -> selectPlanarDeck(playerIndex));
-
-        // Vanguard avatar list
-        buildDeckPanel(localizer.getMessage("lblVanguardAvatar"), playerIndex, vgdAvatarLists, vgdPanels, e -> selectVanguardAvatar(playerIndex));
-        Iterables.getLast(vgdAvatarLists).setListData(isPlayerAI(playerIndex) ? aiListData : humanListData);
-        Iterables.getLast(vgdAvatarLists).setSelectedIndex(0);
-        final CardDetailPanel vgdDetail = new CardDetailPanel();
-        vgdAvatarDetails.add(vgdDetail);
-        Iterables.getLast(vgdPanels).add(vgdDetail, "h 200px, pushx, growx, hidemode 3");
-    }
-
-    private void buildDeckPanel(final String formatName, final int playerIndex,
-            final List<FList<Object>> deckLists, final List<FPanel> deckPanels,
-            final ListSelectionListener selectionListener) {
-        final FPanel deckPanel = new FPanel();
-        deckPanel.setBorderToggle(false);
-        deckPanel.setLayout(new MigLayout("insets 0, gap 0, wrap"));
-        deckPanel.add(new FLabel.Builder().text("Select " + formatName)
-                .fontStyle(Font.BOLD).fontSize(14).fontAlign(SwingConstants.CENTER)
-                .build(), "gaptop 10px, gapbottom 5px, growx, pushx");
-        final FList<Object> deckList = new FList<>();
-        deckList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        deckList.addListSelectionListener(selectionListener);
-
-        final FScrollPane scrollPane = new FScrollPane(deckList, true,
-                ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        deckPanel.add(scrollPane, "grow, push");
-
-        deckLists.add(deckList);
-        deckPanels.add(deckPanel);
     }
 
     private FDeckChooser getDeckChooser(final int iSlot) {
@@ -576,82 +464,6 @@ public class VLobby implements ILobbyView {
                 CommanderPicks.hasChoices(base, options, DeckFormat.Commander));
     }
 
-    private void selectPlanarDeck(final int playerIndex) {
-        if (playerIndex >= activePlayersNum || !hasVariant(GameType.Planechase)) {
-            return;
-        }
-
-        final Object selected = getPlanarDeckLists().get(playerIndex).getSelectedValue();
-        final Deck deck = decks[playerIndex];
-        CardPool planePool = null;
-        if (selected instanceof String) {
-            String sel = (String) selected;
-            if (sel.contains("Use deck's planes section")) {
-                // deck is null until the player has a deck for the current game format,
-                // so a format with no decks yet falls through to Random rather than NPE.
-                if (deck != null && deck.has(DeckSection.Planes)) {
-                    planePool = deck.get(DeckSection.Planes);
-                } else {
-                    sel = "Random";
-                }
-            }
-            if (sel.equals("Random")) {
-                final Deck randomDeck = RandomDeckGenerator.getRandomUserDeck(lobby, isPlayerAI(playerIndex));
-                planePool = randomDeck.get(DeckSection.Planes);
-            }
-        } else if (selected instanceof Deck) {
-            planePool = ((Deck) selected).get(DeckSection.Planes);
-        }
-        if (planePool == null) { //Can be null if player deselects the list selection or chose Generate
-            planePool = DeckgenUtil.generatePlanarPool();
-        }
-        fireDeckSectionChangeListener(playerIndex, DeckSection.Planes, planePool);
-        getDeckChooser(playerIndex).saveState();
-    }
-
-    private void selectVanguardAvatar(final int playerIndex) {
-        if (playerIndex >= activePlayersNum || !hasVariant(GameType.Vanguard)) {
-            return;
-        }
-
-        final Object selected = vgdAvatarLists.get(playerIndex).getSelectedValue();
-        final PlayerPanel pp = getPlayerPanel(playerIndex);
-        final CardDetailPanel cdp = vgdAvatarDetails.get(playerIndex);
-
-        PaperCard vanguardAvatar = null;
-        final Deck deck = decks[playerIndex];
-        if (selected instanceof PaperCard) {
-            pp.setVanguardButtonText(((PaperCard) selected).getDisplayName());
-            cdp.setCard(CardView.getCardForUi((PaperCard) selected));
-            cdp.setVisible(true);
-            refreshPanels(false, true);
-
-            vanguardAvatar = (PaperCard)selected;
-        } else {
-            final String sel = (String) selected;
-            pp.setVanguardButtonText(sel);
-            cdp.setVisible(false);
-
-            if (sel == null) {
-                return;
-            }
-            if (sel.contains("Use deck's default avatar") && deck != null && deck.has(DeckSection.Avatar)) {
-                vanguardAvatar = deck.get(DeckSection.Avatar).get(0);
-            } else { //Only other string is "Random"
-                if (isPlayerAI(playerIndex)) {
-                    vanguardAvatar = Aggregates.random(getNonRandomAiAvatars());
-                } else {
-                    vanguardAvatar = Aggregates.random(getNonRandomHumanAvatars());
-                }
-            }
-        }
-
-        final CardPool avatarOnce = new CardPool();
-        avatarOnce.add(vanguardAvatar);
-        fireDeckSectionChangeListener(playerIndex, DeckSection.Avatar, avatarOnce);
-        getDeckChooser(playerIndex).saveState();
-    }
-
     /** Populates the deck panel with the focused player's deck choices. */
     private void populateDeckPanel(final GameType forGameType) {
         decksFrame.removeAll();
@@ -671,13 +483,6 @@ public class VLobby implements ILobbyView {
             break;
         case Commander:
             decksFrame.add(getDeckChooser(playerWithFocus), "grow, push");
-            break;
-        case Planechase:
-            decksFrame.add(planarDeckPanels.get(playerWithFocus), "grow, push");
-            break;
-        case Vanguard:
-            updateVanguardList(playerWithFocus);
-            decksFrame.add(vgdPanels.get(playerWithFocus), "grow, push");
             break;
         default:
             break;
@@ -760,18 +565,6 @@ public class VLobby implements ILobbyView {
         refreshPanels(true, true);
     }
 
-    void setVariantsVisible(boolean visible) {
-        cboFormatPanel.setVisible(visible);
-        applyDeckListFormat();
-        Container scrollPane = variantsPanel.getParent();
-        while (scrollPane != null && !(scrollPane instanceof JScrollPane)) {
-            scrollPane = scrollPane.getParent();
-        }
-        if (scrollPane != null) {
-            scrollPane.setVisible(visible);
-        }
-    }
-
     void updateRightPanelForMode() {
         decksFrame.removeAll();
         populateDeckPanel(lobby.getGameType());
@@ -826,83 +619,9 @@ public class VLobby implements ILobbyView {
 
     /////////////////////////////////////////////
 
-    private void onGameFormatChanged() {
-        if (suppressFormatListener) { return; }
-
-        final Object selected = cboFormatPanel.getSelectedItem();
-        if (selected == null) { return; }
-
-        if (!lobby.hasControl()) { // not ours to change; put the combo back
-            syncGameFormatCombo();
-            return;
-        }
-        if (selected == FormatChoices.ARCHIVED) {
-            syncGameFormatCombo();
-            final Object archived = GuiChoose.oneOrNone(Localizer.getInstance().getMessage("lblArchivedFormats"), FormatChoices.getArchivedChoices());
-            if (archived != null) {
-                applyFormatChoice(archived);
-            }
-            return;
-        }
-        if (selected == lobby.getFormatChoice()) { return; }
-
-        applyFormatChoice(selected);
-    }
-
-    private void applyFormatChoice(final Object choice) {
-        lobby.setFormatChoice(choice);
-        lobby.saveSetup();
-        update(false);
-        updateActionButtons();
-    }
-
-    private void syncGameFormatCombo() {
-        final Object applied = lobby.getFormatChoice();
-        if (cboFormatPanel.getSelectedItem() != applied) {
-            suppressFormatListener = true;
-            try {
-                // The model takes an archived format, which the list does not hold
-                cboFormatPanel.getComboBox().getModel().setSelectedItem(applied);
-            } finally {
-                suppressFormatListener = false;
-            }
-        }
-        cboFormatPanel.setEnabled(lobby.hasControl());
-        applyDeckListFormat();
-    }
-
     /** The format the deck lists show. */
     private GameFormat deckListFormat() {
         return lobby.getFormat();
-    }
-
-    private void applyDeckListFormat() {
-        final GameFormat format = deckListFormat();
-        for (final FDeckChooser chooser : cachedDeckChoosers.values()) {
-            chooser.getLstDecks().setRequiredFormat(format);
-        }
-    }
-
-    //========== Various listeners in build order
-
-    @SuppressWarnings("serial") private class VariantCheckBox extends FCheckBox {
-        private final GameType variant;
-        private VariantCheckBox(final GameType variantType) {
-            super(variantType.toString());
-            this.variant = variantType;
-
-            setToolTipText(variantType.getDescription());
-            addItemListener(e -> {
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    lobby.applyVariant(variantType);
-                } else {
-                    lobby.removeVariant(variantType);
-                }
-                lobby.saveSetup();
-                VLobby.this.update(false);
-                VLobby.this.updateActionButtons();
-            });
-        }
     }
 
     private FDeckChooser createDeckChooser(final GameType type, final int iSlot, final boolean ai) {
@@ -935,74 +654,5 @@ public class VLobby implements ILobbyView {
         final FTextField nField = (FTextField)e.getSource();
         nField.transferFocus();
     };
-
-    /////////////////////////////////////
-    //========== METHODS FOR VARIANTS
-
-    /** Gets the list of planar deck lists. */
-    public List<FList<Object>> getPlanarDeckLists() {
-        return planarDeckLists;
-    }
-
-    /** Gets the list of Vanguard avatar lists. */
-    public List<FList<Object>> getVanguardLists() {
-        return vgdAvatarLists;
-    }
-
-    /** Return all the Vanguard avatars. */
-    public Iterable<PaperCard> getAllAvatars() {
-        if (vgdAllAvatars.isEmpty()) {
-            for (final PaperCard c : FModel.getMagicDb().getVariantCards().getAllCards()) {
-                if (c.getRules().getType().isVanguard()) {
-                    vgdAllAvatars.add(c);
-                }
-            }
-        }
-        return vgdAllAvatars;
-    }
-
-    /** Return the Vanguard avatars not flagged RemoveDeck:Random. */
-    public List<PaperCard> getNonRandomHumanAvatars() {
-        return nonRandomHumanAvatars;
-    }
-
-    /** Return the Vanguard avatars not flagged RemoveDeck:All or RemoveDeck:Random. */
-    public List<PaperCard> getNonRandomAiAvatars() {
-        return nonRandomAiAvatars;
-    }
-
-    /** Populate vanguard lists. */
-    private void populateVanguardLists() {
-        humanListData.add("Use deck's default avatar (random if unavailable)");
-        humanListData.add("Random");
-        aiListData.add("Use deck's default avatar (random if unavailable)");
-        aiListData.add("Random");
-        for (final PaperCard cp : getAllAvatars()) {
-            humanListData.add(cp);
-            if (!cp.getRules().getAiHints().getRemRandomDecks()) {
-                nonRandomHumanAvatars.add(cp);
-            }
-            if (!cp.getRules().getAiHints().getRemAIDecks()) {
-                aiListData.add(cp);
-                if (!cp.getRules().getAiHints().getRemRandomDecks()) {
-                    nonRandomAiAvatars.add(cp);
-                }
-            }
-        }
-    }
-
-    /** update vanguard list. */
-    public void updateVanguardList(final int playerIndex) {
-        final FList<Object> vgdList = getVanguardLists().get(playerIndex);
-        final Object lastSelection = vgdList.getSelectedValue();
-        vgdList.setListData(isPlayerAI(playerIndex) ? aiListData : humanListData);
-        if (null != lastSelection) {
-            vgdList.setSelectedValue(lastSelection, true);
-        }
-
-        if (-1 == vgdList.getSelectedIndex()) {
-            vgdList.setSelectedIndex(0);
-        }
-    }
 
 }

@@ -43,8 +43,6 @@ public class RandomDeckGenerator extends DeckProxy {
                 return DeckgenUtil.generateCommanderDeck(isAi, GameType.Commander);
             case Archenemy:
                 return DeckgenUtil.generateSchemeDeck();
-            case Planechase:
-                return DeckgenUtil.generatePlanarDeck();
             default:
                 while (true) {
                     switch (Aggregates.random(DeckType.ConstructedOptions)) {
@@ -103,7 +101,6 @@ public class RandomDeckGenerator extends DeckProxy {
         decks = switch (gameType) {
             case CommanderGauntlet, Commander -> DeckProxy.getAllCommanderDecks(DeckFormat.Commander.isLegalDeckPredicate());
             case Archenemy -> DeckProxy.getAllSchemeDecks(DeckFormat.Archenemy.isLegalDeckPredicate());
-            case Planechase -> DeckProxy.getAllPlanarDecks(DeckFormat.Planechase.isLegalDeckPredicate());
             default -> DeckProxy.getAllConstructedDecks(gameType.getDeckFormat().isLegalDeckPredicate());
         };
         if (Iterables.isEmpty(decks)) {

@@ -142,7 +142,7 @@ public class RegisteredPlayer {
     public static RegisteredPlayer forVariants(final int playerCount,
     		final Set<GameType> appliedVariants, final Deck deck,	              //General vars
     		final Iterable<PaperCard> schemes, final boolean playerIsArchenemy,   //Archenemy specific vars
-    		final Iterable<PaperCard> planes, final CardPool vanguardAvatar) {   //Planechase and Vanguard
+    		final CardPool vanguardAvatar) {                                      //Vanguard
     	RegisteredPlayer start = new RegisteredPlayer(deck);
     	if (appliedVariants.contains(GameType.Archenemy) && playerIsArchenemy) {
     		start.setStartingLife(40); // 904.5: The Archenemy has 40 life.
@@ -157,11 +157,7 @@ public class RegisteredPlayer {
             start.setStartingLife(start.getStartingLife() + 20); // 903.7: ...each player sets his or her life total to 40
 		                                                         // Modified for layering of variants to life +20
     	}
-     	if (appliedVariants.contains(GameType.Planechase)) {
-            start.planes = planes;
-    	}
-        if (appliedVariants.contains(GameType.Vanguard) || appliedVariants.contains(GameType.MomirBasic)
-                || appliedVariants.contains(GameType.MoJhoSto)) { //fix the crash, if somehow the avatar is null, get it directly from the deck
+         if (appliedVariants.contains(GameType.MomirBasic) || appliedVariants.contains(GameType.MoJhoSto)) { //fix the crash, if somehow the avatar is null, get it directly from the deck
             start.setVanguardAvatars(vanguardAvatar == null ? deck.get(DeckSection.Avatar).toFlatList() : vanguardAvatar.toFlatList());
         }
     	return start;

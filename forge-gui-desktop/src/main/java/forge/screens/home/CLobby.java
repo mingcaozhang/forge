@@ -1,17 +1,10 @@
 package forge.screens.home;
 
-import java.util.Arrays;
-import java.util.Vector;
-
 import javax.swing.SwingUtilities;
 
-import com.google.common.collect.Iterables;
-
-import forge.deck.DeckProxy;
 import forge.localinstance.properties.ForgePreferences;
 import forge.localinstance.properties.ForgePreferences.FPref;
 import forge.model.FModel;
-import forge.toolbox.FList;
 
 public class CLobby {
 
@@ -27,35 +20,8 @@ public class CLobby {
         return false;
     }
 
-    private void addDecks(final Iterable<DeckProxy> commanderDecks, FList<Object> deckList, String... initialItems) {
-        Vector<Object> listData = new Vector<>(Arrays.asList(initialItems));
-        listData.add("Generate");
-        if (!Iterables.isEmpty(commanderDecks)) {
-            listData.add("Random");
-            for (DeckProxy comDeck : commanderDecks) {
-                listData.add(comDeck.getDeck());
-            }
-        }
-        Object val = deckList.getSelectedValue();
-        deckList.setListData(listData);
-        if (null != val) {
-            deckList.setSelectedValue(val, true);
-        }
-        if (-1 == deckList.getSelectedIndex()) {
-            deckList.setSelectedIndex(0);
-        }
-    }
-
     public void update() {
         SwingUtilities.invokeLater(() -> {
-            final Iterable<DeckProxy> planarDecks = DeckProxy.getAllPlanarDecks();
-
-            for (int i = 0; i < VLobby.MAX_PLAYERS; i++) {
-                addDecks(planarDecks, view.getPlanarDeckLists().get(i),
-                        "Use deck's planes section (random if unavailable)");
-                view.updateVanguardList(i);
-            }
-
             // General updates when switching back to this view
             view.getBtnStart().requestFocusInWindow();
         });

@@ -51,8 +51,6 @@ public final class CDev implements ICDoc {
         view.getLblWinGame().addMouseListener(onClick(this::winGame));
         view.getLblExileFromPlay().addMouseListener(onClick(this::exileCardsFromPlay));
         view.getLblRemoveFromGame().addMouseListener(onClick(this::removeCardsFromGame));
-        view.getLblRiggedRoll().addMouseListener(onClick(this::riggedPlanerRoll));
-        view.getLblWalkTo().addMouseListener(onClick(this::planeswalkTo));
         view.getLblAskAI().addMouseListener(onClick(this::askAI));
         view.getLblAskSimulationAI().addMouseListener(onClick(this::askSimulationAI));
     }
@@ -152,12 +150,6 @@ public final class CDev implements ICDoc {
     }
     public void removeCardsFromGame() {
         getController().cheat().removeCardsFromGame();
-    }
-    public void riggedPlanerRoll() {
-        getController().cheat().riggedPlanarRoll();
-    }
-    public void planeswalkTo() {
-        getController().cheat().planeswalkTo();
     }
     public void askAI() {
         getController().cheat().askAI(false);

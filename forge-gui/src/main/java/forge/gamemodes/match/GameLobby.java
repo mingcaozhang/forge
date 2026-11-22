@@ -315,18 +315,12 @@ public abstract class GameLobby implements IHasGameType {
             data.appliedVariants.remove(GameType.MomirBasic);
             data.appliedVariants.remove(GameType.MoJhoSto);
             break;
-        case Vanguard:
-            data.appliedVariants.remove(GameType.MomirBasic);
-            data.appliedVariants.remove(GameType.MoJhoSto);
-            break;
         case MomirBasic:
             data.appliedVariants.remove(GameType.Commander);
-            data.appliedVariants.remove(GameType.Vanguard);
             data.appliedVariants.remove(GameType.MoJhoSto);
             break;
         case MoJhoSto:
             data.appliedVariants.remove(GameType.Commander);
-            data.appliedVariants.remove(GameType.Vanguard);
             data.appliedVariants.remove(GameType.MomirBasic);
             break;
         default:
@@ -503,7 +497,6 @@ public abstract class GameLobby implements IHasGameType {
                 final CardPool avatarPool = deck.get(DeckSection.Avatar);
 
                 Iterable<PaperCard> schemes = null;
-                Iterable<PaperCard> planes = null;
 
                 if (variantTypes.contains(GameType.ArchenemyRumble)) {
                     final CardPool schemePool = deck.get(DeckSection.Schemes);
@@ -516,25 +509,7 @@ public abstract class GameLobby implements IHasGameType {
                     schemes = schemePool == null ? Collections.emptyList() : schemePool.toFlatList();
                 }
 
-                if (variantTypes.contains(GameType.Planechase)) {
-                    final CardPool planePool = deck.get(DeckSection.Planes);
-                    if (checkLegality) {
-                        final String errMsg = DeckFormat.getPlaneSectionConformanceProblem(planePool);
-                        if (null != errMsg) {
-                            legalityProblems.add(legalityProblemEntry(name, errMsg));
-                        }
-                    }
-                    planes = planePool == null ? Collections.emptyList() : planePool.toFlatList();
-                }
-
-                if (variantTypes.contains(GameType.Vanguard)) {
-                    if (avatarPool == null || avatarPool.countAll() == 0) { //ERROR! null if avatar deselected on list
-                        SOptionPane.showMessageDialog(Localizer.getInstance().getMessage("lblNoSelectedVanguardAvatarForPlayer", name));
-                        return null;
-                    }
-                }
-
-                rp = RegisteredPlayer.forVariants(activeSlots.size(), variantTypes, deck, schemes, false, planes, avatarPool);
+                rp = RegisteredPlayer.forVariants(activeSlots.size(), variantTypes, deck, schemes, false, avatarPool);
             }
 
             players.add(rp.setPlayer(lobbyPlayer));

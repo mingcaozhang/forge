@@ -46,8 +46,6 @@ public class DevModeMenu implements ActionListener, IDevListener {
         ADD_COUNTER("lblAddCounterPermanent"),
         TAP_PERMANENT("lblTapPermanent"),
         UNTAP_PERMANENT("lblUntapPermanent"),
-        RIGGED_PLANAR_ROLL("lblRiggedRoll"),
-        PLANESWALK_TO("lblWalkTo"),
         DEV_CORNER("lblDeveloperCorner");
 
         protected String caption;
@@ -97,9 +95,6 @@ public class DevModeMenu implements ActionListener, IDevListener {
         menu.add(getMenuItem(DevMenuItem.TAP_PERMANENT));
         menu.add(getMenuItem(DevMenuItem.UNTAP_PERMANENT));
         menu.addSeparator();
-        menu.add(getMenuItem(DevMenuItem.RIGGED_PLANAR_ROLL));
-        menu.add(getMenuItem(DevMenuItem.PLANESWALK_TO));
-        menu.addSeparator();
         menu.add(getMenuItem(DevMenuItem.DEV_CORNER));
         return menu;
     }
@@ -138,8 +133,6 @@ public class DevModeMenu implements ActionListener, IDevListener {
         case ADD_COUNTER:          { controller.addCounterToPermanent(); break; }
         case TAP_PERMANENT:        { controller.tapPermanent(); break; }
         case UNTAP_PERMANENT:      { controller.untapPermanent(); break; }
-        case RIGGED_PLANAR_ROLL:   { controller.riggedPlanerRoll(); break; }
-        case PLANESWALK_TO:        { controller.planeswalkTo(); break; }
         case DEV_CORNER:           { openDevForumInBrowser(); break; }
         default:
             break;

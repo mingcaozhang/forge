@@ -1,4 +1,4 @@
-# PROGRESS.md — Pre-rewrite cleanup (Part 5: 16.1–17.1 done)
+# PROGRESS.md — Pre-rewrite cleanup (Part 5: 16.1–17.5 done)
 
 ## Verified baseline facts
 - Branch `dev`, clean tree. Per-item verify: `GATE` = `mvn test -pl forge-gui-desktop -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` (600000 ms). Final gates add `PKG` = `mvn package -DskipTests -T 1C`.
@@ -9,6 +9,12 @@
 - Scratch artifacts only under `/tmp/opencode/`. Locale files have no trailing newline; preserve when editing. i18n keys are plain string literals via `Localizer.getMessage` (no I18N enum) — deletion = property lines only.
 
 ## Recently completed
+- 17.5: Removed the lobby Format selector + Vanguard/Planechase game modes. `GameType` lost `Vanguard`/`Planechase`; `FormatChoices.VARIANTS`
+  is now empty. Stripped their engine blocks (`RegisteredPlayer` plane avatar, `GameAction`/`PhaseHandler` Planechase init, `GameLobby`
+  startGame legality), dev cheats (`IDevModeCheats.planeswalkTo`/`riggedPlanarRoll` + `CDev`/`VDev`/`DevModeMenu`/`PlayerControllerHuman`),
+  planar-deck plumbing (`DeckProxy.getAllPlanarDecks`, `RandomDeckGenerator` case), and all lobby UI (`VLobby` format combo, variant
+  checkboxes, planar+vanguard panels; `PlayerPanel` planar/vanguard buttons). Commander stays a variant; kept `Player.getPlanes` (read at
+  2940) + planes card-data (`CardType.Vanguard`, planes cards, `DeckFormat.Vanguard`). GATE (2686 tests) + PKG green.
 - 17.4: Fixed deck-editor tab-drag NPE (`SRearrangingUtil.cellTarget` null). When the drag pointer leaves every
   `DragCell` (e.g. over the nav bar), `rearrange()` no longer derefs a null/stale `cellTarget`: reset it at top of
   `rearrange()` + `startRearrange()`, and on no-cell-hit set `dropzone=NONE`, reset cursor, clear preview, return.
@@ -22,12 +28,6 @@
   comments; ~300/locale were stale translations of keys already gone from en-US). Verified via full Java string-literal diff
   (2,058 .java files) + zero non-Java refs. Hard-KEEP protected: `lblPuzzle*`/`lblRestartPuzzle`/`lblQuitPuzzle` (puzzle
   follow-up) + 9 vanguard i18n keys. Also deleted orphaned `forge-gui/server.preferences.example`. GATE (2686 desktop tests) + PKG green.
-- 16.6: Deleted `LobbySlotAuthorizationTest` + `HeadlessNetworkGuiGame` (last `forge.net` harness files).
-  `HeadlessGuiDesktop`: dropped `getNewGuiGame()` override (inherits `GuiDesktop`'s `return new CMatchUI()`),
-  dead `lastMatch`/`getLastMatch`/`clearLastMatch`; KEPT `hostMatch()` override (inherited one NPEs on null `Singletons.getControl()`).
-  Verified 7 kept net tests reference only kept classes. GATE green.
-- 16.5: Relocated test harness `forge.net/{HeadlessGuiDesktop,TestUtils}` → `forge.headless` (git mv); updated imports.
-
 ## 17.1 sweep — verified expected survivors
 - Kept net transport subset (16.2): `FGameClient`/`GameClientHandler`/`NetGameController`/`ReplayClient`/`NetworkLogConfig`
   (+ its `ForgeConstants.NETWORK_LOGS_DIR` dependency), javadoc refs in `IGuiGame`/`YieldController`/`YieldUpdate`/`AbstractGuiGame`, kept net tests.

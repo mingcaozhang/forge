@@ -79,9 +79,6 @@ public class VDev implements IVDoc<CDev>, IDevListener {
     private final DevLabel lblRepeatAddCard = new DevLabel(Localizer.getInstance().getMessage("lblRepeatAddCard"));
     private final DevLabel lblRemoveFromGame = new DevLabel(Localizer.getInstance().getMessage("lblRemoveFromGame"));
 
-    private final DevLabel lblRiggedRoll = new DevLabel(Localizer.getInstance().getMessage("lblRiggedRoll"));
-    private final DevLabel lblWalkTo = new DevLabel(Localizer.getInstance().getMessage("lblWalkTo"));
-
     private final DevLabel lblAskAI = new DevLabel(Localizer.getInstance().getMessage("lblAskAI"));
     private final DevLabel lblAskSimulationAI = new DevLabel(Localizer.getInstance().getMessage("lblAskSimulationAI"));
 
@@ -117,8 +114,6 @@ public class VDev implements IVDoc<CDev>, IDevListener {
         viewport.add(this.lblSubCounterPermanent, halfConstraintsLeft);
         viewport.add(this.lblTapPermanent, halfConstraints);
         viewport.add(this.lblUntapPermanent, halfConstraintsLeft);
-        viewport.add(this.lblRiggedRoll, halfConstraints);
-        viewport.add(this.lblWalkTo, halfConstraintsLeft);
         viewport.add(this.lblAskAI, halfConstraints);
         viewport.add(this.lblAskSimulationAI, halfConstraintsLeft);
         viewport.add(this.lblSetupGame, halfConstraints);
@@ -296,14 +291,6 @@ public class VDev implements IVDoc<CDev>, IDevListener {
     /** @return {@link forge.screens.match.views.VDev.DevLabel} */
     public DevLabel getLblWinGame() {
         return this.lblWinGame;
-    }
-
-    public DevLabel getLblRiggedRoll() {
-        return this.lblRiggedRoll;
-    }
-
-    public DevLabel getLblWalkTo() {
-        return this.lblWalkTo;
     }
 
     public DevLabel getLblAskAI() {

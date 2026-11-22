@@ -54,11 +54,6 @@ public interface IDevModeCheats {
 
     void removeCardsFromGame();
 
-
-    void riggedPlanarRoll();
-
-    void planeswalkTo();
-
     void askAI(boolean useSimulation);
 
     /**
@@ -89,12 +84,6 @@ public interface IDevModeCheats {
         }
         @Override
         public void setCanPlayUnlimitedLands(final boolean canPlayUnlimitedLands0) {
-        }
-        @Override
-        public void riggedPlanarRoll() {
-        }
-        @Override
-        public void planeswalkTo() {
         }
         @Override
         public void generateMana() {

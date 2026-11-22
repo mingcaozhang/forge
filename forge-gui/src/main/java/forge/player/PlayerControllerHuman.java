@@ -3640,64 +3640,6 @@ public class PlayerControllerHuman extends PlayerController implements IGameCont
             sendToRemoteClients();
         }
 
-        /*
-         * (non-Javadoc)
-         *
-         * @see forge.player.IDevModeCheats#riggedPlanarRoll()
-         */
-        @Override
-        public void riggedPlanarRoll() {
-            GameEntityViewMap<Player, PlayerView> gameCachePlayer = GameEntityView.getMap(getGame().getPlayers());
-
-            final PlayerView pv = getGui().oneOrNone(localizer.getMessage("lblWhichPlayerShouldRoll"), gameCachePlayer.getTrackableKeys());
-            if (pv == null || !gameCachePlayer.containsKey(pv)) {
-                return;
-            }
-            final Player player = gameCachePlayer.get(pv);
-
-            final PlanarDice res = getGui().oneOrNone(localizer.getMessage("lblChooseResult"), PlanarDice.values);
-            if (res == null) {
-                return;
-            }
-
-            System.out.println("Rigging planar dice roll: " + res.toString());
-
-            invokeThenSend(() -> PlanarDice.roll(player, res));
-        }
-
-        /*
-         * (non-Javadoc)
-         *
-         * @see forge.player.IDevModeCheats#planeswalkTo()
-         */
-        @Override
-        public void planeswalkTo() {
-            if (!getGame().getRules().hasAppliedVariant(GameType.Planechase)) {
-                return;
-            }
-            final Player p = getGame().getPhaseHandler().getPlayerTurn();
-
-            final List<PaperCard> allPlanars = Lists.newArrayList();
-            for (final PaperCard c : FModel.getMagicDb().getVariantCards().getAllCards()) {
-                if (c.getRules().getType().isPlane() || c.getRules().getType().isPhenomenon()) {
-                    allPlanars.add(c);
-                }
-            }
-            Collections.sort(allPlanars);
-
-            // use standard forge's list selection dialog
-            final IPaperCard c = getGui().oneOrNone(localizer.getMessage("lblNameTheCard"), allPlanars);
-            if (c == null) {
-                return;
-            }
-            final Card forgeCard = Card.fromPaperCard(c, p);
-
-            invokeThenSend(() -> {
-                getGame().getAction().changeZone(null, p.getZone(ZoneType.PlanarDeck), forgeCard, 0, null);
-                PlanarDice.roll(p, PlanarDice.Planeswalk);
-            });
-        }
-
         public void askAI(boolean useSimulation) {
             PlayerControllerAi ai = new PlayerControllerAi(player.getGame(), player, player.getOriginalLobbyPlayer());
             ai.getAi().setUseSimulation(AIOption.USE_FULL_SIMULATION);

@@ -439,15 +439,6 @@ public class DeckProxy implements InventoryItem {
         return result;
     }
 
-    public static Iterable<DeckProxy> getAllPlanarDecks() {
-        return getAllPlanarDecks(null);
-    }
-    public static Iterable<DeckProxy> getAllPlanarDecks(final Predicate<Deck> filter) {
-        final List<DeckProxy> result = new ArrayList<>();
-        addDecksRecursivelly("Plane", GameType.Planechase, result, "", FModel.getDecks().getPlane(), filter);
-        return result;
-    }
-
     private static void addDecksRecursivelly(final String deckType, final GameType gameType, final List<DeckProxy> list, final String path, final IStorage<Deck> folder, final Predicate<Deck> filter) {
         for (final IStorage<Deck> f : folder.getFolders()) {
             final String subPath = (StringUtils.isBlank(path) ? "" : path) + "/" + f.getName();

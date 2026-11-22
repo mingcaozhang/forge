@@ -913,14 +913,6 @@ public class PhaseHandler implements IHasForgeLog {
 
         game.setMonarchBeginTurn(game.getMonarch());
 
-        if (game.getRules().hasAppliedVariant(GameType.Planechase) && game.getActivePlanes() != null) {
-            for (Card p :game.getActivePlanes()) {
-                if (p != null) {
-                    p.setController(next, 0);
-                    game.getAction().controllerChangeZoneCorrection(p);
-                }
-            }
-        }
         return next;
     }
 
