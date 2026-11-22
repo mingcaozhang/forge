@@ -67,13 +67,11 @@ import forge.game.spellability.StackItemView;
 import forge.game.zone.ZoneType;
 import forge.util.IHasForgeLog;
 import forge.gamemodes.match.DrawOfferMessage;
+import forge.gamemodes.match.AbstractGuiGame;
 import forge.gamemodes.match.Selection;
 import forge.gamemodes.match.YieldMarker;
-import forge.gamemodes.net.NetworkGuiGame;
-import forge.gamemodes.net.client.FGameClient;
 import forge.interfaces.IGameController;
 import forge.interfaces.IMacroSystem;
-import forge.gui.FNetOverlay;
 import forge.gui.FThreads;
 import forge.gui.GuiBase;
 import forge.gui.GuiChoose;
@@ -100,7 +98,6 @@ import forge.menus.IMenuProvider;
 import forge.model.FModel;
 import forge.player.PlayerZoneUpdate;
 import forge.player.PlayerZoneUpdates;
-import forge.screens.home.online.VSubmenuOnlineLobby;
 import forge.screens.match.controllers.CCombat;
 import forge.screens.match.controllers.CDependencies;
 import forge.screens.match.controllers.CDetailPicture;
@@ -124,9 +121,7 @@ import forge.toolbox.imaging.FImagePanel.AutoSizeImageMode;
 import forge.toolbox.imaging.FImageUtil;
 import forge.toolbox.special.PhaseIndicator;
 import forge.toolbox.special.PhaseLabel;
-import forge.trackable.Tracker;
 import forge.trackable.TrackableCollection;
-import forge.trackable.TrackableTypes;
 import forge.util.FSerializableFunction;
 import forge.util.ITriggerEvent;
 import forge.util.Localizer;
@@ -150,7 +145,7 @@ import net.miginfocom.swing.MigLayout;
  * <br><br><i>(C at beginning of class name denotes a control class.)</i>
  */
 public final class CMatchUI
-    extends NetworkGuiGame
+    extends AbstractGuiGame
     implements ICDoc, IMenuProvider, IHasForgeLog {
 
     public static final EnumSet<ZoneType> FLOATING_ZONE_TYPES = EnumSet.of(ZoneType.Library, ZoneType.Graveyard, ZoneType.Exile,
@@ -180,9 +175,6 @@ public final class CMatchUI
     private CardPanel lastClickedCardPanel;
 
     private IVDoc<? extends ICDoc> selectedDocBeforeCombat;
-
-    private ReconnectModals.ReconnectingHandle reconnectingHandle;
-    private boolean userDismissedReconnectDialog;
 
     private final CCombat cCombat = new CCombat();
     private final CDependencies cDependencies = new CDependencies(this);
@@ -235,11 +227,6 @@ public final class CMatchUI
 
         cDetailPicture.setGameView(gameView0);
         screen.setTabCaption(gameView0.getTitle());
-        refreshAllViews();
-    }
-
-    @Override
-    protected void afterDeltaApplied() {
         refreshAllViews();
     }
 
@@ -383,14 +370,6 @@ public final class CMatchUI
     private void initMatch(final FCollectionView<PlayerView> sortedPlayers, final Collection<PlayerView> myPlayers) {
         this.sortedPlayers = sortedPlayers;
         allHands = sortedPlayers.size() == getLocalPlayerCount();
-
-        if (isNetGame()) {
-            netLog.debug("sortedPlayers count={}", sortedPlayers.size());
-            for (PlayerView p : sortedPlayers) {
-                netLog.debug("  Player ID={}, hash={}, isLocal={}",
-                        p.getId(), System.identityHashCode(p), (myPlayers != null && myPlayers.contains(p)));
-            }
-        }
 
         final List<VField> fields = new ArrayList<>();
         Singletons.getView().getLpnDocument().add(targetingOverlay.getPanel(), FView.TARGETING_LAYER);
@@ -549,11 +528,6 @@ public final class CMatchUI
         for (final PlayerZoneUpdate update : zonesToUpdate) {
             final PlayerView owner = update.getPlayer();
 
-            if (isNetGame()) {
-                netLog.debug("Processing update for player {}, zones={}, ownerHash={}",
-                        owner.getId(), update.getZones(), System.identityHashCode(owner));
-            }
-
             boolean setupPlayZone = false, updateHand = false, updateAnte = false, updateZones = false,
                     updateCommanderImage = false;
             for (final ZoneType zone : update.getZones()) {
@@ -592,11 +566,6 @@ public final class CMatchUI
             }
             if (updateHand) {
                 final VHand vHand = getHandFor(owner);
-                if (isNetGame()) {
-                    netLog.debug("updateHand for player {}, vHand={}, handSize={}",
-                            owner.getId(), (vHand != null ? "exists" : "NULL"),
-                            String.valueOf(owner.getHand().size()));
-                }
                 if (vHand != null) {
                     vHand.getLayoutControl().updateHand();
                 }
@@ -908,7 +877,7 @@ public final class CMatchUI
             btn1.setFocusable(actualEnable1 && actualFocus1);
             btn2.setFocusable(actualEnable2 && !actualFocus1);
             // ensure we don't steal focus from an overlay
-            if (toFocus != null && !FNetOverlay.SINGLETON_INSTANCE.getTxtInput().hasFocus() ) {
+            if (toFocus != null) {
                 toFocus.requestFocus(); // focus here even if another window has focus - shouldn't have to do it this way but some popups grab window focus
             }
         };
@@ -989,9 +958,6 @@ public final class CMatchUI
         FloatingZone.closeAll(); //ensure floating card areas cleared and closed after the game
         selectionZonesShown.clear();
         revealZonesShown.clear();
-        if (isNetGame()) {
-            writeMatchPreferences();
-        }
         final GameView gameView = getGameView();
         if (hasLocalPlayers() || gameView.isMatchOver()) {
             new ViewWinLose(gameView, this).show();
@@ -1213,20 +1179,6 @@ public final class CMatchUI
 
         // Sort players
         FCollectionView<PlayerView> players = gameView.getPlayers();
-
-        if (isNetGame()) {
-            netLog.info("openView called");
-            netLog.debug("gameView.getPlayers() count={}", players.size());
-            for (PlayerView pv : players) {
-                Tracker t = pv.getTracker();
-                PlayerView inTracker = t != null ? t.getObj(TrackableTypes.PlayerViewType, pv.getId()) : null;
-                netLog.debug("  Player {}: hash={}, tracker={}, inTracker={}, sameInstance={}",
-                        pv.getId(), System.identityHashCode(pv),
-                        t != null ? "exists" : "null",
-                        inTracker != null,
-                        pv == inTracker);
-            }
-        }
 
         if (players.size() == 2 && myPlayers != null && myPlayers.size() == 1 && myPlayers.get(0).equals(players.get(1))) {
             players = new FCollection<>(new PlayerView[]{players.get(1), players.get(0)});
@@ -1827,57 +1779,5 @@ public final class CMatchUI
             }
         });
         menu.add(item);
-    }
-
-    @Override
-    public void onReconnectStateChanged(FGameClient.ReconnectState state, int attemptIndex, int nextDelaySeconds) {
-        FThreads.invokeInEdtLater(() -> dispatchReconnectState(state, attemptIndex, nextDelaySeconds));
-    }
-
-    private void dispatchReconnectState(final FGameClient.ReconnectState state, final int attemptIndex, final int nextDelaySeconds) {
-        final FGameClient client = FNetOverlay.SINGLETON_INSTANCE.getGameClient();
-        switch (state) {
-            case RECONNECTING:
-                if (userDismissedReconnectDialog) break;
-                if (reconnectingHandle == null && client != null) {
-                    reconnectingHandle = ReconnectModals.showReconnecting(client,
-                            () -> {
-                                userDismissedReconnectDialog = true;
-                                reconnectingHandle = null;
-                            },
-                            this::returnToMainMenu);
-                }
-                if (reconnectingHandle != null) {
-                    reconnectingHandle.update(attemptIndex, FGameClient.getTotalReconnectAttempts(), nextDelaySeconds);
-                }
-                break;
-            case CONNECTED:
-                if (reconnectingHandle != null) { reconnectingHandle.dismiss(); reconnectingHandle = null; }
-                if (userDismissedReconnectDialog) {
-                    SOptionPane.showMessageDialog(Localizer.getInstance().getMessage("lblReconnectedToast"));
-                }
-                userDismissedReconnectDialog = false;
-                break;
-            case FAILED:
-                if (reconnectingHandle != null) { reconnectingHandle.dismiss(); reconnectingHandle = null; }
-                userDismissedReconnectDialog = false;
-                if (client != null) ReconnectModals.showFailed(client, this::returnToMainMenu);
-                break;
-            case SEAT_LOST:
-                if (reconnectingHandle != null) { reconnectingHandle.dismiss(); reconnectingHandle = null; }
-                userDismissedReconnectDialog = false;
-                if (client != null) ReconnectModals.showSeatLost(client, this::returnToMainMenu);
-                break;
-        }
-    }
-
-    private void returnToMainMenu() {
-        FThreads.invokeInEdtNowOrLater(() -> {
-            view.armBypassConcedeOnClose();
-            VSubmenuOnlineLobby.SINGLETON_INSTANCE.closeConn("");
-            Singletons.getView().getNavigationBar().closeTab(screen);
-            Singletons.getControl().setCurrentScreen(FScreen.HOME_SCREEN);
-            LinkHandler.clearWeakReferencesNow();
-        });
     }
 }

@@ -9,7 +9,6 @@ import forge.util.Localizer;
  */
 public enum EMenuGroup {
     SANCTIONED ("lblPlayMode"),
-    ONLINE ("lblOnlineMultiplayer"),
     SETTINGS ("lblGameSettings");
 
     private final String strTitle;

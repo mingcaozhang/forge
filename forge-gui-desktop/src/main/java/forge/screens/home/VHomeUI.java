@@ -127,9 +127,7 @@ public enum VHomeUI implements IVTopLevelUI {
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         // Add new menu items here (order doesn't matter).
-        // Single-player Commander/EDH only: the multiplayer/online submenus (VSubmenuOnlineLobby,
-        // VSubmenuOnlineDecks) are intentionally not surfaced here. Their classes remain because the
-        // match screen's network reconnect path still references them.
+        // Single-player Commander/EDH only.
         allSubmenus.add(VSubmenuConstructed.SINGLETON_INSTANCE);
 
         allSubmenus.add(VSubmenuPreferences.SINGLETON_INSTANCE);

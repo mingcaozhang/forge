@@ -25,8 +25,7 @@ import org.testng.annotations.Test;
  * using each submenu's {@code IVSubmenu.getItemEnum()} as the tile key. That
  * means the set of {@code EDocID} values surfaced by the dashboard is, by
  * construction, exactly the set of {@code getItemEnum()} values of the
- * registered submenu views. Multiplayer/online submenus are intentionally not
- * registered, so their docs must never appear on the dashboard.</p>
+ * registered submenu views.</p>
  *
  * <p>The desktop view singletons cannot be instantiated in a bare unit-test
  * JVM because loading {@code EDocID} (and every {@code VSubmenu*} singleton it
@@ -44,24 +43,14 @@ public class HomeNavigationRegistryTest {
             "VSubmenuConstructed",
             "VSubmenuPreferences"));
 
-    /** Multiplayer/online submenus that must remain hidden from the dashboard. */
-    private static final Set<String> EXPECTED_ONLINE_SUBMENUS = new TreeSet<>(List.of(
-            "VSubmenuOnlineLobby",
-            "VSubmenuOnlineDecks"));
-
     /** Expected {@code getItemEnum()} doc id returned by each surfaced submenu. */
     private static final TreeMap<String, String> EXPECTED_SUBMENU_DOC_ID = new TreeMap<>();
-    /** Expected {@code getItemEnum()} doc id returned by each online submenu. */
-    private static final TreeMap<String, String> EXPECTED_ONLINE_DOC_ID = new TreeMap<>();
     /** Expected dashboard hero-tile doc id set. */
     private static final Set<String> EXPECTED_DASHBOARD_DOC_IDS = new TreeSet<>();
 
     static {
         EXPECTED_SUBMENU_DOC_ID.put("VSubmenuConstructed", "HOME_CONSTRUCTED");
         EXPECTED_SUBMENU_DOC_ID.put("VSubmenuPreferences", "HOME_PREFERENCES");
-
-        EXPECTED_ONLINE_DOC_ID.put("VSubmenuOnlineLobby", "HOME_NETWORK");
-        EXPECTED_ONLINE_DOC_ID.put("VSubmenuOnlineDecks", "HOME_NET_DECKS");
 
         EXPECTED_DASHBOARD_DOC_IDS.addAll(EXPECTED_SUBMENU_DOC_ID.values());
     }
@@ -71,15 +60,6 @@ public class HomeNavigationRegistryTest {
         final Set<String> registered = parseRegisteredSubmenus(readHomeSource("VHomeUI.java"));
         Assert.assertEquals(registered, EXPECTED_SURFACED_SUBMENUS,
                 "VHomeUI must register exactly the single-player submenus on the home dashboard");
-    }
-
-    @Test
-    public void onlineSubmenusAreNeverSurfaced() {
-        final Set<String> registered = parseRegisteredSubmenus(readHomeSource("VHomeUI.java"));
-        for (final String online : EXPECTED_ONLINE_SUBMENUS) {
-            Assert.assertFalse(registered.contains(online),
-                    "Multiplayer/online submenu " + online + " must not be registered on the dashboard");
-        }
     }
 
     @Test
@@ -111,25 +91,13 @@ public class HomeNavigationRegistryTest {
         final TreeMap<String, String> actual = new TreeMap<>();
         for (final Path source : findVSubmenuSources()) {
             final String simpleName = classNameOf(source);
-            if (EXPECTED_SUBMENU_DOC_ID.containsKey(simpleName) || EXPECTED_ONLINE_DOC_ID.containsKey(simpleName)) {
+            if (EXPECTED_SUBMENU_DOC_ID.containsKey(simpleName)) {
                 actual.put(simpleName, parseGetItemEnumDocId(readSource(source)));
             }
         }
 
-        final TreeMap<String, String> expected = new TreeMap<>();
-        expected.putAll(EXPECTED_SUBMENU_DOC_ID);
-        expected.putAll(EXPECTED_ONLINE_DOC_ID);
-        Assert.assertEquals(actual, expected,
+        Assert.assertEquals(actual, EXPECTED_SUBMENU_DOC_ID,
                 "VSubmenu* getItemEnum() doc id mappings drifted from the navigation registry");
-    }
-
-    @Test
-    public void onlineDocIdsAreExcludedFromDashboard() {
-        final TreeSet<String> onlineDocIds = new TreeSet<>(EXPECTED_ONLINE_DOC_ID.values());
-        for (final String onlineDocId : onlineDocIds) {
-            Assert.assertFalse(EXPECTED_DASHBOARD_DOC_IDS.contains(onlineDocId),
-                    "Online doc id " + onlineDocId + " must not be surfaced by the dashboard");
-        }
     }
 
     @Test
@@ -145,17 +113,13 @@ public class HomeNavigationRegistryTest {
     }
 
     @Test
-    public void everyVSubmenuIsEitherSurfacedOrOnline() {
-        final Set<String> accountedFor = new TreeSet<>();
-        accountedFor.addAll(EXPECTED_SURFACED_SUBMENUS);
-        accountedFor.addAll(EXPECTED_ONLINE_SUBMENUS);
-
+    public void everyVSubmenuIsSurfaced() {
         final Set<String> allSubmenuClasses = new TreeSet<>();
         for (final Path source : findVSubmenuSources()) {
             allSubmenuClasses.add(classNameOf(source));
         }
-        Assert.assertEquals(allSubmenuClasses, accountedFor,
-                "A new VSubmenu* class was added; classify it as surfaced or online in this registry");
+        Assert.assertEquals(allSubmenuClasses, EXPECTED_SURFACED_SUBMENUS,
+                "A new VSubmenu* class was added; classify it in this registry");
     }
 
     // --- source helpers -----------------------------------------------------

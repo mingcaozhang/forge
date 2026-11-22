@@ -108,8 +108,7 @@ public class VLobby implements ILobbyView {
     public VLobby(final GameLobby lobby) {
         this.lobby = lobby;
         // Create controller first — VLobby.update() and render methods rely on a non-null
-        // controller. External callers (e.g. CSubmenuOnlineLobby) pick up the same instance
-        // via view.getController().
+        // controller. External callers pick up the same instance via view.getController().
         new CLobby(this);
 
         lblTitle.setBackground(FSkin.getColor(FSkin.Colors.CLR_THEME2));

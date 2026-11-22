@@ -1,4 +1,4 @@
-# PROGRESS.md — Pre-rewrite cleanup (Part 5 in progress: 15.3 done)
+# PROGRESS.md — Pre-rewrite cleanup (Part 5 done; Part 6 in progress: 16.1 done)
 
 ## Verified baseline facts
 - Branch `dev`, clean tree. Per-item verify: `GATE` = `mvn test -pl forge-gui-desktop -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` (600000 ms). Final gates add `PKG` = `mvn package -DskipTests -T 1C`.
@@ -7,6 +7,14 @@
 - Checkstyle runs at `validate` with root `checkstyle.xml` — fails on unused imports; `mvn test-compile` catches it fast.
 
 ## Recently completed
+- 16.1: Deleted `screens/home/online/` (5 files), `gui/FNetOverlay.java`, `screens/match/ReconnectModals.java`;
+  `EDocID.HOME_NETWORK`/`HOME_NET_DECKS`; `EMenuGroup.ONLINE`. `CMatchUI` rebased `NetworkGuiGame` →
+  `AbstractGuiGame` (reconnect dispatch + `ReconnectingHandle` field + `FNetOverlay` focus check + 5 dead
+  `isNetGame()` blocks gone; `afterDeltaApplied` override dropped — delta sync is network-only).
+  `pushSkipPhaseToControllers`/`seedYieldStateOnHost` MOVED `NetworkGuiGame` → `AbstractGuiGame` (generic yield
+  wiring; only net touch is the `instanceof NetGameController` guard — keep this fact for 16.2). `FDraftOverlay`
+  dropped `OnlineMenu.draftItem` toggles; `HomeNavigationRegistryTest` rebased (online expectations gone,
+  `everyVSubmenuIsSurfaced`); VHomeUI/VLobby stale comments updated. GATE exit 0 (2701 tests = 2703 − 2).
 - 15.3: Removed all 18 O/B/TL i18n keys (8 live-ref keys + 10 already-orphaned) from all 10 locale files
   (180 lines; zero Java/non-doc refs beforehand; no-trailing-newline style preserved). GATE exit 0 (2703 tests).
 - 15.2: Verification-only — `DeckManager` and `CEditorConstructed` have zero O/B/TL/`hasSignatureSpell`
@@ -54,7 +62,11 @@
 - `AiReportScenarioTest` is flaky under full parallel GATE (APPROX scenarios fail occasionally; green in isolation and on full rerun).
 
 ## Active caveats / follow-ups
-- Part 5 O/B/TL cleanup (14.1-14.3, 15.1-15.4) is now fully complete. Next: whatever PLAN.md Part 6/next section lists.
+- Part 5 O/B/TL cleanup (14.1-14.3, 15.1-15.4) fully complete (15.3 commit ran the milestone PKG gate too).
+- Next: 16.2 (server + online transport — big delete; KEEP subset is compiler-verified per PLAN).
+  Note: `FGameClient.notifyReconnectState` still has the `instanceof NetworkGuiGame` dispatch (no CMatchUI target now;
+  rebase in 16.2). `ClientReconnectTest`/`HeadlessNetworkGuiGame`/`HeadlessNetworkClient` still compile against the
+  kept `FGameClient`/`NetworkGuiGame` until 16.6/16.2.
 - 15.4 done in 14.2 (tests were mode-specific — deleted, not reworked).
 - `RegisteredPlayer.forVariants` keeps its now-unused `playerCount` param (single caller: `GameLobby`) — trim in a sweep.
 - `TrackableProperty.CommanderAltType` kept (replay/trackable-enum stability); now always "Commander".

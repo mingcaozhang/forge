@@ -693,6 +693,45 @@ public abstract class AbstractGuiGame implements IGuiGame, IMayViewCards {
         refreshYieldUi(local);
     }
 
+    protected final void pushSkipPhaseToControllers(final PlayerView player, final PhaseType phase) {
+        // Mind-slave AND-combines master+controlled rows, so a master toggle invalidates dependents
+        for (final PlayerView p : getGameView().getPlayers()) {
+            if (!p.equals(player) && !player.equals(p.getMindSlaveMaster())) continue;
+            final boolean shouldSkip = isUiSetToSkipPhase(p, phase);
+            // Only the host's proxy for a remote player reads the value; a local controller answers from
+            // the label. Sent to both so either re-checks the prompt it is sitting on
+            for (final IGameController c : getOriginalGameControllers()) {
+                c.sendYieldUpdate(new YieldUpdate.SkipPhase(p, phase, shouldSkip));
+            }
+        }
+    }
+
+    /**
+     * Replace the host's persistent yield state for each controlled player
+     * in one atomic message: auto-yields from the AutoYieldStore,
+     * skip-phase prefs from PhaseLabel state. Per-key edits
+     * during play flow as individual YieldUpdate deltas.
+     */
+    protected final void seedYieldStateOnHost() {
+        Map<PlayerView, EnumSet<PhaseType>> skipPhases = new HashMap<>();
+        for (PlayerView p : getGameView().getPlayers()) {
+            EnumSet<PhaseType> set = EnumSet.noneOf(PhaseType.class);
+            for (PhaseType ph : PhaseType.values()) {
+                if (isUiSetToSkipPhase(p, ph)) {
+                    set.add(ph);
+                }
+            }
+            if (!set.isEmpty()) {
+                skipPhases.put(p, set);
+            }
+        }
+        for (final IGameController c : getOriginalGameControllers()) {
+            if (c instanceof forge.gamemodes.net.client.NetGameController nc) {
+                nc.seedYieldStateOnHost(skipPhases);
+            }
+        }
+    }
+
     // End auto-yield/input code
 
     /**

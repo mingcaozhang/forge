@@ -21,7 +21,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import forge.Singletons;
-import forge.screens.home.online.OnlineMenu;
 import forge.toolbox.FMouseAdapter;
 import forge.toolbox.FSkin;
 import forge.util.Localizer;
@@ -30,10 +29,8 @@ import forge.view.FFrame;
 import net.miginfocom.swing.MigLayout;
 
 /**
- * Floating overlay window displayed during network draft sessions.
+ * Floating overlay window displayed during draft sessions.
  * Shows pack/round info, a countdown timer, and neighbor seats with queue depths.
- *
- * Follows the same FDialog pattern as {@link FNetOverlay}.
  */
 public enum FDraftOverlay {
     SINGLETON_INSTANCE;
@@ -248,7 +245,6 @@ public enum FDraftOverlay {
 
     public void hide() {
         window.setVisible(false);
-        OnlineMenu.draftItem.setState(false);
     }
 
     public void show() {
@@ -265,7 +261,6 @@ public enum FDraftOverlay {
         }
         sizeToContent();
         window.setVisible(true);
-        OnlineMenu.draftItem.setState(true);
     }
 
     private void updateDisplay() {
