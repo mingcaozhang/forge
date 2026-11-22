@@ -1,4 +1,4 @@
-# PROGRESS.md — Pre-rewrite cleanup (Part 5 in progress: 15.1 done)
+# PROGRESS.md — Pre-rewrite cleanup (Part 5 in progress: 15.2 done)
 
 ## Verified baseline facts
 - Branch `dev`, clean tree. Per-item verify: `GATE` = `mvn test -pl forge-gui-desktop -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` (600000 ms). Final gates add `PKG` = `mvn package -DskipTests -T 1C`.
@@ -7,6 +7,8 @@
 - Checkstyle runs at `validate` with root `checkstyle.xml` — fails on unused imports; `mvn test-compile` catches it fast.
 
 ## Recently completed
+- 15.2: Verification-only — `DeckManager` and `CEditorConstructed` have zero O/B/TL/`hasSignatureSpell`
+  refs (all removed in 14.1/14.2). GATE exit 0 (2703 tests).
 - 15.1: Verification-only — `GameLobby.applyVariant` (no O/B/TL cases), `removeVariant` (Commander/Constructed
   fallback only), `startGame` (`isCommanderMatch` = `variantTypes.contains(Commander)`, no O/B/TL match flags), and
   `VLobby.populateDeckPanel` (`case Commander:` standalone) were all already clean from 14.1. GATE exit 0 (2703 tests).
@@ -50,7 +52,7 @@
 - `AiReportScenarioTest` is flaky under full parallel GATE (APPROX scenarios fail occasionally; green in isolation and on full rerun).
 
 ## Active caveats / follow-ups
-- Next: 15.2 (deck editor + deck manager — largely pre-done by 14.1; verify listed spots are already clean, then GATE + commit).
+- Next: 15.3 (i18n — 18 O/B/TL keys across 10 locale files; live refs already zero, so pure key removal).
 - 15.4 done in 14.2 (tests were mode-specific — deleted, not reworked).
 - `RegisteredPlayer.forVariants` keeps its now-unused `playerCount` param (single caller: `GameLobby`) — trim in a sweep.
 - `TrackableProperty.CommanderAltType` kept (replay/trackable-enum stability); now always "Commander".
