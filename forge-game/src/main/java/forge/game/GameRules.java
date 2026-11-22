@@ -11,8 +11,6 @@ public class GameRules {
     private boolean playForAnte = false;
     private boolean matchAnteRarity = false;
     private boolean anteIncludeBasicLands = false;
-    private boolean AISideboardingEnabled = false;
-    private boolean sideboardForAI = false;
     private boolean allowCheatShuffle = false;
     private final Set<GameType> appliedVariants = EnumSet.noneOf(GameType.class);
     private int simTimeout = 120;
@@ -71,20 +69,6 @@ public class GameRules {
     }
     public void setAnteIncludeBasicLands(final boolean includeBasicLands) {
         anteIncludeBasicLands = includeBasicLands;
-    }
-
-    public boolean getSideboardForAI() {
-        return sideboardForAI;
-    }
-    public void setSideboardForAI(final boolean sideboard) {
-        sideboardForAI = sideboard;
-    }
-
-    public boolean getAISideboardingEnabled() {
-        return AISideboardingEnabled;
-    }
-    public void setAISideboardingEnabled(final boolean aiSideboarding) {
-        AISideboardingEnabled = aiSideboarding;
     }
 
     public boolean isAllowCheatShuffle() {

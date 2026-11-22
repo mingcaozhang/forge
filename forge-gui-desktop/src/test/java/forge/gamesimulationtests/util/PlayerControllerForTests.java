@@ -15,7 +15,6 @@ import forge.card.ICardFace;
 import forge.card.MagicColor;
 import forge.card.mana.ManaCost;
 import forge.card.mana.ManaCostShard;
-import forge.deck.Deck;
 import forge.deck.DeckSection;
 import forge.game.*;
 import forge.game.ability.AbilityUtils;
@@ -101,11 +100,6 @@ public class PlayerControllerForTests extends PlayerController {
             return;
         }
         throw new IllegalStateException("Callers of this method currently assume that it performs extra functionality!");
-    }
-
-    @Override
-    public List<PaperCard> sideboard(Deck deck, GameType gameType, String message) {
-        return null; // refused to side
     }
 
     @Override

@@ -8,7 +8,6 @@ import com.google.common.collect.MultimapBuilder;
 import com.google.common.eventbus.Subscribe;
 import forge.LobbyPlayer;
 import forge.StaticData;
-import forge.ai.AiProfileUtil;
 import forge.game.*;
 import forge.game.event.GameEvent;
 import forge.game.event.GameEventSubgameEnd;
@@ -73,20 +72,6 @@ public class HostedMatch {
         gameRules.setOrderCombatants(FModel.getPreferences().getPrefBoolean(FPref.LEGACY_ORDER_COMBATANTS));
         gameRules.setUseGrayText(FModel.getPreferences().getPrefBoolean(FPref.UI_GRAY_INACTIVE_TEXT));
         gameRules.setAllowCheatShuffle(FModel.getPreferences().getPrefBoolean(FPref.UI_ENABLE_AI_CHEATS));
-        switch (AiProfileUtil.getAISideboardingMode()) {
-            case Off:
-                gameRules.setAISideboardingEnabled(false);
-                gameRules.setSideboardForAI(false);
-                break;
-            case AI:
-                gameRules.setAISideboardingEnabled(true);
-                gameRules.setSideboardForAI(false);
-                break;
-            case HumanForAI:
-                gameRules.setAISideboardingEnabled(true);
-                gameRules.setSideboardForAI(true);
-                break;
-        }
         return gameRules;
     }
 

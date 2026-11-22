@@ -1,4 +1,4 @@
-# PROGRESS.md — Pre-rewrite cleanup (Part 3 in progress: Phase 7 done, next 8.1)
+# PROGRESS.md — Pre-rewrite cleanup (Part 3 in progress: Phase 8, 8.1 done, next 8.2)
 
 ## Verified baseline facts
 - Branch `dev`, clean tree. Per-item verify: `GATE` = `mvn test -pl forge-gui-desktop -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` (600000 ms). Final gates add `PKG` = `mvn package -DskipTests -T 1C`.
@@ -7,20 +7,22 @@
 - Checkstyle runs at `validate` with root `checkstyle.xml` — fails on unused imports; `mvn test-compile` catches it fast.
 
 ## Recently completed
-- 7.6: Win/lose + next-game flow — `ViewWinLose` `btnContinue` (field/ctor/text/setEnabled/`pnlButtons.add`/
-  `show()` focus/`getBtnContinue`) gone; `IWinLoseView.getBtnContinue` + `ControlWinLose` listener +
-  `actionOnContinue` gone (Restart=`NEW`, Quit=`QUIT` kept); `NextGameDecision.CONTINUE` + `HostedMatch.continueMatch`
-  deleted — AI end-of-game now `isMatchOver=true` + Constructed→`delayInEDT(3000)`→`QUIT`, else immediate `QUIT`;
-  `tallyNextGameDecisions` → `restartMatch()` once all still-playing humans decided (`FServerManager` caller kept);
-  `CPrompt` tooltip done early in 7.5; orphan i18n `btnNextGame` + pre-existing `btnContinue` removed from 10 locales;
-  `ConcedeShould` (QUIT-only) passes. GATE exit 0.
-- 7.5: `TrackableProperty` `NumGamesInMatch`/`NumPlayedGamesInMatch` gone (`MatchOver` kept); `GameView` match-outcome
-  accessors deleted; `CPrompt.updateText` tooltip drops "G:x/y" + "Game #x of y".
-- 7.4: `GameEventGameOutcome` `matchSummary` gone; `GameLogFormatter.visit` returns null; `MATCH_RESULTS`,
-  `ViewWinLose.showPlayerScores`/`lblStats`, `ReplaySession` `(game N)` suffix gone.
-- 7.3: `GameAction.startGame` single-game (`startGame(Runnable)` KEEP-seam); random starter always.
-- 7.2: `Match` single-outcome (`recordOutcome`/`getOutcome`), sideboard zone-prep gone. 7.1: games-per-match gone.
-  6.x/5.x: `PlayerStatistics` + achievements removed. Part 2 (team/2HG/variants) complete.
+- 8.1: Sideboard controller + AI API gone — `PlayerController` abstract `sideboard` + `sideboardsByItself` +
+  `getSideboardingReport`; `PlayerControllerHuman.sideboard` (+`CardPool`/`Deck`/`Range` imports); `PlayerControllerAi`
+  whole sideboard block (report field, `sideboardsAgainstOpponentDeck`, `sideboardAgainstOpponents`, `sideboard` impl);
+  DELETE `forge-ai/.../ai/SideboardAdvisor.java` (was in `forge.ai`, not `...ability/`); `GameRules` `AISideboardingEnabled`/
+  `sideboardForAI` + accessors; `HostedMatch.getDefaultRules` `AiProfileUtil.getAISideboardingMode()` switch + import gone.
+  Tests: `PlayerControllerForTests.sideboard` override (+`Deck` import) + `FlatMonteCarloComboTest`
+  `sideboardingBringsInAnswersToWhatTheOpponentPlays` removed (rest of file kept). `AiProps.SIDEBOARDING_*` consts +
+  `.ai` profile data + `FPref.MATCH_AI_SIDEBOARDING_MODE` stay (9.1 sweep / 8.3). GATE exit 0 (2707 tests).
+- 7.6: Win/lose + next-game flow — `ViewWinLose` `btnContinue` gone; `IWinLoseView.getBtnContinue` +
+  `ControlWinLose.actionOnContinue` gone (Restart=`NEW`, Quit=`QUIT` kept); `NextGameDecision.CONTINUE` +
+  `HostedMatch.continueMatch` deleted; `tallyNextGameDecisions` → `restartMatch()` once all still-playing humans
+  decided; orphan i18n `btnNextGame` + pre-existing `btnContinue` removed from 10 locales. GATE exit 0.
+- 7.5: `TrackableProperty` `NumGamesInMatch`/`NumPlayedGamesInMatch` gone; `GameView` match-outcome accessors deleted.
+- 7.4: `GameEventGameOutcome` `matchSummary` gone; `MATCH_RESULTS`, `showPlayerScores`/`lblStats`, `(game N)` suffix gone.
+- 7.3: `GameAction.startGame` single-game. 7.2: `Match` single-outcome, sideboard zone-prep gone. 7.1: games-per-match
+  gone. 6.x/5.x: `PlayerStatistics` + achievements removed. Part 2 complete.
 
 ## Environment quirks
 - Always use a 600000 ms timeout on Maven runs (default 120 s kills long runs).
@@ -30,9 +32,9 @@
 - `AiReportScenarioTest` is flaky under full parallel GATE (APPROX scenarios fail occasionally; green in isolation and on full rerun).
 
 ## Active caveats / follow-ups
-- Next: **Part 3 item 8.1** (Phase 8) — sideboard controller + AI API: `PlayerController.sideboard`/`sideboardsByItself`/
-  `getSideboardingReport`, `PlayerControllerHuman.sideboard`, `PlayerControllerAi` sideboard block, DELETE
-  `forge-ai/.../ability/SideboardAdvisor.java`, `GameRules` `AISideboardingEnabled`/`sideboardForAI`.
+- Next: **Part 3 item 8.2** (Phase 8) — GUI sideboard dialog + order plumbing: `IGuiGame.sideboard` + `sideboardingMode`
+  from `order(...)` overloads, `CMatchUI`/`GuiChoose.sideboard`, `ProtocolGuiGame.order` + `ProtocolMethod.order`
+  (drop `Boolean.TYPE`), `DualListBox` sideboard-mode, i18n `lblSideboardForPlayer` + `lblUpdateMainFromSideboard`.
 - `VLobby.populateDeckPanel` Oathbreaker/TinyLeaders/Brawl case labels + `DeckManager` variant branches +
   `DeckPreferences.{oathbreaker,tinyLeaders,brawl}Deck` fields are dead (go with GameType entries, later part).
 - Pre-existing orphan i18n keys (incl. `lblGamesInMatch`) left for the 9.1 sweep.

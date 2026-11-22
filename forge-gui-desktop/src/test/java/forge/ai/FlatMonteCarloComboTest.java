@@ -22,8 +22,8 @@ import forge.model.FModel;
 
 /**
  * The combo plan: what the AI reads from its own deck (the key cards and the win cards), the choices that follow from
- * it (what to discard, what to put onto the battlefield with a cheating spell, what to put into the graveyard), the
- * mulligan rules, and sideboarding against the deck of the opponent.
+ * it (what to discard, what to put onto the battlefield with a cheating spell, what to put into the graveyard), and
+ * the mulligan rules.
  */
 public class FlatMonteCarloComboTest extends AITest {
 
@@ -152,30 +152,6 @@ public class FlatMonteCarloComboTest extends AITest {
             addCardToZone(n, p, ZoneType.Hand);
         }
         AssertJUnit.assertTrue(OpeningHand.keep(p, p.getCardsIn(ZoneType.Hand), 0, true, plan, 4));
-    }
-
-    @Test
-    public void sideboardingBringsInAnswersToWhatTheOpponentPlays() {
-        final Game game = initAndCreateGame();
-        final Player p = game.getPlayers().get(1);
-        final List<PaperCard> main = papers("Lightning Bolt", 4, "Goblin Guide", 4, "Monastery Swiftspear", 4,
-                "Chain Lightning", 4, "Searing Spear", 4, "Skullcrack", 4, "Rift Bolt", 4, "Mountain", 24);
-        final List<PaperCard> side = papers("Ancient Grudge", 2, "Pyroblast", 3, "Anger of the Gods", 2);
-        final List<PaperCard> artifacts = papers("Ensnaring Bridge", 4, "Smokestack", 2, "Mother of Runes", 4,
-                "Wurmcoil Engine", 4, "Chalice of the Void", 4, "Sol Ring", 4, "Mishra's Bauble", 4, "Plains", 22);
-        final SideboardAdvisor.Result vsArtifacts = SideboardAdvisor.advise(p, main, side, Arrays.asList(artifacts),
-                Arrays.asList("Artifacts"), SideboardAdvisor.maxSwapsFor(main.size()));
-        AssertJUnit.assertFalse(vsArtifacts.swaps.isEmpty());
-        for (final SideboardAdvisor.Swap swap : vsArtifacts.swaps) {
-            AssertJUnit.assertEquals("Ancient Grudge", swap.in.getName()); // Pyroblast only hits blue cards
-            AssertJUnit.assertFalse("Mountain".equals(swap.out.getName())); // lands never come out
-        }
-
-        final List<PaperCard> creatures = papers("Llanowar Elves", 4, "Grizzly Bears", 4, "Goblin Guide", 4,
-                "Delver of Secrets", 4, "Serra Angel", 4, "Mother of Runes", 4, "Plains", 24);
-        final SideboardAdvisor.Result vsCreatures = SideboardAdvisor.advise(p, main, side, Arrays.asList(creatures),
-                Arrays.asList("Creatures"), SideboardAdvisor.maxSwapsFor(main.size()));
-        AssertJUnit.assertEquals("Anger of the Gods", vsCreatures.swaps.get(0).in.getName());
     }
 
     private static final String[] REANIMATOR_DECK = { "Reanimate", "4", "Animate Dead", "4", "Exhume", "2", "Entomb", "4",

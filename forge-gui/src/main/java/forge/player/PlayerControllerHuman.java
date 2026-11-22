@@ -12,8 +12,6 @@ import forge.gamemodes.net.ProtocolGuiGame;
 import forge.card.*;
 import forge.card.mana.ManaCost;
 import forge.card.mana.ManaCostShard;
-import forge.deck.CardPool;
-import forge.deck.Deck;
 import forge.deck.DeckSection;
 import forge.game.*;
 import forge.game.ability.AbilityKey;
@@ -93,7 +91,6 @@ import forge.trackable.TrackableObject;
 import forge.util.collect.FCollectionView;
 
 import io.sentry.Sentry;
-import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -239,54 +236,6 @@ public class PlayerControllerHuman extends PlayerController implements IGameCont
     @Override
     public void playSpellAbilityNoStack(final SpellAbility effectSA, final boolean canSetupTargets) {
         PlaySpellAbility.playSpellAbilityNoStack(this, player, effectSA, !canSetupTargets);
-    }
-
-    @Override
-    public List<PaperCard> sideboard(final Deck deck, final GameType gameType, String message) {
-        CardPool sideboard = deck.get(DeckSection.Sideboard);
-        if (sideboard == null) {
-            // Use an empty cardpool instead of null for 75/0 sideboarding scenario.
-            sideboard = new CardPool();
-        }
-
-        final CardPool main = deck.get(DeckSection.Main);
-
-        final int mainSize = main.countAll();
-        final int sbSize = sideboard.countAll();
-        final int combinedDeckSize = mainSize + sbSize;
-
-        final int deckMinSize = Math.min(mainSize, gameType.getDeckFormat().getMainRange().getMinimum());
-        final Range<Integer> sbRange = gameType.getDeckFormat().getSideRange();
-        // Limited doesn't have a sideboard max, so let the Main min take care of things.
-        final int sbMax = sbRange == null ? combinedDeckSize : sbRange.getMaximum();
-
-        List<PaperCard> newMain = null;
-
-        // Skip sideboard loop if there are no sideboarding opportunities
-        if (sbSize == 0 && mainSize == deckMinSize) {
-            return null;
-        }
-
-        // conformance should not be checked here
-        final boolean conform = FModel.getPreferences().getPrefBoolean(FPref.ENFORCE_DECK_LEGALITY);
-        do {
-            if (newMain != null) {
-                String errMsg;
-                if (newMain.size() < deckMinSize) {
-                    errMsg = TextUtil.concatNoSpace(localizer.getMessage("lblTooFewCardsMainDeck", deckMinSize));
-                } else {
-                    errMsg = TextUtil.concatNoSpace(localizer.getMessage("lblTooManyCardsSideboard", sbMax));
-                }
-                getGui().showErrorDialog(errMsg, localizer.getMessage("lblInvalidDeck"));
-            }
-            // Sideboard rules have changed for M14, just need to consider min
-            // maindeck and max sideboard sizes
-            // No longer need 1:1 sideboarding in non-limited formats
-            List<PaperCard> resp = getGui().sideboard(sideboard, main, message);
-            newMain = Objects.requireNonNullElse(resp, main.toFlatList());
-        } while (conform && (newMain.size() < deckMinSize || combinedDeckSize - newMain.size() > sbMax));
-
-        return newMain;
     }
 
     @Override
