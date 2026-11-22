@@ -2,9 +2,7 @@ package forge.headless;
 
 import forge.GuiDesktop;
 import forge.gamemodes.match.HostedMatch;
-import forge.net.HeadlessNetworkGuiGame;
 import forge.util.IHasForgeLog;
-import forge.gui.interfaces.IGuiGame;
 import forge.localinstance.skin.FSkinProp;
 import forge.localinstance.skin.ISkinImage;
 
@@ -13,24 +11,18 @@ import java.util.List;
 /**
  * Headless GuiDesktop for automated testing — the {@code GuiBase} interface that
  * enables running without a display. Overrides UI methods (dialogs, audio, FSkin)
- * with no-ops or defaults. {@link #getNewGuiGame()} returns {@link HeadlessNetworkGuiGame},
- * which is the server-side GUI for hosted games.
+ * with no-ops or defaults.
  *
  * <p>Set via {@link TestUtils#ensureFModelInitialized()}.
  */
 public class HeadlessGuiDesktop extends GuiDesktop implements IHasForgeLog {
 
-    private static volatile HostedMatch lastMatch;
     private static boolean testingEnvironmentLogged = false;
-
-    // Tests must call NetworkLogConfig.setTestMode(true) AFTER GuiBase.setInterface()
-    // to avoid initialization order issues.
 
     @Override
     public HostedMatch hostMatch() {
         logTestingEnvironment();
-        lastMatch = new HostedMatch();
-        return lastMatch;
+        return new HostedMatch();
     }
 
     private static synchronized void logTestingEnvironment() {
@@ -41,19 +33,6 @@ public class HeadlessGuiDesktop extends GuiDesktop implements IHasForgeLog {
             netLog.info("This log was created from automated test infrastructure.");
             netLog.info("================================================================================");
         }
-    }
-
-    public static HostedMatch getLastMatch() {
-        return lastMatch;
-    }
-
-    public static void clearLastMatch() {
-        lastMatch = null;
-    }
-
-    @Override
-    public IGuiGame getNewGuiGame() {
-        return new HeadlessNetworkGuiGame();
     }
 
     // The overrides below duplicate GuiDesktop's headless guards on purpose. Those guards key off
