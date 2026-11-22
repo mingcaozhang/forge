@@ -1,4 +1,4 @@
-# PROGRESS.md — Pre-rewrite cleanup (Part 4 in progress, next: item 12.4)
+# PROGRESS.md — Pre-rewrite cleanup (Part 4 in progress, next: item 13.1)
 
 ## Verified baseline facts
 - Branch `dev`, clean tree. Per-item verify: `GATE` = `mvn test -pl forge-gui-desktop -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` (600000 ms). Final gates add `PKG` = `mvn package -DskipTests -T 1C`.
@@ -7,6 +7,8 @@
 - Checkstyle runs at `validate` with root `checkstyle.xml` — fails on unused imports; `mvn test-compile` catches it fast.
 
 ## Recently completed
+- 12.4: Removed orphaned i18n keys `lblNetCommanderDecks` + `lblNetArchiveCommanderDecks` from all 9
+  locale files (`rg` showed zero Java refs). GATE exit 0 (2707 tests).
 - 12.3: Deleted `NetDeckArchiveCommander.java` + res lists `net-decks-commander.txt` +
   `net-decks-archive-duel-commander.txt`; removed `DeckProxy.getNetArchiveCommanderDecks`,
   `NetDeckCategory` `commander` field + `case Commander:`, `ForgeConstants.NET_DECKS_COMMANDER_LIST_FILE`
@@ -29,8 +31,8 @@
 - `AiReportScenarioTest` is flaky under full parallel GATE (APPROX scenarios fail occasionally; green in isolation and on full rerun).
 
 ## Active caveats / follow-ups
-- Next: **12.4** — remove i18n keys `lblNetCommanderDecks` + `lblNetArchiveCommanderDecks` across
-  `forge-gui/res/languages/*` (verify zero Java refs with `rg` first), then GATE.
+- Next: **13.1** — final `rg` sweep for removed Part-4 symbols; remove any leftover orphaned i18n keys
+  (verify each with `rg`); final gate `GATE` + `PKG`, then commit.
 - `VLobby.populateDeckPanel` Oathbreaker/TinyLeaders/Brawl case labels + `DeckManager` variant
   branches + `DeckPreferences.{oathbreaker,tinyLeaders,brawl}Deck` fields are dead (go with
   GameType entries, later part).
