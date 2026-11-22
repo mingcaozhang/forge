@@ -174,38 +174,6 @@ public class FDeckChooser extends JPanel implements IDecksComboBoxListener {
         lstDecks.setSelectedIndices(new Integer[]{0});
     }
 
-    private void updateRandomCommander() {
-        DeckFormat deckFormat = lstDecks.getGameType().getDeckFormat();
-        if (!deckFormat.hasCommander()) {
-            return;
-        }
-
-        lstDecks.setAllowMultipleSelections(false);
-        setDeckPoolWithConfig(CommanderDeckGenerator.getCommanderDecks(deckFormat, isAi, false), ItemManagerConfig.STRING_ONLY);
-
-        btnRandom.setText("Random");
-        btnRandom.setCommand((UiCommand) () -> DeckgenUtil.randomSelect(lstDecks));
-
-        // default selection = basic two color deck
-        lstDecks.setSelectedIndices(new Integer[]{0});
-    }
-
-    private void updateRandomCardGenCommander() {
-        DeckFormat deckFormat = lstDecks.getGameType().getDeckFormat();
-        if (!deckFormat.hasCommander()) {
-            return;
-        }
-
-        lstDecks.setAllowMultipleSelections(false);
-        setDeckPoolWithConfig(CommanderDeckGenerator.getCommanderDecks(deckFormat, isAi, true), ItemManagerConfig.STRING_ONLY);
-
-        btnRandom.setText("Random");
-        btnRandom.setCommand((UiCommand) () -> DeckgenUtil.randomSelect(lstDecks));
-
-        // default selection = basic two color deck
-        lstDecks.setSelectedIndices(new Integer[]{0});
-    }
-
     private void updateThemes() {
         updateDecks(DeckProxy.getAllThemeDecks(), ItemManagerConfig.STRING_ONLY);
     }
@@ -216,10 +184,6 @@ public class FDeckChooser extends JPanel implements IDecksComboBoxListener {
 
     private void updateCommanderPrecons() {
         updateDecks(DeckProxy.getAllCommanderPreconDecks(), ItemManagerConfig.COMMANDER_DECKS);
-    }
-
-    private void updateRandom() {
-        updateDecks(RandomDeckGenerator.getRandomDecks(lstDecks, isAi), ItemManagerConfig.STRING_ONLY);
     }
 
     private void updateNetDecks() {

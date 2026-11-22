@@ -1,4 +1,4 @@
-# PROGRESS.md — Pre-rewrite cleanup (Part 4 in progress, next: item 11.2)
+# PROGRESS.md — Pre-rewrite cleanup (Part 4 in progress, next: item 11.3)
 
 ## Verified baseline facts
 - Branch `dev`, clean tree. Per-item verify: `GATE` = `mvn test -pl forge-gui-desktop -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` (600000 ms). Final gates add `PKG` = `mvn package -DskipTests -T 1C`.
@@ -7,12 +7,15 @@
 - Checkstyle runs at `validate` with root `checkstyle.xml` — fails on unused imports; `mvn test-compile` catches it fast.
 
 ## Recently completed
+- 11.2: removed now-dead `FDeckChooser.updateRandomCommander`/`updateRandomCardGenCommander`/`updateRandom`
+  (switch cases already gone in 11.1) + deleted `forge-gui/.../deck/CommanderDeckGenerator.java` (its
+  `getBrawlDecks` was internal-only). KEPT `DeckgenUtil.generateRandomCommanderDeck` (still called by
+  `DeckgenUtil.generateCommanderDeck` L587 — the no-saved-deck fallback). GATE exit 0 (2708 tests).
 - 11.1: removed `DeckType` entries `RANDOM_COMMANDER_DECK`/`RANDOM_CARDGEN_COMMANDER_DECK`/`RANDOM_DECK`
   from `CommanderOptions`/`ConstructedOptions`; collapsed `CommanderOptions` into one unconditional array
   (`FModel` import kept for the ConstructedOptions branch). Pulled forward (compile-required): `FDeckChooser`
   switch (3 cases), `VLobby.updateImpl` (2 cases), `VLobby.createDeckChooser` Commander case → always
-  `DeckType.COMMANDER_DECK` (drops AI-slot `RANDOM_CARDGEN_COMMANDER_DECK` default). `updateRandomCommander`/
-  `updateRandomCardGenCommander`/`updateRandom` now dead → go in 11.2. GATE exit 0 (2707 tests).
+  `DeckType.COMMANDER_DECK` (drops AI-slot `RANDOM_CARDGEN_COMMANDER_DECK` default). GATE exit 0 (2707 tests).
 - 10.2: removed deck-generation i18n keys + orphaned `#VDeckgen.java` headers from all 10 locales.
 - 10.1: deleted deck-gen tab (`CDeckgen`/`VDeckgen`, `EDocID.EDITOR_DECKGEN`, `editor.xml`,
   `CEditorVariant`/`CEditorTokenViewer` tab handling); stale user layouts self-heal.
@@ -27,9 +30,10 @@
 - `AiReportScenarioTest` is flaky under full parallel GATE (APPROX scenarios fail occasionally; green in isolation and on full rerun).
 
 ## Active caveats / follow-ups
-- Next: **Part 4 item 11.2** (PLAN.md L120) — `FDeckChooser`: remove now-dead `updateRandomCommander`/
-  `updateRandomCardGenCommander`/`updateRandom` + DELETE `CommanderDeckGenerator`. KEEP
-  `DeckgenUtil.generateRandomCommanderDeck` (fallback for `generateCommanderDeck`).
+- Next: **Part 4 item 11.3** (PLAN.md L121) — `RandomDeckGenerator`: remove `getRandomDecks` (sole caller
+  was `FDeckChooser.updateRandom`, now gone), `Generated`/`Favorite` `RandomDeckType` entries → `User` only,
+  `getFavoriteDeck`, `compareTo`+`Comparable`; `getDeck()` → `return getUserDeck()`. KEEP
+  `getRandomUserDeck`/`getUserDeck`/`getGeneratedDeck`/`generateRandomColorDeckOfFormat`.
 - `VLobby.populateDeckPanel` Oathbreaker/TinyLeaders/Brawl case labels + `DeckManager` variant
   branches + `DeckPreferences.{oathbreaker,tinyLeaders,brawl}Deck` fields are dead (go with
   GameType entries, later part).
