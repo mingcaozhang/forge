@@ -5,6 +5,11 @@
 - Desktop surefire "Results" line is 1 less than TestSuite line (off-by-one) — normal. `Localizer` falls back locale → en-US.
 
 ## Completed items
+- Part 3 (5.1+5.2, one commit): entire achievements system gone — 36-file `localinstance/achievements`
+  package, `AchievementTracker` + Player hooks, `PlayerControllerHuman.updateAchievements` chain,
+  `FModel.getAchievements`, 6 `ForgeConstants` entries, 4 res list files, settings screen
+  (V/CSubmenuAchievements + VHomeUI + EDocID.HOME_ACHIEVEMENTS) + HomeNavigationRegistryTest updated.
+  5.1/5.2 coupled (screen imports the package) → committed together. GATE green (2708 tests).
 - Part 2 (1.1–1.5): game engine team/2HG mechanics removed + rebased single-player (Player team API gone,
   `YourTeam`/`YourTeamCtrl` script names kept, 2HG rule entry points gone). GATE green.
 - Part 2 (2.1–2.5): lobby team/2HG/Archenemy/scheme selection + UI, `LobbySlot`/`UpdateLobbyPlayerEvent`
@@ -23,7 +28,8 @@
 - `AiReportScenarioTest` is flaky under full parallel GATE (one APPROX scenario failed once; green in isolation and on full rerun).
 
 ## Active caveats / follow-ups
-- Next: **Part 3 item 5.1** — delete the 36-file achievements package + engine/storage/i18n per PLAN.
+- Next: **Part 3 item 5.3** — orphaned achievement i18n keys across `forge-gui/res/languages/*`
+  (incl. `#VSubmenuAchievements.java` section headers + per-achievement keys, `lblTotalPuzzlesSolved`).
 - `VLobby.populateDeckPanel` still has Oathbreaker/TinyLeaders/Brawl case labels (unreachable; go with GameType
   entries in a later part). `lblArchenemy`/`lbl{Brawl,Oathbreaker,TinyLeaders}{,Desc}` stay (GameType entries stay).
 - `DeckManager.editDeck`/`getFilteredSetCodesInCatalog` variant branches + `DeckPreferences.{oathbreaker,

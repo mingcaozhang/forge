@@ -140,7 +140,6 @@ public class FControlGameEventHandler extends IGameEventVisitor.Base<Void> {
                     final PlayerView localPlayer = humanController.getLocalPlayerView();
                     matchController.showPromptMessage(localPlayer, ""); //clear prompt behind WinLose overlay
                     matchController.updateButtons(localPlayer, "", "", false, false, false);
-                    humanController.updateAchievements();
                 }
                 matchController.finishGame();
             }

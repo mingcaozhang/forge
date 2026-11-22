@@ -211,7 +211,6 @@ public class Player extends GameEntity implements Comparable<Player> {
 
     private PlayerStatistics stats = new PlayerStatistics();
 
-    private final AchievementTracker achievementTracker = new AchievementTracker();
     private final PlayerView view;
 
     public Player(String name0, Game game0, final int id0) {
@@ -229,10 +228,6 @@ public class Player extends GameEntity implements Comparable<Player> {
         view.updateMaxLandPlay(this);
         view.setDraftNotes(this.getDraftNotes());
         setName(chooseName(name0));
-    }
-
-    public final AchievementTracker getAchievementTracker() {
-        return achievementTracker;
     }
 
     private String chooseName(String originalName) {
@@ -2238,7 +2233,6 @@ public class Player extends GameEntity implements Comparable<Player> {
     }
     public final void addLandPlayedThisTurn() {
         landsPlayedThisTurn++;
-        achievementTracker.landsPlayed++;
         view.updateNumLandThisTurn(this);
     }
     public final void resetLandsPlayedThisTurn() {
@@ -2311,8 +2305,6 @@ public class Player extends GameEntity implements Comparable<Player> {
     }
     public final void addSpellCastThisTurn() {
         spellsCastThisGame++;
-        achievementTracker.spellsCast++;
-        achievementTracker.maxStormCount = Math.max(achievementTracker.maxStormCount, getSpellsCastThisTurn());
     }
     public final void setSpellsCastLastTurn(int num) {
         spellsCastLastTurn = num;
@@ -2718,7 +2710,6 @@ public class Player extends GameEntity implements Comparable<Player> {
         final int newHand = getCardsIn(ZoneType.Hand).size();
         stats.notifyHasMulliganed();
         stats.notifyOpeningHandSize(newHand);
-        achievementTracker.mulliganTo = newHand;
     }
 
     public List<Card> getCommanders() {

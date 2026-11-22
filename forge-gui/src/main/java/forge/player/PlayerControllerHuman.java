@@ -83,7 +83,6 @@ import forge.item.IPaperCard;
 import forge.item.PaperCard;
 import forge.item.PaperToken;
 import forge.token.TokenDb;
-import forge.localinstance.achievements.AchievementCollection;
 import forge.localinstance.properties.ForgeConstants;
 import forge.localinstance.properties.ForgePreferences.FPref;
 import forge.model.FModel;
@@ -2799,10 +2798,6 @@ public class PlayerControllerHuman extends PlayerController implements IGameCont
     @Override
     public boolean isGuiPlayer() {
         return lobbyPlayer == GamePlayerUtil.getGuiPlayer();
-    }
-
-    public void updateAchievements() {
-        AchievementCollection.updateAll(this);
     }
 
     private static UndoManager.Mode undoModeFromPrefs() {

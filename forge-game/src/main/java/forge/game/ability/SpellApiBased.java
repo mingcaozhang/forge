@@ -42,6 +42,5 @@ public class SpellApiBased extends Spell {
     @Override
     public void resolve() {
         effect.resolve(this);
-        getActivatingPlayer().getAchievementTracker().onSpellResolve(this);
     }
 }

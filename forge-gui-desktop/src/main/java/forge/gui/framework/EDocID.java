@@ -13,7 +13,6 @@ import forge.screens.deckeditor.views.*;
 import forge.screens.home.online.VSubmenuOnlineDecks;
 import forge.screens.home.online.VSubmenuOnlineLobby;
 import forge.screens.home.sanctioned.VSubmenuConstructed;
-import forge.screens.home.settings.VSubmenuAchievements;
 import forge.screens.home.settings.VSubmenuPreferences;
 
 /**
@@ -36,7 +35,6 @@ public enum EDocID {
     EDITOR_LOG(VEditorLog.SINGLETON_INSTANCE),
 
     HOME_PREFERENCES (VSubmenuPreferences.SINGLETON_INSTANCE),
-    HOME_ACHIEVEMENTS (VSubmenuAchievements.SINGLETON_INSTANCE),
     HOME_CONSTRUCTED (VSubmenuConstructed.SINGLETON_INSTANCE),
     HOME_NETWORK (VSubmenuOnlineLobby.SINGLETON_INSTANCE),
     HOME_NET_DECKS (VSubmenuOnlineDecks.SINGLETON_INSTANCE),

@@ -19,7 +19,6 @@ package forge.model;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.google.common.collect.Maps;
 import forge.*;
 import forge.CardStorageReader.ProgressObserver;
 import forge.ai.AiProfileUtil;
@@ -31,7 +30,6 @@ import forge.deck.CardRelationMatrixGenerator;
 import forge.deck.io.DeckPreferences;
 import forge.error.ExceptionHandler;
 import forge.game.GameFormat;
-import forge.game.GameType;
 import forge.game.card.CardUtil;
 import forge.game.spellability.Spell;
 import forge.gui.GuiBase;
@@ -42,7 +40,6 @@ import forge.gui.interfaces.IProgressBar;
 import forge.item.PaperCard;
 import forge.item.PaperCardPredicates;
 import forge.itemmanager.ItemManagerConfig;
-import forge.localinstance.achievements.*;
 import forge.localinstance.properties.ForgeConstants;
 import forge.localinstance.properties.ForgeNetPreferences;
 import forge.localinstance.properties.ForgePreferences;
@@ -94,15 +91,6 @@ public final class FModel {
 
     private static final Supplier<ForgePreferences> preferences = Suppliers.memoize(ForgePreferences::new);
     private static final Supplier<ForgeNetPreferences> netPreferences = Suppliers.memoize(ForgeNetPreferences::new);
-    private static final Supplier<Map<GameType, AchievementCollection>> achievements = Suppliers.memoize(() -> {
-        final Map<GameType, AchievementCollection> a = Maps.newHashMap();
-        a.put(GameType.Constructed, new ConstructedAchievements());
-        a.put(GameType.Draft, new DraftAchievements());
-        a.put(GameType.Sealed, new SealedAchievements());
-        a.put(GameType.PlanarConquest, new PlanarConquestAchievements());
-        a.put(GameType.Puzzle, new PuzzleAchievements());
-        return a;
-    });
 
     private static final Supplier<CardCollections> decks = Suppliers.memoize(CardCollections::new);
 
@@ -388,14 +376,6 @@ public final class FModel {
     }
     public static ForgeNetPreferences getNetPreferences() {
         return netPreferences.get();
-    }
-
-    public static AchievementCollection getAchievements(GameType gameType) {
-        // Translate gameType to appropriate type if needed
-        return switch (gameType) {
-            case Constructed, Draft, Sealed -> achievements.get().get(gameType);
-            default -> achievements.get().get(GameType.Constructed);
-        };
     }
 
     public static IStorage<CardBlock> getBlocks() {

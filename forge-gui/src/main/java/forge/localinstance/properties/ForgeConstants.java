@@ -44,9 +44,6 @@ public final class ForgeConstants {
     public static final String SETLOOKUP_DIR                = RES_DIR + "setlookup" + PATH_SEPARATOR;
     public static final String KEYWORD_LIST_FILE                     = LISTS_DIR + "NonStackingKWList.txt";
     public static final String TYPE_LIST_FILE                        = LISTS_DIR + "TypeLists.txt";
-    public static final String SPECIAL_CARD_ACHIEVEMENT_LIST_FILE    = LISTS_DIR + "special-card-achievements.txt";
-    public static final String PLANESWALKER_ACHIEVEMENT_LIST_FILE    = LISTS_DIR + "planeswalker-achievements.txt";
-    public static final String ALTWIN_ACHIEVEMENT_LIST_FILE          = LISTS_DIR + "altwin-achievements.txt";
     public static final String IMAGE_LIST_TOKENS_FILE                = LISTS_DIR + "token-images.txt";
     public static final String IMAGE_LIST_QUEST_OPPONENT_ICONS_FILE  = LISTS_DIR + "quest-opponent-icons.txt";
     public static final String IMAGE_LIST_QUEST_TOKENS_FILE          = LISTS_DIR + "quest-pet-token-images.txt";
@@ -55,7 +52,6 @@ public final class ForgeConstants {
     public static final String IMAGE_LIST_QUEST_BOOSTERBOXES_FILE    = LISTS_DIR + "boosterbox-images.txt";
     public static final String IMAGE_LIST_QUEST_PRECONS_FILE         = LISTS_DIR + "precon-images.txt";
     public static final String IMAGE_LIST_QUEST_TOURNAMENTPACKS_FILE = LISTS_DIR + "tournamentpack-images.txt";
-    public static final String IMAGE_LIST_ACHIEVEMENTS_FILE          = LISTS_DIR + "achievement-images.txt";
     public static final String IMAGE_LIST_PLANES_IMAGES_FILE         = LISTS_DIR + "planes-images.txt";
     public static final String NET_DECKS_LIST_FILE                   = LISTS_DIR + "net-decks.txt";
     public static final String NET_DECKS_COMMANDER_LIST_FILE         = LISTS_DIR + "net-decks-commander.txt";
@@ -209,7 +205,6 @@ public final class ForgeConstants {
     public static final String USER_REPLAYS_DIR           = USER_DIR + "replays" + PATH_SEPARATOR;
     public static final String LOG_FILE                   = USER_DIR + "forge.log";
     public static final String NETWORK_LOGS_DIR           = USER_DIR + "networklogs" + PATH_SEPARATOR;
-    public static final String ACHIEVEMENTS_DIR           = USER_DIR + "achievements" + PATH_SEPARATOR;
     public static final String USER_CUSTOM_DIR            = USER_DIR + "custom" + PATH_SEPARATOR;
     public static final String USER_CUSTOM_EDITIONS_DIR   = USER_CUSTOM_DIR + "editions" + PATH_SEPARATOR;
     public static final String USER_CUSTOM_CARDS_DIR      = USER_CUSTOM_DIR + "cards" + PATH_SEPARATOR;
@@ -266,7 +261,6 @@ public final class ForgeConstants {
     public static final String CACHE_PRECON_PICS_DIR         = PICS_DIR + "precons" + PATH_SEPARATOR;
     public static final String CACHE_TOURNAMENTPACK_PICS_DIR = PICS_DIR + "tournamentpacks" + PATH_SEPARATOR;
     public static final String CACHE_PLANECHASE_PICS_DIR     = PICS_DIR + "planechase" + PATH_SEPARATOR;
-    public static final String CACHE_ACHIEVEMENTS_DIR        = PICS_DIR + "achievements" + PATH_SEPARATOR;
     public static final String QUEST_CARD_PRICE_FILE         = DB_DIR + "all-prices.txt";
 
     public static final String[] PROFILE_DIRS = {

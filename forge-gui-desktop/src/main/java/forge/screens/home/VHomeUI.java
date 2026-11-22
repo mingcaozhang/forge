@@ -50,7 +50,6 @@ import forge.localinstance.properties.ForgePreferences.FPref;
 import forge.localinstance.skin.FSkinProp;
 import forge.model.FModel;
 import forge.screens.home.sanctioned.VSubmenuConstructed;
-import forge.screens.home.settings.VSubmenuAchievements;
 import forge.screens.home.settings.VSubmenuPreferences;
 import forge.screens.home.tiles.HomeTile;
 import forge.screens.home.tiles.LastMatchTile;
@@ -134,7 +133,6 @@ public enum VHomeUI implements IVTopLevelUI {
         allSubmenus.add(VSubmenuConstructed.SINGLETON_INSTANCE);
 
         allSubmenus.add(VSubmenuPreferences.SINGLETON_INSTANCE);
-        allSubmenus.add(VSubmenuAchievements.SINGLETON_INSTANCE);
 
         // Only render groups that actually contain menu items, so removed sections leave no empty header.
         final Set<EMenuGroup> populatedGroups = new LinkedHashSet<>();
@@ -230,8 +228,6 @@ public enum VHomeUI implements IVTopLevelUI {
                 return FSkinProp.ICO_PLAYERS;
             case HOME_PREFERENCES:
                 return FSkinProp.ICO_SETTINGS;
-            case HOME_ACHIEVEMENTS:
-                return FSkinProp.ICO_QUEST_GOLD;
             default:
                 return FSkinProp.ICO_SHORTCUTS;
         }

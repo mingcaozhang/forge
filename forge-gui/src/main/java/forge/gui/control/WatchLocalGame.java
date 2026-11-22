@@ -25,10 +25,6 @@ public class WatchLocalGame extends PlayerControllerHuman {
     }
 
     @Override
-    public void updateAchievements() {
-    }
-
-    @Override
     public boolean canUndoLastAction() {
         return false;
     }

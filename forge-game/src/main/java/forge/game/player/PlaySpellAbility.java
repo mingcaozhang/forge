@@ -714,9 +714,6 @@ public class PlaySpellAbility {
         }
 
         if (isFree || payment.isFullyPaid()) {
-            //track when planeswalker ultimates are activated
-            player.getAchievementTracker().onSpellAbilityPlayed(ability);
-
             if (skipStack) {
                 AbilityUtils.resolve(ability);
                 // Should unfreeze stack (but if it was a RE with a cause better to let it be handled by that)
