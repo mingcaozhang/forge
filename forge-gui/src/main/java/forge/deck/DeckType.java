@@ -27,7 +27,6 @@ public enum DeckType {
     PAUPER_COLOR_DECK("lblRandomPauperColorDecks"),
     THEME_DECK("lblRandomThemeDecks"),
     NET_DECK("lblNetDecks"),
-    NET_COMMANDER_DECK("lblNetCommanderDecks"),
     NET_ARCHIVE_STANDARD_DECK("lblNetArchiveStandardDecks"),
     NET_ARCHIVE_PIONEER_DECK("lblNetArchivePioneerDecks"),
     NET_ARCHIVE_MODERN_DECK("lblNetArchiveModernDecks"),
@@ -35,7 +34,6 @@ public enum DeckType {
     NET_ARCHIVE_LEGACY_DECK("lblNetArchiveLegacyDecks"),
     NET_ARCHIVE_VINTAGE_DECK("lblNetArchiveVintageDecks"),
     NET_ARCHIVE_BLOCK_DECK("lblNetArchiveBlockDecks"),
-    NET_ARCHIVE_COMMANDER_DECK("lblNetArchiveCommanderDecks"),
     NET_EVENT_DECK("lblNetEventDecks"),
     PROVIDED_DECK_URL("lblProvideDeckUrl");
 
@@ -98,7 +96,6 @@ public enum DeckType {
         CommanderOptions = new DeckType[]{
                 DeckType.COMMANDER_DECK,
                 DeckType.PRECON_COMMANDER_DECK,
-                DeckType.NET_COMMANDER_DECK,
                 DeckType.PROVIDED_DECK_URL
         };
     }

@@ -2,8 +2,6 @@ package forge.deckchooser;
 
 import java.awt.Cursor;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
@@ -11,7 +9,6 @@ import javax.swing.DefaultComboBoxModel;
 import com.google.common.collect.Lists;
 
 import forge.deck.DeckType;
-import forge.game.GameType;
 import forge.gui.MouseUtil;
 import forge.toolbox.FComboBox.TextAlignment;
 import forge.toolbox.FComboBoxWrapper;
@@ -28,17 +25,9 @@ public class DecksComboBox extends FComboBoxWrapper<DeckType> {
     }
 
     public void refresh(final DeckType deckType, final boolean isForCommander) {
-        refresh(deckType, isForCommander, null);
-    }
-
-    public void refresh(final DeckType deckType, final boolean isForCommander, final GameType gameType) {
-        if (isForCommander && (gameType == GameType.Commander || gameType == GameType.CommanderGauntlet)) {
-            final List<DeckType> options = new ArrayList<>(Arrays.asList(DeckType.CommanderOptions));
-            options.add(options.indexOf(DeckType.NET_COMMANDER_DECK) + 1, DeckType.NET_ARCHIVE_COMMANDER_DECK);
-            setModel(new DefaultComboBoxModel<>(options.toArray(new DeckType[0])));
-        } else if(isForCommander){
+        if (isForCommander) {
             setModel(new DefaultComboBoxModel<>(DeckType.CommanderOptions));
-        }else {
+        } else {
             setModel(new DefaultComboBoxModel<>(DeckType.ConstructedOptions));
         }
         setSelectedItem(deckType);
