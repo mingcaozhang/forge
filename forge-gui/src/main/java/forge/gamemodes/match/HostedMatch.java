@@ -134,11 +134,6 @@ public class HostedMatch {
         startGame();
     }
 
-    public void continueMatch() {
-        endCurrentGame();
-        startGame();
-    }
-
     public void restartMatch() {
         endCurrentGame();
         startMatch(match.getRules(), null, match.getPlayers(), this.guis, this.matchPlaylist);
@@ -293,20 +288,12 @@ public class HostedMatch {
             // After game is over... (a match is a single game, so it is always over now)
             isMatchOver = true;
             if (humanCount == 0) {
-                // ... if no human players, let AI decide next game
+                // ... if no human players, let AI end the match
                 if (currentGame.getRules().getGameType() == GameType.Constructed) {
                     // Dramatic interlude to signal end of game.
-                    FThreads.delayInEDT(3000, () -> {
-                        if (isMatchOver) {
-                            // Leave match-end overview open for spectator.
-                        } else {
-                            addNextGameDecision(null, NextGameDecision.CONTINUE);
-                        }
-                    });
-                } else if (isMatchOver) {
-                    addNextGameDecision(null, NextGameDecision.QUIT);
+                    FThreads.delayInEDT(3000, () -> addNextGameDecision(null, NextGameDecision.QUIT));
                 } else {
-                    addNextGameDecision(null, NextGameDecision.CONTINUE);
+                    addNextGameDecision(null, NextGameDecision.QUIT);
                 }
             }
         });
@@ -531,31 +518,14 @@ public class HostedMatch {
         tallyNextGameDecisions();
     }
 
-    /** Starts the next game once every human still playing has chosen. A seat the AI took over is not waited for. */
+    /** Restarts the match once every human still playing has chosen. A seat the AI took over is not waited for. */
     public synchronized void tallyNextGameDecisions() {
         nextGameDecisions.keySet().removeIf(c -> c != null && !stillPlaying(c));
         if (nextGameDecisions.isEmpty() || nextGameDecisions.size() < humanControllers.stream().filter(HostedMatch::stillPlaying).count()) {
             return;
         }
 
-        int newMatch = 0, continueMatch = 0;
-        for (final NextGameDecision dec : nextGameDecisions.values()) {
-            switch (dec) {
-            case CONTINUE:
-                continueMatch++;
-                break;
-            case NEW:
-                newMatch++;
-                break;
-            default:
-            }
-        }
-
-        if (continueMatch >= newMatch) {
-            FThreads.invokeInEdtNowOrLater(this::continueMatch);
-        } else {
-            FThreads.invokeInEdtNowOrLater(this::restartMatch);
-        }
+        FThreads.invokeInEdtNowOrLater(this::restartMatch);
     }
 
     public List<PlayerControllerHuman> getHumanControllers(){

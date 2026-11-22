@@ -6,7 +6,6 @@ import forge.localinstance.skin.FSkinProp;
 import java.util.List;
 
 public interface IWinLoseView<T extends IButton> {
-    T getBtnContinue();
     T getBtnRestart();
     T getBtnQuit();
     void hide();

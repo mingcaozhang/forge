@@ -42,7 +42,7 @@ public class ViewWinLose implements IWinLoseView<FButton> {
     private final ControlWinLose control;
 
     private final FScrollPane scrLog;
-    private final FButton btnContinue, btnRestart, btnQuit;
+    private final FButton btnRestart, btnQuit;
     private final SkinnedPanel pnlCustom;
 
     private final SkinnedLabel lblTitle = new SkinnedLabel("WinLoseFrame > lblTitle needs updating.");
@@ -70,7 +70,6 @@ public class ViewWinLose implements IWinLoseView<FButton> {
         final FScrollPane scrCustom = new FScrollPane(false);
         pnlCustom = new SkinnedPanel();
 
-        btnContinue = new FButton();
         btnRestart = new FButton();
         btnQuit = new FButton();
 
@@ -100,13 +99,10 @@ public class ViewWinLose implements IWinLoseView<FButton> {
         final Localizer localizer = Localizer.getInstance();
         // A puzzle is one fixed game: there is no "next game" and no new match to start, only trying it again.
         final boolean puzzle = !replay && game0.getGameType() == GameType.Puzzle;
-        btnContinue.setText(localizer.getMessage("btnNextGame"));
-        btnContinue.setFont(FSkin.getRelativeFont(22));
         btnRestart.setText(puzzle ? localizer.getMessage("lblRestartPuzzle") : localizer.getMessage("btnStartNewMatch"));
         btnRestart.setFont(FSkin.getRelativeFont(22));
         btnQuit.setText(replay ? "Close replay" : puzzle ? localizer.getMessage("lblQuitPuzzle") : localizer.getMessage("btnQuitMatch"));
         btnQuit.setFont(FSkin.getRelativeFont(22));
-        btnContinue.setEnabled(!game0.isMatchOver());
 
         // Assemble game log scroller.
         final FTextArea txtLog = new FTextArea();
@@ -148,9 +144,6 @@ public class ViewWinLose implements IWinLoseView<FButton> {
 
         final String constraints = "w 300px!, h 50px!, gap 0 0 20px 0";
         if (!replay) {
-            if (!puzzle) {
-                pnlButtons.add(btnContinue, constraints);
-            }
             pnlButtons.add(btnRestart, constraints);
         }
         pnlButtons.add(btnQuit, constraints);
@@ -174,13 +167,7 @@ public class ViewWinLose implements IWinLoseView<FButton> {
     public final void show() {
         SwingUtilities.invokeLater(() -> {
             scrLog.getViewport().setViewPosition(new Point(0, 0));
-            // populateCustomPanel may have changed which buttons are
-            // enabled; focus on the 'best' one
-            if (btnContinue.isEnabled()) {
-                btnContinue.requestFocusInWindow();
-            } else {
-                btnQuit.requestFocusInWindow();
-            }
+            btnQuit.requestFocusInWindow();
         });
 
         showGameOutcomeSummary();
@@ -198,14 +185,6 @@ public class ViewWinLose implements IWinLoseView<FButton> {
         } else {
             return localizer.getMessage("lblWinnerWon").replace("%s", winner);
         }
-    }
-
-    /**
-     * @return {@link forge.toolbox.FButton}
-     */
-    @Override
-    public FButton getBtnContinue() {
-        return this.btnContinue;
     }
 
     /**

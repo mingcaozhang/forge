@@ -31,19 +31,12 @@ public class ControlWinLose {
 
     /** */
     public void addListeners() {
-        view.getBtnContinue().addActionListener(e -> actionOnContinue());
-
         view.getBtnRestart().addActionListener(e -> actionOnRestart());
 
         view.getBtnQuit().addActionListener(e -> {
             actionOnQuit();
             ((JButton) e.getSource()).setEnabled(false);
         });
-    }
-
-    /** Action performed when "continue" button is pressed in default win/lose UI. */
-    public void actionOnContinue() {
-        nextGameAction(NextGameDecision.CONTINUE);
     }
 
     /** Action performed when "restart" button is pressed in default win/lose UI. */
