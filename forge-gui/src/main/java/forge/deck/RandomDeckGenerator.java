@@ -12,66 +12,28 @@ import forge.util.IterableUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RandomDeckGenerator extends DeckProxy implements Comparable<RandomDeckGenerator> {
-    private enum RandomDeckType {
-        Generated,
-        User,
-        Favorite
-    }
-
-    public static List<DeckProxy> getRandomDecks(final IHasGameType lstDecks0, final boolean isAi0) {
-        final List<DeckProxy> decks = new ArrayList<>();
-
-        decks.add(new RandomDeckGenerator("Random Generated Deck", RandomDeckType.Generated, lstDecks0, isAi0));
-        decks.add(new RandomDeckGenerator("Random User Deck", RandomDeckType.User, lstDecks0, isAi0));
-        decks.add(new RandomDeckGenerator("Random Favorite Deck", RandomDeckType.Favorite, lstDecks0, isAi0));
-
-        return decks;
-    }
-
-    public static Deck getRandomUserDeck(final IHasGameType lstDecks0, final boolean isAi0) {
-        RandomDeckGenerator generator = new RandomDeckGenerator(null, RandomDeckType.User, lstDecks0, isAi0);
-        return generator.getDeck();
-    }
-
-    private final String name;
-    private final RandomDeckType type;
+public class RandomDeckGenerator extends DeckProxy {
     private final IHasGameType lstDecks;
     private final boolean isAi;
 
-    private RandomDeckGenerator(final String name0, final RandomDeckType type0, final IHasGameType lstDecks0, final boolean isAi0) {
+    private RandomDeckGenerator(final IHasGameType lstDecks0, final boolean isAi0) {
         super();
-        name = name0;
-        type = type0;
         lstDecks = lstDecks0;
         isAi = isAi0;
     }
 
+    public static Deck getRandomUserDeck(final IHasGameType lstDecks0, final boolean isAi0) {
+        return new RandomDeckGenerator(lstDecks0, isAi0).getDeck();
+    }
+
     @Override
     public String getName() {
-        return name;
-    }
-
-    @Override
-    public String toString() {
-        return name;
-    }
-
-    @Override
-    public int compareTo(final RandomDeckGenerator d) {
-        return Integer.compare(type.ordinal(), d.type.ordinal());
+        return "Random User Deck";
     }
 
     @Override
     public Deck getDeck() {
-        switch (type) {
-            case Generated:
-                return getGeneratedDeck();
-            case User:
-                return getUserDeck();
-            default:
-                return getFavoriteDeck();
-        }
+        return getUserDeck();
     }
 
     private Deck getGeneratedDeck() {
@@ -157,20 +119,6 @@ public class RandomDeckGenerator extends DeckProxy implements Comparable<RandomD
             Iterable<DeckProxy> AIDecks = IterableUtil.filter(decks, deckProxy -> deckProxy.getAI().inMainDeck == 0);
             if (Iterables.size(AIDecks) > 10)
                 return Aggregates.random(AIDecks).getDeck();
-        }
-        return Aggregates.random(decks).getDeck();
-    }
-
-    private Deck getFavoriteDeck() {
-        Iterable<DeckProxy> decks = switch (lstDecks.getGameType()) {
-            case CommanderGauntlet, Commander -> DeckProxy.getAllCommanderDecks();
-            case Archenemy -> DeckProxy.getAllSchemeDecks();
-            case Planechase -> DeckProxy.getAllPlanarDecks();
-            default -> DeckProxy.getAllConstructedDecks();
-        };
-        decks = IterableUtil.filter(decks, DeckProxy::isFavoriteDeck);
-        if (Iterables.isEmpty(decks)) {
-            return getGeneratedDeck(); //fall back to generated deck if no favorite decks
         }
         return Aggregates.random(decks).getDeck();
     }
