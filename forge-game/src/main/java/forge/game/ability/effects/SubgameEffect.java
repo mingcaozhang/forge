@@ -159,7 +159,7 @@ public class SubgameEffect extends SpellAbilityEffect {
         maingame.getMatch().fireEvent(new GameEventSubgameStart(subgame, startMessage));
 
         prepareAllZonesSubgame(maingame, subgame);
-        subgame.getAction().startGame(null, null);
+        subgame.getAction().startGame(null);
         subgame.clearCaches();
 
         // Find out winners and losers

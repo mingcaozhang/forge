@@ -2329,11 +2329,8 @@ public class GameAction {
         return Math.abs(averageCount-landCount);
     }
 
-    public void startGame(GameOutcome lastGameOutcome) {
-        startGame(lastGameOutcome, null);
-    }
-    public void startGame(GameOutcome lastGameOutcome, Runnable startGameHook) {
-        Player first = determineFirstTurnPlayer(lastGameOutcome);
+    public void startGame(Runnable startGameHook) {
+        Player first = determineFirstTurnPlayer();
 
         GameType gameType = game.getRules().getGameType();
         do {
@@ -2399,7 +2396,7 @@ public class GameAction {
         } while (game.getAge() == GameStage.RestartedByKarn);
     }
 
-    private Player determineFirstTurnPlayer(final GameOutcome lastGameOutcome) {
+    private Player determineFirstTurnPlayer() {
         // Only cut/coin toss if it's the first game of the match
         Player goesFirst = null;
 
@@ -2431,17 +2428,7 @@ public class GameAction {
             return players.get(0);
         }
 
-        boolean isFirstGame = lastGameOutcome == null;
-        if (isFirstGame) {
-            goesFirst = Aggregates.random(game.getPlayers());
-        } else {
-            for (Player p : game.getPlayers()) {
-                if (!lastGameOutcome.isWinner(p.getRegisteredPlayer())) {
-                    goesFirst = p;
-                    break;
-                }
-            }
-        }
+        goesFirst = Aggregates.random(game.getPlayers());
 
         if (goesFirst == null) {
             // This happens in hotseat matches when 2 equal lobbyplayers play.
@@ -2449,16 +2436,14 @@ public class GameAction {
             goesFirst = game.getPlayers().get(0); // does not really matter who plays first - it's controlled from the same computer.
         }
 
-        if (isFirstGame) {
-            game.fireEvent(new GameEventFlipCoin(goesFirst.getView(), true, true));
-        }
+        game.fireEvent(new GameEventFlipCoin(goesFirst.getView(), true, true));
 
         for (Player p : game.getPlayers()) {
             if (p != goesFirst) {
                 p.getController().awaitNextInput(); //show "Waiting for opponent..." while first player chooses whether to go first or keep their hand
             }
         }
-        goesFirst = goesFirst.getController().chooseStartingPlayer(isFirstGame);
+        goesFirst = goesFirst.getController().chooseStartingPlayer(true);
         return goesFirst;
     }
 
