@@ -593,37 +593,15 @@ public class DeckgenUtil {
         PaperCard selectedPartner = null;
         List<PaperCard> preSelectedCards = new ArrayList<>();
         if(isCardGen){
-            if(format.equals(DeckFormat.Brawl)){//TODO: replace with actual Brawl based data
-                Set<String> uniqueCards = new HashSet<>();
-                List<List<Pair<String, Double>>> cardArchetypes = CardArchetypeLDAGenerator.ldaPools.get(FModel.getFormats().getHistoric().getName()).get(commander.getName());
-                for(List<Pair<String, Double>> archetype:cardArchetypes){
-                    for(Pair<String, Double> cardPair:archetype){
-                        String cardName = cardPair.getLeft();
-                        uniqueCards.add(cardName);
-                    }
-                }
-                for(String card:uniqueCards){
-                    PaperCard paperCard = StaticData.instance().getCommonCards().getUniqueByName(card);
-                    if(format.isLegalCard(paperCard)) {
-                        preSelectedCards.add(paperCard);
-                    }
-                }
-            } else {
-                String matrixKey = (format.equals(DeckFormat.TinyLeaders) ? DeckFormat.Commander : format).toString(); //use Commander for Tiny Leaders
-                List<Map.Entry<PaperCard, Integer>> potentialCards = new ArrayList<>(CardRelationMatrixGenerator.cardPools.get(matrixKey).get(commander.getName()));
-                prepareWeightedRandomizedCardPool(potentialCards);
-                for(Map.Entry<PaperCard,Integer> pair:potentialCards){
-                    if(format.isLegalCard(pair.getKey())) {
-                        preSelectedCards.add(pair.getKey());
-                    }
+            List<Map.Entry<PaperCard, Integer>> potentialCards = new ArrayList<>(CardRelationMatrixGenerator.cardPools.get(format.toString()).get(commander.getName()));
+            prepareWeightedRandomizedCardPool(potentialCards);
+            for(Map.Entry<PaperCard,Integer> pair:potentialCards){
+                if(format.isLegalCard(pair.getKey())) {
+                    preSelectedCards.add(pair.getKey());
                 }
             }
 
-            if (format.equals(DeckFormat.Oathbreaker)) {
-                //pass signature spell as partner for simplicity
-                selectedPartner = getRandomSignatureSpell(preSelectedCards);
-            }
-            else if (commander.getRules().canBePartnerCommander()) {
+            if (commander.getRules().canBePartnerCommander()) {
                 selectedPartner = getRandomPartnerCommander(preSelectedCards, commander);
             }
             if (selectedPartner != null) {
@@ -657,25 +635,13 @@ public class DeckgenUtil {
                     format.isLegalCardPredicate().and(PaperCardPredicates.fromRules(
                             new CardThemedDeckBuilder.MatchColorIdentity(commander.getRules().getColorIdentity())
                                     .or(DeckGeneratorBase.COLORLESS_CARDS))));
-            if (format == DeckFormat.Brawl) {
-                // add additional filterprinted rule to remove old reprints for a consistent look
-                colorList = IterableUtil.filter(colorList,FModel.getFormats().get("Brawl").getFilterPrinted());
-            }
             //shuffle first 400 random cards
             List<PaperCard> cardList = Lists.newArrayList(colorList);
             Collections.shuffle(cardList, MyRandom.getRandom());
             int shortlistlength = Math.min(400, cardList.size());
             preSelectedCards = cardList.subList(0, shortlistlength);
-            switch (format) {
-            case Oathbreaker:
-                //pass signature spell as partner for simplicity
-                selectedPartner = getRandomSignatureSpell(preSelectedCards);
-                break;
-            default:
-                if (commander.getRules().canBePartnerCommander()) {
-                    selectedPartner = getRandomPartnerCommander(preSelectedCards, commander);
-                }
-                break;
+            if (commander.getRules().canBePartnerCommander()) {
+                selectedPartner = getRandomPartnerCommander(preSelectedCards, commander);
             }
             if (selectedPartner != null) {
                 preSelectedCards.removeAll(StaticData.instance().getCommonCards().getAllCards(selectedPartner));
@@ -715,9 +681,6 @@ public class DeckgenUtil {
         potentialCards.sort(Comparator.comparingDouble(sortKeys::get).reversed());
     }
 
-    private static PaperCard getRandomSignatureSpell(final Iterable<PaperCard> cards) {
-        return Aggregates.random(IterableUtil.filter(cards, c -> c.getRules().canBeSignatureSpell()));
-    }
     private static PaperCard getRandomPartnerCommander(final Iterable<PaperCard> cards, final PaperCard commander) {
         final List<PaperCard> partners = new ArrayList<>();
         for (final PaperCard card : cards) {

@@ -1154,7 +1154,6 @@ public class DeckRecognizerTest extends CardMockTestCase {
         assertNotNull(cardToken);
         assertEquals(cardToken.getType(), TokenType.LEGAL_CARD);
         assertNotNull(cardToken.getTokenSection());
-        //assertEquals(cardToken.getTokenSection(), DeckSection.Main); //fix test since signature spell is allowed on commander section
         assertNotNull(cardToken.getCard());
         PaperCard tokenCard = cardToken.getCard();
         assertEquals(cardToken.getQuantity(), 4);
@@ -1332,7 +1331,6 @@ public class DeckRecognizerTest extends CardMockTestCase {
         assertEquals(cardToken.getType(), TokenType.LEGAL_CARD);
         assertNotNull(cardToken.getCard());
         assertNotNull(cardToken.getTokenSection());
-        //assertEquals(cardToken.getTokenSection(), DeckSection.Main); //fix test since signature spell is allowed on commander section
         assertTrue(cardToken.isCardToken());
         PaperCard tokenCard = cardToken.getCard();
         assertEquals(cardToken.getQuantity(), 4);
@@ -1690,7 +1688,6 @@ public class DeckRecognizerTest extends CardMockTestCase {
         assertNotNull(cardToken.getCard());
         assertEquals(cardToken.getQuantity(), 1);
         assertNotNull(cardToken.getTokenSection());
-        //assertEquals(cardToken.getTokenSection(), DeckSection.Main); //fix test since signature spell is allowed on commander section
         PaperCard tc = cardToken.getCard();
         assertEquals(tc.getName(), "Counterspell");
         // The newest printing moves with every set that reprints Counterspell, so assert
@@ -1708,7 +1705,6 @@ public class DeckRecognizerTest extends CardMockTestCase {
         assertNotNull(cardToken.getCard());
         assertEquals(cardToken.getQuantity(), 1);
         assertNotNull(cardToken.getTokenSection());
-        //assertEquals(cardToken.getTokenSection(), DeckSection.Main); //fix test since signature spell is allowed on commander section
         tc = cardToken.getCard();
         assertEquals(tc.getName(), "Counterspell");
         assertEquals(tc.getEdition(), "LEA");
@@ -1788,34 +1784,6 @@ public class DeckRecognizerTest extends CardMockTestCase {
     }
 
     @Test
-    void testRequestingCardWithRestrictionsOnDeckFormat() {
-        DeckRecognizer recognizer = new DeckRecognizer();
-
-        String lineRequest = "Ancestral Recall";
-        Token cardToken = recognizer.recogniseCardToken(lineRequest, null);
-        assertNotNull(cardToken);
-        assertEquals(cardToken.getType(), TokenType.LEGAL_CARD);
-        assertNotNull(cardToken.getCard());
-        PaperCard ancestralCard = cardToken.getCard();
-        assertEquals(cardToken.getQuantity(), 1);
-        assertEquals(ancestralCard.getName(), "Ancestral Recall");
-        assertEquals(StaticData.instance().getCommonCards().getCardArtPreference(),
-                CardDb.CardArtPreference.LATEST_ART_ALL_EDITIONS);
-        assertEquals(ancestralCard.getEdition(), "30A");
-        assertTrue(cardToken.cardRequestHasNoCode());
-
-        recognizer.setDeckFormatConstraint(DeckFormat.TinyLeaders);
-        cardToken = recognizer.recogniseCardToken(lineRequest, null);
-        assertNotNull(cardToken);
-        assertEquals(cardToken.getType(), TokenType.LIMITED_CARD);
-        assertNotNull(cardToken.getCard());
-        //assertEquals(cardToken.getTokenSection(), DeckSection.Main); //fix test since signature spell is allowed on commander section
-        assertNotNull(cardToken.getLimitedCardType());
-        assertEquals(cardToken.getLimitedCardType(), DeckRecognizer.LimitedCardType.BANNED);
-        assertTrue(cardToken.cardRequestHasNoCode());
-    }
-
-    @Test
     void testCardRequestUnderGameConstraints() {
         // == Simulate Pioneer Format Banned List
         DeckRecognizer recognizer = new DeckRecognizer();
@@ -1881,7 +1849,6 @@ public class DeckRecognizerTest extends CardMockTestCase {
         Token cardToken = recognizer.recogniseCardToken(cardRequest, null);
         assertNotNull(cardToken);
         assertEquals(cardToken.getType(), TokenType.LEGAL_CARD);
-        //assertEquals(cardToken.getTokenSection(), DeckSection.Main); //fix test since signature spell is allowed on commander section
         assertNotNull(cardToken.getCard());
         assertEquals(cardToken.getCard().getName(), "Ancestral Recall");
         assertEquals(cardToken.getQuantity(), 1);
@@ -1893,7 +1860,6 @@ public class DeckRecognizerTest extends CardMockTestCase {
         assertNotNull(cardToken);
         assertEquals(cardToken.getType(), TokenType.LIMITED_CARD);
         assertEquals(cardToken.getLimitedCardType(), DeckRecognizer.LimitedCardType.RESTRICTED);
-        //assertEquals(cardToken.getTokenSection(), DeckSection.Main); //fix test since signature spell is allowed on commander section
         assertNotNull(cardToken.getCard());
         assertEquals(cardToken.getCard().getName(), "Ancestral Recall");
         assertEquals(cardToken.getQuantity(), 4);
@@ -2110,217 +2076,6 @@ public class DeckRecognizerTest extends CardMockTestCase {
         tc = cardToken.getCard();
         assertEquals(tc.getName(), "Lightning Dragon");
         assertEquals(tc.getEdition(), "VMA");
-        assertTrue(cardToken.cardRequestHasNoCode());
-    }
-
-    @Test
-    void testCardMatchWithDateANDdeckFormatConstraints() {
-        DeckRecognizer recognizer = new DeckRecognizer();
-
-        // Baseline - no constraints
-        assertEquals(StaticData.instance().getCommonCards().getCardArtPreference(),
-                CardDb.CardArtPreference.LATEST_ART_ALL_EDITIONS);
-
-        String lineRequest = "Flash";
-        Token cardToken = recognizer.recogniseCardToken(lineRequest, null);
-        assertNotNull(cardToken);
-        assertEquals(cardToken.getType(), TokenType.LEGAL_CARD);
-        assertNotNull(cardToken.getCard());
-        assertEquals(cardToken.getQuantity(), 1);
-        PaperCard tc = cardToken.getCard();
-        assertEquals(tc.getName(), "Flash");
-        // Unconstrained baseline, so the newest printing is the expected answer. Asserted
-        // as a property, because the constrained results below are what this test is
-        // really contrasting against and a literal here only rots.
-        assertEquals(releaseDateOf(tc.getEdition()), latestPrintingDateOf("Flash"));
-        assertTrue(cardToken.cardRequestHasNoCode());
-
-        recognizer.setDateConstraint(2012, 0); // Jan 2012
-        recognizer.setDeckFormatConstraint(DeckFormat.TinyLeaders);
-
-        lineRequest = "Flash";
-        cardToken = recognizer.recogniseCardToken(lineRequest, null);
-        assertNotNull(cardToken);
-        assertEquals(cardToken.getType(), TokenType.LIMITED_CARD);
-        assertNotNull(cardToken.getCard());
-        assertEquals(cardToken.getText(), "Flash [6ED] #67");
-        //assertEquals(cardToken.getTokenSection(), DeckSection.Main); //fix test since signature spell is allowed on commander section
-        assertNotNull(cardToken.getLimitedCardType());
-        assertEquals(cardToken.getLimitedCardType(), DeckRecognizer.LimitedCardType.BANNED);
-        assertTrue(cardToken.cardRequestHasNoCode());
-
-        lineRequest = "2x Cancel";
-        cardToken = recognizer.recogniseCardToken(lineRequest, null);
-        assertNotNull(cardToken);
-        assertEquals(cardToken.getType(), TokenType.LEGAL_CARD);
-        assertEquals(cardToken.getQuantity(), 2);
-        assertNotNull(cardToken.getCard());
-        tc = cardToken.getCard();
-        assertEquals(tc.getName(), "Cancel");
-        assertEquals(tc.getEdition(), "M12"); // the latest within date constraint
-        assertTrue(cardToken.cardRequestHasNoCode());
-
-        lineRequest = "2x Cancel|M21";
-        cardToken = recognizer.recogniseCardToken(lineRequest, null);
-        assertNotNull(cardToken);
-        assertEquals(cardToken.getType(), TokenType.CARD_FROM_INVALID_SET);
-        assertEquals(cardToken.getQuantity(), 2);
-        assertNotNull(cardToken.getCard());
-        assertEquals(cardToken.getText(), "Cancel [M21] #46");
-        assertFalse(cardToken.cardRequestHasNoCode());
-    }
-
-    @Test
-    void testCardMatchWithGameANDdeckFormatConstraints() {
-        DeckRecognizer recognizer = new DeckRecognizer();
-
-        // Baseline - no constraints
-        assertEquals(StaticData.instance().getCommonCards().getCardArtPreference(),
-                CardDb.CardArtPreference.LATEST_ART_ALL_EDITIONS);
-
-        String lineRequest = "Flash";
-        Token cardToken = recognizer.recogniseCardToken(lineRequest, null);
-        assertNotNull(cardToken);
-        assertEquals(cardToken.getType(), TokenType.LEGAL_CARD);
-        assertNotNull(cardToken.getCard());
-        assertEquals(cardToken.getQuantity(), 1);
-        PaperCard tc = cardToken.getCard();
-        assertEquals(tc.getName(), "Flash");
-        // Unconstrained baseline, so the newest printing is the expected answer. Asserted
-        // as a property, because the constrained results below are what this test is
-        // really contrasting against and a literal here only rots.
-        assertEquals(releaseDateOf(tc.getEdition()), latestPrintingDateOf("Flash"));
-        assertTrue(cardToken.cardRequestHasNoCode());
-
-        recognizer.setGameFormatConstraint(Arrays.asList("MIR", "VIS", "WTH"), null, null);
-        recognizer.setDeckFormatConstraint(DeckFormat.TinyLeaders);
-
-        cardToken = recognizer.recogniseCardToken(lineRequest, null);
-        assertNotNull(cardToken);
-        assertEquals(cardToken.getType(), TokenType.LIMITED_CARD);
-        assertNotNull(cardToken.getCard());
-        assertEquals(cardToken.getText(), "Flash [MIR] #66");
-        //assertEquals(cardToken.getTokenSection(), DeckSection.Main); //fix test since signature spell is allowed on commander section
-        assertNotNull(cardToken.getLimitedCardType());
-        assertEquals(cardToken.getLimitedCardType(), DeckRecognizer.LimitedCardType.BANNED);
-        assertTrue(cardToken.cardRequestHasNoCode());
-
-        lineRequest = "2x Femeref Knight";
-        cardToken = recognizer.recogniseCardToken(lineRequest, null);
-        assertNotNull(cardToken);
-        assertEquals(cardToken.getType(), TokenType.LEGAL_CARD);
-        assertEquals(cardToken.getQuantity(), 2);
-        assertNotNull(cardToken.getCard());
-        tc = cardToken.getCard();
-        assertEquals(tc.getName(), "Femeref Knight");
-        assertEquals(tc.getEdition(), "MIR");
-        assertTrue(cardToken.cardRequestHasNoCode());
-
-        lineRequest = "2x Incinerate";
-        cardToken = recognizer.recogniseCardToken(lineRequest, null);
-        assertNotNull(cardToken);
-        assertEquals(cardToken.getType(), TokenType.LEGAL_CARD);
-        assertEquals(cardToken.getQuantity(), 2);
-        assertNotNull(cardToken.getCard());
-        tc = cardToken.getCard();
-        assertEquals(tc.getName(), "Incinerate");
-        assertEquals(tc.getEdition(), "MIR");
-        assertTrue(cardToken.cardRequestHasNoCode());
-
-        lineRequest = "Noble Elephant";
-        cardToken = recognizer.recogniseCardToken(lineRequest, null);
-        assertNotNull(cardToken);
-        assertEquals(cardToken.getType(), TokenType.LIMITED_CARD); // violating Deck format
-        assertEquals(cardToken.getQuantity(), 1);
-        assertNotNull(cardToken.getCard());
-        assertEquals(cardToken.getText(), "Noble Elephant [MIR] #30");
-        assertEquals(cardToken.getTokenSection(), DeckSection.Main);
-        assertNotNull(cardToken.getLimitedCardType());
-        assertEquals(cardToken.getLimitedCardType(), DeckRecognizer.LimitedCardType.BANNED);
-        assertTrue(cardToken.cardRequestHasNoCode());
-
-        lineRequest = "Incinerate|ICE";
-        cardToken = recognizer.recogniseCardToken(lineRequest, null);
-        assertNotNull(cardToken);
-        assertEquals(cardToken.getType(), TokenType.CARD_FROM_NOT_ALLOWED_SET); // violating Game format
-        assertEquals(cardToken.getQuantity(), 1);
-        assertNotNull(cardToken.getCard());
-        assertEquals(cardToken.getText(), "Incinerate [ICE] #194");
-        assertFalse(cardToken.cardRequestHasNoCode());
-    }
-
-    @Test
-    void testCardMatchWitDateANDgameANDdeckFormatConstraints() {
-        DeckRecognizer recognizer = new DeckRecognizer();
-
-        // Baseline - no constraints
-        assertEquals(StaticData.instance().getCommonCards().getCardArtPreference(),
-                CardDb.CardArtPreference.LATEST_ART_ALL_EDITIONS);
-
-        String lineRequest = "Flash";
-        Token cardToken = recognizer.recogniseCardToken(lineRequest, null);
-        assertNotNull(cardToken);
-        assertEquals(cardToken.getType(), TokenType.LEGAL_CARD);
-        assertNotNull(cardToken.getCard());
-        assertEquals(cardToken.getQuantity(), 1);
-        PaperCard tc = cardToken.getCard();
-        assertEquals(tc.getName(), "Flash");
-        // Unconstrained baseline, so the newest printing is the expected answer. Asserted
-        // as a property, because the constrained results below are what this test is
-        // really contrasting against and a literal here only rots.
-        assertEquals(releaseDateOf(tc.getEdition()), latestPrintingDateOf("Flash"));
-        assertTrue(cardToken.cardRequestHasNoCode());
-
-        recognizer.setGameFormatConstraint(Arrays.asList("MIR", "VIS", "WTH"), null, null);
-        recognizer.setDeckFormatConstraint(DeckFormat.TinyLeaders);
-        recognizer.setDateConstraint(1999, 2); // March '99
-
-        cardToken = recognizer.recogniseCardToken(lineRequest, null);
-        assertNotNull(cardToken);
-        assertEquals(cardToken.getType(), TokenType.LIMITED_CARD);
-        assertNotNull(cardToken.getCard());
-        assertEquals(cardToken.getText(), "Flash [MIR] #66");
-        assertNotNull(cardToken.getTokenSection());
-        //assertEquals(cardToken.getTokenSection(), DeckSection.Main); //fix test since signature spell is allowed on commander section
-        assertNotNull(cardToken.getLimitedCardType());
-        assertEquals(cardToken.getLimitedCardType(), DeckRecognizer.LimitedCardType.BANNED);
-        assertTrue(cardToken.cardRequestHasNoCode());
-
-        lineRequest = "Ardent Militia";
-        cardToken = recognizer.recogniseCardToken(lineRequest, null);
-        assertNotNull(cardToken);
-        assertEquals(cardToken.getType(), TokenType.LIMITED_CARD); // illegal in deck format
-        assertNotNull(cardToken.getCard());
-        assertEquals(cardToken.getText(), "Ardent Militia [WTH] #5"); // within set constraints
-        assertEquals(cardToken.getTokenSection(), DeckSection.Main);
-        assertNotNull(cardToken.getLimitedCardType());
-        assertEquals(cardToken.getLimitedCardType(), DeckRecognizer.LimitedCardType.BANNED);
-        assertTrue(cardToken.cardRequestHasNoCode());
-
-        lineRequest = "Buried Alive|UMA";
-        cardToken = recognizer.recogniseCardToken(lineRequest, null);
-        assertNotNull(cardToken);
-        assertEquals(cardToken.getType(), TokenType.CARD_FROM_NOT_ALLOWED_SET); // illegal in game format
-        assertNotNull(cardToken.getCard());
-        assertEquals(cardToken.getText(), "Buried Alive [UMA] #88"); // within set constraints
-        assertFalse(cardToken.cardRequestHasNoCode());
-
-        lineRequest = "Buried Alive";
-        cardToken = recognizer.recogniseCardToken(lineRequest, null);
-        assertNotNull(cardToken);
-        assertEquals(cardToken.getType(), TokenType.LEGAL_CARD); // illegal in deck format
-        assertNotNull(cardToken.getCard());
-        assertEquals(cardToken.getCard().getName(), "Buried Alive");
-        assertEquals(cardToken.getCard().getEdition(), "WTH"); // within set constraints
-        assertTrue(cardToken.cardRequestHasNoCode());
-
-        recognizer.setDateConstraint(1997, 2); // March '97 - before WTH
-        lineRequest = "Buried Alive";
-        cardToken = recognizer.recogniseCardToken(lineRequest, null);
-        assertNotNull(cardToken);
-        assertEquals(cardToken.getType(), TokenType.CARD_FROM_INVALID_SET);
-        assertNotNull(cardToken.getCard());
-        assertEquals(cardToken.getText(), "Buried Alive [WTH] #63");
         assertTrue(cardToken.cardRequestHasNoCode());
     }
 
@@ -2592,7 +2347,6 @@ public class DeckRecognizerTest extends CardMockTestCase {
         assertEquals(cardToken.getCard().getName(), "Counterspell");
         assertEquals(cardToken.getCard().getEdition(), "TMP");
         assertEquals(cardToken.getQuantity(), 2);
-        //assertEquals(cardToken.getTokenSection(), DeckSection.Main); //fix test since signature spell is allowed on commander section
 
         cardToken = recognizer.recogniseCardToken(cardRequest, DeckSection.Main);
         assertNotNull(cardToken);
@@ -2660,7 +2414,6 @@ public class DeckRecognizerTest extends CardMockTestCase {
         assertNotNull(cardToken.getCard());
         assertEquals(cardToken.getCard().getName(), "Incinerate");
         assertEquals(cardToken.getQuantity(), 4);
-        //assertEquals(cardToken.getTokenSection(), DeckSection.Main); //fix test since signature spell is allowed on commander section
 
         // Current Deck Section is Sideboard, so Side should be used as replacing Deck
         // Section
@@ -2670,7 +2423,6 @@ public class DeckRecognizerTest extends CardMockTestCase {
         assertNotNull(cardToken.getCard());
         assertEquals(cardToken.getCard().getName(), "Incinerate");
         assertEquals(cardToken.getQuantity(), 4);
-        //assertEquals(cardToken.getTokenSection(), DeckSection.Sideboard); //fix test for oathbreaker
     }
 
     @Test
@@ -2687,7 +2439,6 @@ public class DeckRecognizerTest extends CardMockTestCase {
         assertNotNull(cardToken.getCard());
         assertEquals(cardToken.getCard().getName(), "Incinerate");
         assertEquals(cardToken.getQuantity(), 4);
-        //assertEquals(cardToken.getTokenSection(), DeckSection.Main); //fix test since signature spell is allowed on commander section
 
         // Current Deck Section is Sideboard, so Side should be used as replacing Deck
         // Section
@@ -2699,7 +2450,6 @@ public class DeckRecognizerTest extends CardMockTestCase {
         assertNotNull(cardToken.getCard());
         assertEquals(cardToken.getCard().getName(), "Incinerate");
         assertEquals(cardToken.getQuantity(), 4);
-        //assertEquals(cardToken.getTokenSection(), DeckSection.Sideboard); //fix test for oathbreaker
     }
 
     @Test
@@ -3299,7 +3049,6 @@ public class DeckRecognizerTest extends CardMockTestCase {
 
         deckSectionToken = tokens.get(2);
         assertTrue(deckSectionToken.isDeckSection());
-        //assertEquals(deckSectionToken.getText(), DeckSection.Main.name()); //fix test since signature spell is allowed on commander section
 
         Token cardToken = tokens.get(3);
         assertTrue(cardToken.isCardToken());
@@ -3308,7 +3057,6 @@ public class DeckRecognizerTest extends CardMockTestCase {
         assertEquals(cardToken.getCard().getName(), "Incinerate");
         assertEquals(cardToken.getCard().getEdition(), "ICE");
         assertEquals(cardToken.getType(), TokenType.LEGAL_CARD);
-        //assertEquals(cardToken.getTokenSection(), DeckSection.Main); //fix test since signature spell is allowed on commander section
     }
 
     @Test
@@ -3355,7 +3103,6 @@ public class DeckRecognizerTest extends CardMockTestCase {
         Token deckSectionToken = tokens.get(0);
         assertEquals(deckSectionToken.getType(), TokenType.DECK_SECTION_NAME);
         assertTrue(deckSectionToken.isDeckSection());
-        //assertEquals(deckSectionToken.getText(), DeckSection.Main.name()); //fix test since signature spell is allowed on commander section
 
         Token cardToken = tokens.get(1);
         assertTrue(cardToken.isCardToken());
@@ -3364,7 +3111,6 @@ public class DeckRecognizerTest extends CardMockTestCase {
         assertEquals(cardToken.getCard().getName(), "Counterspell");
         assertEquals(cardToken.getCard().getEdition(), "TMP");
         assertEquals(cardToken.getType(), TokenType.LEGAL_CARD);
-        //assertEquals(cardToken.getTokenSection(), DeckSection.Main); //fix test since signature spell is allowed on commander section
 
         deckSectionToken = tokens.get(2);
         assertEquals(deckSectionToken.getType(), TokenType.DECK_SECTION_NAME);
@@ -3404,7 +3150,6 @@ public class DeckRecognizerTest extends CardMockTestCase {
         Token deckSectionToken = tokens.get(0);
         assertEquals(deckSectionToken.getType(), TokenType.DECK_SECTION_NAME);
         assertTrue(deckSectionToken.isDeckSection());
-        //assertEquals(deckSectionToken.getText(), DeckSection.Main.name()); //fix test since signature spell is allowed on commander section
 
         Token cardToken = tokens.get(1);
         assertTrue(cardToken.isCardToken());
@@ -3413,7 +3158,6 @@ public class DeckRecognizerTest extends CardMockTestCase {
         assertEquals(cardToken.getCard().getName(), "Counterspell");
         assertEquals(cardToken.getCard().getEdition(), "TMP");
         assertEquals(cardToken.getType(), TokenType.LEGAL_CARD);
-        //assertEquals(cardToken.getTokenSection(), DeckSection.Main); //fix test since signature spell is allowed on commander section
 
         deckSectionToken = tokens.get(2);
         assertEquals(deckSectionToken.getType(), TokenType.DECK_SECTION_NAME);
@@ -3431,7 +3175,6 @@ public class DeckRecognizerTest extends CardMockTestCase {
         deckSectionToken = tokens.get(4);
         assertEquals(deckSectionToken.getType(), TokenType.DECK_SECTION_NAME);
         assertTrue(deckSectionToken.isDeckSection());
-        //assertEquals(deckSectionToken.getText(), DeckSection.Main.name()); //fix test since signature spell is allowed on commander section
 
         cardToken = tokens.get(5);
         assertTrue(cardToken.isCardToken());
@@ -3440,7 +3183,6 @@ public class DeckRecognizerTest extends CardMockTestCase {
         assertEquals(cardToken.getCard().getName(), "Fireball");
         assertEquals(cardToken.getCard().getEdition(), "5ED");
         assertEquals(cardToken.getType(), TokenType.LEGAL_CARD);
-        //assertEquals(cardToken.getTokenSection(), DeckSection.Main); //fix test since signature spell is allowed on commander section
     }
 
     @Test

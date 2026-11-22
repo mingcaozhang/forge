@@ -34,7 +34,7 @@ public class CardThemedCommanderDeckBuilder extends CardThemedDeckBuilder {
         this.availableList.removeAll(aiPlayables);
         targetSize=format.getMainRange().getMinimum();
         colors = keyCard.getRules().getColorIdentity();
-        if (secondKeyCard != null && !format.equals(DeckFormat.Oathbreaker)) {
+        if (secondKeyCard != null) {
             colors = ColorSet.combine(colors, secondKeyCard.getRules().getColorIdentity());
             targetSize--;
         }

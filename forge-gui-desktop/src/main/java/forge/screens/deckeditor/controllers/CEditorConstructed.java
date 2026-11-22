@@ -526,7 +526,7 @@ public final class CEditorConstructed extends CDeckEditor<Deck> {
                     break;
                 DeckFormat df = gameType.getDeckFormat();
                 ItemPool<PaperCard> pool = commanderPool;
-                if (!FModel.getPreferences().getPrefBoolean(FPref.ENFORCE_DECK_LEGALITY) && !df.hasSignatureSpell()) {
+                if (!FModel.getPreferences().getPrefBoolean(FPref.ENFORCE_DECK_LEGALITY)) {
                     pool = normalPool.getFilteredPool(c -> df.isAllowedCommander(c.getRules(), false));
                 }
                 this.getCatalogManager().setup(ItemManagerConfig.COMMANDER_POOL);

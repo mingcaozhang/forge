@@ -99,7 +99,7 @@ public enum DeckSection {
 
         static final Predicate<PaperCard> COMMANDER_VALIDATOR = card -> {
             CardType t = card.getRules().getType();
-            return card.getRules().canBeCommander() || t.isPlaneswalker() || card.getRules().canBeOathbreaker() || card.getRules().canBeSignatureSpell();
+            return card.getRules().canBeCommander() || t.isPlaneswalker();
         };
 
     }

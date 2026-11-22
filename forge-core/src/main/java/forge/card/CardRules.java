@@ -395,41 +395,6 @@ public final class CardRules implements ICardCharacteristics {
         return subtypes.size() == 2 && subtypes.contains("Time Lord") && subtypes.contains("Doctor");
     }
 
-    public boolean canBeOathbreaker() {
-        CardType type = mainPart.getType();
-        if (mainPart.getOracleText().contains("can be your commander")) {
-            return true;
-        }
-        return type.isPlaneswalker();
-    }
-
-    public boolean canBeSignatureSpell() {
-        CardType type = mainPart.getType();
-        return type.isInstant() || type.isSorcery();
-    }
-
-    public boolean canBeBrawlCommander() {
-        CardType type = mainPart.getType();
-        if (!type.isLegendary()) {
-            return false;
-        }
-        if (canBeCreature() || type.isPlaneswalker()) {
-            return true;
-        }
-        return false;
-    }
-
-    public boolean canBeTinyLeadersCommander() {
-        CardType type = mainPart.getType();
-        if (!type.isLegendary()) {
-            return false;
-        }
-        if (canBeCreature() || type.isPlaneswalker()) {
-            return true;
-        }
-        return false;
-    }
-
     public boolean canBeCreature() {
         CardType type = mainPart.getType();
         if (type.isCreature()) {

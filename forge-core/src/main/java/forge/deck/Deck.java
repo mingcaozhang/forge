@@ -154,38 +154,7 @@ public class Deck extends DeckBase implements Iterable<Entry<DeckSection, CardPo
         for (final Entry<PaperCard, Integer> c : cp) {
             result.add(c.getKey());
         }
-        if (result.size() > 1) { //sort by type so signature spell comes after oathbreaker
-            result.sort(Comparator.comparing(c -> c.getRules().canBeSignatureSpell()));
-        }
         return result;
-    }
-
-    //at least for now, Oathbreaker will only support one oathbreaker and one signature spell
-    public PaperCard getOathbreaker() {
-        final CardPool cp = get(DeckSection.Commander);
-        if (cp == null) {
-            return null;
-        }
-        for (final Entry<PaperCard, Integer> c : cp) {
-            PaperCard card = c.getKey();
-            if (card.getRules().canBeOathbreaker()) {
-                return card;
-            }
-        }
-        return null;
-    }
-    public PaperCard getSignatureSpell() {
-        final CardPool cp = get(DeckSection.Commander);
-        if (cp == null) {
-            return null;
-        }
-        for (final Entry<PaperCard, Integer> c : cp) {
-            PaperCard card = c.getKey();
-            if (card.getRules().canBeSignatureSpell()) {
-                return card;
-            }
-        }
-        return null;
     }
 
     // may return nulls

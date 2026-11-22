@@ -102,9 +102,6 @@ public final class FModel {
     private static final Supplier<ItemPool<PaperCard>> allCards = Suppliers.memoize(() -> ItemPool.createFrom(getMagicDb().getCommonCards().getAllCards(), PaperCard.class));
     private static final Supplier<ItemPool<PaperCard>> planechaseCards = Suppliers.memoize(() -> ItemPool.createFrom(getMagicDb().getVariantCards().getAllCards(PaperCardPredicates.fromRules(CardRulesPredicates.IS_PLANE_OR_PHENOMENON)), PaperCard.class));
     private static final Supplier<ItemPool<PaperCard>> archenemyCards = Suppliers.memoize(() -> ItemPool.createFrom(getMagicDb().getVariantCards().getAllCards(PaperCardPredicates.fromRules(CardRulesPredicates.IS_SCHEME)), PaperCard.class));
-    private static final Supplier<ItemPool<PaperCard>> brawlCommander = Suppliers.memoize(() -> ItemPool.createFrom(getMagicDb().getCommonCards().getAllCards(getFormats().get("Brawl").getFilterPrinted().and(PaperCardPredicates.fromRules(CardRulesPredicates.CAN_BE_BRAWL_COMMANDER))), PaperCard.class));
-    private static final Supplier<ItemPool<PaperCard>> oathbreakerCommander = Suppliers.memoize(() -> ItemPool.createFrom(getMagicDb().getCommonCards().getAllCards(PaperCardPredicates.fromRules(CardRulesPredicates.CAN_BE_OATHBREAKER.or(CardRulesPredicates.CAN_BE_SIGNATURE_SPELL))), PaperCard.class));
-    private static final Supplier<ItemPool<PaperCard>> tinyLeadersCommander = Suppliers.memoize(() -> ItemPool.createFrom(getMagicDb().getCommonCards().getAllCards(PaperCardPredicates.fromRules(CardRulesPredicates.CAN_BE_TINY_LEADERS_COMMANDER)), PaperCard.class));
     private static final Supplier<ItemPool<PaperCard>> commanderPool = Suppliers.memoize(() -> ItemPool.createFrom(getMagicDb().getCommonCards().getAllCards(PaperCardPredicates.CAN_BE_COMMANDER), PaperCard.class));
     private static final Supplier<ItemPool<PaperCard>> avatarPool = Suppliers.memoize(() -> ItemPool.createFrom(getMagicDb().getVariantCards().getAllCards(PaperCardPredicates.fromRules(CardRulesPredicates.IS_VANGUARD)), PaperCard.class));
     private static final Supplier<ItemPool<PaperCard>> conspiracyPool = Suppliers.memoize(() -> ItemPool.createFrom(getMagicDb().getVariantCards().getAllCards(PaperCardPredicates.fromRules(CardRulesPredicates.IS_CONSPIRACY)), PaperCard.class));
@@ -223,8 +220,6 @@ public final class FModel {
         getMagicDb().setPioneerPredicate(getFormats().getPioneer().getFilterRules());
         getMagicDb().setModernPredicate(getFormats().getModern().getFilterRules());
         getMagicDb().setCommanderPredicate(getFormats().get("Commander").getFilterRules());
-        getMagicDb().setOathbreakerPredicate(getFormats().get("Oathbreaker").getFilterRules());
-        getMagicDb().setBrawlPredicate(getFormats().get("Brawl").getFilterRules());
 
         getMagicDb().setFilteredHandsEnabled(getPreferences().getPrefBoolean(FPref.FILTERED_HANDS));
         try {
@@ -292,18 +287,6 @@ public final class FModel {
 
     public static ItemPool<PaperCard> getPlanechaseCards() {
         return planechaseCards.get();
-    }
-
-    public static ItemPool<PaperCard> getBrawlCommander() {
-        return brawlCommander.get();
-    }
-
-    public static ItemPool<PaperCard> getOathbreakerCommander() {
-        return oathbreakerCommander.get();
-    }
-
-    public static ItemPool<PaperCard> getTinyLeadersCommander() {
-        return tinyLeadersCommander.get();
     }
 
     public static ItemPool<PaperCard> getCommanderPool() {

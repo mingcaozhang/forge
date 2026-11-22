@@ -17,7 +17,6 @@
  */
 package forge.deck;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import forge.StaticData;
 import forge.card.*;
@@ -79,49 +78,7 @@ public enum DeckFormat {
             card -> StaticData.instance().getCommanderPredicate().test(card)
     ),
     CommanderDraft ( Range.of(59, 99),                     null, Integer.MAX_VALUE),
-    Oathbreaker      ( Range.is(58),                         Range.of(0, 10), 1, null,
-            card -> StaticData.instance().getOathbreakerPredicate().test(card)
-    ),
     Pauper      ( Range.is(60),                         Range.of(0, 10), 1),
-    Brawl      ( Range.is(99), Range.of(0, 15), 1, null,
-            card -> StaticData.instance().getBrawlPredicate().test(card)
-    ),
-    TinyLeaders    ( Range.is(49),                         Range.of(0, 10), 1, new Predicate<>() {
-        private final Set<String> bannedCards = ImmutableSet.of(
-                "Ancestral Recall", "Balance", "Black Lotus", "Black Vise", "Channel", "Chaos Orb", "Contract From Below", "Counterbalance", "Darkpact", "Demonic Attorney", "Demonic Tutor", "Earthcraft", "Edric, Spymaster of Trest", "Falling Star",
-                "Fastbond", "Flash", "Goblin Recruiter", "Grindstone", "Hermit Druid", "Imperial Seal", "Jeweled Bird", "Karakas", "Library of Alexandria", "Mana Crypt", "Mana Drain", "Mana Vault", "Metalworker", "Mind Twist", "Mishra's Workshop",
-                "Mox Emerald", "Mox Jet", "Mox Pearl", "Mox Ruby", "Mox Sapphire", "Najeela, the Blade Blossom", "Necropotence", "Shahrazad", "Skullclamp", "Sol Ring", "Strip Mine", "Survival of the Fittest", "Sword of Body and Mind", "Time Vault", "Time Walk", "Timetwister",
-                "Timmerian Fiends", "Tolarian Academy", "Umezawa's Jitte", "Vampiric Tutor", "Wheel of Fortune", "Yawgmoth's Will");
-
-        @Override
-        public boolean test(CardRules rules) {
-            // Check for split cards explicitly, as using rules.getManaCost().getCMC()
-            // will return the sum of the costs, which is not what we want.
-            if (rules.getMainPart().getManaCost().getCMC() > 3) {
-                return false; // Only cards with CMC less than 3 are allowed
-            }
-            ICardFace otherPart = rules.getOtherPart();
-            if (otherPart != null && otherPart.getManaCost().getCMC() > 3) {
-                return false; // Only cards with CMC less than 3 are allowed
-            }
-            return !bannedCards.contains(rules.getName());
-        }
-    }) {
-        private final Set<String> bannedCommanders = ImmutableSet.of("Derevi, Empyrial Tactician", "Erayo, Soratami Ascendant", "Rofellos, Llanowar Emissary");
-
-        @Override
-        public boolean isLegalCommander(CardRules rules) {
-            return super.isLegalCommander(rules) && !bannedCommanders.contains(rules.getName());
-        }
-
-        @Override
-        public void adjustCMCLevels(List<ImmutablePair<FilterCMC, Integer>> cmcLevels) {
-            cmcLevels.clear();
-            cmcLevels.add(ImmutablePair.of(new FilterCMC(0, 1), 3));
-            cmcLevels.add(ImmutablePair.of(new FilterCMC(2, 2), 3));
-            cmcLevels.add(ImmutablePair.of(new FilterCMC(3, 3), 3));
-        }
-    },
     PlanarConquest ( Range.of(40, Integer.MAX_VALUE), Range.is(0), 1),
     Adventure      ( Range.of(40, Integer.MAX_VALUE), Range.of(0, Integer.MAX_VALUE), 4) {
         @Override
@@ -171,11 +128,7 @@ public enum DeckFormat {
     }
 
     public boolean hasCommander() {
-        return this == Commander || this == CommanderDraft || this == Oathbreaker || this == TinyLeaders || this == Brawl;
-    }
-
-    public boolean hasSignatureSpell() {
-        return this == Oathbreaker;
+        return this == Commander || this == CommanderDraft;
     }
 
     /**
@@ -314,7 +267,7 @@ public enum DeckFormat {
             if (commanderProblem != null) {
                 return commanderProblem;
             }
-            if (!equals(DeckFormat.Oathbreaker) && deck.getCommanders().size() == 2) {
+            if (deck.getCommanders().size() == 2) {
                 // Two commander = 98 cards
                 min--;
                 max--;
@@ -436,45 +389,31 @@ public enum DeckFormat {
     private String getCommanderConformanceProblem(final Deck deck, final List<DeckRuleColorIdentity> commanderCIRules) {
         byte cmdCI = 0;
         int wildColors = 0;
-        if (equals(DeckFormat.Oathbreaker)) { // 1 Oathbreaker and 1 Signature Spell
-            PaperCard oathbreaker = deck.getOathbreaker();
-            if (oathbreaker == null) {
-                return "is missing an oathbreaker";
-            }
-            if (deck.getSignatureSpell() == null) {
-                return "is missing a signature spell";
-            }
-            if (deck.getCommanders().size() > 2) {
-                return "has too many commanders";
-            }
-            cmdCI = oathbreaker.getRules().getColorIdentity().getColor();
-        } else { // 1 Commander or 2 Partner Commanders
-            final List<PaperCard> commanders = deck.getCommanders();
+        final List<PaperCard> commanders = deck.getCommanders();
 
-            if (commanders.isEmpty()) {
-                return Localizer.getInstance().getMessage("lblPlayerDoesntHaveCommander");
+        if (commanders.isEmpty()) {
+            return Localizer.getInstance().getMessage("lblPlayerDoesntHaveCommander");
+        }
+
+        if (commanders.size() > 2) {
+            return "has too many commanders";
+        }
+
+        for (PaperCard pc : commanders) {
+            if (!isLegalCommander(pc.getRules())) {
+                return "has an illegal commander";
             }
+            cmdCI |= pc.getRules().getColorIdentity().getColor();
+            wildColors += pc.getRules().getAddsWildCardColor() ? 1 : 0;
+        }
 
-            if (commanders.size() > 2) {
-                return "has too many commanders";
-            }
+        // Special check for Partner
+        if (commanders.size() == 2) {
+            PaperCard a = commanders.get(0);
+            PaperCard b = commanders.get(1);
 
-            for (PaperCard pc : commanders) {
-                if (!isLegalCommander(pc.getRules())) {
-                    return "has an illegal commander";
-                }
-                cmdCI |= pc.getRules().getColorIdentity().getColor();
-                wildColors += pc.getRules().getAddsWildCardColor() ? 1 : 0;
-            }
-
-            // Special check for Partner
-            if (commanders.size() == 2) {
-                PaperCard a = commanders.get(0);
-                PaperCard b = commanders.get(1);
-
-                if (!a.getRules().canBePartnerCommanders(b.getRules())) {
-                    return "has an illegal commander partnership";
-                }
+            if (!a.getRules().canBePartnerCommanders(b.getRules())) {
+                return "has an illegal commander partnership";
             }
         }
 
@@ -678,24 +617,15 @@ public enum DeckFormat {
         if (cardPoolFilter != null && !cardPoolFilter.test(rules)) {
             return false;
         }
-        if (this == DeckFormat.Oathbreaker) {
-            return rules.canBeOathbreaker();
-        }
-        if (this == DeckFormat.Brawl) {
-            return rules.canBeBrawlCommander();
-        }
-        if (this == DeckFormat.TinyLeaders) {
-            return rules.canBeTinyLeadersCommander();
-        }
         return rules.canBeCommander();
     }
 
-    /** Without legality checks any creature or planeswalker may command, except in signature spell formats. */
+    /** Without legality checks any creature or planeswalker may command. */
     public boolean isAllowedCommander(CardRules rules, boolean enforceLegality) {
         if (isLegalCommander(rules)) {
             return true;
         }
-        return !enforceLegality && !hasSignatureSpell() && (rules.canBeCreature() || rules.getType().isPlaneswalker());
+        return !enforceLegality && (rules.canBeCreature() || rules.getType().isPlaneswalker());
     }
 
     /** Without legality checks any two allowed commanders may command together. */
@@ -708,10 +638,6 @@ public enum DeckFormat {
 
     /** The deck's only commander, if the card may join it as a partner. */
     public PaperCard getPartnerableCommander(Deck deck, PaperCard card, boolean enforceLegality) {
-        // Oathbreaker partners would need to track whose signature spell is whose
-        if (hasSignatureSpell()) {
-            return null;
-        }
         List<PaperCard> commanders = deck.getCommanders();
         if (commanders.size() != 1) {
             return null;
@@ -731,7 +657,7 @@ public enum DeckFormat {
         if (partnerOf != null && !partnerOf.getRules().canBePartnerCommanders(card.getRules())) {
             return Localizer.getInstance().getMessage("lblConfirmIllegalPartner", card.getName(), partnerOf.getName());
         }
-        if (hasSignatureSpell() || isLegalCommander(card.getRules())) {
+        if (isLegalCommander(card.getRules())) {
             return null;
         }
         return Localizer.getInstance().getMessage("lblConfirmIllegalCommander", card.getName());
