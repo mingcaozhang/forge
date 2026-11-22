@@ -11,7 +11,7 @@ import java.io.Serializable;
  * Unified envelope for yield, trigger, and per-PCH controller-scoped state sync between client and host.
  *
  * Receiver dispatches via exhaustive switch in PlayerControllerHuman
- * (host-side) and NetworkGuiGame (client-side).
+ * (host-side) and NetGameController (client-side).
  */
 public sealed interface YieldUpdate extends Serializable
         permits YieldUpdate.SetMarker,

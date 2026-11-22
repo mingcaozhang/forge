@@ -309,14 +309,14 @@ public interface IGuiGame {
 
     /** Repaint marker chevron / stack-yield UI for the given player. */
     default void refreshYieldUi(PlayerView player) {}
-    /** Apply an authoritative yield-state change. {@link forge.gamemodes.match.AbstractGuiGame} routes to the local {@link forge.interfaces.IGameController}; {@link forge.gamemodes.net.server.RemoteClientGuiGame} forwards over the wire. */
+    /** Apply an authoritative yield-state change. {@link forge.gamemodes.match.AbstractGuiGame} routes to the local {@link forge.interfaces.IGameController}; a client-side controller (e.g. {@link forge.gamemodes.net.client.NetGameController}) applies it to its own cache. */
     void applyYieldUpdate(YieldUpdate update);
     /** Apply the macro state of the current player's controller. A local controller holds its own, so only a netplay client is sent one. */
     void applyMacroState(IMacroSystem.State state);
 
     /**
      * Apply a delta update packet to the local game state.
-     * No-op for offline games - network implementation is in {@link NetworkGuiGame}.
+     * No-op for offline games - implementation is in {@link forge.gamemodes.match.AbstractGuiGame}.
      * @param packet the delta packet containing changes
      */
     default void applyDelta(DeltaPacket packet) {}

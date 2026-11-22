@@ -12,7 +12,7 @@ import forge.game.phase.PhaseType;
 import forge.game.player.DelayedReveal;
 import forge.game.player.PlayerView;
 import forge.game.spellability.SpellAbilityView;
-import forge.gamemodes.net.NetworkGuiGame;
+import forge.gamemodes.match.AbstractGuiGame;
 import forge.gui.interfaces.IGuiGame;
 import forge.localinstance.skin.FSkinProp;
 import forge.trackable.TrackableCollection;
@@ -20,15 +20,12 @@ import forge.util.FSerializableFunction;
 import forge.util.ITriggerEvent;
 
 /**
- * Headless server-side GUI for hosted games. Extends {@link NetworkGuiGame} to get
+ * Headless server-side GUI for hosted games. Extends {@link AbstractGuiGame} to get
  * delta packet processing (deserialization, tracker updates) while providing no-op/default
  * implementations for all abstract UI methods. Used as the host's {@code IGuiGame} by
  * {@link HeadlessGuiDesktop#getNewGuiGame()}.
- *
- * <p>{@link HeadlessNetworkClient} subclasses this as {@code DeltaLoggingGuiGame}
- * to add auto-response behavior and delta packet logging for remote client testing.
  */
-public class HeadlessNetworkGuiGame extends NetworkGuiGame {
+public class HeadlessNetworkGuiGame extends AbstractGuiGame {
 
     private final java.util.concurrent.atomic.AtomicInteger setGameViewCount = new java.util.concurrent.atomic.AtomicInteger(0);
     private volatile boolean openViewCalled = false;

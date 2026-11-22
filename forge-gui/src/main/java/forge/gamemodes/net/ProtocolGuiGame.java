@@ -15,6 +15,7 @@ import forge.game.spellability.SpellAbilityView;
 import forge.gamemodes.match.DrawOfferMessage;
 import forge.gamemodes.match.Selection;
 import forge.gamemodes.match.YieldUpdate;
+import forge.gamemodes.match.AbstractGuiGame;
 import forge.gamemodes.net.server.DeltaSyncManager;
 import forge.util.IHasForgeLog;
 import forge.gui.control.GameEventForwarder;
@@ -36,8 +37,7 @@ import java.util.stream.Collectors;
  * Host-side proxy for a GUI that lives on the other side of an {@link IRemote}. Turns
  * {@link IGuiGame} calls into {@link ProtocolMethod} events and keeps the peer's copy of the
  * {@link GameView} current through {@link DeltaSyncManager}. It knows nothing about how the
- * events travel: {@link forge.gamemodes.net.server.RemoteClientGuiGame} sends them over the
- * network, an embedding host can consume them in process.
+ * events travel; an embedding host can consume them in process.
  *
  * <p>IGuiGame overrides forward through one of four helpers named for their behavior:
  * {@link #send} (fire), {@link #syncAndSend} (walk the trackable graph, then fire),
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  * <p>{@code sync*} requires the game thread because the trackable graph is single-mutator;
  * the bare variants skip the walk and are safe from any thread.
  */
-public class ProtocolGuiGame extends NetworkGuiGame implements IHasForgeLog {
+public class ProtocolGuiGame extends AbstractGuiGame implements IHasForgeLog {
 
     // New objects are sent with full property data, existing objects only send changed properties
     public static boolean useDeltaSync = true;

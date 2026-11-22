@@ -7,7 +7,6 @@ import forge.ai.AiProfileUtil;
 import forge.control.FControl.CloseAction;
 import forge.download.AutoUpdater;
 import forge.game.GameLogVerbosity;
-import forge.gamemodes.net.server.FServerManager;
 import forge.gui.GuiBase;
 import forge.gui.UiCommand;
 import forge.gui.download.CdnUuidCache;
@@ -80,11 +79,6 @@ public enum CSubmenuPreferences implements ICDoc {
         // This updates variable right now and is not standard
         view.getCbDevMode().addItemListener(arg0 -> {
             if (updating) { return; }
-            // prevent changing DEV_MODE while network game running
-            if (FServerManager.getInstance().isMatchActive()) {
-                System.out.println(localizer.getMessage("CantChangeDevModeWhileNetworkMath"));
-                return;
-            }
 
             final boolean toggle = view.getCbDevMode().isSelected();
             prefs.setPref(FPref.DEV_MODE_ENABLED, String.valueOf(toggle));

@@ -38,7 +38,7 @@ public class NetworkReferenceResolutionShould {
     public void connect() {
         host = new Tracker();
         client = new Tracker();
-        encoder = new CompatibleObjectEncoder(null);
+        encoder = new CompatibleObjectEncoder();
         encoder.setTracker(host);
         encoder.setConsumerId(CONSUMER);
         CompatibleObjectDecoder decoder = new CompatibleObjectDecoder(1024 * 1024, ClassResolvers.cacheDisabled(null));

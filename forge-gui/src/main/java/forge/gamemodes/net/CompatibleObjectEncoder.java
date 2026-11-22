@@ -26,7 +26,6 @@ public class CompatibleObjectEncoder extends MessageToByteEncoder<Serializable> 
     static final int LARGE_MESSAGE_LOG_THRESHOLD_BYTES = 20_000;
 
     private static final byte[] LENGTH_PLACEHOLDER = new byte[4];
-    private final NetworkByteTracker byteTracker;
     private volatile Tracker tracker;
     /**
      * Per-client {@code DeltaSyncManager.consumerId} for IdRef gating on the
@@ -34,10 +33,6 @@ public class CompatibleObjectEncoder extends MessageToByteEncoder<Serializable> 
      * encoders never set this; server-side wires it via {@link #setTracker}).
      */
     private volatile int consumerId = -1;
-
-    public CompatibleObjectEncoder(NetworkByteTracker byteTracker) {
-        this.byteTracker = byteTracker;
-    }
 
     public void setTracker(Tracker tracker) {
         this.tracker = tracker;
@@ -49,7 +44,7 @@ public class CompatibleObjectEncoder extends MessageToByteEncoder<Serializable> 
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Serializable msg, ByteBuf out) throws Exception {
-        encodeInto(msg, out, this.tracker, this.consumerId, this.byteTracker, 0);
+        encodeInto(msg, out, this.tracker, this.consumerId, 0);
     }
 
     /** Caller passes the returned buffer to writeAndFlush, which takes ownership. */
@@ -66,7 +61,7 @@ public class CompatibleObjectEncoder extends MessageToByteEncoder<Serializable> 
     public ByteBuf encodeToBuf(Serializable msg, ByteBufAllocator alloc, int lz4BlockSize) throws Exception {
         ByteBuf out = alloc.buffer();
         try {
-            encodeInto(msg, out, this.tracker, this.consumerId, this.byteTracker, lz4BlockSize);
+            encodeInto(msg, out, this.tracker, this.consumerId, lz4BlockSize);
         } catch (Exception e) {
             out.release();
             throw e;
@@ -74,8 +69,7 @@ public class CompatibleObjectEncoder extends MessageToByteEncoder<Serializable> 
         return out;
     }
 
-    private static void encodeInto(Serializable msg, ByteBuf out, Tracker tracker, int consumerId,
-                                   NetworkByteTracker byteTracker, int lz4BlockSize) throws Exception {
+    private static void encodeInto(Serializable msg, ByteBuf out, Tracker tracker, int consumerId, int lz4BlockSize) throws Exception {
         int startIdx = out.writerIndex();
         ByteBufOutputStream byteOut = new ByteBufOutputStream(out);
         ObjectOutputStream objectOut = null;
@@ -108,11 +102,6 @@ public class CompatibleObjectEncoder extends MessageToByteEncoder<Serializable> 
         int msgSize = endIdx - startIdx - 4;
         out.setInt(startIdx, msgSize);
 
-        int bytesSent = endIdx - startIdx;
-        if (byteTracker != null) {
-            String messageType = msg.getClass().getSimpleName();
-            byteTracker.recordBytesSent(bytesSent, messageType);
-        }
         if (msgSize > LARGE_MESSAGE_LOG_THRESHOLD_BYTES) {
             netLog.info("Encoded {} bytes (compressed) for {}", msgSize, msg.getClass().getSimpleName());
         }

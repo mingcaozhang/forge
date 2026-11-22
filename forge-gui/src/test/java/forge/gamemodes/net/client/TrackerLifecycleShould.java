@@ -82,10 +82,10 @@ public class TrackerLifecycleShould {
         // Handlers are added after the channel is active, so the handler's login on channelActive does not run
         final EmbeddedChannel channel = new EmbeddedChannel();
         channel.pipeline().addLast(
-                new CompatibleObjectEncoder(null),
+                new CompatibleObjectEncoder(),
                 new CompatibleObjectDecoder(9766 * 1024, ClassResolvers.cacheDisabled(null)),
                 new GameClientHandler(new FGameClient("Alice", gui, "localhost", 0)));
-        final CompatibleObjectEncoder host = new CompatibleObjectEncoder(null);
+        final CompatibleObjectEncoder host = new CompatibleObjectEncoder();
         try {
             receive(channel, host, first.game.getTracker(), new GuiGameEvent(setGameView, first.game.getView(), 0L));
             receive(channel, host, second.game.getTracker(), new GuiGameEvent(setGameView, second.game.getView(), 0L));
@@ -165,7 +165,7 @@ public class TrackerLifecycleShould {
         g.game.getGameLog().add(GameLogEntryType.STACK_ADD, "Human cast Lightning Bolt");
         sent.clear();
 
-        // As FServerManager.resumeAndResync does for a client that reconnects
+        // Reset delta sync as a reconnecting client would
         host.resetSync();
         host.openView(seat(view));
 

@@ -39,7 +39,7 @@ public abstract class GameProtocolHandler<T> extends ChannelInboundHandlerAdapte
     @Override
     public final void channelRead(final ChannelHandlerContext ctx, final Object msg) {
         final String[] catchedError = {""};
-        // NetworkGuiGame.applyDelta logs each delta itself
+        // AbstractGuiGame.applyDelta logs each delta itself
         if (!(msg instanceof GuiGameEvent delta && delta.getMethod() == ProtocolMethod.applyDelta)) {
             netLog.info("Received: {}", msg);
         }

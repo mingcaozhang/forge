@@ -1,6 +1,5 @@
 package forge.gamemodes.net.client;
 
-import com.google.common.collect.Lists;
 import forge.game.player.PlayerView;
 import forge.gamemodes.net.CompatibleObjectDecoder;
 import forge.gamemodes.net.CompatibleObjectEncoder;
@@ -9,7 +8,6 @@ import forge.util.IHasForgeLog;
 import forge.gamemodes.net.ReplyPool;
 import forge.gamemodes.net.event.*;
 import forge.gui.interfaces.IGuiGame;
-import forge.interfaces.ILobbyListener;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
@@ -23,7 +21,6 @@ import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
 
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -58,7 +55,6 @@ public class FGameClient implements IToServer, IHasForgeLog {
     private final String hostname;
     private final Integer port;
     private final String username;
-    private final List<ILobbyListener> lobbyListeners = Lists.newArrayList();
     private final ReplyPool replies = new ReplyPool();
     private volatile boolean disconnectSimulated;
     private volatile Channel channel;
@@ -109,7 +105,7 @@ public class FGameClient implements IToServer, IHasForgeLog {
                     final ChannelPipeline pipeline = ch.pipeline();
                     pipeline.addLast(
                             new LoggingHandler(LogLevel.INFO),
-                            new CompatibleObjectEncoder(null), // Client doesn't need byte tracking
+                            new CompatibleObjectEncoder(),
                             new CompatibleObjectDecoder(9766*1024, ClassResolvers.cacheDisabled(null)),
                             new IdleStateHandler(READER_IDLE_SECONDS, HEARTBEAT_INTERVAL_SECONDS, 0, TimeUnit.SECONDS),
                             new MessageHandler(),
@@ -251,14 +247,6 @@ public class FGameClient implements IToServer, IHasForgeLog {
 
         // Wait for reply
         return replies.get(event.getId());
-    }
-
-    List<ILobbyListener> getLobbyListeners() {
-        return lobbyListeners;
-    }
-
-    public void addLobbyListener(final ILobbyListener listener) {
-        lobbyListeners.add(listener);
     }
 
     void setGameControllers(final Iterable<PlayerView> myPlayers) {
@@ -441,14 +429,10 @@ public class FGameClient implements IToServer, IHasForgeLog {
     }
 
     /**
-     * State-change hook for UI. Dispatches to {@link forge.gamemodes.net.NetworkGuiGame}
-     * when the GUI supports it; always logs.
+     * State-change hook for UI. Always logs.
      */
     private void notifyReconnectState(final ReconnectState state, final int attemptIndex, final int nextDelaySeconds) {
         netLog.info("[Reconnect] state={} attempt={} nextDelay={}s", state, attemptIndex, nextDelaySeconds);
-        if (clientGui instanceof forge.gamemodes.net.NetworkGuiGame networkGui) {
-            networkGui.onReconnectStateChanged(state, attemptIndex, nextDelaySeconds);
-        }
     }
 
     private class MessageHandler extends ChannelInboundHandlerAdapter {
@@ -457,11 +441,6 @@ public class FGameClient implements IToServer, IHasForgeLog {
             if (msg instanceof HeartbeatEvent) {
                 // Echo from server; its only purpose is to keep our READER_IDLE timer from firing
                 return;
-            }
-            if (msg instanceof MessageEvent event) {
-                for (final ILobbyListener listener : lobbyListeners) {
-                    listener.message(event.getSource(), event.getMessage(), event.getType());
-                }
             }
             super.channelRead(ctx, msg);
         }
@@ -475,20 +454,6 @@ public class FGameClient implements IToServer, IHasForgeLog {
                     onSeatLost();
                 }
                 return;
-            }
-            if (msg instanceof LobbyUpdateEvent event) {
-                // Suppress lobby UI updates while reconnecting so the lobby screen doesn't flash
-                // back over the in-game UI; the resume payload (setGameView) is what tells us
-                // we're back in the match. Seat-lost is signaled explicitly via SeatLostEvent.
-                if (isActiveChannel(ctx.channel()) && getReconnectState() == ReconnectState.RECONNECTING) {
-                    return;
-                }
-                if (event.getSlot() >= 0) {
-                    seated = true;
-                }
-                for (final ILobbyListener listener : lobbyListeners) {
-                    listener.update(event.getState(), event.getSlot());
-                }
             }
             super.channelRead(ctx, msg);
         }
@@ -507,19 +472,10 @@ public class FGameClient implements IToServer, IHasForgeLog {
 
         @Override
         public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
-            netLog.info("[Disconnect] Channel became inactive, notifying {} listeners", lobbyListeners.size());
+            netLog.info("[Disconnect] Channel became inactive");
             netLog.info("[Disconnect] Remote address was: {}", ctx.channel().remoteAddress());
             if (isActiveChannel(ctx.channel())) {
                 onDisconnected();
-                final boolean notifyListeners;
-                synchronized (reconnectLock) {
-                    notifyListeners = !shuttingDown && reconnectState != ReconnectState.RECONNECTING;
-                }
-                if (notifyListeners) {
-                    for (final ILobbyListener listener : lobbyListeners) {
-                        listener.close();
-                    }
-                }
             }
             super.channelInactive(ctx);
         }

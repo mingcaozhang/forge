@@ -17,8 +17,6 @@ import forge.game.event.IGameEventVisitor;
 import forge.game.player.Player;
 import forge.game.player.PlayerView;
 import forge.game.player.RegisteredPlayer;
-import forge.gamemodes.net.NetworkGameEventListener;
-import forge.gamemodes.net.server.HostingServer;
 import forge.gamemodes.replay.ReplaySession;
 import forge.gui.FThreads;
 import forge.gui.GuiBase;
@@ -142,11 +140,6 @@ public class HostedMatch {
         // SoundSystem receives GameEvents via handleGameEvent() on each GUI,
         // so it doesn't need a direct event bus subscription here.
         // (It still subscribes to the Match bus for UiEvent sounds like blocker assignment.)
-
-        // This logs game actions to NetworkLogConfig for debugging network games
-        if (HostingServer.isHosting()) {
-            game.subscribeToEvents(new NetworkGameEventListener());
-        }
 
         final FCollectionView<Player> players = game.getPlayers();
         final String[] sleeveIndices = FModel.getPreferences().getPref(FPref.UI_SLEEVES).split(",");

@@ -123,12 +123,8 @@ public final class Main {
                 CardReaderExperiments.parseAllCards(args);
                 break;
 
-            case "server":
-                System.out.println("Dedicated server mode.\nNot implemented.");
-                break;
-
             default:
-                System.out.println("Unknown mode.\nKnown modes are 'sim', 'parse', 'server'");
+                System.out.println("Unknown mode.\nKnown modes are 'sim', 'parse'");
                 break;
         }
 
@@ -142,7 +138,7 @@ public final class Main {
      * not a mode and only prints usage, so it is deliberately not listed here.
      */
     public static boolean isCommandLineMode(final String mode) {
-        return "sim".equals(mode) || "parse".equals(mode) || "server".equals(mode);
+        return "sim".equals(mode) || "parse".equals(mode);
     }
 
     @SuppressWarnings("deprecation")

@@ -16,7 +16,7 @@ import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
 /**
- * Guards the command line modes ({@code sim}, {@code parse}, {@code server}) against regaining a
+ * Guards the command line modes ({@code sim}, {@code parse}) against regaining a
  * hard dependency on a display.
  *
  * <p>The display checks have to run in a forked JVM. {@link java.awt.GraphicsEnvironment} decides
@@ -73,16 +73,16 @@ public class HeadlessStartupTest {
 
     /**
      * The whole of {@code Main}'s startup — including {@code GuiBase.setInterface(new GuiDesktop())},
-     * which is where the original bug struck — must survive with no display. {@code server} is used
+     * which is where the original bug struck — must survive with no display. {@code sim} is used
      * because it is the one console mode that returns without loading the card database.
      */
     public void mainStartsHeadless() throws Exception {
-        ProbeResult result = runInThrowawayHome(Main.class.getName(), List.of(), "server");
+        ProbeResult result = runInThrowawayHome(Main.class.getName(), List.of(), "sim");
         assertEquals("Main failed to start headless, output was:\n" + result.output, 0, result.exitCode);
         assertFalse("Main hit a display dependency during startup:\n" + result.output,
                 result.output.contains("HeadlessException"));
-        assertTrue("expected the server mode banner, got:\n" + result.output,
-                result.output.contains("Dedicated server mode"));
+        assertTrue("expected Main to reach mode dispatch, got:\n" + result.output,
+                result.output.contains("Known modes are"));
     }
 
     /**
@@ -153,7 +153,6 @@ public class HeadlessStartupTest {
     public void commandLineModesAreRecognized() {
         assertTrue("sim must be a console mode", Main.isCommandLineMode("sim"));
         assertTrue("parse must be a console mode", Main.isCommandLineMode("parse"));
-        assertTrue("server must be a console mode", Main.isCommandLineMode("server"));
         assertFalse("the zero-argument GUI launch must not be a console mode",
                 Main.isCommandLineMode(""));
         assertFalse("an unknown mode must not be a console mode", Main.isCommandLineMode("garbage"));
@@ -263,8 +262,8 @@ public class HeadlessStartupTest {
         public static void main(final String[] args) {
             Runtime.getRuntime().addShutdownHook(new Thread(() ->
                     System.out.println("java.awt.headless=" + System.getProperty("java.awt.headless"))));
-            // "server" returns immediately; every other console mode loads the card database first.
-            Main.main(new String[] {"server"});
+            // "sim" returns immediately; every other console mode loads the card database first.
+            Main.main(new String[] {"sim"});
         }
     }
 

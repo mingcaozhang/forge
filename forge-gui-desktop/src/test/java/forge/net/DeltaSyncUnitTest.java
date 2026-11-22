@@ -13,10 +13,8 @@ import java.util.Map;
  *
  * Tests individual classes used by the delta sync system:
  * - DeltaPacket - size calculation formula
- * - NetworkByteTracker - enable/disable behavior
  *
  * These are fast unit tests that don't involve actual network I/O.
- * For integration tests with real network traffic, see NetworkPlayIntegrationTest.
  */
 public class DeltaSyncUnitTest {
 
@@ -83,29 +81,5 @@ public class DeltaSyncUnitTest {
 
         // Empty packet should just have header: 8 + 4 = 12 bytes
         Assert.assertEquals(size, 12, "Empty delta packet should be exactly 12 bytes (header only)");
-    }
-
-    @Test
-    public void testNetworkByteTrackerEnableDisable() {
-        forge.gamemodes.net.NetworkByteTracker tracker = new forge.gamemodes.net.NetworkByteTracker();
-
-        // Initially enabled
-        Assert.assertTrue(tracker.isEnabled());
-
-        tracker.recordBytesSent(100, "DeltaPacket");
-        Assert.assertEquals(tracker.getTotalBytesSent(), 100L);
-
-        // Disable tracking
-        tracker.setEnabled(false);
-        Assert.assertFalse(tracker.isEnabled());
-
-        // Should not record when disabled
-        tracker.recordBytesSent(200, "DeltaPacket");
-        Assert.assertEquals(tracker.getTotalBytesSent(), 100L); // Still 100, not 300
-
-        // Re-enable
-        tracker.setEnabled(true);
-        tracker.recordBytesSent(300, "DeltaPacket");
-        Assert.assertEquals(tracker.getTotalBytesSent(), 400L); // 100 + 300
     }
 }

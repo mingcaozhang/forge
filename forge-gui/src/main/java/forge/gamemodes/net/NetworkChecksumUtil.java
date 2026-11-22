@@ -25,7 +25,7 @@ import java.util.Set;
 
 /**
  * Shared checksum computation for delta sync validation.
- * Used by both server ({@link forge.gamemodes.net.server.DeltaSyncManager}) and client ({@link forge.gamemodes.net.NetworkGuiGame})
+ * Used by both server ({@link forge.gamemodes.net.server.DeltaSyncManager}) and client ({@link forge.gamemodes.match.AbstractGuiGame})
  * to ensure identical checksums.
  */
 public final class NetworkChecksumUtil {

@@ -4,9 +4,8 @@ import forge.gamemodes.match.input.InputSynchronized;
 import forge.player.PlayerControllerHuman;
 
 /**
- * The server this process is hosting, if any. Match and input code ask here instead of
- * calling {@link FServerManager#getInstance()}, so a game that never hosts never loads
- * the network stack.
+ * The server this process is hosting, if any. Match and input code ask here
+ * instead of touching the network stack directly.
  */
 public final class HostingServer {
 

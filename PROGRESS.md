@@ -1,4 +1,4 @@
-# PROGRESS.md — Pre-rewrite cleanup (Part 5 done; Part 6 in progress: 16.1 done)
+# PROGRESS.md — Pre-rewrite cleanup (Part 5 done; Part 6 in progress: 16.1 + 16.2 done)
 
 ## Verified baseline facts
 - Branch `dev`, clean tree. Per-item verify: `GATE` = `mvn test -pl forge-gui-desktop -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` (600000 ms). Final gates add `PKG` = `mvn package -DskipTests -T 1C`.
@@ -7,51 +7,28 @@
 - Checkstyle runs at `validate` with root `checkstyle.xml` — fails on unused imports; `mvn test-compile` catches it fast.
 
 ## Recently completed
+- 16.2: Deleted the whole net server stack (FServerManager, ServerGameLobby, GameServerHandler, RemoteClient,
+  RemoteClientGuiGame, IToClient, NetConnectUtil, ClientGameLobby, NetworkGuiGame, NetworkByteTracker, EventPhase,
+  ChatMessage, IOnlineChatInterface, IOnlineLobby, ILobbyListener, OfflineLobby, event/{LobbyUpdateEvent,MessageEvent,
+  LogoutEvent}, URLValidator) + dead test harness (9 files + analysis/, pulled forward from 16.6).
+  Compiler-verified KEEP deviations from plan: `NetGameController` (replay path: FGameClient.setGameControllers →
+  NetGameController per player; CMatchUI drives all replay UI input through it), `GameProtocolSender` (ProtocolGuiGame),
+  `event/{HeartbeatEvent,SeatLostEvent,LoginEvent,ReplyEvent}` (kept transport refs them).
+  Delta engine (`applyDelta` + ~570 lines of helpers) MOVED NetworkGuiGame → AbstractGuiGame — fixes silent 16.1
+  regression (CMatchUI lost applyDelta inheritance; replay playback was broken, GATE stayed green because
+  ReplayRecordingShould only tests file format). AbstractGuiGame now also `implements IHasForgeLog` (netLog).
+  CompatibleObjectEncoder → no-arg ctor (all callers passed null); NetEvent.updateForClient removed.
+  `sim` is a phantom console mode (in `Main.isCommandLineMode` but no switch case — falls to default, prints
+  "Unknown mode", exits fast; pre-existing since limited-mode strip 7dca72218b9): HeadlessStartupTest now uses it
+  as the fast-return mode in place of deleted `server`. GATE exit 0 (2687 tests = 2701 − 14).
 - 16.1: Deleted `screens/home/online/` (5 files), `gui/FNetOverlay.java`, `screens/match/ReconnectModals.java`;
-  `EDocID.HOME_NETWORK`/`HOME_NET_DECKS`; `EMenuGroup.ONLINE`. `CMatchUI` rebased `NetworkGuiGame` →
-  `AbstractGuiGame` (reconnect dispatch + `ReconnectingHandle` field + `FNetOverlay` focus check + 5 dead
-  `isNetGame()` blocks gone; `afterDeltaApplied` override dropped — delta sync is network-only).
-  `pushSkipPhaseToControllers`/`seedYieldStateOnHost` MOVED `NetworkGuiGame` → `AbstractGuiGame` (generic yield
-  wiring; only net touch is the `instanceof NetGameController` guard — keep this fact for 16.2). `FDraftOverlay`
-  dropped `OnlineMenu.draftItem` toggles; `HomeNavigationRegistryTest` rebased (online expectations gone,
-  `everyVSubmenuIsSurfaced`); VHomeUI/VLobby stale comments updated. GATE exit 0 (2701 tests = 2703 − 2).
-- 15.3: Removed all 18 O/B/TL i18n keys (8 live-ref keys + 10 already-orphaned) from all 10 locale files
-  (180 lines; zero Java/non-doc refs beforehand; no-trailing-newline style preserved). GATE exit 0 (2703 tests).
-- 15.2: Verification-only — `DeckManager` and `CEditorConstructed` have zero O/B/TL/`hasSignatureSpell`
-  refs (all removed in 14.1/14.2). GATE exit 0 (2703 tests).
-- 15.1: Verification-only — `GameLobby.applyVariant` (no O/B/TL cases), `removeVariant` (Commander/Constructed
-  fallback only), `startGame` (`isCommanderMatch` = `variantTypes.contains(Commander)`, no O/B/TL match flags), and
-  `VLobby.populateDeckPanel` (`case Commander:` standalone) were all already clean from 14.1. GATE exit 0 (2703 tests).
-- 14.3: Removed O/B/TL storage + config — `CardCollections` (3 fields + `getOathbreaker`/`getTinyLeaders`/`getBrawl`),
-  `ForgeConstants` (`NET_DECKS_{BRAWL,OATHBREAKER,TINYLEADERS}_LIST_FILE`, `DECK_{OATHBREAKER,TINY_LEADERS,BRAWL}_DIR`
-  + `PROFILE_DIRS` entry), `DeckPreferences` (3 fields, 6 accessors, 3 XML load + 3 XML save attrs — old saved attrs
-  silently ignored on load), `ItemManagerConfig.OATHBREAKER_SECTION`, `war_room.txt` ActivationGameTypes → `Commander`,
-  `docs/AI.md` format list. Deleted `res/lists/net-decks-{brawl,oathbreaker,tinyleaders}.txt`. GATE exit 0 (2703 tests).
-- 14.2: Deleted `DeckFormat.Oathbreaker/Brawl/TinyLeaders` entries (incl. TinyLeaders ban set + `adjustCMCLevels`);
-  `hasCommander` → `Commander || CommanderDraft`; deleted `hasSignatureSpell`, Oathbreaker conformance block,
-  O/B/TL branches in `isLegalCommander`/`isAllowedCommander`/`getPartnerableCommander`/`getIllegalCommanderWarning`,
-  `Deck` signature-spell sort + `getOathbreaker`/`getSignatureSpell`, `CardRules` 4 `canBe*` methods,
-  `CardRulesPredicates` 4 predicates, `StaticData` O/B predicate fields + accessors, `DeckSection.COMMANDER_VALIDATOR`
-  O/B terms, `GameFormat` Brawl/Oathbreaker coreFormats, `FModel` O/B/TL suppliers + predicate init + getters.
-  Pulled forward from 14.3 (compile-required): `DeckgenUtil` (Brawl branch, Oathbreaker partner switch/filter,
-  `getRandomSignatureSpell`), `CardRelationMatrixGenerator` (Commander only), `CardThemedCommanderDeckBuilder`/
-  `CardThemedDeckBuilder` (O/B branches), `ArchidektDeckUrlProvider` (Brawl id mapping), `CEditorConstructed`
-  (`hasSignatureSpell` check). Pulled forward from 15.4: deleted the 4 mode-specific TinyLeaders `DeckRecognizerTest`
-  tests (test `StaticData` has no format predicates → rework to another constrained format would NPE) + stripped 19
-  inert O/B/TL comments. Deleted `res/formats/Casual/{Brawl,Oathbreaker}.txt`. GATE exit 0 (2703 tests = 2707 − 4).
-- 14.1: Deleted `GameType.Oathbreaker/TinyLeaders/Brawl`; rebased engine — `GameRules.hasCommander` (Commander only),
-  `Player` commander-damage check → `hasCommander()`, `createCommanderEffect` (Oathbreaker signature-spell stack→command +
-  cast restriction, TinyLeaders/Oathbreaker return branches gone → 903.9b only), `RegisteredPlayer.forVariants` (3 blocks),
-  `Zone` command-zone ordering, `CardView.updateCommander` (alt-type storage → "Commander" only; `getCommanderType()` removed,
-  card text now hardcodes "Commander"), `MulliganService.firstMullFree`, `GameAction` commander SBA check.
-  Because the enum constants went, the same commit also rebased their only other referrers (pre-work for 14.3/15.1/15.2):
-  `RandomDeckGenerator` cases, `GameLobby` (applyVariant/removeVariant/startGame — `isOathbreakerMatch` etc. gone),
-  `NetDeckCategory` (brawl/oathbreaker/tinyleaders maps+cases), `VLobby.populateDeckPanel`, `DeckManager`
-  (Brawl set-codes override deleted as pure pass-through; editDeck/deleteDeck cases), `CEditorConstructed`
-  (editor-setup/deck-controller/card-limit cases, Oathbreaker add/context-menu/slot-swap branches, `commanderSlotKey`).
-  GATE exit 0 (2708 tests).
-- 13.1: Part-4 final sweep — `rg` over all removed Part-4 symbols matches only PLAN/PROGRESS docs. No orphaned i18n keys.
-  GATE exit 0 (2708 tests) + PKG exit 0.
+  `EDocID.HOME_NETWORK`/`HOME_NET_DECKS`; `EMenuGroup.ONLINE`. `CMatchUI` rebased `NetworkGuiGame` → `AbstractGuiGame`
+  (reconnect dispatch + `ReconnectingHandle` + `FNetOverlay` focus check + 5 dead `isNetGame()` blocks gone).
+  `pushSkipPhaseToControllers`/`seedYieldStateOnHost` MOVED NetworkGuiGame → AbstractGuiGame (generic yield wiring;
+  only net touch is the `instanceof NetGameController` guard). GATE exit 0 (2701 tests).
+- Part 5 (O/B/TL: 14.1–14.3, 15.1–15.4) fully complete: DeckFormat/GameType/Deck/CardRules/FModel/DeckManager/
+  CEditorConstructed/GameLobby/CEditor* rebased, O/B/TL i18n keys + format/net-decks .txt files gone, mode-specific
+  tests deleted. See git log for details.
 
 ## Environment quirks
 - Always use a 600000 ms timeout on Maven runs (default 120 s kills long runs).
@@ -62,14 +39,12 @@
 - `AiReportScenarioTest` is flaky under full parallel GATE (APPROX scenarios fail occasionally; green in isolation and on full rerun).
 
 ## Active caveats / follow-ups
-- Part 5 O/B/TL cleanup (14.1-14.3, 15.1-15.4) fully complete (15.3 commit ran the milestone PKG gate too).
-- Next: 16.2 (server + online transport — big delete; KEEP subset is compiler-verified per PLAN).
-  Note: `FGameClient.notifyReconnectState` still has the `instanceof NetworkGuiGame` dispatch (no CMatchUI target now;
-  rebase in 16.2). `ClientReconnectTest`/`HeadlessNetworkGuiGame`/`HeadlessNetworkClient` still compile against the
-  kept `FGameClient`/`NetworkGuiGame` until 16.6/16.2.
-- 15.4 done in 14.2 (tests were mode-specific — deleted, not reworked).
-- `RegisteredPlayer.forVariants` keeps its now-unused `playerCount` param (single caller: `GameLobby`) — trim in a sweep.
-- `TrackableProperty.CommanderAltType` kept (replay/trackable-enum stability); now always "Commander".
-- Orphaned i18n keys awaiting 15.3: `lblasoathbreaker`, `lblassignaturespell` (live refs removed in 14.1) + the
-  already-orphaned O/B/TL `lbl*` list in 15.3.
+- Next: 16.3 (net prefs + model + docs). MUST rebase `TestUtils` (still imports `ForgeNetPreferences`, calls
+  `FModel.getNetPreferences()` L50/L57-58 — both go in 16.3). `CSubmenuPreferences` netPrefs field + UPnP/server-port
+  sections also 16.3 (FServerManager import + DEV_MODE guard already dropped in 16.2).
+- 16.5: relocate HeadlessGuiDesktop + TestUtils → `forge.headless` (TestDeckLoader already gone).
+- 16.6: delete `LobbySlotAuthorizationTest` + `HeadlessNetworkGuiGame` (currently rebased to extend AbstractGuiGame);
+  drop `HeadlessGuiDesktop.getNewGuiGame()` override so it inherits GuiDesktop's `return new CMatchUI()`.
+  `getNewGuiGame()` is called from LocalLobby/HostedMatch/ReplayLauncher (main) — never fully delete it.
+- `HeadlessGuiDesktop` subclasses `GuiDesktop`; CMatchUI has a no-arg ctor (forge-gui-desktop/screens/match/CMatchUI).
 - Deferred (later parts): Archenemy* + scheme engine; ante; Puzzle remnants; `LEGACY_*` prefs; other non-Commander modes.

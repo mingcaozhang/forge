@@ -35,7 +35,7 @@ final class ReplayRecorder implements IRemote, IHasForgeLog {
 
     private final File file;
     private final DataOutputStream out;
-    private final CompatibleObjectEncoder encoder = new CompatibleObjectEncoder(null);
+    private final CompatibleObjectEncoder encoder = new CompatibleObjectEncoder();
     private final ByteBufAllocator alloc = new UnpooledByteBufAllocator(false);
     private final long startNanos = System.nanoTime();
     private long lastFlushMs;

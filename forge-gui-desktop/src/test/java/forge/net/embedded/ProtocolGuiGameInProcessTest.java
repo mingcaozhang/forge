@@ -46,7 +46,7 @@ import static org.testng.Assert.assertTrue;
 
 /**
  * A stock {@code PlayerControllerHuman} plays against the AI through {@link ProtocolGuiGame}
- * and an in-process {@link IRemote}. No FServerManager, FGameClient, socket or Netty channel.
+ * and an in-process {@link IRemote}. No FGameClient, socket or Netty channel.
  */
 public class ProtocolGuiGameInProcessTest {
 
@@ -138,9 +138,7 @@ public class ProtocolGuiGameInProcessTest {
             "io.netty.channel.Channel", "io.netty.channel.nio.NioEventLoopGroup", "io.netty.buffer.ByteBuf",
             "net.jpountz.lz4.LZ4BlockOutputStream",
             "forge.gamemodes.net.CompatibleObjectEncoder", "forge.gamemodes.net.CObjectOutputStream",
-            "forge.gamemodes.net.TrackableSerializer", "forge.gamemodes.net.server.RemoteClient",
-            "forge.gamemodes.net.server.RemoteClientGuiGame", "forge.gamemodes.net.client.FGameClient",
-            "forge.gamemodes.net.server.FServerManager");
+            "forge.gamemodes.net.TrackableSerializer", "forge.gamemodes.net.client.FGameClient");
 
     private List<String> loadedTransportClasses() throws Exception {
         final java.lang.reflect.Method findLoaded = ClassLoader.class.getDeclaredMethod("findLoadedClass", String.class);
@@ -235,10 +233,10 @@ public class ProtocolGuiGameInProcessTest {
 
         assertNotNull(remote.myPlayers, "openView reached the remote");
         assertEquals(myLands, 1, "the land reached the battlefield");
-        assertTrue(loaded.stream().noneMatch(n -> n.startsWith("io.netty") || n.startsWith("net.jpountz")
-                || n.endsWith("ObjectEncoder") || n.endsWith("CObjectOutputStream") || n.endsWith("TrackableSerializer")
-                || n.endsWith("RemoteClient") || n.endsWith("FGameClient") || n.endsWith("FServerManager")),
-                "no network or serialization class loaded");
+            assertTrue(loaded.stream().noneMatch(n -> n.startsWith("io.netty") || n.startsWith("net.jpountz")
+                    || n.endsWith("ObjectEncoder") || n.endsWith("CObjectOutputStream") || n.endsWith("TrackableSerializer")
+                    || n.endsWith("FGameClient")),
+                    "no network or serialization class loaded");
         assertEquals(remote.fullStates, 1, "one full state (setGameView) per game reached the remote");
         assertTrue(remote.deltasWithState >= 2, "state deltas reached the remote after init");
         assertTrue(remote.blockingCalls.stream().anyMatch(s -> s.startsWith("getAbilityToPlay")), "a synchronous decision reached sendAndWait");
