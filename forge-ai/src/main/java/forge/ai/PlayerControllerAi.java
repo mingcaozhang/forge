@@ -136,10 +136,7 @@ public class PlayerControllerAi extends PlayerController {
             if (rp == me) {
                 continue;
             }
-            List<PaperCard> known = match.getPlayedMain(rp);
-            if (known == null && rp.getDeck() != null) {
-                known = rp.getDeck().getMain().toFlatList();
-            }
+            List<PaperCard> known = rp.getDeck() != null ? rp.getDeck().getMain().toFlatList() : null;
             if (known != null && !known.isEmpty()) {
                 opponentMains.add(known);
                 opponentNames.add(rp.getPlayer().getName());
@@ -217,7 +214,7 @@ public class PlayerControllerAi extends PlayerController {
             return null;
         }
 
-        GameOutcome lastOutcome = brains.getGame().getMatch().getLastOutcome();
+        GameOutcome lastOutcome = brains.getGame().getMatch().getOutcome();
         final boolean weWon = lastOutcome != null && lastOutcome.getWinningPlayer() != null
             && lastOutcome.getWinningPlayer().getPlayer().equals(player.getLobbyPlayer());
         if (weWon && MyRandom.getRandom().nextInt(100) > sbChanceOnWin) {

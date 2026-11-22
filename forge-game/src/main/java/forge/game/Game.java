@@ -606,14 +606,14 @@ public class Game {
 
         outcome = result;
         if (maingame == null) {
-            match.addGamePlayed(this);
+            match.recordOutcome(this);
         }
 
         view.updateGameOver(this);
 
         // The log shall listen to events and generate text internally
         if (maingame == null) {
-            fireEvent(new GameEventGameOutcome(result, match.getOutcomes()));
+            fireEvent(new GameEventGameOutcome(result));
         }
     }
 

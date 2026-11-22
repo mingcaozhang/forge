@@ -118,13 +118,6 @@ public enum GameType {
         return isCardPoolLimited;
     }
 
-    /**
-     * @return the canSideboard
-     */
-    public boolean isSideboardingAllowed() {
-        return canSideboard;
-    }
-
     public boolean canAddWonCardsMidGame() {
         return addWonCardsMidGame;
     }

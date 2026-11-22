@@ -140,7 +140,7 @@ public class FlatMonteCarloBenchmark extends AITest {
             ((PlayerControllerAi) p.getController()).getAi().setFlatMonteCarloOverride(arms[idx].monteCarlo);
             ((PlayerControllerAi) p.getController()).getAi().setFlatMonteCarloMaxOverride(arms[idx].max);
         }
-        final Future<?> running = pool.submit(() -> match.startGame(game));
+        final Future<?> running = pool.submit(() -> match.startGame(game, null));
         try {
             running.get(timeoutSeconds, TimeUnit.SECONDS);
         } catch (final TimeoutException e) {

@@ -70,7 +70,7 @@ public final class ReplaySession implements IHasForgeLog {
             }
             sb.append(p.getName());
         }
-        final int played = game.getMatch().getOutcomes().size();
+        final int played = game.getMatch().getOutcome() != null ? 1 : 0;
         if (played > 0) {
             sb.append(" (game ").append(played + 1).append(')');
         }

@@ -290,8 +290,8 @@ public class HostedMatch {
                 replay.finish();
             }
 
-            // After game is over...
-            isMatchOver = match.isMatchOver();
+            // After game is over... (a match is a single game, so it is always over now)
+            isMatchOver = true;
             if (humanCount == 0) {
                 // ... if no human players, let AI decide next game
                 if (currentGame.getRules().getGameType() == GameType.Constructed) {

@@ -50,7 +50,7 @@ public class GameView extends TrackableObject {
         set(TrackableProperty.PoisonCountersToLose, rules.getPoisonCountersToLose());
         set(TrackableProperty.NumGamesInMatch, 1);
 
-        set(TrackableProperty.NumPlayedGamesInMatch, game.getMatch().getOutcomes().size());
+        set(TrackableProperty.NumPlayedGamesInMatch, game.getMatch().getOutcome() != null ? 1 : 0);
     }
 
     public Match getMatch() {
@@ -157,7 +157,7 @@ public class GameView extends TrackableObject {
 
     void updateGameOver(final Game game) {
         set(TrackableProperty.GameOver, game.isGameOver());
-        set(TrackableProperty.MatchOver, game.getMatch().isMatchOver());
+        set(TrackableProperty.MatchOver, game.isGameOver());
         if (game.getOutcome() != null && game.getOutcome().getWinningLobbyPlayer() != null) {
             set(TrackableProperty.WinningPlayerName, game.getOutcome().getWinningLobbyPlayer().getName());
         }
@@ -226,11 +226,12 @@ public class GameView extends TrackableObject {
     //TODO: Find better ways to make this information available to all GUIs without using the Game class
 
     public boolean isMatchWonBy(LobbyPlayer questPlayer) {
-        return getMatch().isWonBy(questPlayer);
+        return getOutcome() != null && getOutcome().isWinner(questPlayer);
     }
 
     public Iterable<GameOutcome> getOutcomesOfMatch() {
-        return getMatch().getOutcomes();
+        final GameOutcome outcome = getOutcome();
+        return outcome == null ? List.of() : List.of(outcome);
     }
 
     public boolean isWinner(LobbyPlayer guiPlayer) {
@@ -238,7 +239,8 @@ public class GameView extends TrackableObject {
     }
 
     public int getGamesWonBy(LobbyPlayer questPlayer) {
-        return getMatch().getGamesWonBy(questPlayer);
+        final GameOutcome outcome = getOutcome();
+        return outcome != null && questPlayer.equals(outcome.getWinningLobbyPlayer()) ? 1 : 0;
     }
 
     public Deck getDeck(final PlayerView pv) {
@@ -254,7 +256,7 @@ public class GameView extends TrackableObject {
     }
 
     public GameOutcome getOutcome() {
-        return getMatch().getOutcomeById(getId());
+        return getMatch().getOutcome();
     }
 
     public AnteResult getAnteResult(PlayerView player) {

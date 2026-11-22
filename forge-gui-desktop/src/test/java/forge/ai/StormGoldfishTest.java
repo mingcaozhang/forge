@@ -231,7 +231,7 @@ public class StormGoldfishTest extends AITest {
                 final Recorder rec = new Recorder("Storm", game, maxTurns);
                 game.subscribeToEvents(rec);
                 final long t0 = System.nanoTime();
-                final Future<?> running = pool.submit(() -> match.startGame(game));
+                final Future<?> running = pool.submit(() -> match.startGame(game, null));
                 String how = "";
                 try {
                     running.get(timeout, TimeUnit.SECONDS);

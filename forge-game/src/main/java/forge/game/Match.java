@@ -2,10 +2,8 @@ package forge.game;
 
 import com.google.common.collect.*;
 import com.google.common.eventbus.EventBus;
-import forge.LobbyPlayer;
 import forge.deck.CardPool;
 import forge.deck.Deck;
-import forge.deck.DeckFormat;
 import forge.deck.DeckSection;
 import forge.game.ability.AbilityKey;
 import forge.game.card.Card;
@@ -36,9 +34,7 @@ public class Match {
     private final String title;
 
     private final EventBus events = new EventBus("match events");
-    private final Map<Integer, GameOutcome> gameOutcomes = Maps.newHashMap();
-
-    private GameOutcome lastOutcome = null;
+    private GameOutcome outcome;
 
     public Match(final GameRules rules0, final List<RegisteredPlayer> players0, final String title) {
         players = Collections.unmodifiableList(Lists.newArrayList(players0));
@@ -50,31 +46,18 @@ public class Match {
         return rules;
     }
     String getTitle() {
-        final Multiset<RegisteredPlayer> wins = getGamesWon();
-        final StringBuilder titleAppend = new StringBuilder(title);
-        titleAppend.append(" (");
-        for (final RegisteredPlayer rp : players) {
-            titleAppend.append(wins.count(rp)).append('-');
-        }
-        titleAppend.deleteCharAt(titleAppend.length() - 1);
-        titleAppend.append(')');
-        return titleAppend.toString();
+        return title;
     }
 
-    public void addGamePlayed(Game finished) {
+    public void recordOutcome(Game finished) {
         if (!finished.isGameOver()) {
             throw new IllegalStateException("Game is not over yet.");
         }
-        lastOutcome = finished.getOutcome();
-        gameOutcomes.put(finished.getId(), finished.getOutcome());
+        outcome = finished.getOutcome();
     }
 
     public Game createGame() {
         return new Game(players, rules, this);
-    }
-
-    public void startGame(final Game game) {
-        startGame(game, null);
     }
 
     public void startGame(final Game game, Runnable startGameHook) {
@@ -89,7 +72,7 @@ public class Match {
             game.fireEvent(GameEventAnteCardsSelected.fromCards(list));
         }
 
-        game.getAction().startGame(this.lastOutcome, startGameHook);
+        game.getAction().startGame(this.outcome, startGameHook);
 
         // Typically ante, but also tearing up a blacker lotus
         executeOwnershipChanges(game);
@@ -103,71 +86,8 @@ public class Match {
         System.gc();
     }
 
-    /**
-     * The main decks as they were played in the game before this one, taken before anyone sideboards for the next
-     * game: what a player knows about the deck of its opponent. Empty before the second game.
-     */
-    private final Map<RegisteredPlayer, List<PaperCard>> playedMains = new IdentityHashMap<>();
-
-    /** The main deck {@code player} played last game (null if unknown), as everyone at the table has seen it. */
-    public List<PaperCard> getPlayedMain(final RegisteredPlayer player) {
-        final List<PaperCard> main = playedMains.get(player);
-        return main == null ? null : Collections.unmodifiableList(main);
-    }
-
-    public GameOutcome getOutcomeById(int id) {
-        return gameOutcomes.get(id);
-    }
-
-    public void clearGamesPlayed() {
-        gameOutcomes.clear();
-        for (RegisteredPlayer p : players) {
-            p.restoreDeck();
-        }
-    }
-
-    public Collection<GameOutcome> getOutcomes() {
-        return gameOutcomes.values();
-    }
-
-    public GameOutcome getLastOutcome() {
-        return lastOutcome;
-    }
-
-    public boolean isMatchOver() {
-        return !gameOutcomes.isEmpty();
-    }
-
-    public int getGamesWonBy(LobbyPlayer questPlayer) {
-        int sum = 0;
-        for (GameOutcome go : getOutcomes()) {
-            if (questPlayer.equals(go.getWinningLobbyPlayer())) {
-                sum++;
-            }
-        }
-        return sum;
-    }
-    public Multiset<RegisteredPlayer> getGamesWon() {
-        final Multiset<RegisteredPlayer> won = HashMultiset.create(players.size());
-        for (final GameOutcome go : getOutcomes()) {
-            if (go.getWinningPlayer() == null) {
-                // Game hasn't finished yet. Exit early.
-                return won;
-            }
-            won.add(go.getWinningPlayer());
-        }
-        return won;
-    }
-
-    public boolean isWonBy(LobbyPlayer questPlayer) {
-        return getGamesWonBy(questPlayer) >= 1;
-    }
-
-    public RegisteredPlayer getWinner() {
-        if (this.isMatchOver()) {
-            return lastOutcome.getWinningPlayer();
-        }
-        return null;
+    public GameOutcome getOutcome() {
+        return outcome;
     }
 
     public List<RegisteredPlayer> getPlayers() {
@@ -233,81 +153,10 @@ public class Match {
         final FCollectionView<Player> players = game.getPlayers();
         final List<RegisteredPlayer> playersConditions = game.getMatch().getPlayers();
 
-        boolean isFirstGame = gameOutcomes.isEmpty();
-        boolean canSideBoard = !isFirstGame && rules.getGameType().isSideboardingAllowed();
-        // Only allow this if feature flag is on AND for certain match types
-        boolean sideboardForAIs = rules.getSideboardForAI() &&
-            rules.getGameType().getDeckFormat().equals(DeckFormat.Constructed);
-        playedMains.clear();
-        if (canSideBoard) {
-            for (final RegisteredPlayer rp : playersConditions) {
-                if (rp.getDeck() != null) {
-                    playedMains.put(rp, new ArrayList<>(rp.getDeck().getMain().toFlatList()));
-                }
-            }
-        }
-        PlayerController sideboardProxy = null;
-        if (canSideBoard && sideboardForAIs) {
-            for (int i = 0; i < players.size(); i++) {
-                final Player player = players.get(i);
-                //final RegisteredPlayer psc = playersConditions.get(i);
-                if (!player.getController().isAI()) {
-                    sideboardProxy = player.getController();
-                    break;
-                }
-            }
-        }
-
         for (int i = 0; i < playersConditions.size(); i++) {
             final Player player = players.get(i);
             final RegisteredPlayer psc = playersConditions.get(i);
             PlayerController person = player.getController();
-
-            if (canSideBoard) {
-                // an AI that reads the deck of its opponent sideboards for itself; the human only does it for the others
-                final boolean byItself = person.isAI() && person.sideboardsByItself();
-                if (sideboardProxy != null && person.isAI() && !byItself) {
-                    person = sideboardProxy;
-                }
-
-                Deck toChange = psc.getDeck();
-                if (!getRemovedCards().isEmpty()) {
-                    CardPool main = new CardPool();
-                    main.addAll(toChange.get(DeckSection.Main));
-                    CardPool sideboard = new CardPool();
-                    sideboard.addAll(toChange.getOrCreate(DeckSection.Sideboard));
-                    for (PaperCard c : removedCards) {
-                        if (main.contains(c)) {
-                            main.remove(c, 1);
-                        } else if (sideboard.contains(c)) {
-                            sideboard.remove(c, 1);
-                        }
-                    }
-                    toChange.getMain().clear();
-                    toChange.getMain().addAll(main);
-                    toChange.get(DeckSection.Sideboard).clear();
-                    toChange.get(DeckSection.Sideboard).addAll(sideboard);
-                }
-                List<PaperCard> newMain = person.sideboard(toChange, rules.getGameType(), player.getName());
-                if (byItself && toChange.has(DeckSection.Sideboard)) {
-                    // show what the AI did with its sideboard, so that nobody has to guess what changed between games
-                    for (final String line : person.getSideboardingReport()) {
-                        game.fireEvent(new GameEventAddLog(GameLogEntryType.SIDEBOARD, player.getName() + " " + line));
-                    }
-                }
-                if (null != newMain) {
-                    CardPool allCards = new CardPool();
-                    allCards.addAll(toChange.get(DeckSection.Main));
-                    allCards.addAll(toChange.getOrCreate(DeckSection.Sideboard));
-                    for (PaperCard c : newMain) {
-                        allCards.remove(c);
-                    }
-                    toChange.getMain().clear();
-                    toChange.getMain().add(newMain);
-                    toChange.get(DeckSection.Sideboard).clear();
-                    toChange.get(DeckSection.Sideboard).addAll(allCards);
-                }
-            }
 
             Deck toCheck = psc.getDeck();
             if (toCheck == null) {
@@ -343,17 +192,9 @@ public class Match {
 
             player.shuffle(null);
 
-            if (isFirstGame) {
-                Map<DeckSection, List<? extends PaperCard>> cardsComplained = player.getController().complainCardsCantPlayWell(myDeck.getLeft());
-                if (cardsComplained != null && !cardsComplained.isEmpty()) {
-                    rAICards.put(player, cardsComplained);
-                }
-            } else {
-                //reset cards to fix weird issues on netplay nextgame client
-                for (Card c : player.getCardsIn(ZoneType.Library)) {
-                    c.setTapped(false);
-                    c.resetActivationsPerTurn();
-                }
+            Map<DeckSection, List<? extends PaperCard>> cardsComplained = player.getController().complainCardsCantPlayWell(myDeck.getLeft());
+            if (cardsComplained != null && !cardsComplained.isEmpty()) {
+                rAICards.put(player, cardsComplained);
             }
 
             if (myRemovedAnteCards != null && !myRemovedAnteCards.isEmpty()) {
@@ -457,16 +298,11 @@ public class Match {
     }
 
     public GameOutcome.AnteResult getAnteResult(RegisteredPlayer player) {
-        GameOutcome.AnteResult out = new GameOutcome.AnteResult();
-        for (GameOutcome outcome : gameOutcomes.values()) {
-            GameOutcome.AnteResult gameAnte = outcome.getAnteResult(player);
-            if (gameAnte == null) {
-                continue;
-            }
-            out.addWon(gameAnte.wonCards);
-            out.addLost(gameAnte.lostCards);
+        if (outcome == null) {
+            return new GameOutcome.AnteResult();
         }
-        return out;
+        GameOutcome.AnteResult res = outcome.getAnteResult(player);
+        return res == null ? new GameOutcome.AnteResult() : res;
     }
 
     /**

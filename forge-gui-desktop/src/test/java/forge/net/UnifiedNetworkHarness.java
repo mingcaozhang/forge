@@ -28,7 +28,6 @@ import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -529,14 +528,11 @@ public class UnifiedNetworkHarness implements IHasForgeLog {
 
         while (waitedMs < maxWaitSeconds * 1000) {
             Match match = hostedMatch.getMatch();
-            if (match != null) {
-                Collection<GameOutcome> outcomes = match.getOutcomes();
-                if (outcomes != null && !outcomes.isEmpty()) {
-                    netLog.info("Game completed after {}ms", waitedMs);
-                    extractLocalGameResults(result, hostedMatch);
-                    result.gameCompleted = true;
-                    return;
-                }
+            if (match != null && match.getOutcome() != null) {
+                netLog.info("Game completed after {}ms", waitedMs);
+                extractLocalGameResults(result, hostedMatch);
+                result.gameCompleted = true;
+                return;
             }
 
             try {
@@ -559,11 +555,8 @@ public class UnifiedNetworkHarness implements IHasForgeLog {
         Match match = hostedMatch.getMatch();
         if (match == null) return;
 
-        Collection<GameOutcome> outcomesCollection = match.getOutcomes();
-        if (outcomesCollection == null || outcomesCollection.isEmpty()) return;
-
-        List<GameOutcome> outcomes = new ArrayList<>(outcomesCollection);
-        GameOutcome outcome = outcomes.get(outcomes.size() - 1);
+        GameOutcome outcome = match.getOutcome();
+        if (outcome == null) return;
 
         result.turnCount = outcome.getLastTurnNumber();
         RegisteredPlayer winner = outcome.getWinningPlayer();
