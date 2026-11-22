@@ -1,4 +1,4 @@
-# PROGRESS.md — Pre-rewrite cleanup (Part 3 in progress: Phase 6 item 6.1 done, next 6.2)
+# PROGRESS.md — Pre-rewrite cleanup (Part 3 in progress: Phase 6 done, next 7.1)
 
 ## Verified baseline facts
 - Branch `dev`, clean tree. Per-item verify: `GATE` = `mvn test -pl forge-gui-desktop -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` (600000 ms). Final gates add `PKG` = `mvn package -DskipTests -T 1C`.
@@ -6,11 +6,14 @@
 - `rg --type java` here also matches `.properties` files; use `--glob '*.java'` for accurate Java-only ref checks.
 
 ## Completed items
-- Part 3 (6.1): `PlayerStatistics` deleted; `turnsPlayed`/`extraTurnsPlayed`/`outcome` now plain `Player`
-  fields (`getTurn`/`incrementTurn`/`getExtraTurnsPlayed`/`incrementExtraTurnsPlayed`/`getOutcome`/`setOutcome`
-  rebased; `getStats` + mulligan stats calls gone, `GameEventMulligan` fire kept). `GameOutcome.playerRating`
-  switched to `HashMap<RegisteredPlayer, PlayerOutcome>` + read sites de-indented (rename to `playerOutcomes`,
-  Iterable/iterator + `getWinSpellEffect` removals still queued for 6.2). GATE green (2708 tests).
+- Part 3 (6.2): `GameOutcome.playerRating` renamed `playerOutcomes`; `implements Iterable` +
+  `iterator()` + `getWinSpellEffect()` (zero refs) deleted; `isDraw`/`isWinner`/`getWinning*`/
+  `getOutcomeString` read `PlayerOutcome` directly (done in 6.1). Kept `lastTurnNumber`/
+  `setTurnsPlayed`, `playerNames`, ante results, `winCondition`. GATE green (2708 tests).
+- Part 3 (6.1): `PlayerStatistics` deleted; `turnsPlayed`/`extraTurnsPlayed`/`outcome` now plain
+  `Player` fields (`getTurn`/`incrementTurn`/`getExtraTurnsPlayed`/`incrementExtraTurnsPlayed`/
+  `getOutcome`/`setOutcome` rebased; `getStats` + mulligan stats calls gone, `GameEventMulligan`
+  fire kept). GATE green (2708 tests).
 - Part 3 (5.3): 90 orphaned achievement i18n keys removed from all 10 locale files (900 lines); kept
   `lblPlanarConquest` (GameType stays), `lblConstructed`, `lblPuzzle`, `lblWin*`, `lblTurn` etc. (live refs). GATE green.
 - Part 3 (5.1+5.2, one commit): entire achievements system gone — 36-file `localinstance/achievements`
@@ -28,8 +31,8 @@
 - `AiReportScenarioTest` is flaky under full parallel GATE (APPROX scenarios fail occasionally; green in isolation and on full rerun).
 
 ## Active caveats / follow-ups
-- Next: **Part 3 item 6.2** — `GameOutcome`: rename `playerRating` → `playerOutcomes`, drop Iterable +
-  `iterator()` + `getWinSpellEffect` (zero refs), keep `lastTurnNumber`/ante/`winCondition`.
+- Next: **Part 3 item 7.1** — multi-game logic: `GameRules.gamesPerMatch`/`gamesToWinMatch` +
+  `FPref.UI_MATCHES_PER_GAME` + `HostedMatch.getDefaultRules` + `VLobby` gamesInMatch controls + `CLobby` restore.
 - `VLobby.populateDeckPanel` still has Oathbreaker/TinyLeaders/Brawl case labels (unreachable; go with GameType
   entries in a later part). `lblArchenemy`/`lbl{Brawl,Oathbreaker,TinyLeaders}{,Desc}` stay (GameType entries stay).
 - `DeckManager.editDeck`/`getFilteredSetCodesInCatalog` variant branches + `DeckPreferences.{oathbreaker,
