@@ -30,7 +30,6 @@ import com.google.common.collect.Lists;
 import forge.LobbyPlayer;
 import forge.game.player.Player;
 import forge.game.player.PlayerOutcome;
-import forge.game.player.PlayerStatistics;
 import forge.game.player.PlayerView;
 import forge.game.player.RegisteredPlayer;
 import forge.item.PaperCard;
@@ -47,7 +46,7 @@ import forge.item.PaperCard;
 // This class might be divided in two parts: the very summary (immutable with
 // only getters) and
 // GameObserver class - who should be notified of any considerable ingame event
-public final class GameOutcome implements Iterable<Entry<RegisteredPlayer, PlayerStatistics>> {
+public final class GameOutcome implements Iterable<Entry<RegisteredPlayer, PlayerOutcome>> {
     public static class AnteResult implements Serializable {
         private static final long serialVersionUID = 5087554550408543192L;
 
@@ -79,7 +78,7 @@ public final class GameOutcome implements Iterable<Entry<RegisteredPlayer, Playe
     private int lastTurnNumber = 0;
     private int lifeDelta = 0;
 
-    private final HashMap<RegisteredPlayer, PlayerStatistics> playerRating = new HashMap<>();
+    private final HashMap<RegisteredPlayer, PlayerOutcome> playerRating = new HashMap<>();
     private final HashMap<RegisteredPlayer, String> playerNames = new LinkedHashMap<>();
 
     private final Map<RegisteredPlayer, AnteResult> anteResult = new HashMap<>();
@@ -89,7 +88,7 @@ public final class GameOutcome implements Iterable<Entry<RegisteredPlayer, Playe
         winCondition = reason;
 
         for (final Player p : players) {
-            this.playerRating.put(p.getRegisteredPlayer(), p.getStats());
+            this.playerRating.put(p.getRegisteredPlayer(), p.getOutcome());
             this.playerNames.put(p.getRegisteredPlayer(), p.getName());
         }
 
@@ -115,8 +114,8 @@ public final class GameOutcome implements Iterable<Entry<RegisteredPlayer, Playe
     }
 
     public boolean isDraw() {
-        for (PlayerStatistics stats : playerRating.values()) {
-            if (stats.getOutcome().hasWon()) {
+        for (PlayerOutcome po : playerRating.values()) {
+            if (po.hasWon()) {
                 return false;
             }
         }
@@ -124,15 +123,15 @@ public final class GameOutcome implements Iterable<Entry<RegisteredPlayer, Playe
     }
 
     public boolean isWinner(final LobbyPlayer who) {
-        for (Entry<RegisteredPlayer, PlayerStatistics> pv : playerRating.entrySet())
-            if (pv.getValue().getOutcome().hasWon() && pv.getKey().getPlayer().equals(who))
+        for (Entry<RegisteredPlayer, PlayerOutcome> pv : playerRating.entrySet())
+            if (pv.getValue().hasWon() && pv.getKey().getPlayer().equals(who))
                 return true;
         return false;
     }
 
     public boolean isWinner(final RegisteredPlayer who) {
-        for (Entry<RegisteredPlayer, PlayerStatistics> pv : playerRating.entrySet())
-            if (pv.getValue().getOutcome().hasWon() && pv.getKey().equals(who))
+        for (Entry<RegisteredPlayer, PlayerOutcome> pv : playerRating.entrySet())
+            if (pv.getValue().hasWon() && pv.getKey().equals(who))
                 return true;
         return false;
     }
@@ -143,8 +142,8 @@ public final class GameOutcome implements Iterable<Entry<RegisteredPlayer, Playe
      * @return the winner
      */
     public LobbyPlayer getWinningLobbyPlayer() {
-        for (Entry<RegisteredPlayer, PlayerStatistics> ps : playerRating.entrySet()) {
-            if (ps.getValue().getOutcome().hasWon()) {
+        for (Entry<RegisteredPlayer, PlayerOutcome> ps : playerRating.entrySet()) {
+            if (ps.getValue().hasWon()) {
                 return ps.getKey().getPlayer();
             }
         }
@@ -158,8 +157,8 @@ public final class GameOutcome implements Iterable<Entry<RegisteredPlayer, Playe
      * distinguish between human player names (a problem for hotseat games).
      */
     public RegisteredPlayer getWinningPlayer() {
-        for (Entry<RegisteredPlayer, PlayerStatistics> pair : playerRating.entrySet()) {
-            if (pair.getValue().getOutcome().hasWon()) {
+        for (Entry<RegisteredPlayer, PlayerOutcome> pair : playerRating.entrySet()) {
+            if (pair.getValue().hasWon()) {
                 return pair.getKey();
             }
         }
@@ -185,8 +184,7 @@ public final class GameOutcome implements Iterable<Entry<RegisteredPlayer, Playe
      * @return the win spell effect
      */
     public String getWinSpellEffect() {
-        for (PlayerStatistics stats : playerRating.values()) {
-            PlayerOutcome po = stats.getOutcome();
+        for (PlayerOutcome po : playerRating.values()) {
             if (po.hasWon()) {
                 return po.altWinSourceName;
             }
@@ -198,7 +196,7 @@ public final class GameOutcome implements Iterable<Entry<RegisteredPlayer, Playe
      * @see java.lang.Iterable#iterator()
      */
     @Override
-    public Iterator<Entry<RegisteredPlayer, PlayerStatistics>> iterator() {
+    public Iterator<Entry<RegisteredPlayer, PlayerOutcome>> iterator() {
         return playerRating.entrySet().iterator();
     }
 
@@ -219,7 +217,7 @@ public final class GameOutcome implements Iterable<Entry<RegisteredPlayer, Playe
     }
 
     public String getOutcomeString(RegisteredPlayer player) {
-        return playerNames.get(player) + " " + playerRating.get(player).getOutcome();
+        return playerNames.get(player) + " " + playerRating.get(player);
     }
 
     public void addAnteWon(RegisteredPlayer pl, List<PaperCard> cards) {

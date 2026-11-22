@@ -209,7 +209,9 @@ public class Player extends GameEntity implements Comparable<Player> {
 
     private int crankCounter = 3;
 
-    private PlayerStatistics stats = new PlayerStatistics();
+    private int turnsPlayed = 0;
+    private int extraTurnsPlayed = 0;
+    private PlayerOutcome outcome;
 
     private final PlayerView view;
 
@@ -251,10 +253,6 @@ public class Player extends GameEntity implements Comparable<Player> {
     @Override
     public Game getGame() {
         return game;
-    }
-
-    public final PlayerStatistics getStats() {
-        return stats;
     }
 
     public boolean isArchenemy() {
@@ -1785,19 +1783,19 @@ public class Player extends GameEntity implements Comparable<Player> {
     }
 
     public final int getTurn() {
-        return stats.getTurnsPlayed();
+        return turnsPlayed;
     }
 
     public final void incrementTurn() {
-        stats.nextTurn();
+        turnsPlayed++;
     }
 
     public final int getExtraTurnsPlayed() {
-        return stats.getExtraTurnsPlayed();
+        return extraTurnsPlayed;
     }
 
     public final void incrementExtraTurnsPlayed() {
-        stats.nextExtraTurn();
+        extraTurnsPlayed++;
     }
 
     public final int getLastTurnNr() {
@@ -2381,14 +2379,14 @@ public class Player extends GameEntity implements Comparable<Player> {
     }
 
     public final PlayerOutcome getOutcome() {
-        return stats.getOutcome();
+        return outcome;
     }
     private void setOutcome(PlayerOutcome outcome) {
-        stats.setOutcome(outcome);
+        this.outcome = outcome;
     }
 
     public void onGameOver() {
-        if (null == stats.getOutcome()) {
+        if (null == outcome) {
             setOutcome(PlayerOutcome.win());
         }
     }
@@ -2707,9 +2705,6 @@ public class Player extends GameEntity implements Comparable<Player> {
 
     public void onMulliganned() {
         game.fireEvent(new GameEventMulligan(PlayerView.get(this))); // quest listener may interfere here
-        final int newHand = getCardsIn(ZoneType.Hand).size();
-        stats.notifyHasMulliganed();
-        stats.notifyOpeningHandSize(newHand);
     }
 
     public List<Card> getCommanders() {
