@@ -1,7 +1,8 @@
-package forge.net;
+package forge.headless;
 
 import forge.GuiDesktop;
 import forge.gamemodes.match.HostedMatch;
+import forge.net.HeadlessNetworkGuiGame;
 import forge.util.IHasForgeLog;
 import forge.gui.interfaces.IGuiGame;
 import forge.localinstance.skin.FSkinProp;

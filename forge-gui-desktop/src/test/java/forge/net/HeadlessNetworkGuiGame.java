@@ -23,7 +23,7 @@ import forge.util.ITriggerEvent;
  * Headless server-side GUI for hosted games. Extends {@link AbstractGuiGame} to get
  * delta packet processing (deserialization, tracker updates) while providing no-op/default
  * implementations for all abstract UI methods. Used as the host's {@code IGuiGame} by
- * {@link HeadlessGuiDesktop#getNewGuiGame()}.
+ * {@link forge.headless.HeadlessGuiDesktop#getNewGuiGame()}.
  */
 public class HeadlessNetworkGuiGame extends AbstractGuiGame {
 

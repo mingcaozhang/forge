@@ -1,4 +1,4 @@
-# PROGRESS.md — Pre-rewrite cleanup (Part 5: 16.1–16.4 done)
+# PROGRESS.md — Pre-rewrite cleanup (Part 5: 16.1–16.5 done)
 
 ## Verified baseline facts
 - Branch `dev`, clean tree. Per-item verify: `GATE` = `mvn test -pl forge-gui-desktop -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` (600000 ms). Final gates add `PKG` = `mvn package -DskipTests -T 1C`.
@@ -9,28 +9,21 @@
 - Scratch artifacts only under `/tmp/opencode/`. Locale files have no trailing newline; preserve when editing. i18n keys are plain string literals via `Localizer.getMessage` (no I18N enum) — deletion = property lines only.
 
 ## Recently completed
-- 16.4: Deleted 62 online i18n keys (531 lines) from all 10 locale files: the 60 PLAN-listed keys +
-  orphaned `lblChat`/`lblLobby` (0 refs anywhere). KEPT `lblHost` (ref'd by `CardType.Host`).
-  Reconnect keys existed only in en-US; `sOPServerPromptTitle` only in ko-KR/zh-CN. Section comments (e.g. `#FNetOverlay.java`) kept per 15.3 precedent.
-- 16.3: Deleted `ForgeNetPreferences` + `FModel.getNetPreferences` + prefs-UI net section (UPnP combo, server-port/AFK buttons in
-  C/VSubmenuPreferences) + `GamePlayerUtil` port/AFK prompts + FPref `{CHAT_WINDOW_LOC, PLAY_ONLINE_SCREEN, SUBMENU_ONLINE}` +
-  ForgeConstants `{NETWORK_PLAY_WIKI_URL, SERVER_PREFS_FILE, CLOSE/INVALID_HOST/CONN_ERROR, getUPnPPreferenceMapping, localizer}` +
-  LogExporter net-log export + TestUtils net-prefs lines + `docs/Network-Play.md` & doc cross-refs.
-  Deviations: KEPT `NETWORK_LOGS_DIR` (kept `NetworkLogConfig` uses it); rebased `cleanupOldLogs` to drop the net-prefs gate.
-- 16.2: Deleted the net server stack (FServerManager, ServerGameLobby, GameServerHandler, RemoteClient, RemoteClientGuiGame,
-  IToClient, NetConnectUtil, ClientGameLobby, NetworkGuiGame, NetworkByteTracker, EventPhase, ChatMessage, IOnlineChatInterface,
-  IOnlineLobby, ILobbyListener, OfflineLobby, event/{LobbyUpdateEvent,MessageEvent,LogoutEvent}, URLValidator) + dead test harness.
-  KEEP deviations: `NetGameController` (replay), `GameProtocolSender`, event/{HeartbeatEvent,SeatLostEvent,LoginEvent,ReplyEvent}.
-  Delta engine MOVED NetworkGuiGame → AbstractGuiGame (fixes 16.1 CMatchUI applyDelta regression); `CompatibleObjectEncoder` no-arg ctor; `NetEvent.updateForClient` gone.
-- 16.1: Deleted `screens/home/online/` (5 files), `gui/FNetOverlay.java`, `screens/match/ReconnectModals.java`,
-  `EDocID.HOME_NETWORK`/`HOME_NET_DECKS`, `EMenuGroup.ONLINE`. CMatchUI rebased to `AbstractGuiGame`.
-- Part 5 (O/B/TL: 14.1–15.4) fully complete. See git log.
+- 16.5: Relocated test harness `forge.net/{HeadlessGuiDesktop,TestUtils}` → `forge.headless` (git mv); updated imports in
+  `ProtocolGuiGame{SingleThread,InProcess}Test` + javadoc link in `HeadlessNetworkGuiGame`. `HeadlessGuiDesktop` now imports
+  `forge.net.HeadlessNetworkGuiGame` (still there until 16.6). GATE green.
+- 16.4: Deleted 62 online i18n keys (531 lines) from all 10 locale files (60 PLAN-listed + orphaned `lblChat`/`lblLobby`). KEPT `lblHost` (`CardType.Host`).
+- 16.3: Deleted `ForgeNetPreferences` + net prefs UI + FPref net entries + net constants + `docs/Network-Play.md`.
+  Deviations: KEPT `NETWORK_LOGS_DIR` (kept `NetworkLogConfig` uses it); rebased `cleanupOldLogs`.
+- 16.2: Deleted the net server stack + dead test harness. KEEP: `NetGameController`, `GameProtocolSender`, event/{Heartbeat,SeatLost,Login,Reply}Event.
+  Delta engine MOVED NetworkGuiGame → AbstractGuiGame (fixes 16.1 CMatchUI applyDelta regression).
+- Part 5 (O/B/TL: 14.1–15.4, 16.1) fully complete. See git log.
 
 ## Active caveats / follow-ups
-- 16.5: relocate HeadlessGuiDesktop + TestUtils → `forge.headless` (TestDeckLoader already gone).
 - 16.6: delete `LobbySlotAuthorizationTest` + `HeadlessNetworkGuiGame`; drop `HeadlessGuiDesktop.getNewGuiGame()`
   override (inherits GuiDesktop's `return new CMatchUI()`). `getNewGuiGame()` called from LocalLobby/HostedMatch/
-  ReplayLauncher (main) — never fully delete it.
+  ReplayLauncher (main) — never fully delete it. `forge.headless.HeadlessGuiDesktop` imports `HeadlessNetworkGuiGame` —
+  remove that import + `hostMatch`/`getLastMatch`/`clearLastMatch` refs as needed once 16.6 lands.
 - 17.1: extra orphaned online keys (0 Java refs, not in 16.4 list): `lblReconnectedToast`, `lblReconnectRejoin`,
   `lblUPnP{Title,Question,Success,Failed}`, `lblNotNow`, `lblAsk`, `lblJustOnce`, `lblInterface`, `lblAddress`, `lblCopy{External,Local}URL`,
   `lblForgeUnableDetermineYourExternalIP`, `lblEnterMessageToSend`, `lblNetworkDeckFilter`, `lblNetworkNewEventButton`,

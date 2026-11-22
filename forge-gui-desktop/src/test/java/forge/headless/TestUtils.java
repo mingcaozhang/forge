@@ -1,4 +1,4 @@
-package forge.net;
+package forge.headless;
 
 import forge.StaticData;
 import forge.util.IHasForgeLog;
