@@ -48,9 +48,6 @@ public class GameView extends TrackableObject {
         set(TrackableProperty.IsCommander, rules.hasCommander());
         set(TrackableProperty.GameType, rules.getGameType());
         set(TrackableProperty.PoisonCountersToLose, rules.getPoisonCountersToLose());
-        set(TrackableProperty.NumGamesInMatch, 1);
-
-        set(TrackableProperty.NumPlayedGamesInMatch, game.getMatch().getOutcome() != null ? 1 : 0);
     }
 
     public Match getMatch() {
@@ -82,10 +79,6 @@ public class GameView extends TrackableObject {
 
     public int getPoisonCountersToLose() {
         return get(TrackableProperty.PoisonCountersToLose);
-    }
-
-    public int getNumGamesInMatch() {
-        return get(TrackableProperty.NumGamesInMatch);
     }
 
     public int getTurn() {
@@ -131,10 +124,6 @@ public class GameView extends TrackableObject {
     void updateStack(final MagicStack stack) {
         set(TrackableProperty.Stack, StackItemView.getCollection(stack));
         set(TrackableProperty.StormCount, stack.getSpellsCastThisTurn().size());
-    }
-
-    public int getNumPlayedGamesInMatch() {
-        return get(TrackableProperty.NumPlayedGamesInMatch);
     }
 
     public boolean isMulligan() {
@@ -225,22 +214,8 @@ public class GameView extends TrackableObject {
 
     //TODO: Find better ways to make this information available to all GUIs without using the Game class
 
-    public boolean isMatchWonBy(LobbyPlayer questPlayer) {
-        return getOutcome() != null && getOutcome().isWinner(questPlayer);
-    }
-
-    public Iterable<GameOutcome> getOutcomesOfMatch() {
-        final GameOutcome outcome = getOutcome();
-        return outcome == null ? List.of() : List.of(outcome);
-    }
-
     public boolean isWinner(LobbyPlayer guiPlayer) {
         return getOutcome().isWinner(guiPlayer);
-    }
-
-    public int getGamesWonBy(LobbyPlayer questPlayer) {
-        final GameOutcome outcome = getOutcome();
-        return outcome != null && questPlayer.equals(outcome.getWinningLobbyPlayer()) ? 1 : 0;
     }
 
     public Deck getDeck(final PlayerView pv) {

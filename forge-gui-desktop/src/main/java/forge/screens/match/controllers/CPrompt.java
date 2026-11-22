@@ -180,8 +180,8 @@ public class CPrompt implements ICDoc {
         if (game == null) {
             return;
         }
-        final String text = String.format("T:%d G:%d/%d [%s]", game.getTurn(), game.getNumPlayedGamesInMatch() + 1, game.getNumGamesInMatch(), game.getGameType());
+        final String text = String.format("T:%d [%s]", game.getTurn(), game.getGameType());
         view.getLblGames().setText(text);
-        view.getLblGames().setToolTipText(String.format("%s: Game #%d of %d, turn %d", game.getGameType(), game.getNumPlayedGamesInMatch() + 1, game.getNumGamesInMatch(), game.getTurn()));
+        view.getLblGames().setToolTipText(String.format("%s: turn %d", game.getGameType(), game.getTurn()));
     }
 }
