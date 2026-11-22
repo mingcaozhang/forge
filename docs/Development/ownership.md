@@ -42,7 +42,6 @@ Please also try to check back a bit after your PR gets merged in case it causes 
 | Concept | Owners | Ancestors | Example tasks |
 | - | - | - | - |
 | Quest | friarsol | | |
-| [Network Play](../network-play.md) | MostCromulent | JaminCollins | |
 | Gauntlet | | | |
 | Draft | | | |
 | Planar Conquest | | DrDev | |

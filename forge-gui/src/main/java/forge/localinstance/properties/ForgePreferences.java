@@ -198,11 +198,9 @@ public class ForgePreferences extends AbstractPreferences<ForgePreferences.FPref
 
         NEW_GAME_SCREEN("Constructed"),
         LOAD_GAME_SCREEN("BoosterDraft"),
-        PLAY_ONLINE_SCREEN("Lobby"),
 
         SUBMENU_CURRENTMENU ("CONSTRUCTED"),
         SUBMENU_SANCTIONED ("true"),
-        SUBMENU_ONLINE ("false"),
         SUBMENU_GAUNTLET ("false"),
         SUBMENU_QUEST ("false"),
         SUBMENU_PUZZLE("false"),
@@ -291,8 +289,6 @@ public class ForgePreferences extends AbstractPreferences<ForgePreferences.FPref
 
         UI_ZONE_DOCK_ZONES(""),
         UI_ZONE_DOCK_ZONES_OTHER(""),
-
-        CHAT_WINDOW_LOC(""),
 
         CONSTRUCTED_P1_DECK_STATE(""),
         CONSTRUCTED_P2_DECK_STATE(""),

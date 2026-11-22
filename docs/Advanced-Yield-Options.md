@@ -7,7 +7,6 @@
     - [Automatic Yield Suggestions](#automatic-yield-suggestions)
     - [Speed Options](#speed-options)
 - [Troubleshooting](#troubleshooting)
-- [Network Play](#network-play)
 
 # Advanced Yield Options
 The standard priority system in Forge can involve dozens of priority passes every turn. This can can slow down the game, particularly in multiplayer games like Commander, where one player's delay responding to priority halts the game for everybody else.
@@ -123,6 +122,3 @@ In addition to the per-suggestion dropdowns, this section contains two global su
 - Verify the suggestion's decline scope is not set to "Never" in the Yield Settings dialog.
 - Suggestions don't appear if you're already yielding.
 - If you declined a suggestion, check the decline scope to understand when it will re-appear.
-
-## Network Play
-- Each player controls their own yield preferences. Your yield marker, stack-yield state, interrupt settings, and decline-scope choices apply to you only and propagate across the network — they do not affect other players. The host does not impose its own preferences on connected clients.

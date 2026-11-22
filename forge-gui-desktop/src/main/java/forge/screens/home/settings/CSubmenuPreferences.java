@@ -13,7 +13,6 @@ import forge.gui.download.CdnUuidCache;
 import forge.gui.framework.FScreen;
 import forge.gui.framework.ICDoc;
 import forge.localinstance.properties.ForgeConstants;
-import forge.localinstance.properties.ForgeNetPreferences;
 import forge.localinstance.properties.ForgePreferences;
 import forge.localinstance.properties.ForgePreferences.FPref;
 import forge.localinstance.properties.IPreferences;
@@ -56,7 +55,6 @@ public enum CSubmenuPreferences implements ICDoc {
 
     private VSubmenuPreferences view;
     private ForgePreferences prefs;
-    private ForgeNetPreferences netPrefs;
     private boolean updating;
 
     private final List<Pair<JCheckBox, FPref>> lstControls = new ArrayList<>();
@@ -74,7 +72,6 @@ public enum CSubmenuPreferences implements ICDoc {
 
         this.view = VSubmenuPreferences.SINGLETON_INSTANCE;
         this.prefs = FModel.getPreferences();
-        this.netPrefs = FModel.getNetPreferences();
 
         // This updates variable right now and is not standard
         view.getCbDevMode().addItemListener(arg0 -> {
@@ -201,7 +198,6 @@ public enum CSubmenuPreferences implements ICDoc {
         initializeCardArtPreference();
         initializeCardDownloadLanguageComboBox();
         initializeAutoUpdaterComboBox();
-        initializeServerUPnPComboBox();
         initializeMulliganRuleComboBox();
         initializeAiProfilesComboBox();
         initializeAiTimeoutComboBox();
@@ -221,8 +217,6 @@ public enum CSubmenuPreferences implements ICDoc {
         initializeGraveyardOrderingComboBox();
         initializeUndoModeComboBox();
         initializePlayerNameButton();
-        initializeServerPortButton();
-        initializeAfkTimeoutButton();
         initializeDefaultLanguageComboBox();
         initializeActionableHighlightColorField();
 
@@ -290,9 +284,7 @@ public enum CSubmenuPreferences implements ICDoc {
         if (FOptionPane.showConfirmDialog(userPrompt, localizer.getMessage("TresetForgeSettingsToDefault"))) {
             final ForgePreferences prefs = FModel.getPreferences();
             prefs.reset();
-            netPrefs.reset();
             prefs.save();
-            netPrefs.save();
             update();
             Singletons.getControl().restartForge();
         }
@@ -445,31 +437,6 @@ public enum CSubmenuPreferences implements ICDoc {
             FModel.getMagicDb().setPreferredLanguageAvailability((setCode, cn) -> CdnUuidCache.isAvailableInLanguage(setCode, cn, langCode));
         }
     }
-
-    private void initializeServerUPnPComboBox() {
-        // Step 1: Define the localized strings and mappings
-        final Map<String, String> upnpPreferenceMapping = ForgeConstants.getUPnPPreferenceMapping();
-        final String[] localizedOptions = upnpPreferenceMapping.keySet().toArray(new String[0]); // Localized strings
-
-        // Step 2: Get the preference key
-        final ForgeNetPreferences.FNetPref uPnPPreference = ForgeNetPreferences.FNetPref.UPnP;
-
-        // Step 3: Create the combo box with localized strings
-        final FComboBoxPanel<String> panel = this.view.getCbpServerUPnPOption();
-        final FComboBox<String> comboBox = createLocalizedComboBox(localizedOptions, uPnPPreference, upnpPreferenceMapping);
-
-        // Step 4: Pre-select the localized value based on the saved internal value
-        final String savedInternalValue = this.netPrefs.getPref(uPnPPreference);
-        final String selectedLocalizedValue = upnpPreferenceMapping.entrySet()
-                .stream()
-                .filter(entry -> entry.getValue().equals(savedInternalValue))
-                .map(Map.Entry::getKey)
-                .findFirst()
-                .orElse(localizer.getMessage("lblAsk")); // Default value
-
-        panel.setComboBox(comboBox, selectedLocalizedValue);
-    }
-
 
     private void initializeMulliganRuleComboBox() {
         final String [] choices = MulliganDefs.getMulliganRuleNames();
@@ -771,9 +738,6 @@ public enum CSubmenuPreferences implements ICDoc {
             if (setting instanceof ForgePreferences.FPref) {
                 // Cast setting to ForgePreferences.FPref
                 CSubmenuPreferences.this.prefs.setPref((ForgePreferences.FPref) setting, selectedType.toString());
-            } else if (setting instanceof ForgeNetPreferences.FNetPref) {
-                // Cast setting to ForgeNetPreferences.FNetPref
-                CSubmenuPreferences.this.netPrefs.setPref((ForgeNetPreferences.FNetPref) setting, selectedType.toString());
             }
             CSubmenuPreferences.this.prefs.save();
         });
@@ -793,23 +757,9 @@ public enum CSubmenuPreferences implements ICDoc {
                 if (setting instanceof ForgePreferences.FPref) {
                     CSubmenuPreferences.this.prefs.setPref((ForgePreferences.FPref) setting, internalValue);
                     CSubmenuPreferences.this.prefs.save();
-                } else if (setting instanceof ForgeNetPreferences.FNetPref) {
-                    CSubmenuPreferences.this.netPrefs.setPref((ForgeNetPreferences.FNetPref) setting, internalValue);
-                    CSubmenuPreferences.this.netPrefs.save();
                 }
             }
         });
-    }
-
-    private void initializeServerPortButton() {
-        final FLabel btn = view.getBtnServerPort();
-        setServerPortButtonText();
-        btn.setCommand(getServerPortButtonCommand());
-    }
-    private void setServerPortButtonText() {
-        final FLabel btn = view.getBtnServerPort();
-        final int port = netPrefs.getPrefInt(ForgeNetPreferences.FNetPref.NET_PORT);
-        btn.setText(Integer.toString(port));
     }
 
     private void initializePlayerNameButton() {
@@ -838,31 +788,4 @@ public enum CSubmenuPreferences implements ICDoc {
         };
     }
 
-    private UiCommand getServerPortButtonCommand() {
-        return () -> {
-            GamePlayerUtil.setServerPort();
-            setServerPortButtonText();
-        };
-    }
-
-    private void initializeAfkTimeoutButton() {
-        final FLabel btn = view.getBtnAfkTimeout();
-        setAfkTimeoutButtonText();
-        btn.setCommand(getAfkTimeoutButtonCommand());
-    }
-    private void setAfkTimeoutButtonText() {
-        final FLabel btn = view.getBtnAfkTimeout();
-        final int minutes = netPrefs.getPrefInt(ForgeNetPreferences.FNetPref.NET_AFK_TIMEOUT);
-        if (minutes <= 0) {
-            btn.setText(localizer.getMessage("lblAfkTimeoutDisabled"));
-        } else {
-            btn.setText(minutes + ":00");
-        }
-    }
-    private UiCommand getAfkTimeoutButtonCommand() {
-        return () -> {
-            GamePlayerUtil.setAfkTimeout();
-            setAfkTimeoutButtonText();
-        };
-    }
 }

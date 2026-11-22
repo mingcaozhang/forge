@@ -5,7 +5,6 @@ import forge.util.IHasForgeLog;
 import forge.gamemodes.net.NetworkChecksumUtil;
 import forge.gamemodes.net.ProtocolGuiGame;
 import forge.gui.GuiBase;
-import forge.localinstance.properties.ForgeNetPreferences;
 import forge.localinstance.properties.ForgePreferences.FPref;
 import forge.model.FModel;
 
@@ -47,15 +46,12 @@ public final class TestUtils {
                 preferences.setPref(FPref.LOAD_CARD_SCRIPTS_LAZILY, false);
                 preferences.setPref(FPref.UI_LANGUAGE, "en-US");
                 preferences.setPref(FPref.ENFORCE_DECK_LEGALITY, false);
-                FModel.getNetPreferences().setPref(ForgeNetPreferences.FNetPref.UPnP, "NEVER");
                 return null;
             });
         }
         // Always ensure runtime test preferences regardless of initialization order —
         // another test class may have initialized FModel before us
         FModel.getPreferences().setPref(FPref.ENFORCE_DECK_LEGALITY, false);
-        FModel.getNetPreferences().setPref(ForgeNetPreferences.FNetPref.NET_BANDWIDTH_LOGGING, true);
-        FModel.getNetPreferences().setPref(ForgeNetPreferences.FNetPref.UPnP, "NEVER");
 
         // Use -Dforge.checksum.mode=production to test with production (sampled) checksum
         boolean useStable = !"production".equalsIgnoreCase(System.getProperty("forge.checksum.mode"));

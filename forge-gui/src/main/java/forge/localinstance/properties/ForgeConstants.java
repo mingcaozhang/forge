@@ -19,7 +19,6 @@ package forge.localinstance.properties;
 
 import forge.gui.GuiBase;
 import forge.util.FileUtil;
-import forge.util.Localizer;
 
 import java.io.File;
 import java.util.Collections;
@@ -27,12 +26,10 @@ import java.util.Map;
 
 public final class ForgeConstants {
 
-    private static final Localizer localizer = Localizer.getInstance();
     public static final String GITHUB_FORGE_URL                 = "https://github.com/Card-Forge/forge/";
     public static final String GITHUB_RELEASES_ATOM             = GITHUB_FORGE_URL + "releases.atom";
     public static final String GITHUB_COMMITS_ATOM              = GITHUB_FORGE_URL + "commits/master.atom";
     public static final String GITHUB_SNAPSHOT_URL              = GITHUB_FORGE_URL + "releases/download/daily-snapshots/";
-    public static final String NETWORK_PLAY_WIKI_URL            = GITHUB_FORGE_URL + "wiki/network-play";
     public static final String RELEASE_URL                      = "https://releases.cardforge.org/";
     public static final String PATH_SEPARATOR                   = File.separator;
     public static final String ASSETS_DIR                       = GuiBase.getInterface().getAssetsDir();
@@ -218,14 +215,9 @@ public final class ForgeConstants {
     public static final String DECK_NET_EVENT_DIR         = DECK_BASE_DIR + "network-events" + PATH_SEPARATOR;
     public static final String QUEST_SAVE_DIR             = USER_QUEST_DIR + "saves" + PATH_SEPARATOR;
     public static final String MAIN_PREFS_FILE            = USER_PREFS_DIR + "forge.preferences";
-    public static final String SERVER_PREFS_FILE          = USER_PREFS_DIR + "server.preferences";
     public static final String CARD_PREFS_FILE            = USER_PREFS_DIR + "card.preferences";
     public static final String DECK_PREFS_FILE            = USER_PREFS_DIR + "deck.preferences";
     public static final String ITEM_VIEW_PREFS_FILE       = USER_PREFS_DIR + "item_view.preferences";
-
-    public static final String CLOSE_CONN_COMMAND         = "<<_EM_ESOLC_<<";
-    public static final String INVALID_HOST_COMMAND       = "<<_TSOH_DILAVNI_<<";
-    public static final String CONN_ERROR_PREFIX          = "<<_CONN_ERROR_>>:";
 
     // data that has defaults in the program dir but overrides/additions in the user dir
     private static final String _DEFAULTS_DIR = RES_DIR + "defaults" + PATH_SEPARATOR;
@@ -334,14 +326,6 @@ public final class ForgeConstants {
 
     // Supported video mode names and dimensions
     public static final String[] VIDEO_MODES = {"720p", "768p", "900p", "1080p", "1440p", "2160p"};
-
-    public static Map<String, String> getUPnPPreferenceMapping() {
-        return Map.of(
-                localizer.getMessage("lblAsk"), "ASK",
-                localizer.getMessage("lblAlways"), "ALWAYS",
-                localizer.getMessage("lblNever"), "NEVER"
-        );
-    }
 
     public static Map<String, String> getScryfallCardLanguageMapping() {
         final java.util.LinkedHashMap<String, String> map = new java.util.LinkedHashMap<>();

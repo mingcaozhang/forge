@@ -6,7 +6,6 @@ import forge.ai.AiProfileUtil;
 import forge.ai.LobbyPlayerAi;
 import forge.gui.GuiBase;
 import forge.gui.util.SOptionPane;
-import forge.localinstance.properties.ForgeNetPreferences;
 import forge.localinstance.properties.ForgePreferences.FPref;
 import forge.model.FModel;
 import forge.util.GuiDisplayUtil;
@@ -136,66 +135,6 @@ public final class GamePlayerUtil {
             newName = newName.trim();
         }
         return newName;
-    }
-
-    public static void setServerPort() {
-        final int oldPort = FModel.getNetPreferences().getPrefInt(ForgeNetPreferences.FNetPref.NET_PORT);
-        int newPort = getServerPortPrompt(oldPort);
-        FModel.getNetPreferences().setPref(ForgeNetPreferences.FNetPref.NET_PORT, String.valueOf(newPort));
-        FModel.getNetPreferences().save();
-    }
-    private static Integer getServerPortPrompt(final Integer serverPort) {
-        String input = SOptionPane.showInputDialog(
-                localizer.getMessage("sOPServerPromptMessage"),
-                localizer.getMessage("sOPServerPromptTitle"),
-                null,
-                serverPort.toString(),
-                null,
-                true
-        );
-        Integer port;
-        try {
-             port = Integer.parseInt(input);
-        } catch (NumberFormatException nfe) {
-            SOptionPane.showErrorDialog(localizer.getMessage("sOPServerPromptError", input));
-            return serverPort;
-        }
-        if (port < 0 || port > 65535) {
-            SOptionPane.showErrorDialog(localizer.getMessage("sOPServerPromptError", input));
-            return serverPort;
-        }
-        return port;
-    }
-
-    public static void setAfkTimeout() {
-        final int oldVal = FModel.getNetPreferences().getPrefInt(ForgeNetPreferences.FNetPref.NET_AFK_TIMEOUT);
-        int newVal = getAfkTimeoutPrompt(oldVal);
-        FModel.getNetPreferences().setPref(ForgeNetPreferences.FNetPref.NET_AFK_TIMEOUT, String.valueOf(newVal));
-        FModel.getNetPreferences().save();
-    }
-
-    private static Integer getAfkTimeoutPrompt(final Integer current) {
-        String input = SOptionPane.showInputDialog(
-                localizer.getMessage("sOPAfkTimeoutPromptMessage"),
-                localizer.getMessage("sOPAfkTimeoutPromptTitle"),
-                null,
-                current.toString(),
-                null,
-                true
-        );
-        if (input == null) { return current; }
-        int value;
-        try {
-            value = Integer.parseInt(input);
-        } catch (NumberFormatException nfe) {
-            SOptionPane.showErrorDialog(localizer.getMessage("sOPAfkTimeoutPromptError", input));
-            return current;
-        }
-        if (value < 0 || value > 60) {
-            SOptionPane.showErrorDialog(localizer.getMessage("sOPAfkTimeoutPromptError", input));
-            return current;
-        }
-        return value;
     }
 
 }

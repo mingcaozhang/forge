@@ -10,14 +10,13 @@ import java.util.Collections;
 import java.util.List;
 
 import forge.error.ExceptionHandler;
-import forge.localinstance.properties.ForgeConstants;
 import forge.localinstance.properties.ForgeProfileProperties;
 
 public final class LogExporter {
     private LogExporter() { }
 
     /**
-     * Bundle the forge and network debug logs into a timestamped zip in destDir.
+     * Bundle the forge logs into a timestamped zip in destDir.
      * @return the created zip file, or null if no log files were found
      */
     public static File exportLogs(File destDir) throws IOException {
@@ -62,13 +61,6 @@ public final class LogExporter {
             File[] forgeLogs = userDir.listFiles((d, n) -> n.startsWith("forge") && n.endsWith(".log"));
             if (forgeLogs != null) {
                 Collections.addAll(files, forgeLogs);
-            }
-        }
-        File netDir = new File(ForgeConstants.NETWORK_LOGS_DIR);
-        if (netDir.isDirectory()) {
-            File[] netLogs = netDir.listFiles((d, n) -> n.startsWith("network-debug-") && n.endsWith(".log"));
-            if (netLogs != null) {
-                Collections.addAll(files, netLogs);
             }
         }
         return files;

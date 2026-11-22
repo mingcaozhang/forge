@@ -62,8 +62,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
     private final FLabel btnCustomLogSettings = new FLabel.Builder().opaque(true).hoverable(true).text(localizer.getMessage("lblCustomLogSettings")).build();
 
     private final FLabel btnPlayerName = new FLabel.Builder().opaque(true).hoverable(true).text("").build();
-    private final FLabel btnServerPort = new FLabel.Builder().opaque(true).hoverable(true).text("").build();
-    private final FLabel btnAfkTimeout = new FLabel.Builder().opaque(true).hoverable(true).text("").build();
 
     private final JCheckBox cbRemoveSmall = new OptionsCheckBox(localizer.getMessage("cbRemoveSmall"));
     private final JCheckBox cbCardBased = new OptionsCheckBox(localizer.getMessage("cbCardBased"));
@@ -165,7 +163,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
     private final FComboBoxPanel<String> cbpDefaultLanguage = new FComboBoxPanel<>(localizer.getMessage("cbpSelectLanguage")+":");
     private final FComboBoxPanel<String> cbpAutoUpdater = new FComboBoxPanel<>(localizer.getMessage("cbpAutoUpdater")+":");
     private final FComboBoxPanel<String> cbpSwitchStates = new FComboBoxPanel<>(localizer.getMessage("cbpSwitchStates")+":");
-    private final FComboBoxPanel<String> cbpServerUPnPOption = new FComboBoxPanel<>(localizer.getMessage("cbpServerUPnPOption")+":");
     private final FComboBoxPanel<String> cbpUiTheme = new FComboBoxPanel<>(localizer.getMessage("cbpUiTheme")+":");
     private final FComboBoxPanel<String> cbpAnimationMode = new FComboBoxPanel<>(localizer.getMessage("cbpAnimationMode")+":");
 
@@ -308,18 +305,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
 
         pnlPrefs.add(cbpAutoDecisionMode, comboBoxConstraints);
         pnlPrefs.add(new NoteLabel(localizer.getMessage("nlpAutoDecisionMode")), descriptionConstraints);
-
-        //Server Preferences
-        pnlPrefs.add(new SectionLabel(localizer.getMessage("ServerPreferences")), sectionConstraints);
-
-        pnlPrefs.add(cbpServerUPnPOption, comboBoxConstraints);
-        pnlPrefs.add(new NoteLabel(localizer.getMessage("nlServerUPnPOptions")), descriptionConstraints);
-
-        pnlPrefs.add(getServerPortPanel(), titleConstraints + ", h 26px!");
-        pnlPrefs.add(new NoteLabel(localizer.getMessage("nlServerPort")), descriptionConstraints);
-
-        pnlPrefs.add(getAfkTimeoutPanel(), titleConstraints + ", h 26px!");
-        pnlPrefs.add(new NoteLabel(localizer.getMessage("nlAfkTimeout")), descriptionConstraints);
 
         // Deck building options
         pnlPrefs.add(new SectionLabel(localizer.getMessage("RandomDeckGeneration")), sectionConstraints);
@@ -713,21 +698,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
                     || keyCode == KeyEvent.VK_ALT || keyCode == KeyEvent.VK_META;
         }
     }
-
-    //Server Preference Panel Components
-    //###################################################################
-    public final FComboBoxPanel<String> getCbpServerUPnPOption() {
-        return cbpServerUPnPOption;
-    }
-
-    public FLabel getBtnServerPort() {
-        return btnServerPort;
-    }
-
-    public FLabel getBtnAfkTimeout() {
-        return btnAfkTimeout;
-    }
-    //###################################################################
 
     public final FComboBoxPanel<String> getCbpAutoUpdater() {
         return cbpAutoUpdater;
@@ -1211,24 +1181,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
         FLabel lbl = new FLabel.Builder().text(localizer.getMessage("lblActionableHighlightColor") + ": ").fontSize(12).fontStyle(Font.BOLD).build();
         p.add(lbl, "aligny top, h 100%, gap 4px 0 0 0");
         p.add(txtActionableHighlightColor, "aligny top, h 100%, w 120px!");
-        return p;
-    }
-
-    private JPanel getServerPortPanel() {
-        JPanel p = new JPanel(new MigLayout("insets 0, gap 0!"));
-        p.setOpaque(false);
-        FLabel lbl = new FLabel.Builder().text(localizer.getMessage("lblServerPort") +": ").fontSize(12).fontStyle(Font.BOLD).build();
-        p.add(lbl, "aligny top, h 100%, gap 4px 0 0 0");
-        p.add(btnServerPort, "aligny top, h 100%, w 200px!");
-        return p;
-    }
-
-    private JPanel getAfkTimeoutPanel() {
-        JPanel p = new JPanel(new MigLayout("insets 0, gap 0!"));
-        p.setOpaque(false);
-        FLabel lbl = new FLabel.Builder().text(localizer.getMessage("lblAfkTimeout") +": ").fontSize(12).fontStyle(Font.BOLD).build();
-        p.add(lbl, "aligny top, h 100%, gap 4px 0 0 0");
-        p.add(btnAfkTimeout, "aligny top, h 100%, w 200px!");
         return p;
     }
 

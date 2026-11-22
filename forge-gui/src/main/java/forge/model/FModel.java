@@ -41,7 +41,6 @@ import forge.item.PaperCard;
 import forge.item.PaperCardPredicates;
 import forge.itemmanager.ItemManagerConfig;
 import forge.localinstance.properties.ForgeConstants;
-import forge.localinstance.properties.ForgeNetPreferences;
 import forge.localinstance.properties.ForgePreferences;
 import forge.localinstance.properties.ForgePreferences.FPref;
 import forge.player.GamePlayerUtil;
@@ -90,7 +89,6 @@ public final class FModel {
     }
 
     private static final Supplier<ForgePreferences> preferences = Suppliers.memoize(ForgePreferences::new);
-    private static final Supplier<ForgeNetPreferences> netPreferences = Suppliers.memoize(ForgeNetPreferences::new);
 
     private static final Supplier<CardCollections> decks = Suppliers.memoize(CardCollections::new);
 
@@ -354,9 +352,6 @@ public final class FModel {
 
     public static ForgePreferences getPreferences() {
         return preferences.get();
-    }
-    public static ForgeNetPreferences getNetPreferences() {
-        return netPreferences.get();
     }
 
     public static IStorage<CardBlock> getBlocks() {
