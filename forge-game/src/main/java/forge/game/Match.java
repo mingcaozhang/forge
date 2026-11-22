@@ -135,23 +135,7 @@ public class Match {
     }
 
     public boolean isMatchOver() {
-        int[] victories = new int[players.size()];
-        for (GameOutcome go : getOutcomes()) {
-            LobbyPlayer winner = go.getWinningLobbyPlayer();
-            int i = 0;
-            for (RegisteredPlayer p : players) {
-                if (p.getPlayer().equals(winner)) {
-                    victories[i]++;
-                    if (victories[i] >= rules.getGamesToWinMatch()) {
-                        return true;
-                    }
-                }
-                i++;
-            }
-        }
-
-        // Games are first to X wins, not first to X wins or Y total games played
-        return false;
+        return !gameOutcomes.isEmpty();
     }
 
     public int getGamesWonBy(LobbyPlayer questPlayer) {
@@ -176,7 +160,7 @@ public class Match {
     }
 
     public boolean isWonBy(LobbyPlayer questPlayer) {
-        return getGamesWonBy(questPlayer) >= rules.getGamesToWinMatch();
+        return getGamesWonBy(questPlayer) >= 1;
     }
 
     public RegisteredPlayer getWinner() {

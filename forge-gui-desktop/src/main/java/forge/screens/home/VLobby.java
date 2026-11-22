@@ -26,7 +26,6 @@ import forge.gui.CardDetailPanel;
 import forge.gui.CommanderChooser;
 import forge.gui.FThreads;
 import forge.gui.GuiChoose;
-import forge.gui.SwingPrefBinders;
 import forge.gui.interfaces.ILobbyView;
 import forge.gui.util.SOptionPane;
 import forge.interfaces.IPlayerChangeListener;
@@ -46,8 +45,6 @@ import net.miginfocom.swing.MigLayout;
 public class VLobby implements ILobbyView {
 
     static final int MAX_PLAYERS = 8;
-    private static final int START_ROW_LABEL_WIDTH = 150;
-    private static final int START_ROW_COMBO_WIDTH = 50;
     final Localizer localizer = Localizer.getInstance();
     private static final ForgePreferences prefs = FModel.getPreferences();
 
@@ -61,9 +58,6 @@ public class VLobby implements ILobbyView {
 
     private final StartButton btnStart  = new StartButton();
     private final JPanel pnlStart = new JPanel(new MigLayout("insets 0, gap 0, wrap 2"));
-    private final JComboBox<String> gamesInMatch = new JComboBox<>(new String[]{"1", "3", "5"});
-    private final SwingPrefBinders.ComboBox gamesInMatchBinder = new SwingPrefBinders.ComboBox(FPref.UI_MATCHES_PER_GAME, gamesInMatch);
-    private final JPanel gamesInMatchFrame = new JPanel(new MigLayout("insets 0, gap 0, wrap 2"));
     private final JPanel constructedFrame = new JPanel(new MigLayout("insets 0, gap 0, wrap 2, hidemode 3")); // Main content frame
 
     // Variants frame and variables
@@ -178,17 +172,11 @@ public class VLobby implements ILobbyView {
                 }
             });
         }
-
-        gamesInMatchFrame.add(newLabel(localizer.getMessage("lblGamesInMatch")), "w " + START_ROW_LABEL_WIDTH + "px!, h 30px!");
-        gamesInMatchFrame.add(gamesInMatch, "w " + START_ROW_COMBO_WIDTH + "px!, h 30px!");
-        gamesInMatchFrame.setOpaque(false);
-        gamesInMatchBinder.bind();                          // loads stored pref, then listens
     }
 
     private void addConstructedStartControls() {
         pnlStart.setLayout(new MigLayout("insets 0, gap 0, wrap 2"));
         pnlStart.add(btnStart, "align center");
-        pnlStart.add(gamesInMatchFrame, "align center");
     }
 
     public void updateDeckPanel() {
@@ -987,11 +975,6 @@ public class VLobby implements ILobbyView {
     /** Return the Vanguard avatars not flagged RemoveDeck:All or RemoveDeck:Random. */
     public List<PaperCard> getNonRandomAiAvatars() {
         return nonRandomAiAvatars;
-    }
-
-    /** Return the gamesInMatchBinder */
-    public SwingPrefBinders.ComboBox getGamesInMatchBinder() {
-      return gamesInMatchBinder;
     }
 
     /** Populate vanguard lists. */

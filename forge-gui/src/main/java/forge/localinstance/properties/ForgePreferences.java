@@ -62,7 +62,6 @@ public class ForgePreferences extends AbstractPreferences<ForgePreferences.FPref
         UI_LIBGDX_TEXTURE_FILTERING("true"),
         MATCH_HOT_SEAT_MODE("false"),
 
-        UI_MATCHES_PER_GAME("3"),
         UI_LOBBY_SETUP(""),
         UI_RANDOM_FOIL ("false"),
         UI_SLEEVES ("0,1"),

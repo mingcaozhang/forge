@@ -8,8 +8,6 @@ public class GameRules {
     private boolean manaBurn;
     private boolean orderCombatants;
     private int poisonCountersToLose = 10;
-    private int gamesPerMatch = 3;
-    private int gamesToWinMatch = 2;
     private boolean playForAnte = false;
     private boolean matchAnteRarity = false;
     private boolean anteIncludeBasicLands = false;
@@ -54,14 +52,6 @@ public class GameRules {
         this.poisonCountersToLose = amount;
     }
 
-    public int getGamesPerMatch() {
-        return gamesPerMatch;
-    }
-    public void setGamesPerMatch(final int gamesPerMatch) {
-        this.gamesPerMatch = gamesPerMatch;
-        this.gamesToWinMatch = gamesPerMatch / 2 + 1;
-    }
-
     public boolean useAnte() {
         return playForAnte;
     }
@@ -102,10 +92,6 @@ public class GameRules {
     }
     public void setAllowCheatShuffle(boolean allowCheatShuffle) {
         this.allowCheatShuffle = allowCheatShuffle;
-    }
-
-    public int getGamesToWinMatch() {
-        return gamesToWinMatch;
     }
 
     public void setAppliedVariants(final Set<GameType> appliedVariants) {

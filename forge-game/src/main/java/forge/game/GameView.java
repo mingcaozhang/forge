@@ -48,7 +48,7 @@ public class GameView extends TrackableObject {
         set(TrackableProperty.IsCommander, rules.hasCommander());
         set(TrackableProperty.GameType, rules.getGameType());
         set(TrackableProperty.PoisonCountersToLose, rules.getPoisonCountersToLose());
-        set(TrackableProperty.NumGamesInMatch, rules.getGamesPerMatch());
+        set(TrackableProperty.NumGamesInMatch, 1);
 
         set(TrackableProperty.NumPlayedGamesInMatch, game.getMatch().getOutcomes().size());
     }
