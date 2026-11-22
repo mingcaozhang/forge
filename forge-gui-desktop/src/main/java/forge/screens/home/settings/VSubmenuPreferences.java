@@ -151,7 +151,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
     private final FComboBoxPanel<String> cbpSoundSets = new FComboBoxPanel<>(localizer.getMessage("cbpSoundSets")+":");
     private final FComboBoxPanel<String> cbpMusicSets = new FComboBoxPanel<>(localizer.getMessage("cbpMusicSets")+":");
     private final FComboBoxPanel<String> cbpAiProfiles = new FComboBoxPanel<>(localizer.getMessage("cbpAiProfiles")+":");
-    private final FComboBoxPanel<String> cbpAiSideboardingMode = new FComboBoxPanel<>(localizer.getMessage("cbpAiSideboardingMode")+":");
     private final FComboBoxPanel<String> cbpAiTimeout = new FComboBoxPanel<>(localizer.getMessage("cbAITimeout")+":");
     private final FComboBoxPanel<String> cbpStackAdditions = new FComboBoxPanel<>(localizer.getMessage("cbpStackAdditions")+":");
     private final FComboBoxPanel<String> cbpLandPlayed = new FComboBoxPanel<>(localizer.getMessage("cbpLandPlayed")+":");
@@ -267,9 +266,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
 
         pnlPrefs.add(cbPerformanceMode, titleConstraints);
         pnlPrefs.add(new NoteLabel(localizer.getMessage("nlPerformanceMode")), descriptionConstraints);
-
-        pnlPrefs.add(cbpAiSideboardingMode, titleConstraints);
-        pnlPrefs.add(new NoteLabel(localizer.getMessage("nlpAiSideboardingMode")), descriptionConstraints);
 
         pnlPrefs.add(cbExperimentalRestore, titleConstraints);
         pnlPrefs.add(new NoteLabel(localizer.getMessage("nlExperimentalRestore")), descriptionConstraints);
@@ -927,10 +923,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
 
     public FComboBoxPanel<String> getAiProfilesComboBoxPanel() {
         return cbpAiProfiles;
-    }
-
-    public FComboBoxPanel<String> getAiSideboardingModeComboBoxPanel() {
-        return cbpAiSideboardingMode;
     }
 
     public FComboBoxPanel<String> getAiTimeoutComboBox() {

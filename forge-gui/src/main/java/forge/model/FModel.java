@@ -256,8 +256,6 @@ public final class FModel {
         // decks built for the AI keep the AI:RemoveDeck:All cards that Flat MC plays, while it is on
         forge.card.CardAiHints.setKeptForFlatMc(name -> getPreferences().getPrefBoolean(FPref.MATCH_AI_FLAT_MONTE_CARLO)
                 && AiCardLists.isFlatMcPlayable(name));
-        AiProfileUtil.setAiSideboardingMode(AiProfileUtil.AISideboardingMode.normalizedValueOf(getPreferences().getPref(FPref.MATCH_AI_SIDEBOARDING_MODE)));
-
         // Generate Deck Gen matrix
         if(getPreferences().getPrefBoolean(FPref.DECKGEN_CARDBASED) && !loadCardsLazily) {
             boolean commanderDeckGenMatrixLoaded=CardRelationMatrixGenerator.initialize();
