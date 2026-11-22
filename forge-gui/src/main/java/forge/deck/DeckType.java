@@ -7,8 +7,6 @@ public enum DeckType {
     CUSTOM_DECK("lblCustomUserDecks"),
     CONSTRUCTED_DECK("lblConstructedDecks"),
     COMMANDER_DECK("lblCommanderDecks"),
-    RANDOM_COMMANDER_DECK("lblRandomCommanderDecks"),
-    RANDOM_CARDGEN_COMMANDER_DECK("lblRandomCommanderCard-basedDecks"),
     SCHEME_DECK("lblSchemeDecks"),
     PLANAR_DECK("lblPlanarDecks"),
     DRAFT_DECK("lblDraftDecks"),
@@ -28,7 +26,6 @@ public enum DeckType {
     MODERN_COLOR_DECK("lblRandomModernColorDecks"),
     PAUPER_COLOR_DECK("lblRandomPauperColorDecks"),
     THEME_DECK("lblRandomThemeDecks"),
-    RANDOM_DECK("lblRandomDecks"),
     NET_DECK("lblNetDecks"),
     NET_COMMANDER_DECK("lblNetCommanderDecks"),
     NET_ARCHIVE_STANDARD_DECK("lblNetArchiveStandardDecks"),
@@ -63,7 +60,6 @@ public enum DeckType {
                     DeckType.PIONEER_CARDGEN_DECK,
                     DeckType.HISTORIC_CARDGEN_DECK,
                     DeckType.THEME_DECK,
-                    DeckType.RANDOM_DECK,
                     DeckType.NET_DECK,
                     DeckType.NET_EVENT_DECK,
                     DeckType.NET_ARCHIVE_STANDARD_DECK,
@@ -85,7 +81,6 @@ public enum DeckType {
                     DeckType.MODERN_COLOR_DECK,
                     DeckType.PAUPER_COLOR_DECK,
                     DeckType.THEME_DECK,
-                    DeckType.RANDOM_DECK,
                     DeckType.NET_DECK,
                     DeckType.NET_EVENT_DECK,
                     DeckType.NET_ARCHIVE_STANDARD_DECK,
@@ -100,27 +95,12 @@ public enum DeckType {
         }
     }
     static {
-        if (FModel.isdeckGenMatrixLoaded()) {
-            CommanderOptions = new DeckType[]{
-                    DeckType.COMMANDER_DECK,
-                    DeckType.PRECON_COMMANDER_DECK,
-                    DeckType.RANDOM_COMMANDER_DECK,
-                    DeckType.RANDOM_CARDGEN_COMMANDER_DECK,
-                    DeckType.RANDOM_DECK,
-                    DeckType.NET_COMMANDER_DECK,
-                    DeckType.PROVIDED_DECK_URL
-            };
-        }else{
-            CommanderOptions = new DeckType[]{
-                    DeckType.COMMANDER_DECK,
-                    DeckType.PRECON_COMMANDER_DECK,
-                    DeckType.RANDOM_COMMANDER_DECK,
-                    DeckType.RANDOM_DECK,
-                    DeckType.NET_COMMANDER_DECK,
-                    DeckType.PROVIDED_DECK_URL
-            };
-        }
-
+        CommanderOptions = new DeckType[]{
+                DeckType.COMMANDER_DECK,
+                DeckType.PRECON_COMMANDER_DECK,
+                DeckType.NET_COMMANDER_DECK,
+                DeckType.PROVIDED_DECK_URL
+        };
     }
 
     private String value;

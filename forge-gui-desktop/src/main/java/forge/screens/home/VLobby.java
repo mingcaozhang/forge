@@ -209,8 +209,6 @@ public class VLobby implements ILobbyView {
             case COLOR_DECK:
             case STANDARD_COLOR_DECK:
             case MODERN_COLOR_DECK:
-            case RANDOM_CARDGEN_COMMANDER_DECK:
-            case RANDOM_COMMANDER_DECK:
                 deckChooser.refreshDeckListForAI();
                 break;
             default:
@@ -918,7 +916,7 @@ public class VLobby implements ILobbyView {
         switch (type) {
             case Commander:
                 forCommander = true;
-                deckType = iSlot == 0 ? DeckType.COMMANDER_DECK : DeckType.RANDOM_CARDGEN_COMMANDER_DECK;
+                deckType = DeckType.COMMANDER_DECK;
                 prefKey = FPref.COMMANDER_DECK_STATES[iSlot];
                 break;
             default:

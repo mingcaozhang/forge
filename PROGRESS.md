@@ -1,4 +1,4 @@
-# PROGRESS.md — Pre-rewrite cleanup (Part 4 in progress, next: item 11.1)
+# PROGRESS.md — Pre-rewrite cleanup (Part 4 in progress, next: item 11.2)
 
 ## Verified baseline facts
 - Branch `dev`, clean tree. Per-item verify: `GATE` = `mvn test -pl forge-gui-desktop -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` (600000 ms). Final gates add `PKG` = `mvn package -DskipTests -T 1C`.
@@ -7,29 +7,29 @@
 - Checkstyle runs at `validate` with root `checkstyle.xml` — fails on unused imports; `mvn test-compile` catches it fast.
 
 ## Recently completed
-- 10.2: removed deck-generation i18n keys (`lblDeckGeneration`, `btnRandCardpool`/`ttbtnRandCardpool`,
-  `btnRandDeck2/3/5` + tooltips) + the orphaned `#VDeckgen.java` section headers from all 10
-  locales. GATE exit 0 (2707 tests).
-- 10.1: deleted deck-gen tab — `CDeckgen`/`VDeckgen`, `EDocID.EDITOR_DECKGEN`,
-  `editor.xml` doc, `CEditorVariant`/`CEditorTokenViewer` tab remove/re-add (kept
-  `ACEditorBase.removeTab` for VAllDecks/VProbabilities). Stale user layouts that still
-  reference `EDITOR_DECKGEN` self-heal via `InvalidLayoutFileException` → delete + retry.
-- 9.1: Part 3 final sweep — removed `AiProps.SIDEBOARDING_*` consts (6) + their
-  comment/property blocks in all 6 `res/ai/*.ai` profiles (must stay in sync:
-  `AiProfileUtil.loadProfile` does `AiProps.valueOf(line)` — orphaned `.ai` lines throw on
-  load); removed orphaned i18n keys + 30 dead `#Class.java` section headers in all 10 locales.
-  GATE + PKG exit 0. Part 3 complete.
+- 11.1: removed `DeckType` entries `RANDOM_COMMANDER_DECK`/`RANDOM_CARDGEN_COMMANDER_DECK`/`RANDOM_DECK`
+  from `CommanderOptions`/`ConstructedOptions`; collapsed `CommanderOptions` into one unconditional array
+  (`FModel` import kept for the ConstructedOptions branch). Pulled forward (compile-required): `FDeckChooser`
+  switch (3 cases), `VLobby.updateImpl` (2 cases), `VLobby.createDeckChooser` Commander case → always
+  `DeckType.COMMANDER_DECK` (drops AI-slot `RANDOM_CARDGEN_COMMANDER_DECK` default). `updateRandomCommander`/
+  `updateRandomCardGenCommander`/`updateRandom` now dead → go in 11.2. GATE exit 0 (2707 tests).
+- 10.2: removed deck-generation i18n keys + orphaned `#VDeckgen.java` headers from all 10 locales.
+- 10.1: deleted deck-gen tab (`CDeckgen`/`VDeckgen`, `EDocID.EDITOR_DECKGEN`, `editor.xml`,
+  `CEditorVariant`/`CEditorTokenViewer` tab handling); stale user layouts self-heal.
+- 9.1: Part 3 final sweep (AI sideboarding props + orphaned i18n keys). GATE + PKG exit 0. Part 3 complete.
 
 ## Environment quirks
 - Always use a 600000 ms timeout on Maven runs (default 120 s kills long runs).
 - `-pl <module>` must pair with `-am`; `-Dtest=` needs `-DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false`.
-- Non-failing noise: "card ... not assigned to any set", "Upcoming set ... dated in the future", `FSkin > can't find skins directory!`.
+- Non-failing noise: "card ... not assigned to any set", "Upcoming set ... dated in the future",
+  `FSkin > can't find skins directory!`, WireClassFilter REJECTED ERROR lines in net tests.
 - Scratch artifacts only under `/tmp/opencode/`. Locale files have no trailing newline; preserve when editing.
 - `AiReportScenarioTest` is flaky under full parallel GATE (APPROX scenarios fail occasionally; green in isolation and on full rerun).
 
 ## Active caveats / follow-ups
-- Next: **Part 4 item 11.1** (PLAN.md L119) — `DeckType`: remove `RANDOM_COMMANDER_DECK`,
-  `RANDOM_CARDGEN_COMMANDER_DECK`, `RANDOM_DECK`; collapse `CommanderOptions` static block.
+- Next: **Part 4 item 11.2** (PLAN.md L120) — `FDeckChooser`: remove now-dead `updateRandomCommander`/
+  `updateRandomCardGenCommander`/`updateRandom` + DELETE `CommanderDeckGenerator`. KEEP
+  `DeckgenUtil.generateRandomCommanderDeck` (fallback for `generateCommanderDeck`).
 - `VLobby.populateDeckPanel` Oathbreaker/TinyLeaders/Brawl case labels + `DeckManager` variant
   branches + `DeckPreferences.{oathbreaker,tinyLeaders,brawl}Deck` fields are dead (go with
   GameType entries, later part).
