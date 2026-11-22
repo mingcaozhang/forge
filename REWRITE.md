@@ -8,6 +8,7 @@
 * **Transition & Invariant Tests:** Write fast, deterministic unit tests verifying legal/illegal action handling, phase/step progression, and state invariants.
 * **Golden Replay & Headless Match Tests:** Add seeded replay traces and headless single-player/AI match tests that run without UI windows to guard behavior during decoupling.
 * **Serialization & Transport Tests:** Verify clean round-trip serialization of state snapshots/deltas and actions so the boundary is ready for out-of-process or network transport.
+- **Headless Simulation & ML Trajectory Hook:** Expose a lightweight headless simulation runner and state-observer hook on top of the Engine Adapter to execute batch AI-vs-AI Commander matches without UI windows and export `(state snapshot, legal action candidates, chosen action, match outcome)` shards for offline ML training without coupling ML tensor schemas to the core state/action contract.
 
 ---
 
