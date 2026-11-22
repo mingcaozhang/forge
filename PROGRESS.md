@@ -9,6 +9,15 @@
 - Scratch artifacts only under `/tmp/opencode/`. Locale files have no trailing newline; preserve when editing. i18n keys are plain string literals via `Localizer.getMessage` (no I18N enum) — deletion = property lines only.
 
 ## Recently completed
+- 17.4: Fixed deck-editor tab-drag NPE (`SRearrangingUtil.cellTarget` null). When the drag pointer leaves every
+  `DragCell` (e.g. over the nav bar), `rearrange()` no longer derefs a null/stale `cellTarget`: reset it at top of
+  `rearrange()` + `startRearrange()`, and on no-cell-hit set `dropzone=NONE`, reset cursor, clear preview, return.
+  `endRearrange()` already short-circuits on `NONE`. GUI drag is not unit-testable; verified by full GATE+PKG.
+  Manual repro: open Deck Editor, press a cell tab, drag pointer up over the nav bar (outside all cells) → previously NPE.
+- 17.3: Create user skins dir on profile init (`ForgeProfileProperties.load()` ensures `cacheDir/skins`);
+  `FSkin.getSkinDirectoryNames()` returns empty list instead of printing "can't find skins directory!".
+- 17.2: `ItemManagerConfig.load()` silently skips stale item-view prefs entries from removed modes via new
+  `parseEnum` helper (no more `No enum constant` stack traces). Regression test `ItemManagerConfigStalePrefsShould`.
 - 17.1: Final sweep. Removed ALL remaining orphaned i18n keys from all 10 locales (13,881 key lines + 872 stale `#` section
   comments; ~300/locale were stale translations of keys already gone from en-US). Verified via full Java string-literal diff
   (2,058 .java files) + zero non-Java refs. Hard-KEEP protected: `lblPuzzle*`/`lblRestartPuzzle`/`lblQuitPuzzle` (puzzle

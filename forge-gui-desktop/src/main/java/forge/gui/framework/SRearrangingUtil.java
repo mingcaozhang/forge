@@ -87,6 +87,7 @@ public final class SRearrangingUtil {
         cellSrc = (DragCell) ((Container) e.getSource()).getParent().getParent();
         docsToMove.clear();
         dropzone = Dropzone.NONE;
+        cellTarget = null;
 
         // Save selected tab in case this tab will be dragged.
         srcSelectedDoc = cellSrc.getSelected();
@@ -125,6 +126,8 @@ public final class SRearrangingUtil {
         evtX = (int) e.getLocationOnScreen().getX();
         evtY = (int) e.getLocationOnScreen().getY();
 
+        cellTarget = null;
+
         // Find out over which panel the event occurred.
         for (final DragCell t : FView.SINGLETON_INSTANCE.getDragCells()) {
             tempX = t.getAbsX();
@@ -139,6 +142,13 @@ public final class SRearrangingUtil {
 
             cellTarget = t;
             break;
+        }
+
+        if (cellTarget == null) {
+            dropzone = Dropzone.NONE;
+            MouseUtil.resetCursor();
+            pnlPreview.setBounds(0, 0, 0, 0);
+            return;
         }
 
         if (evtX < (tempX + nestingMargin)
