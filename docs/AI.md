@@ -28,9 +28,6 @@ Please understand, the AI is still the AI, and it's limitations exist even again
 - `-m [M]` - [M] number of matches, best of [M] matches. (Overrides -n) Recommended 1, 3, or 5. Default is 1.
 - `-f [F]` - Runs [F] format of game. Default is "constructed"
   - `Commander`
-  - `Oathbreaker`
-  - `TinyLeaders`
-  - `Brawl`
   - `MomirBasic`
   - `Vanguard`
   - `MoJhoSto`

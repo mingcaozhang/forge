@@ -42,9 +42,6 @@ public class CardCollections {
     private IStorage<Deck> plane;
     private IStorage<Deck> commander;
     private IStorage<Deck> commanderPrecons;
-    private IStorage<Deck> oathbreaker;
-    private IStorage<Deck> tinyLeaders;
-    private IStorage<Deck> brawl;
     private IStorage<Deck> genetic;
     private IStorage<Deck> customStarter;
     private IStorage<Deck> networkEvent;
@@ -110,14 +107,6 @@ public class CardCollections {
         return commander;
     }
 
-    public IStorage<Deck> getOathbreaker() {
-        if (oathbreaker == null) {
-            oathbreaker = new StorageImmediatelySerialized<>("Oathbreaker decks",
-                    new DeckStorage(new File(ForgeConstants.DECK_OATHBREAKER_DIR), ForgeConstants.DECK_BASE_DIR));
-        }
-        return oathbreaker;
-    }
-
     public IStorage<Deck> getCommanderPrecons() {
         if (commanderPrecons == null) {
             // Read-only: these ship with Forge, and saving one (a sleeve change, say) would rewrite the file in res
@@ -125,22 +114,6 @@ public class CardCollections {
                     new DeckStorage(new File(ForgeConstants.COMMANDER_PRECON_DIR), ForgeConstants.QUEST_PRECON_DIR));
         }
         return commanderPrecons;
-    }
-
-    public IStorage<Deck> getTinyLeaders() {
-        if (tinyLeaders == null) {
-            tinyLeaders = new StorageImmediatelySerialized<>("Tiny Leaders decks",
-                    new DeckStorage(new File(ForgeConstants.DECK_TINY_LEADERS_DIR), ForgeConstants.DECK_BASE_DIR));
-        }
-        return tinyLeaders;
-    }
-
-    public IStorage<Deck> getBrawl() {
-        if (brawl == null) {
-            brawl = new StorageImmediatelySerialized<>("Brawl decks",
-                    new DeckStorage(new File(ForgeConstants.DECK_BRAWL_DIR), ForgeConstants.DECK_BASE_DIR));
-        }
-        return brawl;
     }
 
     public final IStorage<Deck> getGeneticAIDecks() {

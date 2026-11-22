@@ -21,7 +21,7 @@ import java.util.Map;
  */
 public class DeckPreferences {
     private static String selectedDeckType = "", currentDeck = "", draftDeck = "", sealedDeck = "", commanderDeck = "",
-            oathbreakerDeck = "", tinyLeadersDeck = "", brawlDeck = "", planarDeck = "", schemeDeck = "";
+            planarDeck = "", schemeDeck = "";
     private static Map<String, DeckPreferences> allPrefs = new HashMap<>();
 
     public static DeckType getSelectedDeckType() {
@@ -70,33 +70,6 @@ public class DeckPreferences {
         save();
     }
 
-    public static String getOathbreakerDeck() {
-        return oathbreakerDeck;
-    }
-    public static void setOathbreakerDeck(String oathbreakerDeck0) {
-        if (oathbreakerDeck.equals(oathbreakerDeck0)) { return; }
-        oathbreakerDeck = oathbreakerDeck0;
-        save();
-    }
-
-    public static String getTinyLeadersDeck() {
-        return tinyLeadersDeck;
-    }
-    public static void setTinyLeadersDeck(String tinyLeadersDeck0) {
-        if (tinyLeadersDeck.equals(tinyLeadersDeck0)) { return; }
-        tinyLeadersDeck = tinyLeadersDeck0;
-        save();
-    }
-
-    public static String getBrawlDeck() {
-        return brawlDeck;
-    }
-    public static void setBrawlDeck(String brawlDeck0) {
-        if (brawlDeck.equals(brawlDeck0)) { return; }
-        brawlDeck = brawlDeck0;
-        save();
-    }
-
     public static String getPlanarDeck() {
         return planarDeck;
     }
@@ -134,9 +107,6 @@ public class DeckPreferences {
             draftDeck = root.getAttribute("draftDeck");
             sealedDeck = root.getAttribute("sealedDeck");
             commanderDeck = root.getAttribute("commanderDeck");
-            oathbreakerDeck = root.getAttribute("oathbreakerDeck");
-            brawlDeck = root.getAttribute("brawlDeck");
-            tinyLeadersDeck = root.getAttribute("tinyLeadersDeck");
             planarDeck = root.getAttribute("planarDeck");
             schemeDeck = root.getAttribute("schemeDeck");
 
@@ -167,9 +137,6 @@ public class DeckPreferences {
             root.setAttribute("draftDeck", draftDeck);
             root.setAttribute("sealedDeck", sealedDeck);
             root.setAttribute("commanderDeck", commanderDeck);
-            root.setAttribute("oathbreakerDeck", oathbreakerDeck);
-            root.setAttribute("brawlDeck", brawlDeck);
-            root.setAttribute("tinyLeadersDeck", tinyLeadersDeck);
             root.setAttribute("planarDeck", planarDeck);
             root.setAttribute("schemeDeck", schemeDeck);
             document.appendChild(root);

@@ -1,4 +1,4 @@
-# PROGRESS.md — Pre-rewrite cleanup (Part 5 in progress: 14.2 + 15.4 done)
+# PROGRESS.md — Pre-rewrite cleanup (Part 5 in progress: 14.3 + 15.4 done)
 
 ## Verified baseline facts
 - Branch `dev`, clean tree. Per-item verify: `GATE` = `mvn test -pl forge-gui-desktop -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` (600000 ms). Final gates add `PKG` = `mvn package -DskipTests -T 1C`.
@@ -7,6 +7,11 @@
 - Checkstyle runs at `validate` with root `checkstyle.xml` — fails on unused imports; `mvn test-compile` catches it fast.
 
 ## Recently completed
+- 14.3: Removed O/B/TL storage + config — `CardCollections` (3 fields + `getOathbreaker`/`getTinyLeaders`/`getBrawl`),
+  `ForgeConstants` (`NET_DECKS_{BRAWL,OATHBREAKER,TINYLEADERS}_LIST_FILE`, `DECK_{OATHBREAKER,TINY_LEADERS,BRAWL}_DIR`
+  + `PROFILE_DIRS` entry), `DeckPreferences` (3 fields, 6 accessors, 3 XML load + 3 XML save attrs — old saved attrs
+  silently ignored on load), `ItemManagerConfig.OATHBREAKER_SECTION`, `war_room.txt` ActivationGameTypes → `Commander`,
+  `docs/AI.md` format list. Deleted `res/lists/net-decks-{brawl,oathbreaker,tinyleaders}.txt`. GATE exit 0 (2703 tests).
 - 14.2: Deleted `DeckFormat.Oathbreaker/Brawl/TinyLeaders` entries (incl. TinyLeaders ban set + `adjustCMCLevels`);
   `hasCommander` → `Commander || CommanderDraft`; deleted `hasSignatureSpell`, Oathbreaker conformance block,
   O/B/TL branches in `isLegalCommander`/`isAllowedCommander`/`getPartnerableCommander`/`getIllegalCommanderWarning`,
@@ -42,10 +47,7 @@
 - `AiReportScenarioTest` is flaky under full parallel GATE (APPROX scenarios fail occasionally; green in isolation and on full rerun).
 
 ## Active caveats / follow-ups
-- Next: 14.3 (remainder — see PLAN.md; the DeckgenUtil/matrix/themed-builder/Archidekt pieces were pulled into 14.2).
-- 15.1/15.2 are largely pre-done by 14.1 (see above); when their turn comes, verify the listed spots are already clean,
-  then GATE + commit. 14.3 still owes: `CardCollections`, `ForgeConstants` net-deck list/deck-dir constants, `DeckPreferences`,
-  `ItemManagerConfig.OATHBREAKER_SECTION`, `war_room.txt` tokens, `docs/AI.md`, net-decks txt files.
+- Next: 15.1 (lobby — largely pre-done by 14.1; verify listed spots are already clean, then GATE + commit), then 15.2.
 - 15.4 done in 14.2 (tests were mode-specific — deleted, not reworked).
 - `RegisteredPlayer.forVariants` keeps its now-unused `playerCount` param (single caller: `GameLobby`) — trim in a sweep.
 - `TrackableProperty.CommanderAltType` kept (replay/trackable-enum stability); now always "Commander".
