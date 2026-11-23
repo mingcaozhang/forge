@@ -385,8 +385,6 @@ public final class DeckManager extends ItemManager<DeckProxy> implements IHasGam
         switch(this.gameType) {
             case Commander:
             case Constructed:
-            case Draft:
-            case Sealed:
                 deck.deleteFromStorage();
                 break;
             default:

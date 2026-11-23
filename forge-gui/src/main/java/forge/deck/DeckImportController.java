@@ -378,7 +378,7 @@ public class DeckImportController {
     }
 
     public boolean currentGameFormatAllowsCommander(){
-        return this.allowedSections.contains(DeckSection.Commander) || this.currentGameType == GameType.PlanarConquest;
+        return this.allowedSections.contains(DeckSection.Commander);
     }
 
     public List<Token> optimiseCardArtInTokens(){
@@ -511,8 +511,6 @@ public class DeckImportController {
         //If we're adding to our existing deck, ensure we aren't counting the cards already in it.
         if(this.importBehavior == ImportBehavior.MERGE && this.currentDeckInEditor != null)
             availableInventory.removeAll(this.currentDeckInEditor.getAllCardsInASinglePool(true, true));
-        if(this.currentGameType == GameType.PlanarConquest && currentDeckInEditor != null)
-            availableInventory.removeAllFlat(this.currentDeckInEditor.getCommanders());
         //Step 1: For each token, if it's asking for more copies of a print than we can supply, split the difference out
         //into a token that's indifferent to the edition. Reduce available inventory accordingly.
         for (Token token : this.tokens) {

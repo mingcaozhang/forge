@@ -106,7 +106,7 @@ public enum VCurrentDeck implements IVDoc<CCurrentDeck> {
     private final FComboBox<Object> cbFormat = createFormatCombo();
 
     private static FComboBox<Object> createFormatCombo() {
-        FComboBox<Object> cb = new FComboBox<>(FormatChoices.get(false));
+        FComboBox<Object> cb = new FComboBox<>(FormatChoices.get());
         cb.setFont(FSkin.getRelativeFont(12));
         return cb;
     }

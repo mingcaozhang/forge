@@ -39,7 +39,7 @@ public class CEditorTokenViewer extends ACEditorBase<PaperToken, DeckBase> {
      *
      */
     public CEditorTokenViewer(final CDetailPicture cDetailPicture0) {
-        super(FScreen.TOKEN_VIEWER, cDetailPicture0, GameType.Quest);
+        super(FScreen.TOKEN_VIEWER, cDetailPicture0, GameType.Constructed);
 
         FModel.getMagicDb().getAllTokens().preloadTokens();
         fullCatalogCards = FModel.getMagicDb().getAllTokens().getAllTokens();

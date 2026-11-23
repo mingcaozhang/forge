@@ -6,8 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import forge.game.GameFormat;
 import forge.game.GameType;
@@ -19,10 +17,6 @@ import forge.util.Localizer;
 /** The entries of the Format dropdowns in the lobby and the deck editor. Each entry is a GameType, a GameFormat, a ListHeading or ARCHIVED. */
 public final class FormatChoices {
     public static final List<GameType> COMMANDER_GAME_TYPES = List.of(GameType.Commander);
-    public static final List<GameType> GENERATED_GAME_TYPES = List.of(GameType.MomirBasic, GameType.MoJhoSto);
-    /** Game types that replace Constructed's deck rules. Only one of them can be applied at a time. */
-    public static final List<GameType> FORMAT_GAME_TYPES = Stream.concat(
-            COMMANDER_GAME_TYPES.stream(), GENERATED_GAME_TYPES.stream()).collect(Collectors.toList());
     /** Game types the lobby's Variants list applies on top of the format. Several can be applied at once. */
     public static final List<GameType> VARIANTS = List.of();
 
@@ -39,10 +33,9 @@ public final class FormatChoices {
 
     /**
      * Constructed, the legality formats grouped by type, then the Commander game types, each group under a heading.
-     * With generatedDecks, Momir Basic and MoJhoSto follow under their own heading. ARCHIVED comes last, when archived
-     * formats are turned on.
+     * ARCHIVED comes last, when archived formats are turned on.
      */
-    public static List<Object> get(final boolean generatedDecks) {
+    public static List<Object> get() {
         final Localizer localizer = Localizer.getInstance();
         final List<Object> choices = new ArrayList<>();
         choices.add(GameType.Constructed);
@@ -67,10 +60,6 @@ public final class FormatChoices {
         }
         choices.add(new ListHeading(localizer.getMessage("lblCommander")));
         choices.addAll(COMMANDER_GAME_TYPES);
-        if (generatedDecks) {
-            choices.add(new ListHeading(localizer.getMessage("lblOther")));
-            choices.addAll(GENERATED_GAME_TYPES);
-        }
         if (FModel.getPreferences().getPrefBoolean(FPref.LOAD_ARCHIVED_FORMATS)) {
             choices.add(new ListHeading(localizer.getMessage("lblArchived")));
             choices.add(ARCHIVED);

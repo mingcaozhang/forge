@@ -5,7 +5,6 @@ import forge.ai.simulation.ComboPlan;
 import forge.card.CardStateName;
 import forge.card.CardTypeView;
 import forge.game.Game;
-import forge.game.GameType;
 import forge.game.ability.AbilityUtils;
 import forge.game.card.*;
 import forge.game.cost.Cost;
@@ -19,7 +18,6 @@ import forge.game.spellability.SpellPermanent;
 import forge.game.ability.ApiType;
 import forge.game.zone.ZoneType;
 import forge.util.IterableUtil;
-import forge.util.MyRandom;
 
 import java.util.List;
 import java.util.Map;
@@ -38,23 +36,6 @@ public class PlayAi extends SpellAbilityAi {
         // while the trigger is on stack)
         if (!game.getStack().isEmpty() && !"ReplaySpell".equals(logic)) {
             return new AiAbilityDecision(0, AiPlayDecision.CantPlayAi);
-        }
-
-        if (game.getRules().hasAppliedVariant(GameType.MoJhoSto) && source.getName().equals("Jhoira of the Ghitu Avatar")) {
-            // Additional logic for MoJhoSto:
-            // Do not activate Jhoira too early, usually there are few good targets
-            AiController aic = ((PlayerControllerAi)ai.getController()).getAi();
-            int numLandsForJhoira = aic.getIntProperty(AiProps.MOJHOSTO_NUM_LANDS_TO_ACTIVATE_JHOIRA);
-            int chanceToActivateInst = 100 - aic.getIntProperty(AiProps.MOJHOSTO_CHANCE_TO_USE_JHOIRA_COPY_INSTANT);
-            if (ai.getLandsInPlay().size() < numLandsForJhoira) {
-                return new AiAbilityDecision(0, AiPlayDecision.CantPlayAi);
-            }
-            // Don't spam activate the Instant copying ability all the time to give the AI a chance to use other abilities
-            // Can probably be improved, but as random as MoJhoSto already is, probably not a huge deal for now
-            if ("Instant".equals(sa.getParam("AnySupportedCard")) && MyRandom.percentTrue(chanceToActivateInst)) {
-                return new AiAbilityDecision(0, AiPlayDecision.CantPlayAi);
-            }
-            return new AiAbilityDecision(100, AiPlayDecision.WillPlay);
         }
 
         List<Card> cards = getPlayableCards(sa, ai);

@@ -97,11 +97,9 @@ public class ViewWinLose implements IWinLoseView<FButton> {
         lblTitle.setFont(FSkin.getRelativeBoldFont(30));
 
         final Localizer localizer = Localizer.getInstance();
-        // A puzzle is one fixed game: there is no "next game" and no new match to start, only trying it again.
-        final boolean puzzle = !replay && game0.getGameType() == GameType.Puzzle;
-        btnRestart.setText(puzzle ? localizer.getMessage("lblRestartPuzzle") : localizer.getMessage("btnStartNewMatch"));
+        btnRestart.setText(localizer.getMessage("btnStartNewMatch"));
         btnRestart.setFont(FSkin.getRelativeFont(22));
-        btnQuit.setText(replay ? "Close replay" : puzzle ? localizer.getMessage("lblQuitPuzzle") : localizer.getMessage("btnQuitMatch"));
+        btnQuit.setText(replay ? "Close replay" : localizer.getMessage("btnQuitMatch"));
         btnQuit.setFont(FSkin.getRelativeFont(22));
 
         // Assemble game log scroller.

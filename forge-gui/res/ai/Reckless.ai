@@ -285,14 +285,6 @@ EXPLORE_NUM_LANDS_TO_STILL_NEED_MORE=2
 # and if no preferred land can be found, will play a random one (e.g. "preforder:RB" plays Mountains first, Swamps
 # second, and then everything else randomly if no Mountains or Swamps are present).
 MOMIR_BASIC_LAND_STRATEGY=random
-# MoJhoSto only casual variant properties
-# How many lands the AI needs to have on the battlefield to begin considering activating Jhoira in MoJhoSto
-MOJHOSTO_NUM_LANDS_TO_ACTIVATE_JHOIRA=3
-# The chance that the AI will activate Jhoira instead of activating Momir
-MOJHOSTO_CHANCE_TO_PREFER_JHOIRA_OVER_MOMIR=50
-# The chance that the AI will activate Jhoira's copy random instant ability (per phase, the AI will generally
-# attempt this either in its upkeep or its draw phase or main 1).
-MOJHOSTO_CHANCE_TO_USE_JHOIRA_COPY_INSTANT=20
 
 # Master toggle for the following options setting the default AIPreference:SacCost handling.
 SACRIFICE_DEFAULT_PREF_ENABLE=false

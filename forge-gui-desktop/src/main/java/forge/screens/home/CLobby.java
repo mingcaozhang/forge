@@ -15,11 +15,6 @@ public class CLobby {
         view.setController(this);
     }
 
-    /** Network limited/event lobbies are no longer supported in the single-player build. */
-    public boolean isLimitedMode() {
-        return false;
-    }
-
     public void update() {
         SwingUtilities.invokeLater(() -> {
             // General updates when switching back to this view

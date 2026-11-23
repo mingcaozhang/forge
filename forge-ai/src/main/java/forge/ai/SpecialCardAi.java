@@ -25,7 +25,6 @@ import forge.card.MagicColor;
 import forge.card.mana.ManaCost;
 import forge.game.Game;
 import forge.game.GameEntity;
-import forge.game.GameType;
 import forge.game.ability.AbilityUtils;
 import forge.game.ability.ApiType;
 import forge.game.card.*;
@@ -48,7 +47,6 @@ import forge.game.trigger.Trigger;
 import forge.game.zone.ZoneType;
 import forge.util.Aggregates;
 import forge.util.IterableUtil;
-import forge.util.MyRandom;
 import forge.util.TextUtil;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -1278,18 +1276,6 @@ public class SpecialCardAi {
 
             if (source.getGame().getPhaseHandler().getPhase().isBefore(PhaseType.MAIN1)) {
                 return new AiAbilityDecision(0, AiPlayDecision.AnotherTime);
-            }
-
-            // In MoJhoSto, prefer Jhoira sorcery ability from time to time
-            if (source.getGame().getRules().hasAppliedVariant(GameType.MoJhoSto)
-                    && CardLists.filter(ai.getLandsInPlay(), CardPredicates.UNTAPPED).size() >= 3) {
-                AiController aic = ((PlayerControllerAi) ai.getController()).getAi();
-                int chanceToPrefJhoira = aic.getIntProperty(AiProps.MOJHOSTO_CHANCE_TO_PREFER_JHOIRA_OVER_MOMIR);
-                int numLandsForJhoira = aic.getIntProperty(AiProps.MOJHOSTO_NUM_LANDS_TO_ACTIVATE_JHOIRA);
-
-                if (ai.getLandsInPlay().size() >= numLandsForJhoira && MyRandom.percentTrue(chanceToPrefJhoira)) {
-                    return new AiAbilityDecision(0, AiPlayDecision.AnotherTime);
-                }
             }
 
             // Set PayX here to maximum value.
