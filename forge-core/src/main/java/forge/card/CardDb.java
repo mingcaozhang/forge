@@ -22,7 +22,6 @@ import forge.ImageKeys;
 import forge.StaticData;
 import forge.card.CardEdition.EditionEntry;
 import forge.card.CardEdition.Type;
-import forge.deck.generation.IDeckGenPool;
 import forge.item.IPaperCard;
 import forge.item.PaperCard;
 import forge.util.Lang;
@@ -39,7 +38,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public final class CardDb implements ICardDatabase, IDeckGenPool {
+public final class CardDb implements ICardDatabase {
     public final static String foilSuffix = "+";
     public final static char NameSetSeparator = '|';
     public final static String FlagPrefix = "#";
@@ -1469,7 +1468,6 @@ public final class CardDb implements ICardDatabase, IDeckGenPool {
         return face;
     }
 
-    @Override
     public boolean contains(String name) {
         return allCardsByName.containsKey(getNormalizedName(name));
     }

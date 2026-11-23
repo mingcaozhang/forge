@@ -20,9 +20,6 @@ package forge.deck;
 import com.google.common.collect.Iterables;
 import forge.StaticData;
 import forge.card.*;
-import forge.deck.generation.DeckGenPool;
-import forge.deck.generation.DeckGeneratorBase.FilterCMC;
-import forge.deck.generation.IDeckGenPool;
 import forge.item.IPaperCard;
 import forge.item.PaperCard;
 import forge.item.PaperCardPredicates;
@@ -30,7 +27,6 @@ import forge.util.Aggregates;
 import forge.util.Localizer;
 import forge.util.TextUtil;
 import org.apache.commons.lang3.Range;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -557,32 +553,6 @@ public enum DeckFormat {
             return "must not contain more than 2 Phenomena";
         }
         return null;
-    }
-
-    public IDeckGenPool getCardPool(IDeckGenPool basePool) {
-        if (cardPoolFilter == null) {
-            if (paperCardPoolFilter == null) {
-                return basePool;
-            }
-            DeckGenPool filteredPool = new DeckGenPool();
-            for (PaperCard pc : basePool.getAllCards()) {
-                if (paperCardPoolFilter.test(pc)) {
-                    filteredPool.add(pc);
-                }
-            }
-            return filteredPool;
-        }
-        DeckGenPool filteredPool = new DeckGenPool();
-        for (PaperCard pc : basePool.getAllCards()) {
-            if (cardPoolFilter.test(pc.getRules())) {
-                filteredPool.add(pc);
-            }
-        }
-        return filteredPool;
-    }
-
-    public void adjustCMCLevels(List<ImmutablePair<FilterCMC, Integer>> cmcLevels) {
-        // Not needed by default
     }
 
     public boolean allowCustomCards() {

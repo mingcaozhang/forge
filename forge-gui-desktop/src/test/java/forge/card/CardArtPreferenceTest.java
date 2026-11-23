@@ -22,7 +22,6 @@ import forge.card.CardDb.CardArtPreference;
 import forge.card.CardEdition.BorderColor;
 import forge.card.CardEdition.Type;
 import forge.deck.CardPool;
-import forge.deck.generation.DeckGenPool;
 import forge.gui.download.CdnUuidCache;
 import forge.item.PaperCard;
 import forge.model.FModel;
@@ -477,31 +476,6 @@ public class CardArtPreferenceTest extends CardMockTestCase {
         CardPool pool = new CardPool();
         addDistinctCards(pool, promo, 3);
         assertEquals(pool.getPivotCardEdition(true), promo);
-    }
-
-    @Test
-    public void testGeneratedDeckPoolKeepsThePreferredPrintWhateverTheOrder() {
-        for (CardArtPreference pref : CardArtPreference.values()) {
-            usePreference(pref);
-            for (String name : CARD_NAMES) {
-                List<PaperCard> prints = cardDb.getAllCardsNoAlt(name).stream()
-                        .filter(pc -> edition(pc) != null).collect(Collectors.toList());
-                if (prints.size() < 2) {
-                    continue;
-                }
-                DeckGenPool forward = new DeckGenPool(prints);
-                List<PaperCard> reversed = new ArrayList<>(prints);
-                java.util.Collections.reverse(reversed);
-                DeckGenPool backward = new DeckGenPool(reversed);
-
-                PaperCard a = forward.getCard(name);
-                PaperCard b = backward.getCard(name);
-                assertEquals(a.getEdition() + "#" + a.getCollectorNumber(), b.getEdition() + "#" + b.getCollectorNumber(),
-                        pref + " / " + name + ": the kept print must not depend on the iteration order");
-                CardEdition best = prints.stream().map(this::edition).min(pref).orElseThrow();
-                assertEquals(pref.compare(edition(a), best), 0, pref + " / " + name + " kept " + a.getEdition());
-            }
-        }
     }
 
     // image language download fallback
