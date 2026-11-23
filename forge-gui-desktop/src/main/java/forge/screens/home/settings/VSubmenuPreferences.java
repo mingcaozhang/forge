@@ -64,7 +64,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
     private final FLabel btnPlayerName = new FLabel.Builder().opaque(true).hoverable(true).text("").build();
 
     private final JCheckBox cbRemoveSmall = new OptionsCheckBox(localizer.getMessage("cbRemoveSmall"));
-    private final JCheckBox cbCardBased = new OptionsCheckBox(localizer.getMessage("cbCardBased"));
     private final JCheckBox cbSingletons = new OptionsCheckBox(localizer.getMessage("cbSingletons"));
     private final JCheckBox cbRemoveArtifacts = new OptionsCheckBox(localizer.getMessage("cbRemoveArtifacts"));
     private final JCheckBox cbAnte = new OptionsCheckBox(localizer.getMessage("cbAnte"));
@@ -317,9 +316,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
 
         pnlPrefs.add(cbRemoveArtifacts, titleConstraints);
         pnlPrefs.add(new NoteLabel(localizer.getMessage("nlRemoveArtifacts")), descriptionConstraints);
-
-        pnlPrefs.add(cbCardBased, titleConstraints);
-        pnlPrefs.add(new NoteLabel(localizer.getMessage("nlCardBased")), descriptionConstraints);
 
         // Deck Editor options
         pnlPrefs.add(new SectionLabel(localizer.getMessage("DeckEditorOptions")), sectionConstraints);
@@ -721,11 +717,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
     /** @return {@link javax.swing.JCheckBox} */
     public final JCheckBox getCbRemoveSmall() {
         return cbRemoveSmall;
-    }
-
-    /** @return {@link javax.swing.JCheckBox} */
-    public final JCheckBox getCbCardBased() {
-        return cbCardBased;
     }
 
     /** @return {@link javax.swing.JCheckBox} */

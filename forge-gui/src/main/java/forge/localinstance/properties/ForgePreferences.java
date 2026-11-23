@@ -236,7 +236,6 @@ public class ForgePreferences extends AbstractPreferences<ForgePreferences.FPref
         PRELOAD_CUSTOM_DRAFTS ("false"),
 
         DECK_DEFAULT_CARD_LIMIT ("4"),
-        DECKGEN_CARDBASED ("true"),
         DECKGEN_SINGLETONS ("false"),
         DECKGEN_ARTIFACTS ("false"),
         DECKGEN_NOSMALL ("false"),
