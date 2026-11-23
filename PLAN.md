@@ -153,7 +153,7 @@ Separate UI rendering from game/rules/deck/lobby state behind a clean, testable 
 - [x] 27.3 Design doc `docs/baseline/StateActionContract.md`: schemas, versioning rules, threading model (game thread vs consumers), Swing-baseline vs future Phase-2 backend consumption.
 
 ### Phase 28 — Engine adapter
-- [ ] 28.1 `BaselineEngine` adapter over the direct Match/Game path (FlatMonteCarloCommanderTest recipe): `start(seed, decks, players)`; `feed(BaselineAction)` → emits deterministic Snapshot/Delta (seeded MyRandom, canonical ordering); no UI, no GuiBase.
+- [x] 28.1 `BaselineEngine` adapter over the direct Match/Game path (FlatMonteCarloCommanderTest recipe): `start(seed, decks, players)`; `feed(BaselineAction)` → emits deterministic Snapshot/Delta (seeded MyRandom, canonical ordering); no UI, no GuiBase.
 - [ ] 28.2 Prompt boundary: pending prompts + legal candidates exposed as state; choices accepted as actions; adapter runs non-interactively (PlayerControllerAi / scripted test controller) off the latch-blocking awaitInput path; CMatchUI path untouched.
 
 ### Phase 29 — Transition & invariant tests
