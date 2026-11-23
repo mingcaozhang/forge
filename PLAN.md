@@ -123,7 +123,7 @@ Ordering is dependency-safe: remove the dead code that *references* the enums (P
 
 ### Phase 23 — Resource data (res/)
 - [x] 23.1 Deleted `res/defaults/gauntlet/` (10 files) + `ForgeConstants.GAUNTLET_DIR` + its `PROFILE_DIRS` entry + `ImportSourceAnalyzer` gauntlet branch (dispatch ×2, `analyzeGauntletDataDir`, `OpType.GAUNTLET_DATA`) + `ImportDialog` "Gauntlet data" import widget + `FView` profile-migration lists (resDirs/doNotDeleteDirs/cruft entries). GATE+PKG green.
-- [ ] 23.2 Delete zero-ref list files `res/lists/planes-images.txt` + `res/lists/classicModuleCardtoCrop.txt` + `ForgeConstants` (L52, 54). `GATE`+`PKG` exit 0, commit.
+- [x] 23.2 Deleted zero-ref `res/lists/planes-images.txt` + `res/lists/classicModuleCardtoCrop.txt` + `ForgeConstants.IMAGE_LIST_PLANES_IMAGES_FILE`/`CLASSIC_MODULE_CARD_TO_CROP_FILE` (rg-verified: no other refs). GATE+PKG green.
 - [ ] 23.3 [D/minor] quest/booster image lists (`quest-opponent-icons`, `quest-pet-token-images`, `booster-images`, `boosterbox-images`, `fatpack-images`, `precon-images`, `tournamentpack-images`) + `CACHE_*_PICS_DIR` (L242-247) + `USER_DIRS` (L268-273) + `ImportSourceAnalyzer`/`ImageFetcher` booster branches — only if confirmed removable. `GATE`+`PKG` exit 0, commit.
 
 ### Phase 24 — i18n orphan sweep (all 10 locale files)
