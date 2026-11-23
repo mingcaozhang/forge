@@ -559,20 +559,6 @@ public enum DeckFormat {
         return null;
     }
 
-    public static String getSchemeSectionConformanceProblem(final CardPool schemes) {
-        // Must contain at least 20 schemes, max 2 of each.
-        if (schemes == null || schemes.countAll() < 20) {
-            return "must contain at least 20 schemes";
-        }
-
-        for (Entry<PaperCard, Integer> cp : schemes) {
-            if (cp.getValue() > 2) {
-                return TextUtil.concatWithSpace("must not contain more than 2 copies of any Scheme, but has", String.valueOf(cp.getValue()), "of", TextUtil.enclosedSingleQuote(cp.getKey().getName()));
-            }
-        }
-        return null;
-    }
-
     public IDeckGenPool getCardPool(IDeckGenPool basePool) {
         if (cardPoolFilter == null) {
             if (paperCardPoolFilter == null) {

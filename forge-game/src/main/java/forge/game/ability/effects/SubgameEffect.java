@@ -23,7 +23,6 @@ import forge.game.spellability.SpellAbility;
 import forge.game.zone.PlayerZone;
 import forge.game.zone.ZoneType;
 import forge.item.IPaperCard;
-import forge.item.PaperCard;
 import forge.util.Aggregates;
 import forge.util.Localizer;
 import forge.util.collect.FCollectionView;
@@ -61,14 +60,6 @@ public class SubgameEffect extends SpellAbilityEffect {
 
     private void initVariantsZonesSubgame(final Game subgame, final Player maingamePlayer, final Player player) {
         PlayerZone com = player.getZone(ZoneType.Command);
-        RegisteredPlayer registeredPlayer = player.getRegisteredPlayer();
-
-        // Vanguard
-        if (registeredPlayer.getVanguardAvatars() != null) {
-            for(PaperCard avatar:registeredPlayer.getVanguardAvatars()) {
-                com.add(Card.fromPaperCard(avatar, player));
-            }
-        }
 
         // Commander
         final CardCollectionView commandCards = maingamePlayer.getCardsIn(ZoneType.Command);
@@ -133,7 +124,7 @@ public class SubgameEffect extends SpellAbilityEffect {
             // Contraptions
             setCardsInZone(player, ZoneType.ContraptionDeck, maingamePlayer.getCardsIn(ZoneType.ContraptionDeck), false);
 
-            // Vanguard and Commanders
+            // Commanders
             initVariantsZonesSubgame(subgame, maingamePlayer, player);
 
             player.shuffle(null);

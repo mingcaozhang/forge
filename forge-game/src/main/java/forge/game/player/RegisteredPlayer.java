@@ -3,7 +3,6 @@ package forge.game.player;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import forge.LobbyPlayer;
-import forge.deck.CardPool;
 import forge.deck.Deck;
 import forge.deck.DeckSection;
 import forge.game.GameType;
@@ -27,15 +26,11 @@ public class RegisteredPlayer {
     private int manaShards = 0;
     private Iterable<IPaperCard> extraCardsOnBattlefield = null;
     private Iterable<IPaperCard> extraCardsInCommandZone = null;
-    private Iterable<? extends IPaperCard> schemes = null;
-    private Iterable<PaperCard> planes = null;
     private Iterable<PaperCard> conspiracies = null;
     private Iterable<PaperCard> attractions = null;
     private Iterable<PaperCard> contraptions = null;
     private Iterable<PaperCard> stickerSheets = null;
     private List<PaperCard> commanders = Lists.newArrayList();
-    private List<PaperCard> vanguardAvatars = null;
-    private PaperCard planeswalker = null;
     private Integer id = null;
     private boolean randomFoil = false;
     private boolean enableETBCountersEffect = false;
@@ -112,17 +107,6 @@ public class RegisteredPlayer {
         this.startingHand = startingHand0;
     }
 
-    public Iterable<? extends IPaperCard> getSchemes() {
-        return schemes == null ? EmptyList : schemes;
-    }
-
-    public Iterable<PaperCard> getPlanes() {
-        return planes == null ? EmptyList : planes;
-    }
-    public void setPlanes(Iterable<PaperCard> planes0) {
-        planes = planes0;
-    }
-
     public Iterable<PaperCard> getConspiracies() {
         return conspiracies == null ? EmptyList : conspiracies;
     }
@@ -139,27 +123,13 @@ public class RegisteredPlayer {
         return start;
     }
 
-    public static RegisteredPlayer forVariants(final int playerCount,
-    		final Set<GameType> appliedVariants, final Deck deck,	              //General vars
-    		final Iterable<PaperCard> schemes, final boolean playerIsArchenemy,   //Archenemy specific vars
-    		final CardPool vanguardAvatar) {                                      //Vanguard
+    public static RegisteredPlayer forVariants(final Set<GameType> appliedVariants, final Deck deck) {
     	RegisteredPlayer start = new RegisteredPlayer(deck);
-    	if (appliedVariants.contains(GameType.Archenemy) && playerIsArchenemy) {
-    		start.setStartingLife(40); // 904.5: The Archenemy has 40 life.
-    		start.schemes = schemes;
-    	}
-    	if (appliedVariants.contains(GameType.ArchenemyRumble)) {
-    		start.setStartingLife(40);
-    		start.schemes = schemes;
-    	}
-     	if (appliedVariants.contains(GameType.Commander)) {
+    	if (appliedVariants.contains(GameType.Commander)) {
             start.commanders = deck.getCommanders();
             start.setStartingLife(start.getStartingLife() + 20); // 903.7: ...each player sets his or her life total to 40
 		                                                         // Modified for layering of variants to life +20
     	}
-         if (appliedVariants.contains(GameType.MomirBasic) || appliedVariants.contains(GameType.MoJhoSto)) { //fix the crash, if somehow the avatar is null, get it directly from the deck
-            start.setVanguardAvatars(vanguardAvatar == null ? deck.get(DeckSection.Avatar).toFlatList() : vanguardAvatar.toFlatList());
-        }
     	return start;
     }
 
@@ -176,32 +146,6 @@ public class RegisteredPlayer {
     }
     public void assignCommander() {
     	commanders = currentDeck.getCommanders();
-    }
-
-    public List<PaperCard> getVanguardAvatars() {
-        return vanguardAvatars;
-    }
-    public void assignVanguardAvatar() {
-        CardPool section = currentDeck.get(DeckSection.Avatar);
-        setVanguardAvatars(section == null ? null : section.toFlatList());
-    }
-    private void setVanguardAvatars(List<PaperCard> vanguardAvatars0) {
-        vanguardAvatars = vanguardAvatars0;
-        if (vanguardAvatars == null) { return; }
-        for (PaperCard avatar: vanguardAvatars) {
-            setStartingLife(getStartingLife() + avatar.getRules().getLife());
-            setStartingHand(getStartingHand() + avatar.getRules().getHand());
-        }
-    }
-
-    public PaperCard getPlaneswalker() {
-        return planeswalker;
-    }
-    public void setPlaneswalker(PaperCard planeswalker0) {
-        planeswalker = planeswalker0;
-        if (planeswalker != null) {
-            currentDeck.getMain().remove(planeswalker); //ensure planeswalker removed from main deck
-        }
     }
 
     public Iterable<PaperCard> getAttractions() {

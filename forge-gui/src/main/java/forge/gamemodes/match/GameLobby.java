@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import forge.LobbyPlayer;
 import forge.ai.AIOption;
-import forge.deck.CardPool;
 import forge.deck.Deck;
 import forge.deck.DeckFormat;
 import forge.deck.DeckSection;
@@ -25,7 +24,6 @@ import forge.gui.interfaces.IGuiGame;
 import forge.gui.util.SOptionPane;
 import forge.interfaces.IGameController;
 import forge.interfaces.IUpdateable;
-import forge.item.PaperCard;
 import forge.localinstance.properties.ForgePreferences.FPref;
 import forge.model.FModel;
 import forge.player.GamePlayerUtil;
@@ -494,22 +492,7 @@ public abstract class GameLobby implements IHasGameType {
                     }
                 }
 
-                final CardPool avatarPool = deck.get(DeckSection.Avatar);
-
-                Iterable<PaperCard> schemes = null;
-
-                if (variantTypes.contains(GameType.ArchenemyRumble)) {
-                    final CardPool schemePool = deck.get(DeckSection.Schemes);
-                    if (checkLegality) {
-                        final String errMsg = DeckFormat.getSchemeSectionConformanceProblem(schemePool);
-                        if (null != errMsg) {
-                            legalityProblems.add(legalityProblemEntry(name, errMsg));
-                        }
-                    }
-                    schemes = schemePool == null ? Collections.emptyList() : schemePool.toFlatList();
-                }
-
-                rp = RegisteredPlayer.forVariants(activeSlots.size(), variantTypes, deck, schemes, false, avatarPool);
+                rp = RegisteredPlayer.forVariants(variantTypes, deck);
             }
 
             players.add(rp.setPlayer(lobbyPlayer));
