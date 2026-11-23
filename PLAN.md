@@ -150,7 +150,7 @@ Separate UI rendering from game/rules/deck/lobby state behind a clean, testable 
 ### Phase 27 — State & action contract (forge-baseline)
 - [x] 27.1 Scaffold `forge-baseline` module (root pom + module pom, depends on forge-gui); versioned state contract: `BaselineSnapshot` (full) + `BaselineDelta` envelopes over the existing TrackableProperty/DeltaPacket schema; explicit format `VERSION` constant; UI-agnostic (no forge-gui/Swing imports in the state package).
 - [x] 27.2 Canonical action model: `BaselineAction` (select/ok/cancel, concede, yield, next-game decision) + prompt state (pending prompt + engine-computed legal candidates) as a snapshot field; document mapping to IGameController/ProtocolMethod.
-- [ ] 27.3 Design doc `docs/baseline/StateActionContract.md`: schemas, versioning rules, threading model (game thread vs consumers), Swing-baseline vs future Phase-2 backend consumption.
+- [x] 27.3 Design doc `docs/baseline/StateActionContract.md`: schemas, versioning rules, threading model (game thread vs consumers), Swing-baseline vs future Phase-2 backend consumption.
 
 ### Phase 28 — Engine adapter
 - [ ] 28.1 `BaselineEngine` adapter over the direct Match/Game path (FlatMonteCarloCommanderTest recipe): `start(seed, decks, players)`; `feed(BaselineAction)` → emits deterministic Snapshot/Delta (seeded MyRandom, canonical ordering); no UI, no GuiBase.
