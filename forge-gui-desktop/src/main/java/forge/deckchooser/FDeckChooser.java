@@ -52,31 +52,6 @@ public class FDeckChooser extends JPanel implements IDecksComboBoxListener {
     private final ForgePreferences prefs = FModel.getPreferences();
     private FPref stateSetting = null;
 
-    //Show dialog to select a deck
-    public static Deck promptForDeck(final CDetailPicture cDetailPicture, final String title, final DeckType defaultDeckType, final boolean forAi) {
-        FThreads.assertExecutedByEdt(true);
-        boolean isForCommander = defaultDeckType.equals(DeckType.COMMANDER_DECK);
-        final FDeckChooser chooser = new FDeckChooser(cDetailPicture, forAi, isForCommander? GameType.Commander : GameType.Constructed);
-        chooser.initialize(defaultDeckType);
-        chooser.populate();
-        final Dimension parentSize = JOptionPane.getRootFrame().getSize();
-        chooser.setMinimumSize(new Dimension((int)(parentSize.getWidth() / 2), (int)parentSize.getHeight() - 200));
-        final Localizer localizer = Localizer.getInstance();
-        final FOptionPane optionPane = new FOptionPane(null, title, null, chooser, ImmutableList.of(localizer.getMessage("lblOK"), localizer.getMessage("lblCancel")), 0);
-        optionPane.setDefaultFocus(chooser);
-        chooser.lstDecks.setItemActivateCommand((UiCommand) () -> {
-            //accept selected deck on double click or Enter
-            optionPane.setResult(0);
-        });
-        optionPane.setVisible(true);
-        final int dialogResult = optionPane.getResult();
-        optionPane.dispose();
-        if (dialogResult == 0) {
-            return chooser.getDeck();
-        }
-        return null;
-    }
-
     public FDeckChooser(final CDetailPicture cDetailPicture, final boolean forAi, GameType gameType) {
         lstDecks = new DeckManager(gameType, cDetailPicture);
         setOpaque(false);
@@ -87,9 +62,6 @@ public class FDeckChooser extends JPanel implements IDecksComboBoxListener {
         btnViewDeck.setCommand(cmdViewDeck);
     }
 
-    public void initialize(final DeckType defaultDeckType) {
-        initialize(null, defaultDeckType);
-    }
     public void initialize(final FPref savedStateSetting, final DeckType defaultDeckType) {
         stateSetting = savedStateSetting;
         selectedDeckType = defaultDeckType;
