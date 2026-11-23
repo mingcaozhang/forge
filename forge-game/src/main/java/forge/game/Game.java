@@ -78,8 +78,6 @@ public class Game {
     private final PlayerCollection lostPlayers = new PlayerCollection();
     private GameEntityViewMap<Player, PlayerView> playerCache = new GameEntityViewMap<Player, PlayerView>();
 
-    private List<Card> activePlanes = null;
-
     public final Untap untap;
     public final Phase upkeep;
     public final Phase beginOfCombat;
@@ -1088,13 +1086,6 @@ public class Game {
 
     public GameRules getRules() {
         return rules;
-    }
-
-    public List<Card> getActivePlanes() {
-        return activePlanes;
-    }
-    public void setActivePlanes(List<Card> activePlane0) {
-        activePlanes = activePlane0;
     }
 
     public GameStage getAge() {
