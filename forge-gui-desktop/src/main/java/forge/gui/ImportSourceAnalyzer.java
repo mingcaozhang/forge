@@ -45,7 +45,6 @@ public class ImportSourceAnalyzer {
         POSSIBLE_SET_CARD_PIC,
         TOKEN_PIC,
         QUEST_PIC,
-        GAUNTLET_DATA,
         QUEST_DATA,
         PREFERENCE_FILE,
         DB_FILE
@@ -83,7 +82,6 @@ public class ImportSourceAnalyzer {
         if ("res".equalsIgnoreCase(dirname))               { analyzeOldResDir(root);          }
         else if ("constructed".equalsIgnoreCase(dirname))  { analyzeConstructedDeckDir(root); }
         else if (StringUtils.containsIgnoreCase(dirname, "deck")) { analyzeDecksDir(root);    }
-        else if ("gauntlet".equalsIgnoreCase(dirname))     { analyzeGauntletDataDir(root);    }
         else if ("layouts".equalsIgnoreCase(dirname))      { analyzeLayoutsDir(root);         }
         else if ("pics".equalsIgnoreCase(dirname))         { analyzeCardPicsDir(root);        }
         else if ("pics_product".equalsIgnoreCase(dirname)) { analyzeProductPicsDir(root);     }
@@ -130,8 +128,6 @@ public class ImportSourceAnalyzer {
                 final String dirname = dir.getName();
                 if ("decks".equalsIgnoreCase(dirname)) {
                     analyzeDecksDir(dir);
-                } else if ("gauntlet".equalsIgnoreCase(dirname)) {
-                    analyzeGauntletDataDir(dir);
                 } else if ("layouts".equalsIgnoreCase(dirname)) {
                     analyzeLayoutsDir(dir);
                 } else if ("pics".equalsIgnoreCase(dirname)) {
@@ -203,26 +199,6 @@ public class ImportSourceAnalyzer {
                 // if there's a dir beneath a known directory, assume the same kind of decks are in there
                 analyzeKnownDeckDir(dir, targetDir, opType);
                 return true;
-            }
-        });
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    // gauntlet
-    //
-
-    private void analyzeGauntletDataDir(final File root) {
-        analyzeDir(root, new Analyzer() {
-            @Override
-            void onFile(final File file) {
-                // find *.dat files, but exclude LOCKED_*
-                final String filename = file.getName();
-                if (StringUtils.endsWithIgnoreCase(filename, ".dat") && !filename.startsWith("LOCKED_")) {
-                    final File targetFile = new File(ForgeConstants.GAUNTLET_DIR.userPrefLoc, lcaseExt(filename));
-                    if (!file.equals(targetFile)) {
-                        cb.addOp(OpType.GAUNTLET_DATA, file, targetFile);
-                    }
-                }
             }
         });
     }

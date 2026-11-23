@@ -352,7 +352,6 @@ public class ImportDialog {
             final JPanel dataPanel = new JPanel(new MigLayout("insets 0, gap 5, wrap"));
             dataPanel.setOpaque(false);
             dataPanel.add(new FLabel.Builder().text("Other data").build());
-            _addSelectionWidget(dataPanel, OpType.GAUNTLET_DATA,   "Gauntlet data");
             _addSelectionWidget(dataPanel, OpType.QUEST_DATA,      "Quest saves");
             _addSelectionWidget(dataPanel, OpType.PREFERENCE_FILE, "Preference files");
             cbPanel.add(dataPanel, "aligny top");

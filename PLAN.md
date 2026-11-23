@@ -122,7 +122,7 @@ Ordering is dependency-safe: remove the dead code that *references* the enums (P
 - [x] 22.3 Verification-only: compiler flagged nothing after 22.1/22.2 (GATE green), and a full-enum-name sweep found zero remaining refs. `SEditorIO.saveDeck` switch already minimal (`case Commander` + `default`==Constructed); `ViewWinLose` no-op switch and `DeckManager` switch handled in 22.1. No code change; GATE green (2685).
 
 ### Phase 23 — Resource data (res/)
-- [ ] 23.1 Delete `res/defaults/gauntlet/` (orphaned) + `ForgeConstants.GAUNTLET_DIR` (L230) + its `USER_DIRS` entry (L255) + the `ImportSourceAnalyzer` gauntlet branch. `GATE`+`PKG` exit 0, commit.
+- [x] 23.1 Deleted `res/defaults/gauntlet/` (10 files) + `ForgeConstants.GAUNTLET_DIR` + its `PROFILE_DIRS` entry + `ImportSourceAnalyzer` gauntlet branch (dispatch ×2, `analyzeGauntletDataDir`, `OpType.GAUNTLET_DATA`) + `ImportDialog` "Gauntlet data" import widget + `FView` profile-migration lists (resDirs/doNotDeleteDirs/cruft entries). GATE+PKG green.
 - [ ] 23.2 Delete zero-ref list files `res/lists/planes-images.txt` + `res/lists/classicModuleCardtoCrop.txt` + `ForgeConstants` (L52, 54). `GATE`+`PKG` exit 0, commit.
 - [ ] 23.3 [D/minor] quest/booster image lists (`quest-opponent-icons`, `quest-pet-token-images`, `booster-images`, `boosterbox-images`, `fatpack-images`, `precon-images`, `tournamentpack-images`) + `CACHE_*_PICS_DIR` (L242-247) + `USER_DIRS` (L268-273) + `ImportSourceAnalyzer`/`ImageFetcher` booster branches — only if confirmed removable. `GATE`+`PKG` exit 0, commit.
 
