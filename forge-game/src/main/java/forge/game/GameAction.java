@@ -1558,8 +1558,7 @@ public class GameAction {
                 }
                 checkAgain |= handleLegendRule(p, noRegCreats);
 
-                if ((game.getRules().hasAppliedVariant(GameType.Commander)
-                        || game.getRules().hasAppliedVariant(GameType.Planeswalker)) && !checkAgain) {
+                if (game.getRules().hasAppliedVariant(GameType.Commander) && !checkAgain) {
                     for (final Card c : p.getCardsIn(ZoneType.Graveyard).threadSafeIterable()) {
                         checkAgain |= stateBasedAction_Commander(c, mapParams);
                     }
@@ -2356,9 +2355,7 @@ public class GameAction {
                 }
             }
 
-            if (game.getRules().getGameType() != GameType.Puzzle) {
-                new MulliganService(first).perform();
-            }
+            new MulliganService(first).perform();
             if (game.isGameOver()) { break; } // conceded during "mulligan" prompt
 
             // after the mulligans, which shuffle the hand away and redraw up to the maximum hand size
@@ -2393,20 +2390,6 @@ public class GameAction {
         // Only cut/coin toss if it's the first game of the match
         Player goesFirst = null;
 
-        if (game != null) {
-            if (game.getRules().getGameType().equals(GameType.Puzzle)) {
-                return game.getPlayers().get(0);
-            }
-
-            // 904.6: in Archenemy games the Archenemy goes first
-            if (game.getRules().hasAppliedVariant(GameType.Archenemy)) {
-                for (Player p : game.getPlayers()) {
-                    if (p.isArchenemy()) {
-                        return p;
-                    }
-                }
-            }
-        }
         // Power Play - Each player with a Power Play in the CommandZone becomes the Starting Player
         Set<Player> powerPlayers = Sets.newHashSet();
         for (Card c : game.getCardsIn(ZoneType.Command)) {
