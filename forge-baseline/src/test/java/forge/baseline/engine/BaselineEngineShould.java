@@ -1,22 +1,18 @@
 package forge.baseline.engine;
 
 import forge.baseline.state.BaselineDelta;
+import forge.baseline.state.BaselinePrompt;
 import forge.baseline.state.BaselineSnapshot;
-import forge.card.CardRarity;
-import forge.card.CardRules;
-import forge.deck.Deck;
-import forge.deck.DeckSection;
 import forge.game.GameOutcome;
 import forge.game.card.CardView;
 import forge.game.player.PlayerView;
+import forge.game.spellability.SpellAbilityView;
+import forge.game.spellability.StackItemView;
 import forge.gamemodes.net.DeltaPacket;
-import forge.item.PaperCard;
 import forge.trackable.TrackableCollection;
 import forge.trackable.TrackableObject;
 import forge.trackable.TrackableProperty;
 import forge.trackable.TrackableTypes;
-import forge.util.Lang;
-import forge.util.Localizer;
 import org.testng.annotations.Test;
 
 import java.util.ArrayDeque;
@@ -32,16 +28,15 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Proves the 28.1 adapter contract: a seeded Commander game runs headless over
- * the direct Match/Game path, fed {@code BaselineAction}s drive the scripted
- * player, and the same seed plus the same actions emit an identical stream of
- * baseline envelopes.
+ * Proves the 28.1/28.2 adapter contract: a seeded Commander game runs headless
+ * over the direct Match/Game path, fed {@code BaselineAction}s drive the
+ * scripted player, and the same seed plus the same actions emit an identical
+ * stream of baseline envelopes — including the prompt snapshots the adapter
+ * emits before each pass-priority block (28.2).
  */
 public class BaselineEngineShould {
 
     private static final long SEED = 20261123L;
-    private static final String BEAR_NAME = "Baseline Bear";
-    private static final String ISLAND_NAME = "Baseline Island";
 
     @Test
     public void shouldRunASeededGameHeadlessAndConcedeOnTheFedAction() throws Exception {
@@ -78,16 +73,8 @@ public class BaselineEngineShould {
     }
 
     private static RunResult runOnce(long seed) throws Exception {
-        // The engine reads localized strings and keyword descriptions from these singletons.
-        Localizer.getInstance().initialize("en-US", "../forge-gui/res/languages/");
-        Lang.createInstance("en-US");
-
-        ScriptedLobbyPlayer scriptedLobbyPlayer = new ScriptedLobbyPlayer("Scripted");
-        forge.ai.LobbyPlayerAi aiLobbyPlayer = new forge.ai.LobbyPlayerAi("AI", null);
-
-        BaselineEngine engine = new BaselineEngine(seed,
-                List.of(buildDeck(), buildDeck()),
-                List.of(scriptedLobbyPlayer, aiLobbyPlayer));
+        EngineRig.Result rig = EngineRig.create(seed);
+        BaselineEngine engine = rig.engine();
 
         EnvelopeFingerprinter fingerprinter = new EnvelopeFingerprinter();
         List<String> fingerprints = new ArrayList<>();
@@ -97,18 +84,7 @@ public class BaselineEngineShould {
 
         // The snapshot is emitted at the start of turn 1, before any decision,
         // so the hand read from it is exactly the hand at the first decision.
-        long deadline = System.currentTimeMillis() + 30_000;
-        while (engine.getSnapshot() == null) {
-            if (engine.getFailure() != null || System.currentTimeMillis() > deadline) {
-                break;
-            }
-            Thread.sleep(10);
-        }
-        BaselineSnapshot snapshot = engine.getSnapshot();
-        if (snapshot == null) {
-            Throwable failure = engine.getFailure();
-            throw new AssertionError("initial snapshot was not emitted; game thread failure: " + failure, failure);
-        }
+        BaselineSnapshot snapshot = EngineRig.awaitInitialSnapshot(engine);
 
         PlayerView scriptedView = snapshot.getGameView().getPlayers().get(0);
         CardView firstLand = null;
@@ -125,32 +101,7 @@ public class BaselineEngineShould {
 
         assertThat(engine.awaitCompletion(120, TimeUnit.SECONDS)).as("game finished").isTrue();
 
-        return new RunResult(engine, scriptedLobbyPlayer, aiLobbyPlayer, fingerprints);
-    }
-
-    /** Two 20-card Commander decks: one scripted commander plus nineteen basic islands. */
-    private static Deck buildDeck() {
-        Deck deck = new Deck();
-        deck.getOrCreate(DeckSection.Commander).add(bearCard(), 1);
-        deck.getOrCreate(DeckSection.Main).add(islandCard(), 19);
-        return deck;
-    }
-
-    private static PaperCard bearCard() {
-        return new PaperCard(CardRules.fromScript(List.of(
-                "Name:" + BEAR_NAME,
-                "ManaCost:1",
-                "Types:Creature Bear",
-                "PT:2/2")), "", CardRarity.Common);
-    }
-
-    // Basic lands get their tap-for-mana ability generated from the subtype;
-    // no A: line is needed (the real Island script has none either).
-    private static PaperCard islandCard() {
-        return new PaperCard(CardRules.fromScript(List.of(
-                "Name:" + ISLAND_NAME,
-                "ManaCost:no cost",
-                "Types:Basic Land Island")), "", CardRarity.Common);
+        return new RunResult(engine, rig.scripted(), rig.ai(), fingerprints);
     }
 
     private static final class RunResult {
@@ -183,11 +134,10 @@ public class BaselineEngineShould {
 
         String fingerprint(Object envelope) {
             if (envelope instanceof BaselineSnapshot snap) {
-                if (snap.getPrompt() != null) {
-                    throw new IllegalStateException("28.1 streams carry no prompt");
-                }
                 return "SNAP[v" + snap.getVersion() + ",seq=" + snap.getSequenceNumber()
-                        + "," + canonObject(snap.getGameView()) + "]";
+                        + "," + canonObject(snap.getGameView())
+                        + (snap.getPrompt() == null ? "" : ",P" + canonPrompt(snap.getPrompt()))
+                        + "]";
             }
             if (envelope instanceof BaselineDelta delta) {
                 StringBuilder sb = new StringBuilder("DELTA[seq=").append(delta.getSequenceNumber()).append(';');
@@ -206,6 +156,38 @@ public class BaselineEngineShould {
                 return sb.append(']').toString();
             }
             throw new IllegalArgumentException("unknown envelope: " + envelope);
+        }
+
+        /**
+         * Canonical form of a pending prompt: family, asked player, message,
+         * candidates (wire-typed views rank-normalized, others structural),
+         * counts, and the optional flag.
+         */
+        private String canonPrompt(BaselinePrompt prompt) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(prompt.getKind().name()).append(';');
+            sb.append("pid=R").append(rankOf(DeltaPacket.makeDeltaKey(DeltaPacket.TYPE_PLAYER_VIEW,
+                    prompt.getPlayerId()))).append(';');
+            sb.append("msg=").append(prompt.getMessage() == null ? "Z" : canonScalar(prompt.getMessage()))
+                    .append(';');
+            for (CardView card : prompt.getCardCandidates()) {
+                sb.append('c').append(canonObject(card));
+            }
+            for (SpellAbilityView ability : prompt.getAbilityCandidates()) {
+                sb.append('a').append(canonObject(ability));
+            }
+            for (PlayerView player : prompt.getPlayerCandidates()) {
+                sb.append('p').append(canonObject(player));
+            }
+            for (StackItemView item : prompt.getStackItemCandidates()) {
+                sb.append('s').append(canonObject(item));
+            }
+            sb.append("min=").append(prompt.getMinCount()).append(';');
+            sb.append("max=").append(prompt.getMaxCount()).append(';');
+            if (prompt.isOptional()) {
+                sb.append("opt;");
+            }
+            return sb.toString();
         }
 
         /** Ranks an object by (wire type, id) in first-appearance order across the whole run. */

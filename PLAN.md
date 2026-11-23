@@ -154,7 +154,7 @@ Separate UI rendering from game/rules/deck/lobby state behind a clean, testable 
 
 ### Phase 28 — Engine adapter
 - [x] 28.1 `BaselineEngine` adapter over the direct Match/Game path (FlatMonteCarloCommanderTest recipe): `start(seed, decks, players)`; `feed(BaselineAction)` → emits deterministic Snapshot/Delta (seeded MyRandom, canonical ordering); no UI, no GuiBase.
-- [ ] 28.2 Prompt boundary: pending prompts + legal candidates exposed as state; choices accepted as actions; adapter runs non-interactively (PlayerControllerAi / scripted test controller) off the latch-blocking awaitInput path; CMatchUI path untouched.
+- [x] 28.2 Prompt boundary: pending prompts + legal candidates exposed as state; choices accepted as actions; adapter runs non-interactively (PlayerControllerAi / scripted test controller) off the latch-blocking awaitInput path; CMatchUI path untouched.
 
 ### Phase 29 — Transition & invariant tests
 - [ ] 29.1 Fast deterministic unit tests over BaselineEngine: legal/illegal action handling (illegal → rejected, state unchanged), phase/step progression (mulligan→draw/combat/end), state invariants (zone counts, life, stack, commander in command zone). Seeded MyRandom, no UI.

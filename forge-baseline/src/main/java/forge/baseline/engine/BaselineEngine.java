@@ -6,6 +6,7 @@ import forge.LobbyPlayer;
 import forge.StaticData;
 import forge.baseline.action.BaselineAction;
 import forge.baseline.state.BaselineDelta;
+import forge.baseline.state.BaselinePrompt;
 import forge.baseline.state.BaselineSnapshot;
 import forge.deck.Deck;
 import forge.game.Game;
@@ -59,10 +60,23 @@ import java.util.function.Consumer;
  * ({@code GameEventForwarder}): right before a player-priority block and at the
  * end of a turn.
  *
- * <p>No UI, no {@code GuiBase}: the game is driven directly on the game thread.
- * The scripted player answers with fed actions; every other player is driven by
- * whatever {@code IGameEntitiesFactory} its {@link LobbyPlayer} implements (for
- * example {@code LobbyPlayerAi}).
+ * <p>Prompt boundary (28.2): before the game thread blocks waiting for the next
+ * fed action, the engine emits a {@link BaselineSnapshot} carrying the pending
+ * {@link BaselinePrompt} — the prompt family, the asked player, and the
+ * engine-computed legal candidates ({@link #getPromptSnapshots()}). A consumer
+ * reads the prompt from the stream and answers by feeding the matching
+ * {@link BaselineAction}; actions outside the legal candidates are rejected and
+ * treated as a pass. The consumer's current pending prompt is the prompt of the
+ * most recent snapshot that carried one; deltas carry no prompt, so a following
+ * delta means the game is no longer blocked.
+ *
+ * <p>No UI, no {@code GuiBase}: the game is driven directly on the game thread,
+ * off the latch-blocking {@code awaitInput} path. The scripted player answers
+ * with fed actions; every other player — and every prompt family the scripted
+ * controller does not delegate (targeting, mulligans, colors, numbers, …) — is
+ * driven non-interactively by whatever {@code IGameEntitiesFactory} its
+ * {@link LobbyPlayer} implements (for example {@code LobbyPlayerAi}). The
+ * CMatchUI path is untouched.
  */
 public final class BaselineEngine {
 
@@ -76,6 +90,7 @@ public final class BaselineEngine {
     private final CountDownLatch finished = new CountDownLatch(1);
     private final CopyOnWriteArrayList<Consumer<Object>> sinks = new CopyOnWriteArrayList<>();
     private final List<BaselineDelta> deltas = new ArrayList<>();
+    private final List<BaselineSnapshot> promptSnapshots = new ArrayList<>();
 
     private Game game;
     private Match match;
@@ -218,9 +233,17 @@ public final class BaselineEngine {
         }
     }
 
-    /** Flushes pending deltas right before the scripted player blocks on input. Game thread only. */
-    void flushBeforeBlock() {
+    /**
+     * Emits a {@link BaselineSnapshot} carrying the pending prompt, right before
+     * the scripted player blocks waiting for the next fed action. Flushes any
+     * pending deltas first, so the snapshot's state and sequence number are
+     * current at the decision point. Game thread only.
+     */
+    void emitPromptSnapshot(BaselinePrompt prompt) {
         flushPendingDeltas();
+        BaselineSnapshot snapshot = new BaselineSnapshot(sync.getCurrentSequence(), game.getView(), prompt);
+        promptSnapshots.add(snapshot);
+        emit(snapshot);
     }
 
     /**
@@ -288,6 +311,17 @@ public final class BaselineEngine {
     /** The delta envelopes in emission order. */
     public List<BaselineDelta> getDeltas() {
         return Collections.unmodifiableList(deltas);
+    }
+
+    /**
+     * The snapshots carrying a pending {@link BaselinePrompt}, in emission
+     * order — one per pass-priority decision of the scripted player. Each
+     * snapshot's {@link BaselineSnapshot#getPrompt() prompt} is the decision
+     * the engine blocked on; its {@link BaselineSnapshot#getGameView() state}
+     * is the live view graph at that moment.
+     */
+    public List<BaselineSnapshot> getPromptSnapshots() {
+        return Collections.unmodifiableList(promptSnapshots);
     }
 
     /**

@@ -118,7 +118,14 @@ computes the legal candidates, then parks the game thread on a
   the family is `CHOOSE_COLOR`.
 - Candidates are **engine-computed**: legality is derived on the engine side
   before the controller is asked (audit S4), so a consumer can validate any
-  answer without re-deriving legality.
+  answer without re-deriving legality. "Playable" is the engine's own
+  playability check (`Card.getAllPossibleAbilities(player, true)` — the same
+  set the human flow offers): zone/timing/rules gates only. The mana part of a
+  cost is checked at payment time (`CostPartMana.canPay` is a deliberate
+  stub), so a commander's command-zone cast (granted by the engine's
+  "Commander Effect" static ability) is a candidate even with an empty mana
+  pool; selecting a candidate whose cost cannot be paid simply fails the
+  payment (the cast is not made) and the next prompt is emitted.
 
 Referenced domain types (all Swing-free `forge-game`/`forge-card` models):
 `GameView`, `PlayerView`, `CardView` (+`CardStateView`), `StackItemView`,
@@ -299,6 +306,9 @@ The contract is the parity surface for the ported engine:
 | `BaselinePromptShould` | builder normalization (empty-not-null immutable lists, 0 counts, null colors), snapshot prompt field |
 | `BaselineActionShould` | machine-checked 1:1 mapping to `IGameController` + `ProtocolMethod` (names, declaring classes, arg lists), sealed closure, protocol-surface completeness |
 | `BaselineTransportShould` | codec round-trips (snapshot, snapshot+prompt, delta) through the kept `CompatibleObjectEncoder`/`Decoder` + `EmbeddedChannel`; key-encoding parity vs `DeltaPacket` |
+| `BaselineEngineShould` | 28.1/28.2 adapter: a seeded game runs headless over the direct Match/Game path, fed actions drive the scripted player, and the same seed + same actions emit an identical envelope stream (prompt snapshots included) |
+| `BaselinePromptBoundaryShould` | 28.2 prompt boundary: the pending `SELECT_ABILITY` prompt with its engine-computed legal candidates on the snapshot, a choice applied as an action and visible in the next prompt, an out-of-candidates action rejected as a pass |
+| `EnginePackageIsSwingFreeShould` | the engine package's main sources stay headless (no Swing/GUI/download/screens/latch-input imports) |
 
 Planned (Phases 29–31): transition/invariant tests over `BaselineEngine`
 (29.1), seeded golden-trace replay (30.1), headless full-match tests (30.2),
@@ -311,10 +321,16 @@ round-trip + version-mismatch rejection through the kept codec (31.1).
   recipe `FlatMonteCarloCommanderTest` + `Game.setNoGUIUser()`);
   `feed(BaselineAction)` emits the next snapshot/delta deterministically; no
   UI, no `GuiBase`.
-- **28.2 prompt boundary** — pending prompts + legal candidates are read
-  from the snapshot; choices are accepted as actions; the engine runs
-  non-interactively off the latch-blocking path (audit A4); CMatchUI
-  untouched.
+- **28.2 prompt boundary** — the pass-priority prompt is the adapter's
+  interactive boundary: before the game thread blocks on the next fed action,
+  `BaselineEngine.emitPromptSnapshot` emits a `BaselineSnapshot` carrying a
+  `SELECT_ABILITY` prompt whose candidates are the scripted player's currently
+  playable abilities (`ScriptedPlayerController.collectPlayableAbilities`,
+  canonical zone → card-id → ability-id order) plus their distinct host cards;
+  the fed `BaselineAction` answers it (`SelectAbility`/`SelectCard` play,
+  `Concede` concedes, `Ok`/`Cancel`/anything outside the candidates passes).
+  Every other prompt family is synthesized non-interactively by the inherited
+  `PlayerControllerAi` (audit A4); CMatchUI untouched.
 - **29.1** — legal/illegal action handling, phase/step progression, state
   invariants over the adapter with a seeded `MyRandom`.
 - **30.1/30.2** — golden traces and headless full matches through the
