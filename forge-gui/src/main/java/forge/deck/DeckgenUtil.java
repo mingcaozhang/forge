@@ -2,20 +2,11 @@ package forge.deck;
 
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
-import forge.StaticData;
 import forge.card.CardDb;
-import forge.card.CardRules;
-import forge.card.CardRulesPredicates;
 import forge.card.ColorSet;
 import forge.card.mana.ManaCost;
 import forge.card.mana.ManaCostShard;
 import forge.deck.generation.*;
-import forge.deck.io.Archetype;
-import forge.game.GameFormat;
-import forge.game.GameType;
-import forge.gamemodes.limited.ArchetypeDeckBuilder;
-import forge.gamemodes.limited.CardThemedCommanderDeckBuilder;
-import forge.gamemodes.limited.CardThemedDeckBuilder;
 import forge.gui.util.SOptionPane;
 import forge.item.PaperCard;
 import forge.item.PaperCardPredicates;
@@ -27,7 +18,6 @@ import forge.model.FModel;
 import forge.util.*;
 import forge.util.storage.IStorage;
 import forge.util.storage.StorageBase;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.File;
 import java.util.*;
@@ -45,240 +35,11 @@ import java.util.function.Supplier;
 public class DeckgenUtil {
     private static List<DeckProxy> advPrecons = Lists.newArrayList(), advThemes = Lists.newArrayList(), geneticAI = Lists.newArrayList();
 
-    public static Deck buildCardGenDeck(GameFormat format, boolean isForAI){
-        try {
-            List<String> keys      = new ArrayList<>(CardArchetypeLDAGenerator.ldaPools.get(format.getName()).keySet());
-            String       randomKey = keys.get( MyRandom.getRandom().nextInt(keys.size()) );
-            Predicate<PaperCard> cardFilter = format.getFilterPrinted().and(PaperCardPredicates.name(randomKey));
-            PaperCard keyCard = FModel.getMagicDb().getCommonCards().getAllCards(cardFilter).get(0);
-
-            return buildCardGenDeck(keyCard,format,isForAI);
-        }catch (Exception e){
-            e.printStackTrace();
-            return buildCardGenDeck(format,isForAI);
-        }
-    }
-
-    public static Deck buildCardGenDeck(String cardName, GameFormat format, boolean isForAI){
-        try {
-            Predicate<PaperCard> cardFilter = format.getFilterPrinted().and(PaperCardPredicates.name(cardName));
-            return buildCardGenDeck(FModel.getMagicDb().getCommonCards().getAllCards(cardFilter).get(0),format,isForAI);
-        }catch (Exception e){
-            e.printStackTrace();
-            return buildCardGenDeck(format,isForAI);
-        }
-    }
-
     private static final Supplier<IStorage<PreconDeck>> precons = Suppliers.memoize(
             () -> new StorageBase<>("Preconstructed decks", new PreconDeck.Reader(new File(ForgeConstants.QUEST_PRECON_DIR))))::get;
 
     public static IStorage<PreconDeck> getPrecons() {
         return precons.get();
-    }
-
-    public static Deck buildCardGenDeck(PaperCard card, GameFormat format, boolean isForAI){
-        return buildCardGenDeck(card, null, format, isForAI);
-    }
-
-    /**
-     * Build a deck based on the chosen card.
-     *
-     * @param card
-     * @param format
-     * @param isForAI
-     * @return
-     */
-    public static Deck buildCardGenDeck(PaperCard card, PaperCard secondKeycard, GameFormat format, boolean isForAI){
-        return buildLDACardGenDeck(card, format, isForAI);
-    }
-
-    private static boolean isCrucialCard(PaperCard pc) {
-        //avoid breaking decks, this should be deck/card hints in the future
-        return pc.getName().contains("Urza") || pc.getName().contains("Yawgmoth") || pc.getName().equalsIgnoreCase("Living End");
-    }
-    /**
-     * Build a deck based on the chosen card.
-     *
-     * @param card
-     * @param format
-     * @param isForAI
-     * @return
-     */
-    public static Deck buildLDACardGenDeck(PaperCard card,GameFormat format, boolean isForAI){
-        List<List<Pair<String, Double>>> preSelectedCardLists = CardArchetypeLDAGenerator.ldaPools.get(format.getName()).get(card.getName());
-        List<Pair<String, Double>> preSelectedCardNames = Aggregates.random(preSelectedCardLists);
-        List<PaperCard> selectedCards = new ArrayList<>();
-        for(Pair<String, Double> pair:preSelectedCardNames){
-            String name = pair.getLeft();
-            //remove any cards not valid in format
-            PaperCard cardToAdd = StaticData.instance().getCommonCards().getCardFromEditions(name, format.getFilterPrinted());
-            if (cardToAdd == null)
-                continue;
-            if(!cardToAdd.getName().equals(card.getName())) {
-                selectedCards.add(cardToAdd);
-            }
-        }
-
-        List<PaperCard> toRemove = new ArrayList<>();
-
-        //randomly remove cards
-        int removeCount=0;
-        int i=0;
-        for(PaperCard c:selectedCards){
-            if(MyRandom.getRandom().nextInt(100)>70+(15-(i/selectedCards.size())*selectedCards.size()) && removeCount<4 //randomly remove some cards - more likely as distance increases
-                    &&!isCrucialCard(c)){
-                toRemove.add(c);
-                removeCount++;
-            }
-            if(c.getName().equals(card.getName())){//may have been added in secondary list
-                toRemove.add(c);
-            }
-            ++i;
-        }
-        selectedCards.removeAll(toRemove);
-        //Add keycard
-        List<PaperCard> playsetList = new ArrayList<>();
-        int keyCardCount=4;
-        if(card.getRules().getMainPart().getManaCost().getCMC()>7){
-            keyCardCount=1+MyRandom.getRandom().nextInt(4);
-        }else if(card.getRules().getMainPart().getManaCost().getCMC()>5){
-            keyCardCount=2+MyRandom.getRandom().nextInt(3);
-        }
-        for(int j=0;j<keyCardCount;++j) {
-            playsetList.add(card);
-        }
-        for (PaperCard c:selectedCards){
-            for(int j=0;j<4;++j) {
-                if(MyRandom.getRandom().nextInt(100)<90) {
-                    playsetList.add(c);
-                }
-            }
-        }
-
-        //build deck from combined list
-        CardThemedDeckBuilder dBuilder = new CardThemedDeckBuilder(card, null, playsetList, format, isForAI);
-        Deck deck = dBuilder.buildDeck();
-        if(deck.getMain().countAll()!=60){
-            System.out.println(deck.getMain().countAll());
-            System.out.println("Wrong card count "+deck.getMain().countAll());
-            deck=buildLDACArchetypeDeck(format,isForAI);
-        }
-        if(deck.getMain().countAll(PaperCardPredicates.IS_LAND)>27){
-            System.out.println("Too many lands "+deck.getMain().countAll(PaperCardPredicates.IS_LAND));
-            deck=buildLDACArchetypeDeck(format,isForAI);
-        }
-        // spells of a colour the lands cannot make are dead cards (and a fetch land with nothing to find is a tapped land)
-        DeckManaBase.fix(deck);
-        while(deck.get(DeckSection.Sideboard).countAll()>15){
-            deck.get(DeckSection.Sideboard).remove(deck.get(DeckSection.Sideboard).get(0));
-        }
-        // keep the era / card border of the generated deck coherent, following the Card Art Preference
-        deck.optimiseCardArt(format.getAllowedSetCodes());
-        return deck;
-    }
-
-    public static Deck buildLDACArchetypeDeck(GameFormat format, boolean isForAI){
-        List<Archetype> keys = new ArrayList<>(CardArchetypeLDAGenerator.ldaArchetypes.get(format.getName()));
-        Archetype randomKey = Aggregates.random(keys);
-        return buildLDACArchetypeDeck(randomKey,format,isForAI);
-    }
-
-
-    /**
-     * Build a deck based on the chosen card.
-     *
-     * @param archetype
-     * @param format
-     * @param isForAI
-     * @return
-     */
-    public static Deck buildLDACArchetypeDeck(Archetype archetype, GameFormat format, boolean isForAI){
-        List<Pair<String, Double>> preSelectedCardNames = archetype.getCardProbabilities();
-        PaperCard card = null;
-        for(Pair<String, Double> pair : preSelectedCardNames){
-            card = StaticData.instance().getCommonCards().getUniqueByName(pair.getLeft());
-            // The archetype data can predate a ban, so a key card the format no longer allows is passed over
-            if(card != null &&!card.getRules().getType().isLand() && format.getFilterRules().test(card)){
-                break;
-            }
-        }
-        List<PaperCard> selectedCards = new ArrayList<>();
-        int cardCount=0;
-        for(Pair<String, Double> pair:preSelectedCardNames){
-            String name = pair.getLeft();
-            //remove any cards not valid in format
-            PaperCard cardToAdd = StaticData.instance().getCommonCards().getCardFromEditions(name, format.getFilterPrinted());
-            if(cardToAdd != null && !cardToAdd.getName().equals(card.getName())) {
-                selectedCards.add(cardToAdd);
-                cardCount++;
-            }
-            if(cardCount>120){// no need to have more than this
-                break;
-            }
-        }
-
-        List<PaperCard> toRemove = new ArrayList<>();
-
-        //randomly remove cards
-        int removeCount=0;
-        int i=0;
-        for(PaperCard c:selectedCards){
-            if( i > 4 && MyRandom.getRandom().nextInt(100)>70+(15-(i/selectedCards.size())*selectedCards.size()) && removeCount<4 //randomly remove some cards - more likely as distance increases
-                    &&!isCrucialCard(c)){
-                toRemove.add(c);
-                removeCount++;
-            }
-            if(c.getName().equals(card.getName())){//may have been added in secondary list
-                toRemove.add(c);
-            }
-            ++i;
-        }
-        selectedCards.removeAll(toRemove);
-        //Add keycard
-        List<PaperCard> playsetList = new ArrayList<>();
-        int keyCardCount=4;
-        if(card.getRules().getMainPart().getManaCost().getCMC()>7){
-            keyCardCount=1+MyRandom.getRandom().nextInt(4);
-        }else if(card.getRules().getMainPart().getManaCost().getCMC()>5){
-            keyCardCount=2+MyRandom.getRandom().nextInt(3);
-        }
-        for(int j=0;j<keyCardCount;++j) {
-            playsetList.add(card);
-        }
-        List<String> restrictedCardsAdded = new ArrayList<>();
-        for (PaperCard c:selectedCards){
-            if (format.getRestrictedCards().contains(c.getName())&&!restrictedCardsAdded.contains(c.getName())){
-                playsetList.add(c);
-                restrictedCardsAdded.add(c.getName());
-                continue;
-            }
-            for(int j=0;j<4;++j) {
-                if(MyRandom.getRandom().nextInt(100)<90) {
-                    playsetList.add(c);
-                }
-            }
-        }
-
-        //build deck from combined list
-        ArchetypeDeckBuilder dBuilder = new ArchetypeDeckBuilder(archetype, card, playsetList,format,isForAI);
-        Deck deck = dBuilder.buildDeck();
-        if(deck.getMain().countAll()!=60){
-            System.out.println(deck.getMain().countAll());
-            System.out.println("Wrong card count "+deck.getMain().countAll());
-            deck=buildLDACArchetypeDeck(format,isForAI);
-        }
-        if(deck.getMain().countAll(PaperCardPredicates.IS_LAND)>27){
-            System.out.println("Too many lands "+deck.getMain().countAll(PaperCardPredicates.IS_LAND));
-            deck=buildLDACArchetypeDeck(format,isForAI);
-        }
-        // spells of a colour the lands cannot make are dead cards (and a fetch land with nothing to find is a tapped land)
-        DeckManaBase.fix(deck);
-        while(deck.get(DeckSection.Sideboard).countAll()>15){
-            deck.get(DeckSection.Sideboard).remove(deck.get(DeckSection.Sideboard).get(0));
-        }
-        // keep the era / card border of the generated deck coherent, following the Card Art Preference
-        deck.optimiseCardArt(format.getAllowedSetCodes());
-        return deck;
     }
 
     /**
@@ -448,13 +209,6 @@ public class DeckgenUtil {
         return Aggregates.random(allDecks).getDeck();
     }
 
-    /** @return {@link forge.deck.Deck} */
-    public static Deck getRandomThemeDeck() {
-        final List<DeckProxy> allDecks = DeckProxy.getAllThemeDecks();
-        final int rand = (int) (Math.floor(MyRandom.getRandom().nextDouble() * allDecks.size()));
-        return allDecks.get(rand).getDeck();
-    }
-
     public static void randomSelectColors(final IItemManager<DeckProxy> deckManager) {
         final int size = deckManager.getItemCount();
         if (size == 0) { return; }
@@ -571,125 +325,6 @@ public class DeckgenUtil {
         }
 
         return res;
-    }
-
-    /** Generate a 2-5-color Commander deck. */
-    public static Deck generateCommanderDeck(boolean forAi, GameType gameType) {
-        // Get random multicolor Legendary creature
-        final DeckFormat format = gameType.getDeckFormat();
-        Predicate<CardRules> canPlay = forAi ? DeckGeneratorBase.AI_CAN_PLAY : CardRulesPredicates.IS_KEPT_IN_RANDOM_DECKS;
-
-        PaperCard commander = FModel.getMagicDb().getCommonCards().streamAllCards()
-                .filter(format.isLegalCardPredicate())
-                .filter(format.isLegalCommanderPredicate())
-                .filter(PaperCardPredicates.fromRules(canPlay))
-                .collect(StreamUtil.random()).get();
-        return generateRandomCommanderDeck(commander, format, forAi, false);
-    }
-
-    /** Generate a random Commander deck. */
-    public static Deck generateRandomCommanderDeck(PaperCard commander, DeckFormat format, boolean forAi, boolean isCardGen) {
-        final Deck deck;
-        PaperCard selectedPartner = null;
-        List<PaperCard> preSelectedCards = new ArrayList<>();
-        if(isCardGen){
-            List<Map.Entry<PaperCard, Integer>> potentialCards = new ArrayList<>(CardRelationMatrixGenerator.cardPools.get(format.toString()).get(commander.getName()));
-            prepareWeightedRandomizedCardPool(potentialCards);
-            for(Map.Entry<PaperCard,Integer> pair:potentialCards){
-                if(format.isLegalCard(pair.getKey())) {
-                    preSelectedCards.add(pair.getKey());
-                }
-            }
-
-            if (commander.getRules().canBePartnerCommander()) {
-                selectedPartner = getRandomPartnerCommander(preSelectedCards, commander);
-            }
-            if (selectedPartner != null) {
-                preSelectedCards.removeAll(StaticData.instance().getCommonCards().getAllCards(selectedPartner));
-            }
-
-            //randomly remove cards
-            int removeCount=0;
-            int i=0;
-            List<PaperCard> toRemove = new ArrayList<>();
-            for(PaperCard c:preSelectedCards){
-                if(!format.isLegalCard(c)){
-                    toRemove.add(c);
-                    removeCount++;
-                }
-                if(preSelectedCards.size()<75){
-                    break;
-                }
-                if(MyRandom.getRandom().nextInt(100)>60+(15-(i/preSelectedCards.size())*preSelectedCards.size()) && removeCount<4 //randomly remove some cards - more likely as distance increases
-                        &&!c.getName().contains("Urza")&&!c.getName().contains("Wastes")){ //avoid breaking Tron decks
-                    toRemove.add(c);
-                    removeCount++;
-                }
-                ++i;
-            }
-            preSelectedCards.removeAll(toRemove);
-            preSelectedCards.removeAll(StaticData.instance().getCommonCards().getAllCards(commander));
-        } else {
-            IDeckGenPool cardDb = FModel.getMagicDb().getCommonCards();
-            Iterable<PaperCard> colorList = IterableUtil.filter(format.getCardPool(cardDb).getAllCards(),
-                    format.isLegalCardPredicate().and(PaperCardPredicates.fromRules(
-                            new CardThemedDeckBuilder.MatchColorIdentity(commander.getRules().getColorIdentity())
-                                    .or(DeckGeneratorBase.COLORLESS_CARDS))));
-            //shuffle first 400 random cards
-            List<PaperCard> cardList = Lists.newArrayList(colorList);
-            Collections.shuffle(cardList, MyRandom.getRandom());
-            int shortlistlength = Math.min(400, cardList.size());
-            preSelectedCards = cardList.subList(0, shortlistlength);
-            if (commander.getRules().canBePartnerCommander()) {
-                selectedPartner = getRandomPartnerCommander(preSelectedCards, commander);
-            }
-            if (selectedPartner != null) {
-                preSelectedCards.removeAll(StaticData.instance().getCommonCards().getAllCards(selectedPartner));
-            }
-            preSelectedCards.removeAll(StaticData.instance().getCommonCards().getAllCards(commander));
-        }
-
-        DeckGeneratorBase gen = new CardThemedCommanderDeckBuilder(commander, selectedPartner, preSelectedCards, forAi, format);
-        gen.setSingleton(true);
-        gen.setUseArtifacts(!FModel.getPreferences().getPrefBoolean(FPref.DECKGEN_ARTIFACTS));
-        CardPool cards = gen.getDeck(format.getMainRange().getMaximum(), forAi);
-
-        // After generating card lists, build deck.
-        if(selectedPartner!=null){
-            deck = new Deck("Generated " + format + " deck (" + commander.getName() +
-                    "--" + selectedPartner.getName() + ")");
-        }else{
-            deck = new Deck("Generated " + format + " deck (" + commander.getName() + ")");
-        }
-        deck.setDirectory("generated/commander");
-        deck.getMain().addAll(cards);
-        deck.getOrCreate(DeckSection.Commander).add(commander);
-        if (selectedPartner!=null){
-            deck.get(DeckSection.Commander).add(selectedPartner);
-        }
-
-        deck.optimiseCardArt(null);  // follow the Card Art Preference, coherent era and border
-        return deck;
-    }
-
-    private static void prepareWeightedRandomizedCardPool(final List<Map.Entry<PaperCard, Integer>> potentialCards) {
-        final Map<Map.Entry<PaperCard, Integer>, Double> sortKeys = new IdentityHashMap<>();
-        for (final Map.Entry<PaperCard, Integer> cardEntry : potentialCards) {
-            final int weight = Math.max(1, cardEntry.getValue());
-            sortKeys.put(cardEntry, Math.log(MyRandom.getRandom().nextDouble()) / weight);
-        }
-        potentialCards.sort(Comparator.comparingDouble(sortKeys::get).reversed());
-    }
-
-    private static PaperCard getRandomPartnerCommander(final Iterable<PaperCard> cards, final PaperCard commander) {
-        final List<PaperCard> partners = new ArrayList<>();
-        for (final PaperCard card : cards) {
-            if (!card.getName().equals(commander.getName())
-                    && card.getRules().canBePartnerCommanders(commander.getRules())) {
-                partners.add(card);
-            }
-        }
-        return Aggregates.random(partners);
     }
 
     public static Map<ManaCostShard, Integer> suggestBasicLandCount(Deck d) {

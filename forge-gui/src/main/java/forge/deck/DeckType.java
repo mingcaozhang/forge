@@ -1,6 +1,5 @@
 package forge.deck;
 
-import forge.model.FModel;
 import forge.util.Localizer;
 
 public enum DeckType {
@@ -41,56 +40,26 @@ public enum DeckType {
     public static DeckType[] CommanderOptions;
 
     static {
-        if (FModel.isdeckGenMatrixLoaded()) {
-            ConstructedOptions = new DeckType[]{
-                    DeckType.CUSTOM_DECK,
-                    DeckType.PRECONSTRUCTED_DECK,
-                    DeckType.QUEST_OPPONENT_DECK,
-                    DeckType.COLOR_DECK,
-                    DeckType.STANDARD_COLOR_DECK,
-                    DeckType.MODERN_COLOR_DECK,
-                    DeckType.PAUPER_COLOR_DECK,
-                    DeckType.STANDARD_CARDGEN_DECK,
-                    DeckType.MODERN_CARDGEN_DECK,
-                    DeckType.PAUPER_CARDGEN_DECK,
-                    DeckType.LEGACY_CARDGEN_DECK,
-                    DeckType.VINTAGE_CARDGEN_DECK,
-                    DeckType.PIONEER_CARDGEN_DECK,
-                    DeckType.HISTORIC_CARDGEN_DECK,
-                    DeckType.THEME_DECK,
-                    DeckType.NET_DECK,
-                    DeckType.NET_EVENT_DECK,
-                    DeckType.NET_ARCHIVE_STANDARD_DECK,
-                    DeckType.NET_ARCHIVE_PIONEER_DECK,
-                    DeckType.NET_ARCHIVE_MODERN_DECK,
-                    DeckType.NET_ARCHIVE_PAUPER_DECK,
-                    DeckType.NET_ARCHIVE_LEGACY_DECK,
-                    DeckType.NET_ARCHIVE_VINTAGE_DECK,
-                    DeckType.NET_ARCHIVE_BLOCK_DECK,
-                    DeckType.PROVIDED_DECK_URL
-            };
-        } else {
-            ConstructedOptions = new DeckType[]{
-                    DeckType.CUSTOM_DECK,
-                    DeckType.PRECONSTRUCTED_DECK,
-                    DeckType.QUEST_OPPONENT_DECK,
-                    DeckType.COLOR_DECK,
-                    DeckType.STANDARD_COLOR_DECK,
-                    DeckType.MODERN_COLOR_DECK,
-                    DeckType.PAUPER_COLOR_DECK,
-                    DeckType.THEME_DECK,
-                    DeckType.NET_DECK,
-                    DeckType.NET_EVENT_DECK,
-                    DeckType.NET_ARCHIVE_STANDARD_DECK,
-                    DeckType.NET_ARCHIVE_PIONEER_DECK,
-                    DeckType.NET_ARCHIVE_MODERN_DECK,
-                    DeckType.NET_ARCHIVE_PAUPER_DECK,
-                    DeckType.NET_ARCHIVE_LEGACY_DECK,
-                    DeckType.NET_ARCHIVE_VINTAGE_DECK,
-                    DeckType.NET_ARCHIVE_BLOCK_DECK,
-                    DeckType.PROVIDED_DECK_URL
-            };
-        }
+        ConstructedOptions = new DeckType[]{
+                DeckType.CUSTOM_DECK,
+                DeckType.PRECONSTRUCTED_DECK,
+                DeckType.QUEST_OPPONENT_DECK,
+                DeckType.COLOR_DECK,
+                DeckType.STANDARD_COLOR_DECK,
+                DeckType.MODERN_COLOR_DECK,
+                DeckType.PAUPER_COLOR_DECK,
+                DeckType.THEME_DECK,
+                DeckType.NET_DECK,
+                DeckType.NET_EVENT_DECK,
+                DeckType.NET_ARCHIVE_STANDARD_DECK,
+                DeckType.NET_ARCHIVE_PIONEER_DECK,
+                DeckType.NET_ARCHIVE_MODERN_DECK,
+                DeckType.NET_ARCHIVE_PAUPER_DECK,
+                DeckType.NET_ARCHIVE_LEGACY_DECK,
+                DeckType.NET_ARCHIVE_VINTAGE_DECK,
+                DeckType.NET_ARCHIVE_BLOCK_DECK,
+                DeckType.PROVIDED_DECK_URL
+        };
     }
     static {
         CommanderOptions = new DeckType[]{

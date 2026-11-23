@@ -25,8 +25,6 @@ import forge.ai.AiProfileUtil;
 import forge.ai.simulation.AiCardLists;
 import forge.card.CardRulesPredicates;
 import forge.card.CardType;
-import forge.deck.CardArchetypeLDAGenerator;
-import forge.deck.CardRelationMatrixGenerator;
 import forge.deck.io.DeckPreferences;
 import forge.error.ExceptionHandler;
 import forge.game.GameFormat;
@@ -249,14 +247,6 @@ public final class FModel {
         // decks built for the AI keep the AI:RemoveDeck:All cards that Flat MC plays, while it is on
         forge.card.CardAiHints.setKeptForFlatMc(name -> getPreferences().getPrefBoolean(FPref.MATCH_AI_FLAT_MONTE_CARLO)
                 && AiCardLists.isFlatMcPlayable(name));
-        // Generate Deck Gen matrix
-        if(getPreferences().getPrefBoolean(FPref.DECKGEN_CARDBASED) && !loadCardsLazily) {
-            boolean commanderDeckGenMatrixLoaded=CardRelationMatrixGenerator.initialize();
-            deckGenMatrixLoaded=CardArchetypeLDAGenerator.initialize();
-            if(!commanderDeckGenMatrixLoaded){
-                deckGenMatrixLoaded=false;
-            }
-        }
     }
 
     //mobile lowers this to leave room on the bar for its own startup steps after the card databases are loaded
@@ -267,12 +257,6 @@ public final class FModel {
             progressBar.setMaximum(1000);
             progressBar.setValue(value);
         });
-    }
-
-    private static boolean deckGenMatrixLoaded = false;
-
-    public static boolean isdeckGenMatrixLoaded(){
-        return deckGenMatrixLoaded;
     }
 
     public static ItemPool<PaperCard> getAllCards() {

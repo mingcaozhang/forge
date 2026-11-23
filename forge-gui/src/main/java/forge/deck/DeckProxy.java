@@ -10,7 +10,6 @@ import forge.item.InventoryItem;
 import forge.item.PaperCard;
 import forge.item.PreconDeck;
 import forge.localinstance.properties.ForgeConstants;
-import forge.localinstance.properties.ForgePreferences.FPref;
 import forge.model.FModel;
 import forge.util.BinaryUtil;
 import forge.util.IHasName;
@@ -485,52 +484,6 @@ public class DeckProxy implements InventoryItem {
         if (storage != null) {
             storage.delete(getName());
         }
-    }
-
-    private static class ThemeDeckGenerator extends DeckProxy {
-        private final String name;
-        public ThemeDeckGenerator(final String name0) {
-            super();
-            name = name0;
-        }
-
-        @Override
-        public Deck getDeck() {
-            final DeckGeneratorTheme gen = new DeckGeneratorTheme(FModel.getMagicDb().getCommonCards());
-            gen.setSingleton(FModel.getPreferences().getPrefBoolean(FPref.DECKGEN_SINGLETONS));
-            gen.setUseArtifacts(!FModel.getPreferences().getPrefBoolean(FPref.DECKGEN_ARTIFACTS));
-            final Deck deck = new Deck();
-            final StringBuilder errorBuilder = new StringBuilder();
-            deck.getMain().addAll(gen.getThemeDeck(this.getName(), 60, errorBuilder));
-            deck.optimiseCardArt(null); // follow the Card Art Preference, coherent era and border
-            if (errorBuilder.length() > 0) {
-                throw new RuntimeException(errorBuilder.toString());
-            }
-            return deck;
-        }
-
-        @Override
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public String toString() {
-            return name;
-        }
-
-        @Override
-        public boolean isGeneratedDeck() {
-            return true;
-        }
-    }
-
-    public static List<DeckProxy> getAllThemeDecks() {
-        final List<DeckProxy> decks = new ArrayList<>();
-        for (final String s : DeckGeneratorTheme.getThemeNames()) {
-            decks.add(new ThemeDeckGenerator(s));
-        }
-        return decks;
     }
 
     @SuppressWarnings("unchecked")

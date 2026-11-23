@@ -2,12 +2,10 @@ package forge.deckchooser;
 
 import com.google.common.collect.ImmutableList;
 import forge.deck.*;
-import forge.game.GameFormat;
 import forge.game.GameType;
 import forge.game.player.RegisteredPlayer;
 import forge.gui.FThreads;
 import forge.gui.UiCommand;
-import forge.item.PaperCard;
 import forge.itemmanager.DeckManager;
 import forge.itemmanager.ItemManagerConfig;
 import forge.itemmanager.ItemManagerContainer;
@@ -28,7 +26,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Predicate;
 
 @SuppressWarnings("serial")
 public class FDeckChooser extends JPanel implements IDecksComboBoxListener {
@@ -147,34 +144,6 @@ public class FDeckChooser extends JPanel implements IDecksComboBoxListener {
             updateDecks(DeckProxy.getAllConstructedDecks(), ItemManagerConfig.CONSTRUCTED_DECKS);
             break;
         }
-    }
-
-    private void updateColors(Predicate<PaperCard> formatFilter) {
-        lstDecks.setAllowMultipleSelections(true);
-
-        setDeckPoolWithConfig(ColorDeckGenerator.getColorDecks(lstDecks, formatFilter, isAi), ItemManagerConfig.STRING_ONLY);
-
-        btnRandom.setText(localizer.getMessage("lblRandomColors"));
-        btnRandom.setCommand((UiCommand) () -> DeckgenUtil.randomSelectColors(lstDecks));
-
-        // default selection = basic two color deck
-        lstDecks.setSelectedIndices(new Integer[]{0, 1});
-    }
-
-    private void updateMatrix(GameFormat format) {
-        lstDecks.setAllowMultipleSelections(false);
-
-        setDeckPoolWithConfig(ArchetypeDeckGenerator.getMatrixDecks(format, isAi), ItemManagerConfig.STRING_ONLY);
-
-        btnRandom.setText("Random");
-        btnRandom.setCommand((UiCommand) () -> DeckgenUtil.randomSelect(lstDecks));
-
-        // default selection = basic two color deck
-        lstDecks.setSelectedIndices(new Integer[]{0});
-    }
-
-    private void updateThemes() {
-        updateDecks(DeckProxy.getAllThemeDecks(), ItemManagerConfig.STRING_ONLY);
     }
 
     private void updatePrecons() {
@@ -608,56 +577,6 @@ public class FDeckChooser extends JPanel implements IDecksComboBoxListener {
                 break;
             case COMMANDER_DECK:
                 updateCustom();
-                break;
-            case COLOR_DECK:
-                updateColors(null);
-                break;
-            case STANDARD_COLOR_DECK:
-                updateColors(FModel.getFormats().getStandard().getFilterPrinted());
-                break;
-            case MODERN_COLOR_DECK:
-                updateColors(FModel.getFormats().getModern().getFilterPrinted());
-                break;
-            case PAUPER_COLOR_DECK:
-                updateColors(FModel.getFormats().getPauper().getFilterPrinted());
-                break;
-            case STANDARD_CARDGEN_DECK:
-                if(FModel.isdeckGenMatrixLoaded()) {
-                    updateMatrix(FModel.getFormats().getStandard());
-                }
-                break;
-            case PIONEER_CARDGEN_DECK:
-                if(FModel.isdeckGenMatrixLoaded()) {
-                    updateMatrix(FModel.getFormats().getPioneer());
-                }
-                break;
-            case HISTORIC_CARDGEN_DECK:
-                if(FModel.isdeckGenMatrixLoaded()) {
-                    updateMatrix(FModel.getFormats().getHistoric());
-                }
-                break;
-            case MODERN_CARDGEN_DECK:
-                if(FModel.isdeckGenMatrixLoaded()) {
-                    updateMatrix(FModel.getFormats().getModern());
-                }
-                break;
-            case LEGACY_CARDGEN_DECK:
-                if(FModel.isdeckGenMatrixLoaded()) {
-                    updateMatrix(FModel.getFormats().get("Legacy"));
-                }
-                break;
-            case VINTAGE_CARDGEN_DECK:
-                if(FModel.isdeckGenMatrixLoaded()) {
-                    updateMatrix(FModel.getFormats().get("Vintage"));
-                }
-                break;
-            case PAUPER_CARDGEN_DECK:
-                if(FModel.isdeckGenMatrixLoaded()) {
-                    updateMatrix(FModel.getFormats().getPauper());
-                }
-                break;
-            case THEME_DECK:
-                updateThemes();
                 break;
             case PRECONSTRUCTED_DECK:
                 updatePrecons();
