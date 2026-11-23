@@ -22,8 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import forge.itemmanager.ItemColumnConfig.SortState;
-
 /**
  * A collection of methods pertaining to columns in card catalog and
  * current deck tables, for use in the deck editor.
@@ -52,10 +50,6 @@ public final class SColumnUtil {
     }
 
     private static Map<ColumnDef, ItemColumnConfig> getCardColumns(ColumnDef quantityColDef, boolean includeFavorite) {
-        return getCardColumns(quantityColDef, includeFavorite, false, false, false, false);
-    }
-    private static Map<ColumnDef, ItemColumnConfig> getCardColumns(ColumnDef quantityColDef, boolean includeFavorite,
-            boolean includeOwned, boolean includePrice, boolean includeNew, boolean includeDecks) {
         List<ColumnDef> colDefs = new ArrayList<>();
         if (includeFavorite) {
             colDefs.add(ColumnDef.FAVORITE);
@@ -63,19 +57,7 @@ public final class SColumnUtil {
         if (quantityColDef != null) {
             colDefs.add(quantityColDef);
         }
-        if (includeOwned) {
-            colDefs.add(ColumnDef.OWNED);
-        }
         colDefs.add(ColumnDef.NAME);
-        if (includePrice) {
-            colDefs.add(ColumnDef.PRICE);
-        }
-        if (includeNew) {
-            colDefs.add(ColumnDef.NEW);
-        }
-        if (includeDecks) {
-            colDefs.add(ColumnDef.DECKS);
-        }
         colDefs.add(ColumnDef.COST);
         colDefs.add(ColumnDef.COLOR);
         colDefs.add(ColumnDef.TYPE);
@@ -121,16 +103,6 @@ public final class SColumnUtil {
         return columns;
     }
 
-    public static Map<ColumnDef, ItemColumnConfig> getDraftPackDefaultColumns() {
-        Map<ColumnDef, ItemColumnConfig> columns = getCardColumns(ColumnDef.QUANTITY, false);
-        columns.get(ColumnDef.RARITY).setSortPriority(1); //sort rares to top
-        columns.get(ColumnDef.RARITY).setSortState(SortState.DESC);
-        columns.get(ColumnDef.COLOR).setSortPriority(2);
-        columns.get(ColumnDef.NAME).setSortPriority(3);
-        columns.get(ColumnDef.RANKING).setVisible(true);
-        return columns;
-    }
-
     public static Map<ColumnDef, ItemColumnConfig> getSpecialCardPoolDefaultColumns() {
         List<ColumnDef> colDefs = new ArrayList<>();
         colDefs.add(ColumnDef.FAVORITE);
@@ -159,91 +131,6 @@ public final class SColumnUtil {
         columns.get(ColumnDef.FAVORITE).setSortPriority(1);
         columns.get(ColumnDef.NAME).setSortPriority(2);
         columns.get(ColumnDef.COLLECTOR_ORDER).setSortPriority(3);
-        return columns;
-    }
-
-    public static Map<ColumnDef, ItemColumnConfig> getSpellShopDefaultColumns() {
-        Map<ColumnDef, ItemColumnConfig> columns = getCardColumns(ColumnDef.QUANTITY, false, true, true, false, false);
-        columns.get(ColumnDef.OWNED).setSortPriority(1);
-        columns.get(ColumnDef.PRICE).setSortPriority(2);
-        columns.get(ColumnDef.NAME).setSortPriority(3);
-        return columns;
-    }
-
-    public static Map<ColumnDef, ItemColumnConfig> getQuestInventoryDefaultColumns() {
-        Map<ColumnDef, ItemColumnConfig> columns = getCardColumns(ColumnDef.QUANTITY, false, false, true, true, true);
-        columns.get(ColumnDef.NEW).setSortPriority(1);
-        columns.get(ColumnDef.PRICE).setSortPriority(2);
-        columns.get(ColumnDef.NAME).setSortPriority(3);
-        return columns;
-    }
-
-    public static Map<ColumnDef, ItemColumnConfig> getQuestEditorPoolDefaultColumns() {
-        Map<ColumnDef, ItemColumnConfig> columns = getCardColumns(ColumnDef.QUANTITY, false, false, false, true, false);
-        columns.get(ColumnDef.NEW).setSortPriority(1);
-        columns.get(ColumnDef.NAME).setSortPriority(2);
-        return columns;
-    }
-
-    public static Map<ColumnDef, ItemColumnConfig> getQuestDeckEditorDefaultColumns() {
-        Map<ColumnDef, ItemColumnConfig> columns = getCardColumns(ColumnDef.DECK_QUANTITY, false, false, false, true, true);
-        columns.get(ColumnDef.CMC).setSortPriority(1);
-        columns.get(ColumnDef.TYPE).setSortPriority(2);
-        columns.get(ColumnDef.NAME).setSortPriority(3);
-        return columns;
-    }
-
-    public static Map<ColumnDef, ItemColumnConfig> getConquestAEtherDefaultColumns() {
-        Map<ColumnDef, ItemColumnConfig> columns = getCardColumns(null, false, false, false, false, false);
-        columns.get(ColumnDef.NAME).setSortPriority(1);
-        columns.get(ColumnDef.COLOR).setSortPriority(2);
-        return columns;
-    }
-
-    public static Map<ColumnDef, ItemColumnConfig> getConquestCollectionDefaultColumns() {
-        Map<ColumnDef, ItemColumnConfig> columns = getCardColumns(null, false, false, false, true, false);
-        columns.get(ColumnDef.NEW).setSortPriority(1);
-        columns.get(ColumnDef.NAME).setSortPriority(2);
-        return columns;
-    }
-
-    public static Map<ColumnDef, ItemColumnConfig> getConquestDeckEditorDefaultColumns() {
-        Map<ColumnDef, ItemColumnConfig> columns = getCardColumns(ColumnDef.DECK_QUANTITY, false, false, false, true, false);
-        columns.get(ColumnDef.CMC).setSortPriority(1);
-        columns.get(ColumnDef.TYPE).setSortPriority(2);
-        columns.get(ColumnDef.NAME).setSortPriority(3);
-        return columns;
-    }
-
-    public static Map<ColumnDef, ItemColumnConfig> getConquestCommandersDefaultColumns() {
-        List<ColumnDef> colDefs = new ArrayList<>();
-        colDefs.add(ColumnDef.NAME);
-        colDefs.add(ColumnDef.COLOR);
-
-        Map<ColumnDef, ItemColumnConfig> columns = getColumns(colDefs);
-        columns.get(ColumnDef.NAME).setSortPriority(1);
-        columns.get(ColumnDef.COLOR).setSortPriority(2);
-        return columns;
-    }
-
-    public static Map<ColumnDef, ItemColumnConfig> getNetworkEventDeckColumns(boolean allowEdit) {
-        List<ColumnDef> colDefs = new ArrayList<>();
-        colDefs.add(ColumnDef.DECK_FAVORITE);
-        if (allowEdit) {
-            colDefs.add(ColumnDef.DECK_ACTIONS);
-        }
-        colDefs.add(ColumnDef.NAME);
-        colDefs.add(ColumnDef.DECK_COLOR);
-        colDefs.add(ColumnDef.DECK_EVENT_TYPE);
-        colDefs.add(ColumnDef.DECK_EVENT_PRODUCT);
-        colDefs.add(ColumnDef.DECK_EVENT_DATE);
-        colDefs.add(ColumnDef.DECK_MAIN);
-        colDefs.add(ColumnDef.DECK_SIDE);
-
-        Map<ColumnDef, ItemColumnConfig> columns = getColumns(colDefs);
-        columns.get(ColumnDef.DECK_EVENT_DATE).setSortPriority(1);
-        columns.get(ColumnDef.DECK_FAVORITE).setSortPriority(2);
-        columns.get(ColumnDef.NAME).setSortPriority(3);
         return columns;
     }
 

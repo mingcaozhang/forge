@@ -204,26 +204,6 @@ public enum ColumnDef {
     DECK_QUANTITY("lblQuantity", "lblQuantity", 50, true, SortState.ASC,
             Entry::getValue, Entry::getValue),
     /**
-     * The new inventory flag column.
-     */
-    NEW("lblNew", "lblNew", 30, true, SortState.DESC,
-            null, null), //functions will be set later
-    /**
-     * The price column.
-     */
-    PRICE("lblPrice", "ttPrice", 35, true, SortState.DESC,
-            null, null),
-    /**
-     * The quantity owned column.
-     */
-    OWNED("lblOwned", "lblOwned", 20, true, SortState.ASC,
-            null, null),
-    /**
-     * The deck name column.
-     */
-    DECKS("lblDecks", "lblDecks", 20, true, SortState.ASC,
-            null, null),
-    /**
      * The favorite flag column.
      */
     FAVORITE("", "ttFavorite", 18, true, SortState.DESC,
@@ -306,15 +286,6 @@ public enum ColumnDef {
                     return deckEdition.getCode();
                 return null;
             }),
-    DECK_EVENT_TYPE("lblEventType", "lblEventType", 50, false, SortState.ASC,
-            from -> eventFormatDisplay(eventTag(from.getKey(), "eventFormat")),
-            from -> eventFormatDisplay(eventTag(from.getKey(), "eventFormat"))),
-    DECK_EVENT_PRODUCT("lblProduct", "lblProduct", 80, false, SortState.ASC,
-            from -> eventTag(from.getKey(), "eventProduct"),
-            from -> eventTag(from.getKey(), "eventProduct")),
-    DECK_EVENT_DATE("lblEventDate", "lblEventDate", 60, false, SortState.DESC,
-            from -> eventTag(from.getKey(), "eventDate"),
-            from -> eventTag(from.getKey(), "eventDate")),
     DECK_AI("lblAI", "lblAIStatus", 38, true, SortState.DESC,
             from -> toDeck(from.getKey()).getAI().inMainDeck,
             from -> toDeck(from.getKey()).getAI()),
@@ -438,17 +409,6 @@ public enum ColumnDef {
 
     private static DeckProxy toDeck(final InventoryItem i) {
         return i instanceof DeckProxy ? ((DeckProxy) i) : null;
-    }
-
-    private static String eventTag(final InventoryItem i, final String key) {
-        DeckProxy d = toDeck(i);
-        if (d == null) return "";
-        String v = DeckProxy.getEventTag(d.getDeck(), key);
-        return v != null ? v : "";
-    }
-
-    private static String eventFormatDisplay(final String rawFormat) {
-        return rawFormat == null ? "" : rawFormat;
     }
 
     private static ColorSet toDeckColor(final InventoryItem i) {
