@@ -363,7 +363,6 @@ public class ImportDialog {
             _addSelectionWidget(cachePanel, OpType.DEFAULT_CARD_PIC, "Default card pics");
             _addSelectionWidget(cachePanel, OpType.SET_CARD_PIC,     "Set-specific card pics");
             _addSelectionWidget(cachePanel, OpType.TOKEN_PIC,        "Card token pics");
-            _addSelectionWidget(cachePanel, OpType.QUEST_PIC,        "Quest-related pics");
             _addSelectionWidget(cachePanel, OpType.DB_FILE,          "Database files", true, null, "wrap");
 
             _addSelectionWidget(cachePanel, OpType.POSSIBLE_SET_CARD_PIC,

@@ -16,7 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.regex.Pattern;
 
 public abstract class ImageFetcher {
     // see https://scryfall.com/docs/api/languages and
@@ -99,11 +98,6 @@ public abstract class ImageFetcher {
         return true;
     }
 
-    public static String getPlanechaseFilename(final String cardName) {
-        return cardName.replace(" ", "_").replace("'", "")
-                .replace("-", "").replace("!", "").replace(":", "") + ".jpg";
-    }
-
     public void fetchImage(final String imageKey, final Callback callback) {
         FThreads.assertExecutedByEdt(true);
 
@@ -116,69 +110,10 @@ public abstract class ImageFetcher {
         // Fake card (like the ante prompt) trying to be "fetched"
         if (imageKey.length() < 2)
             return;
-        if (imageKey.startsWith(ImageKeys.BOOSTER_PREFIX)) {
-            final ArrayList<String> downloadUrls = new ArrayList<>();
-            final String filename = imageKey.substring(ImageKeys.BOOSTER_PREFIX.length());
-            // Look up the download URL from booster-images.txt
-            final List<String> boosterFileContent = FileUtil.readFile(ForgeConstants.IMAGE_LIST_QUEST_BOOSTERS_FILE);
-
-            // Only build the "name + any extension" matcher when the key has no extension, and only once.
-            final boolean filenameHasNoExtension = filename.lastIndexOf('.') == -1;
-            final Pattern withExtension = filenameHasNoExtension
-                    ? Pattern.compile(".*" + Pattern.quote(filename) + "\\.[^.]+$") : null;
-
-            for (String line : boosterFileContent) {
-                boolean exactMatch = line.endsWith(filename);
-
-                if (exactMatch || (withExtension != null && withExtension.matcher(line).matches())) {
-                    if (line.startsWith("http")) {
-                        downloadUrls.add(line);
-                    } else {
-                        downloadUrls.add(ForgeConstants.GITHUB_ASSETS_BASE + "images/boosters/" + line);
-                    }
-                    break;
-                }
-            }
-
-            if (downloadUrls.isEmpty()) {
-                System.err.println("No booster image URL found for: " + filename);
-                return;
-            }
-
-            FileUtil.ensureDirectoryExists(ForgeConstants.CACHE_BOOSTER_PICS_DIR);
-            File destFile = new File(ForgeConstants.CACHE_BOOSTER_PICS_DIR, filename);
-            System.out.println("Destination File " + destFile.getAbsolutePath() + " exists: " + destFile.exists());
-            if (destFile.exists())
-                return;
-            setupObserver(destFile.getAbsolutePath(), callback, downloadUrls);
-            return;
-        }
         if (imageKey.equalsIgnoreCase("t:null"))
             return;
 
-        // PlanechaseBG file...
         final ArrayList<String> downloadUrls = new ArrayList<>();
-        if (imageKey.startsWith("PLANECHASEBG:")) {
-            final String cardName = imageKey.substring("PLANECHASEBG:".length());
-            PaperCard pc = StaticData.instance().getVariantCards().getCard(cardName);
-            if (pc != null) {
-                CardEdition ed = StaticData.instance().getEditions().get(pc.getEdition());
-                if (ed != null) {
-                    String setCode = ed.getScryfallCode();
-                    String preferredLang = FModel.getPreferences().getPref(ForgePreferences.FPref.UI_CARD_DOWNLOAD_LANG);
-                    String langCode = CdnUuidCache.resolvePreferredLangCode(preferredLang, setCode, pc.getCollectorNumber(), ed.getCardsLangCode());
-                    downloadUrls.add("PLANECHASEBG:" + ForgeConstants.URL_PIC_SCRYFALL_DOWNLOAD + ImageUtil.getScryfallDownloadUrl(pc, "", setCode, langCode, true));
-                    FileUtil.ensureDirectoryExists(ForgeConstants.CACHE_PLANECHASE_PICS_DIR);
-                    File destFile = new File(ForgeConstants.CACHE_PLANECHASE_PICS_DIR, getPlanechaseFilename(cardName));
-                    if (destFile.exists())
-                        return;
-
-                    setupObserver(destFile.getAbsolutePath(), callback, downloadUrls);
-                    return;
-                }
-            }
-            return;
-        }
 
         boolean useArtCrop = "Crop".equals(FModel.getPreferences().getPref(ForgePreferences.FPref.UI_CARD_ART_FORMAT));
         final String prefix = imageKey.substring(0, 2);

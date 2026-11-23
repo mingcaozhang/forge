@@ -18,7 +18,6 @@
 package forge.gui;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
@@ -44,7 +43,6 @@ public class ImportSourceAnalyzer {
         SET_CARD_PIC,
         POSSIBLE_SET_CARD_PIC,
         TOKEN_PIC,
-        QUEST_PIC,
         QUEST_DATA,
         PREFERENCE_FILE,
         DB_FILE
@@ -84,7 +82,6 @@ public class ImportSourceAnalyzer {
         else if (StringUtils.containsIgnoreCase(dirname, "deck")) { analyzeDecksDir(root);    }
         else if ("layouts".equalsIgnoreCase(dirname))      { analyzeLayoutsDir(root);         }
         else if ("pics".equalsIgnoreCase(dirname))         { analyzeCardPicsDir(root);        }
-        else if ("pics_product".equalsIgnoreCase(dirname)) { analyzeProductPicsDir(root);     }
         else if ("preferences".equalsIgnoreCase(dirname))  { analyzePreferencesDir(root);     }
         else if ("quest".equalsIgnoreCase(dirname))        { analyzeQuestDir(root);           }
         else if (null != FModel.getMagicDb().getEditions().get(dirname)) { analyzeCardPicsSetDir(root); }
@@ -132,8 +129,6 @@ public class ImportSourceAnalyzer {
                     analyzeLayoutsDir(dir);
                 } else if ("pics".equalsIgnoreCase(dirname)) {
                     analyzeCardPicsDir(dir);
-                } else if ("pics_product".equalsIgnoreCase(dirname)) {
-                    analyzeProductPicsDir(dir);
                 } else if ("preferences".equalsIgnoreCase(dirname)) {
                     analyzePreferencesDir(dir);
                 } else if ("quest".equalsIgnoreCase(dirname)) {
@@ -284,9 +279,7 @@ public class ImportSourceAnalyzer {
 
             @Override
             boolean onDir(final File dir) {
-                if ("icons".equalsIgnoreCase(dir.getName())) {
-                    analyzeIconsPicsDir(dir);
-                } else if ("tokens".equalsIgnoreCase(dir.getName())) {
+                if ("tokens".equalsIgnoreCase(dir.getName())) {
                     analyzeTokenPicsDir(dir);
                 } else {
                     analyzeCardPicsSetDir(dir);
@@ -376,48 +369,18 @@ public class ImportSourceAnalyzer {
     // other image dirs
     //
 
-    Map<String, String> iconFileNames;
-    private void analyzeIconsPicsDir(final File root) {
-        if (null == iconFileNames) {
-            iconFileNames = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-            for (final Pair<String, String> nameurl : FileUtil.readNameUrlFile(ForgeConstants.IMAGE_LIST_QUEST_OPPONENT_ICONS_FILE)) {
-                iconFileNames.put(nameurl.getLeft(), nameurl.getLeft());
-            }
-        }
-
-        analyzeListedDir(root, ForgeConstants.CACHE_ICON_PICS_DIR, new ListedAnalyzer() {
-            @Override
-            public String map(final String filename) {
-                return iconFileNames.getOrDefault(filename, null);
-            }
-
-            @Override
-            public OpType getOpType(final String filename) {
-                return OpType.QUEST_PIC;
-            }
-        });
-    }
-
     Map<String, String> tokenFileNames;
-    Map<String, String> questTokenFileNames;
     private void analyzeTokenPicsDir(final File root) {
         if (null == tokenFileNames) {
             tokenFileNames = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-            questTokenFileNames = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
             for (final Pair<String, String> nameurl : FileUtil.readNameUrlFile(ForgeConstants.IMAGE_LIST_TOKENS_FILE)) {
                 tokenFileNames.put(nameurl.getLeft(), nameurl.getLeft());
-            }
-            for (final Pair<String, String> nameurl : FileUtil.readNameUrlFile(ForgeConstants.IMAGE_LIST_QUEST_TOKENS_FILE)) {
-                questTokenFileNames.put(nameurl.getLeft(), nameurl.getLeft());
             }
         }
 
         analyzeListedDir(root, ForgeConstants.CACHE_TOKEN_PICS_DIR, new ListedAnalyzer() {
             @Override
             public String map(final String filename) {
-                if (questTokenFileNames.containsKey(filename)) {
-                    return questTokenFileNames.get(filename);
-                }
                 if (tokenFileNames.containsKey(filename)) {
                     return tokenFileNames.get(filename);
                 }
@@ -426,31 +389,7 @@ public class ImportSourceAnalyzer {
 
             @Override
             public OpType getOpType(final String filename) {
-                return questTokenFileNames.containsKey(filename) ? OpType.QUEST_PIC : OpType.TOKEN_PIC;
-            }
-        });
-    }
-
-    private void analyzeProductPicsDir(final File root) {
-        // we don't care about the files in the root dir -- the new booster files are .png, not the current .jpg ones
-        analyzeDir(root, new Analyzer() {
-            @Override
-            boolean onDir(final File dir) {
-                final String dirName = dir.getName();
-                if ("booster".equalsIgnoreCase(dirName)) {
-                    analyzeSimpleListedDir(dir, ForgeConstants.IMAGE_LIST_QUEST_BOOSTERS_FILE, ForgeConstants.CACHE_BOOSTER_PICS_DIR, OpType.QUEST_PIC);
-                } else if ("fatpacks".equalsIgnoreCase(dirName)) {
-                    analyzeSimpleListedDir(dir, ForgeConstants.IMAGE_LIST_QUEST_FATPACKS_FILE, ForgeConstants.CACHE_FATPACK_PICS_DIR, OpType.QUEST_PIC);
-                } else if ("boosterboxes".equalsIgnoreCase(dirName)) {
-                    analyzeSimpleListedDir(dir, ForgeConstants.IMAGE_LIST_QUEST_BOOSTERBOXES_FILE, ForgeConstants.CACHE_BOOSTERBOX_PICS_DIR, OpType.QUEST_PIC);
-                } else if ("precons".equalsIgnoreCase(dirName)) {
-                    analyzeSimpleListedDir(dir, ForgeConstants.IMAGE_LIST_QUEST_PRECONS_FILE, ForgeConstants.CACHE_PRECON_PICS_DIR, OpType.QUEST_PIC);
-                } else if ("tournamentpacks".equalsIgnoreCase(dirName)) {
-                    analyzeSimpleListedDir(dir, ForgeConstants.IMAGE_LIST_QUEST_TOURNAMENTPACKS_FILE, ForgeConstants.CACHE_TOURNAMENTPACK_PICS_DIR, OpType.QUEST_PIC);
-                } else {
-                    return false;
-                }
-                return true;
+                return OpType.TOKEN_PIC;
             }
         });
     }
@@ -545,30 +484,6 @@ public class ImportSourceAnalyzer {
         }
     }
 
-    private final Map<String, Map<String, String>> fileNameDb = new HashMap<>();
-    private void analyzeSimpleListedDir(final File root, final String listFile, final String targetDir, final OpType opType) {
-        if (!fileNameDb.containsKey(listFile)) {
-            final Map<String, String> fileNames = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-            for (final Pair<String, String> nameurl : FileUtil.readNameUrlFile(listFile)) {
-                // we use a map instead of a set since we need to match case-insensitively but still map to the correct case
-                fileNames.put(nameurl.getLeft(), nameurl.getLeft());
-            }
-            fileNameDb.put(listFile, fileNames);
-        }
-
-        final Map<String, String> fileDb = fileNameDb.get(listFile);
-        analyzeListedDir(root, targetDir, new ListedAnalyzer() {
-            @Override
-            public String map(final String filename) {
-                return fileDb.getOrDefault(filename, null);
-            }
-
-            @Override
-            public OpType getOpType(final String filename) {
-                return opType;
-            }
-        });
-    }
 
     private abstract class ListedAnalyzer {
         abstract String map(String filename);

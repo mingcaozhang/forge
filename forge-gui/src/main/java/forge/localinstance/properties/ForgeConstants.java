@@ -42,13 +42,6 @@ public final class ForgeConstants {
     public static final String KEYWORD_LIST_FILE                     = LISTS_DIR + "NonStackingKWList.txt";
     public static final String TYPE_LIST_FILE                        = LISTS_DIR + "TypeLists.txt";
     public static final String IMAGE_LIST_TOKENS_FILE                = LISTS_DIR + "token-images.txt";
-    public static final String IMAGE_LIST_QUEST_OPPONENT_ICONS_FILE  = LISTS_DIR + "quest-opponent-icons.txt";
-    public static final String IMAGE_LIST_QUEST_TOKENS_FILE          = LISTS_DIR + "quest-pet-token-images.txt";
-    public static final String IMAGE_LIST_QUEST_BOOSTERS_FILE        = LISTS_DIR + "booster-images.txt";
-    public static final String IMAGE_LIST_QUEST_FATPACKS_FILE        = LISTS_DIR + "fatpack-images.txt";
-    public static final String IMAGE_LIST_QUEST_BOOSTERBOXES_FILE    = LISTS_DIR + "boosterbox-images.txt";
-    public static final String IMAGE_LIST_QUEST_PRECONS_FILE         = LISTS_DIR + "precon-images.txt";
-    public static final String IMAGE_LIST_QUEST_TOURNAMENTPACKS_FILE = LISTS_DIR + "tournamentpack-images.txt";
     public static final String SKINS_LIST_FILE                       = LISTS_DIR + "skinsList.txt";
     public static final String CJK_FONTS_LIST_FILE                   = LISTS_DIR + "font-list.txt";
     public static final String COMMANDER_COMBOS_FILE                 = LISTS_DIR + "commander-combos.txt";
@@ -213,15 +206,7 @@ public final class ForgeConstants {
     public static final String CACHE_SKINS_DIR               = CACHE_DIR + "skins" + PATH_SEPARATOR;
     public static final String CACHE_TOKEN_PICS_DIR          = PICS_DIR + "tokens" + PATH_SEPARATOR;
     public static final String CACHE_SLEEVE_PICS_DIR         = PICS_DIR + "sleeves" + PATH_SEPARATOR;
-    public static final String CACHE_ICON_PICS_DIR           = PICS_DIR + "icons" + PATH_SEPARATOR;
     public static final String CACHE_SYMBOLS_DIR             = PICS_DIR + "symbols" + PATH_SEPARATOR;
-    public static final String CACHE_BOOSTER_PICS_DIR        = PICS_DIR + "boosters" + PATH_SEPARATOR;
-    public static final String CACHE_FATPACK_PICS_DIR        = PICS_DIR + "fatpacks" + PATH_SEPARATOR;
-    public static final String CACHE_BOOSTERBOX_PICS_DIR     = PICS_DIR + "boosterboxes" + PATH_SEPARATOR;
-    public static final String CACHE_PRECON_PICS_DIR         = PICS_DIR + "precons" + PATH_SEPARATOR;
-    public static final String CACHE_TOURNAMENTPACK_PICS_DIR = PICS_DIR + "tournamentpacks" + PATH_SEPARATOR;
-    public static final String CACHE_PLANECHASE_PICS_DIR     = PICS_DIR + "planechase" + PATH_SEPARATOR;
-    public static final String QUEST_CARD_PRICE_FILE         = DB_DIR + "all-prices.txt";
 
     public static final String[] PROFILE_DIRS = {
             USER_DIR,
@@ -232,22 +217,13 @@ public final class ForgeConstants {
             DECK_CONSTRUCTED_DIR,
             DECK_COMMANDER_DIR,
             QUEST_SAVE_DIR,
-            CACHE_TOKEN_PICS_DIR,
-            CACHE_ICON_PICS_DIR,
-            CACHE_BOOSTER_PICS_DIR,
-            CACHE_FATPACK_PICS_DIR,
-            CACHE_BOOSTERBOX_PICS_DIR,
-            CACHE_PRECON_PICS_DIR,
-            CACHE_TOURNAMENTPACK_PICS_DIR,
-            CACHE_PLANECHASE_PICS_DIR };
+            CACHE_TOKEN_PICS_DIR };
 
     // URLs
     public static final String URL_CARDFORGE = "https://downloads.cardforge.org";
-    public static final String GITHUB_ASSETS_BASE = "https://raw.githubusercontent.com/Card-Forge/forge-extras/refs/heads/main/";
 
     public static final String URL_PIC_DOWNLOAD = URL_CARDFORGE + "/images/cards/";
     public static final String URL_TOKEN_DOWNLOAD = URL_CARDFORGE + "/images/tokens/";
-    public static final String URL_PRICE_DOWNLOAD = GITHUB_ASSETS_BASE + "all-prices.txt";
     private static final String URL_SCRYFALL = "https://api.scryfall.com";
     public static final String URL_PIC_SCRYFALL_DOWNLOAD = URL_SCRYFALL + "/cards/";
     public static final String URL_SCRYFALL_CDN = "https://cards.scryfall.io/";
