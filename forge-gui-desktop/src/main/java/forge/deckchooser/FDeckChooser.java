@@ -34,7 +34,6 @@ public class FDeckChooser extends JPanel implements IDecksComboBoxListener {
     private ItemManagerContainer lstDecksContainer;
 
     private boolean refreshingDeckType;
-    private boolean isForCommander;
 
     private final DeckManager lstDecks;
     final Localizer localizer = Localizer.getInstance();
@@ -57,7 +56,7 @@ public class FDeckChooser extends JPanel implements IDecksComboBoxListener {
     public static Deck promptForDeck(final CDetailPicture cDetailPicture, final String title, final DeckType defaultDeckType, final boolean forAi) {
         FThreads.assertExecutedByEdt(true);
         boolean isForCommander = defaultDeckType.equals(DeckType.COMMANDER_DECK);
-        final FDeckChooser chooser = new FDeckChooser(cDetailPicture, forAi, isForCommander? GameType.Commander : GameType.Constructed, isForCommander);
+        final FDeckChooser chooser = new FDeckChooser(cDetailPicture, forAi, isForCommander? GameType.Commander : GameType.Constructed);
         chooser.initialize(defaultDeckType);
         chooser.populate();
         final Dimension parentSize = JOptionPane.getRootFrame().getSize();
@@ -78,24 +77,16 @@ public class FDeckChooser extends JPanel implements IDecksComboBoxListener {
         return null;
     }
 
-    public FDeckChooser(final CDetailPicture cDetailPicture, final boolean forAi, GameType gameType, boolean forCommander) {
+    public FDeckChooser(final CDetailPicture cDetailPicture, final boolean forAi, GameType gameType) {
         lstDecks = new DeckManager(gameType, cDetailPicture);
         setOpaque(false);
         isAi = forAi;
-        isForCommander = forCommander;
-        final UiCommand cmdViewDeck = () -> {
-            if (selectedDeckType != DeckType.COLOR_DECK && selectedDeckType != DeckType.THEME_DECK) {
-                FDeckViewer.show(getDeck());
-            }
-        };
+        final UiCommand cmdViewDeck = () -> FDeckViewer.show(getDeck());
         lstDecks.setItemActivateCommand(cmdViewDeck);
         lstDecks.setSelectCommand(this::handleDeckSelection);
         btnViewDeck.setCommand(cmdViewDeck);
     }
 
-    public void initialize() {
-        initialize(DeckType.COLOR_DECK);
-    }
     public void initialize(final DeckType defaultDeckType) {
         initialize(null, defaultDeckType);
     }
@@ -301,24 +292,6 @@ public class FDeckChooser extends JPanel implements IDecksComboBoxListener {
         refreshDecksList(ev.getDeckType(), false, ev);
     }
 
-    public void refreshDeckListForAI() {
-        //remember current deck by name, refresh decklist for AI/Human then reselect if possible
-        String currentName = lstDecks.getSelectedItem().getName();
-
-        UiCommand selectCmd = lstDecks.getSelectCommand();
-        // ignore selection changes while refreshing to avoid repeating some deck generator calls
-        lstDecks.setSelectCommand(null);
-
-        refreshDecksList(selectedDeckType, true, null);
-
-        lstDecks.setSelectedString(currentName);
-
-        lstDecks.setSelectCommand(selectCmd);
-        lstDecks.refresh();
-
-        saveState();
-    }
-
     private void refreshDecksList(final DeckType deckType, final boolean forceRefresh, final DecksComboBoxEvent ev) {
         if (decksComboBox == null) { return; } // Not yet populated
         if (selectedDeckType == deckType && !forceRefresh) { return; }
@@ -326,7 +299,7 @@ public class FDeckChooser extends JPanel implements IDecksComboBoxListener {
 
         if (ev == null) {
             refreshingDeckType = true;
-            decksComboBox.refresh(deckType, isForCommander);
+            decksComboBox.refresh(deckType);
             refreshingDeckType = false;
         }
         lstDecks.setCaption(deckType.toString());

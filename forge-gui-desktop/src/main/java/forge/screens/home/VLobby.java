@@ -134,29 +134,7 @@ public class VLobby implements ILobbyView {
 
     @Override
     public void update(final int slot, final LobbySlotType type) {
-        FThreads.invokeInEdtNowOrLater(() -> updateImpl(slot, type));
-    }
-
-    private void updateImpl(final int slot, final LobbySlotType type) {
-        final FDeckChooser deckChooser = getDeckChooser(slot);
-        deckChooser.setIsAi(type==LobbySlotType.AI);
-        DeckType selectedDeckType = deckChooser.getSelectedDeckType();
-        switch (selectedDeckType){
-            case STANDARD_CARDGEN_DECK:
-            case PIONEER_CARDGEN_DECK:
-            case HISTORIC_CARDGEN_DECK:
-            case MODERN_CARDGEN_DECK:
-            case LEGACY_CARDGEN_DECK:
-            case VINTAGE_CARDGEN_DECK:
-            case PAUPER_CARDGEN_DECK:
-            case COLOR_DECK:
-            case STANDARD_COLOR_DECK:
-            case MODERN_COLOR_DECK:
-                deckChooser.refreshDeckListForAI();
-                break;
-            default:
-                break;
-        }
+        FThreads.invokeInEdtNowOrLater(() -> getDeckChooser(slot).setIsAi(type == LobbySlotType.AI));
     }
 
     // Lobby updates arrive on the Netty IO thread (network) and the EDT (local actions);
@@ -209,7 +187,7 @@ public class VLobby implements ILobbyView {
 
                 final boolean isSlotAI = slot.getType() == LobbySlotType.AI;
                 if (isNewPanel || fullUpdate) {
-                    final FDeckChooser deckChooser = createDeckChooser(lobby.getGameType(), i, isSlotAI);
+                    final FDeckChooser deckChooser = createDeckChooser(i, isSlotAI);
                     deckChooser.populate();
                     panel.setDeckChooser(deckChooser);
                     if (i == 0) {
@@ -344,7 +322,7 @@ public class VLobby implements ILobbyView {
         return getPlayerPanel(iSlot).getDeckChooser();
     }
 
-    private void selectMainDeck(final FDeckChooser mainChooser, final int playerIndex, final boolean isCommanderDeck) {
+    private void selectMainDeck(final FDeckChooser mainChooser, final int playerIndex) {
         refreshGeneratedDecks = false;
         final DeckType type = mainChooser.getSelectedDeckType();
         final Deck deck = mainChooser.getDeck();
@@ -355,11 +333,7 @@ public class VLobby implements ILobbyView {
         final Collection<DeckProxy> selectedDecks = mainChooser.getLstDecks().getSelectedItems();
         if (playerIndex < activePlayersNum && lobby.mayEdit(playerIndex)) {
             final String text = type.toString() + ": " + Lang.joinHomogenous(selectedDecks, DeckProxy::getName);
-            if (isCommanderDeck) {
-                getPlayerPanel(playerIndex).setCommanderDeckSelectorButtonText(text);
-            } else {
-                getPlayerPanel(playerIndex).setDeckSelectorButtonText(text);
-            }
+            getPlayerPanel(playerIndex).setCommanderDeckSelectorButtonText(text);
             fireDeckChangeListener(playerIndex, prepareCommanderPick(playerIndex, deck));
         }
         mainChooser.saveState();
@@ -624,28 +598,12 @@ public class VLobby implements ILobbyView {
         return lobby.getFormat();
     }
 
-    private FDeckChooser createDeckChooser(final GameType type, final int iSlot, final boolean ai) {
-        boolean forCommander;
-        DeckType deckType;
-        FPref prefKey;
-        switch (type) {
-            case Commander:
-                forCommander = true;
-                deckType = DeckType.COMMANDER_DECK;
-                prefKey = FPref.COMMANDER_DECK_STATES[iSlot];
-                break;
-            default:
-                forCommander = false;
-                deckType = iSlot == 0 ? DeckType.PRECONSTRUCTED_DECK : DeckType.COLOR_DECK;
-                prefKey = FPref.CONSTRUCTED_DECK_STATES[iSlot];
-                break;
-        }
-        return cachedDeckChoosers.computeIfAbsent(prefKey, (key) -> {
-            final GameType gameType = forCommander ? type : GameType.Constructed;
-            final FDeckChooser fdc = new FDeckChooser(null, ai, gameType, forCommander);
-            fdc.initialize(prefKey, deckType);
+    private FDeckChooser createDeckChooser(final int iSlot, final boolean ai) {
+        return cachedDeckChoosers.computeIfAbsent(FPref.COMMANDER_DECK_STATES[iSlot], (key) -> {
+            final FDeckChooser fdc = new FDeckChooser(null, ai, GameType.Commander);
+            fdc.initialize(key, DeckType.COMMANDER_DECK);
             fdc.getLstDecks().setRequiredFormat(deckListFormat());
-            fdc.setDeckSelectionCommand(() -> selectMainDeck(fdc, iSlot, forCommander));
+            fdc.setDeckSelectionCommand(() -> selectMainDeck(fdc, iSlot));
             return fdc;
         });
     }

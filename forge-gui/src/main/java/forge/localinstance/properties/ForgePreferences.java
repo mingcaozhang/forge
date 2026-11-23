@@ -289,14 +289,6 @@ public class ForgePreferences extends AbstractPreferences<ForgePreferences.FPref
         UI_ZONE_DOCK_ZONES(""),
         UI_ZONE_DOCK_ZONES_OTHER(""),
 
-        CONSTRUCTED_P1_DECK_STATE(""),
-        CONSTRUCTED_P2_DECK_STATE(""),
-        CONSTRUCTED_P3_DECK_STATE(""),
-        CONSTRUCTED_P4_DECK_STATE(""),
-        CONSTRUCTED_P5_DECK_STATE(""),
-        CONSTRUCTED_P6_DECK_STATE(""),
-        CONSTRUCTED_P7_DECK_STATE(""),
-        CONSTRUCTED_P8_DECK_STATE(""),
         COMMANDER_P1_DECK_STATE(""),
         COMMANDER_P2_DECK_STATE(""),
         COMMANDER_P3_DECK_STATE(""),
@@ -347,12 +339,6 @@ public class ForgePreferences extends AbstractPreferences<ForgePreferences.FPref
             }
             return sj.toString();
         }
-
-        public static FPref[] CONSTRUCTED_DECK_STATES = {
-            CONSTRUCTED_P1_DECK_STATE, CONSTRUCTED_P2_DECK_STATE,
-            CONSTRUCTED_P3_DECK_STATE, CONSTRUCTED_P4_DECK_STATE,
-            CONSTRUCTED_P5_DECK_STATE, CONSTRUCTED_P6_DECK_STATE,
-            CONSTRUCTED_P7_DECK_STATE, CONSTRUCTED_P8_DECK_STATE };
 
         public static FPref[] COMMANDER_DECK_STATES = {
                 COMMANDER_P1_DECK_STATE, COMMANDER_P2_DECK_STATE,
