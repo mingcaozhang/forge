@@ -63,9 +63,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
 
     private final FLabel btnPlayerName = new FLabel.Builder().opaque(true).hoverable(true).text("").build();
 
-    private final JCheckBox cbRemoveSmall = new OptionsCheckBox(localizer.getMessage("cbRemoveSmall"));
-    private final JCheckBox cbSingletons = new OptionsCheckBox(localizer.getMessage("cbSingletons"));
-    private final JCheckBox cbRemoveArtifacts = new OptionsCheckBox(localizer.getMessage("cbRemoveArtifacts"));
     private final JCheckBox cbAnte = new OptionsCheckBox(localizer.getMessage("cbAnte"));
     private final JCheckBox cbAnteMatchRarity = new OptionsCheckBox(localizer.getMessage("cbAnteMatchRarity"));
     private final JCheckBox cbAnteIncludeBasicLands = new OptionsCheckBox(localizer.getMessage("cbAnteIncludeBasicLands"));
@@ -125,7 +122,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
     private final JCheckBox cbAiPicker = new OptionsCheckBox(localizer.getMessage("lblAiPickerSettings"));
     private final JCheckBox cbCardArtCoreExpansionsOnlyOpt = new OptionsCheckBox(localizer.getMessage("lblPrefArtExpansionOnly"));
     private final JCheckBox cbSmartCardArtSelectionOpt = new OptionsCheckBox(localizer.getMessage("lblSmartCardArtOpt"));
-    private final JCheckBox cbShowDraftRanking = new OptionsCheckBox(localizer.getMessage("lblShowDraftRankingOverlay"));
     private final JCheckBox cbOrderHand = new OptionsCheckBox(localizer.getMessage("cbOrderHand"));
 
     private final Map<FPref, KeyboardShortcutField> shortcutFields = new HashMap<>();
@@ -305,18 +301,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
         pnlPrefs.add(cbpAutoDecisionMode, comboBoxConstraints);
         pnlPrefs.add(new NoteLabel(localizer.getMessage("nlpAutoDecisionMode")), descriptionConstraints);
 
-        // Deck building options
-        pnlPrefs.add(new SectionLabel(localizer.getMessage("RandomDeckGeneration")), sectionConstraints);
-
-        pnlPrefs.add(cbRemoveSmall, titleConstraints);
-        pnlPrefs.add(new NoteLabel(localizer.getMessage("nlRemoveSmall")), descriptionConstraints);
-
-        pnlPrefs.add(cbSingletons, titleConstraints);
-        pnlPrefs.add(new NoteLabel(localizer.getMessage("nlSingletons")), descriptionConstraints);
-
-        pnlPrefs.add(cbRemoveArtifacts, titleConstraints);
-        pnlPrefs.add(new NoteLabel(localizer.getMessage("nlRemoveArtifacts")), descriptionConstraints);
-
         // Deck Editor options
         pnlPrefs.add(new SectionLabel(localizer.getMessage("DeckEditorOptions")), sectionConstraints);
 
@@ -332,10 +316,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
         pnlPrefs.add(cbSmartCardArtSelectionOpt, titleConstraints);
         pnlPrefs.add(new NoteLabel(localizer.getMessage("nlSmartCardArtOpt")), "w 80%!, h pref!, gap 28px 0 0 0, span 2 1");
         pnlPrefs.add(new NoteLabel(localizer.getMessage("nlSmartCardArtOptNote")), descriptionConstraints);
-
-        //Draft Ranking Overlay
-        pnlPrefs.add(cbShowDraftRanking, titleConstraints);
-        pnlPrefs.add(new NoteLabel(localizer.getMessage("nlShowDraftRankingOverlay")), descriptionConstraints);
 
         // Advanced
         pnlPrefs.add(new SectionLabel(localizer.getMessage("AdvancedSettings")), sectionConstraints);
@@ -715,21 +695,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
     }
 
     /** @return {@link javax.swing.JCheckBox} */
-    public final JCheckBox getCbRemoveSmall() {
-        return cbRemoveSmall;
-    }
-
-    /** @return {@link javax.swing.JCheckBox} */
-    public final JCheckBox getCbSingletons() {
-        return cbSingletons;
-    }
-
-    /** @return {@link javax.swing.JCheckBox} */
-    public JCheckBox getCbRemoveArtifacts() {
-        return cbRemoveArtifacts;
-    }
-
-    /** @return {@link javax.swing.JCheckBox} */
     public JCheckBox getCbFilterLandsByColorId() {
         return cbFilterLandsByColorId;
     }
@@ -965,7 +930,6 @@ public enum VSubmenuPreferences implements IVSubmenu<CSubmenuPreferences> {
     public JCheckBox getCbSmartCardArtSelectionOpt() { return cbSmartCardArtSelectionOpt; }
 
     /** @return {@link javax.swing.JCheckBox} */
-    public JCheckBox getCbShowDraftRanking() { return cbShowDraftRanking; }
 
     /** @return {@link javax.swing.JCheckBox} */
     public JCheckBox getCbEnforceDeckLegality() {

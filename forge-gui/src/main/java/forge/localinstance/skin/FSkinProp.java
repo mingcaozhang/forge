@@ -546,13 +546,6 @@ public enum FSkinProp {
     IMG_WATERMARK_W (new int[] {2, 1006, 500, 500}, PropType.WATERMARKS),
     IMG_WATERMARK_C (new int[] {504, 1006, 500, 500}, PropType.WATERMARKS),
 
-    //FOR DRAFT RANKING
-    IMG_DRAFTRANK_D (new int[] {2, 2, 240, 240}, PropType.DRAFTRANKS),
-    IMG_DRAFTRANK_C (new int[] {244, 2, 240, 240}, PropType.DRAFTRANKS),
-    IMG_DRAFTRANK_B (new int[] {2, 244, 240, 240}, PropType.DRAFTRANKS),
-    IMG_DRAFTRANK_A (new int[] {244, 244, 240, 240}, PropType.DRAFTRANKS),
-    IMG_DRAFTRANK_S (new int[] {2, 486, 240, 240}, PropType.DRAFTRANKS),
-
     IMG_FAV1    (new int[] {0, 0, 100, 100}, PropType.FAVICON),
     IMG_FAV2    (new int[] {100, 0, 100, 100}, PropType.FAVICON),
     IMG_FAV3    (new int[] {200, 0, 100, 100}, PropType.FAVICON),
@@ -560,7 +553,6 @@ public enum FSkinProp {
     IMG_FAV5    (new int[] {400, 0, 100, 100}, PropType.FAVICON),
     IMG_FAVNONE (new int[] {500, 0, 100, 100}, PropType.FAVICON),
 
-    IMG_QUEST_DRAFT_DECK (new int[] {0, 0, 680, 475}, PropType.IMAGE),
     //COMMANDER
     IMG_ABILITY_COMMANDER  (new int[] {330, 576, 80, 80}, PropType.ABILITY),
     IMG_ABILITY_RINGBEARER (new int[] {410, 822, 80, 80}, PropType.MANAICONS),
@@ -1022,7 +1014,6 @@ public enum FSkinProp {
         SETLOGO(ForgeConstants.SPRITE_SETLOGO_FILE),
         WATERMARKS(ForgeConstants.SPRITE_WATERMARK_FILE),
         ZONES(ForgeConstants.SPRITE_ZONE_FILE),
-        DRAFTRANKS(ForgeConstants.SPRITE_DRAFTRANKS_FILE),
         FAVICON(ForgeConstants.SPRITE_FAVICONS_FILE);
 
         private final String filename;

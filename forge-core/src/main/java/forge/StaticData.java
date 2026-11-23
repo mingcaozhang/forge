@@ -66,10 +66,6 @@ public class StaticData {
 
     // Loaded lazily:
     private IStorage<SealedTemplate> boosters;
-    private IStorage<SealedTemplate> specialBoosters;
-    private IStorage<SealedTemplate> tournaments;
-    private IStorage<FatPack.Template> fatPacks;
-    private IStorage<BoosterBox.Template> boosterBoxes;
     private IStorage<PrintSheet> printSheets;
     private final Map<String, List<String>> setLookup = new HashMap<>();
 
@@ -545,23 +541,10 @@ public class StaticData {
     }
 
     /** @return {@link forge.util.storage.IStorage}<{@link forge.item.SealedTemplate}> */
-    public final IStorage<SealedTemplate> getTournamentPacks() {
-        if (tournaments == null)
-            tournaments = new StorageBase<>("Starter sets", new SealedTemplate.Reader(new File(blockDataFolder, "starters.txt")));
-        return tournaments;
-    }
-
-    /** @return {@link forge.util.storage.IStorage}<{@link forge.item.SealedTemplate}> */
     public final IStorage<SealedTemplate> getBoosters() {
         if (boosters == null)
             boosters = new StorageBase<>("Boosters", editions.getBoosterGenerator());
         return boosters;
-    }
-
-    public final IStorage<SealedTemplate> getSpecialBoosters() {
-        if (specialBoosters == null)
-            specialBoosters = new StorageBase<>("Special boosters", new SealedTemplate.Reader(new File(blockDataFolder, "boosters-special.txt")));
-        return specialBoosters;
     }
 
     public IStorage<PrintSheet> getPrintSheets() {

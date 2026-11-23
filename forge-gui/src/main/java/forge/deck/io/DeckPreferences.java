@@ -1,7 +1,6 @@
 package forge.deck.io;
 
 import forge.deck.DeckProxy;
-import forge.deck.DeckType;
 import forge.localinstance.properties.ForgeConstants;
 import forge.util.XmlUtil;
 import org.w3c.dom.Document;
@@ -23,16 +22,6 @@ public class DeckPreferences {
     private static String selectedDeckType = "", currentDeck = "", draftDeck = "", sealedDeck = "", commanderDeck = "",
             planarDeck = "", schemeDeck = "";
     private static Map<String, DeckPreferences> allPrefs = new HashMap<>();
-
-    public static DeckType getSelectedDeckType() {
-        return selectedDeckType.isEmpty() ? DeckType.CONSTRUCTED_DECK : DeckType.valueOf(selectedDeckType);
-    }
-    public static void setSelectedDeckType(DeckType selectedDeckType0) {
-        String selectedDeckTypeStr = selectedDeckType0 == DeckType.CONSTRUCTED_DECK ? "" : selectedDeckType0.name();
-        if (selectedDeckTypeStr.equals(selectedDeckType)) { return; }
-        selectedDeckType = selectedDeckTypeStr;
-        save();
-    }
 
     public static String getCurrentDeck() {
         return currentDeck;

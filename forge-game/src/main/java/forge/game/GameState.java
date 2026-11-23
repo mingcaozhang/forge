@@ -69,8 +69,6 @@ public class GameState {
     }
     private final List<PlayerState> playerStates = new ArrayList<>();
 
-    private boolean puzzleCreatorState = false;
-
     private final Map<Integer, Card> idToCard = new HashMap<>();
     private final Map<Card, Integer> cardToAttachId = new HashMap<>();
     private final Map<Card, Player> cardToEnchantPlayerId = new HashMap<>();
@@ -113,18 +111,6 @@ public class GameState {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-
-        if (puzzleCreatorState) {
-            // append basic puzzle metadata if we're dumping from the puzzle creator screen
-            sb.append("[metadata]\n");
-            sb.append("Name:New Puzzle\n");
-            sb.append("URL:https://www.cardforge.org\n");
-            sb.append("Goal:Win\n");
-            sb.append("Turns:1\n");
-            sb.append("Difficulty:Common\n");
-            sb.append("Description:Win this turn.\n");
-            sb.append("[state]\n");
-        }
 
         sb.append(TextUtil.concatNoSpace("turn=", String.valueOf(turn), "\n"));
         sb.append(TextUtil.concatNoSpace("activeplayer=", tChangePlayer, "\n"));
@@ -217,9 +203,6 @@ public class GameState {
                 p.cardTexts.put(zone, "");
             }
             for (Card card : game.getCardsIncludePhasingIn(zone)) {
-                if (card.getName().equals("Puzzle Goal") && card.getOracleText().contains("New Puzzle")) {
-                    puzzleCreatorState = true;
-                }
                 if (card instanceof DetachedCardEffect) {
                     continue;
                 }

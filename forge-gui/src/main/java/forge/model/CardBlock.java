@@ -20,8 +20,6 @@ package forge.model;
 import forge.card.CardEdition;
 import forge.item.PaperCard;
 import forge.item.PaperCardPredicates;
-import forge.item.generation.IUnOpenedProduct;
-import forge.item.generation.UnOpenedProduct;
 import forge.util.TextUtil;
 import forge.util.storage.StorageReaderFile;
 import org.apache.commons.lang3.StringUtils;
@@ -269,15 +267,6 @@ public final class CardBlock implements Comparable<CardBlock> {
     }
 
     public MetaSet getMetaSet(String key) {
-       return metaSets.get(key);
-    }
-
-    /**
-     * Tries to create a booster for the selected meta-set code.
-     */
-    public IUnOpenedProduct getBooster(final String code) {
-        MetaSet ms = metaSets.get(code);
-        if (ms != null) return ms.getBooster();
-        return new UnOpenedProduct(FModel.getMagicDb().getBoosters().get(code));
+        return metaSets.get(key);
     }
 }

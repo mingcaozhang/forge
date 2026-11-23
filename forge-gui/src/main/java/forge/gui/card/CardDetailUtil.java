@@ -14,7 +14,6 @@ import forge.game.player.PlayerView;
 import forge.game.zone.ZoneType;
 import forge.item.InventoryItemFromSet;
 import forge.item.PaperCard;
-import forge.item.PreconDeck;
 import forge.item.SealedProduct;
 import forge.localinstance.properties.ForgeConstants;
 import forge.localinstance.properties.ForgePreferences;
@@ -144,9 +143,6 @@ public class CardDetailUtil {
     public static String getItemDescription(final InventoryItemFromSet item) {
         if (item instanceof SealedProduct) {
             return ((SealedProduct)item).getDescription();
-        }
-        if (item instanceof PreconDeck) {
-            return ((PreconDeck) item).getDescription();
         }
         return item.getDisplayName();
     }

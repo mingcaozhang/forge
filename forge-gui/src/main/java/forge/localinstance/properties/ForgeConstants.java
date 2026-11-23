@@ -93,7 +93,6 @@ public final class ForgeConstants {
     public static final String SPRITE_SETLOGO_FILE           = "sprite_setlogo.png";
     public static final String SPRITE_WATERMARK_FILE         = "sprite_watermark.png";
     public static final String SPRITE_ZONE_FILE              = "sprite_zone.png";
-    public static final String SPRITE_DRAFTRANKS_FILE        = "sprite_draftranks.png";
 
     public static final String FONT_FILE                    = "font1.ttf";
     public static final String SPLASH_BG_FILE               = "bg_splash.png";
@@ -103,7 +102,6 @@ public final class ForgeConstants {
     public static final String TEXTURE_BG_FILE              = "bg_texture.jpg";
     public static final String SPACE_BG_FILE                = "bg_space.png";
     public static final String CHAOS_WHEEL_IMG_FILE         = "bg_chaos_wheel.png";
-    public static final String DRAFT_DECK_IMG_FILE          = "bg_draft_deck.png";
 
     //CARD BG
     public static final String IMG_CARDBG_A           = "IMG_CARDBG_A.png";

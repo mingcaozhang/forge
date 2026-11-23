@@ -18,14 +18,6 @@
 
 package forge.model;
 
-import forge.item.PaperCard;
-import forge.item.PaperCardPredicates;
-import forge.item.SealedTemplate;
-import forge.item.generation.IUnOpenedProduct;
-import forge.item.generation.UnOpenedProduct;
-
-import java.util.function.Predicate;
-
 /** 
  * The class MetaSet. This class is used to define 'special'
  * sets within a (fantasy) block, like custom sets (cubes),
@@ -119,7 +111,6 @@ public class MetaSet {
     private final String data;
     private final String code;
     private final boolean draftable; 
-    // private BoosterGenerator boosterGen;
 
     /**
      * The constructor. A new MetaSet is currently only instantiated in CardBlock.java
@@ -149,39 +140,6 @@ public class MetaSet {
         return code;
     }
 
-    /**
-     * 
-     * Attempt to get a booster.
-     * 
-     * @return UnOpenedProduct, the generated booster.
-     */
-    public IUnOpenedProduct getBooster() {
-
-        switch(type) {
-            case Full:
-                return new UnOpenedProduct(SealedTemplate.genericDraftBooster);
-
-            case Booster:
-                return new UnOpenedProduct(FModel.getMagicDb().getBoosters().get(data));
-
-            case SpecialBooster:
-                return new UnOpenedProduct(FModel.getMagicDb().getSpecialBoosters().get(data));
-
-            case Pack:
-                return new UnOpenedProduct(FModel.getMagicDb().getTournamentPacks().get(data));
-
-            case JoinedSet:
-                Predicate<PaperCard> predicate = PaperCardPredicates.printedInSets(data.split(" "));
-                return new UnOpenedProduct(SealedTemplate.genericDraftBooster, predicate);
-
-            case Choose: return UnOpenedMeta.choose(data);
-            case Random: return UnOpenedMeta.random(data);
-            case Combo:  return UnOpenedMeta.selectAll(data);
-
-            default: return null;
-        }
-    }
-    
     @Override
     public String toString() {
         return code;

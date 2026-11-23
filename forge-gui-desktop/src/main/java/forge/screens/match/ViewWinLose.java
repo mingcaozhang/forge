@@ -15,7 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import forge.game.GameLogEntry;
 import forge.game.GameLogEntryType;
-import forge.game.GameType;
 import forge.game.GameView;
 import forge.gui.SOverlayUtils;
 import forge.gui.UiCommand;
@@ -73,18 +72,9 @@ public class ViewWinLose implements IWinLoseView<FButton> {
         btnRestart = new FButton();
         btnQuit = new FButton();
 
-        // Control of the win/lose is handled differently for various game
-        // modes.
-        ControlWinLose control = null;
         // a recording only shows what happened: no rewards, no saving results, no next game
         final boolean replay = matchUI.isReplay();
-        switch (replay ? GameType.Constructed : game0.getGameType()) {
-            default: // will catch it after switch
-                break;
-        }
-        if (null == control) {
-            control = new ControlWinLose(this, game0, matchUI);
-        }
+        final ControlWinLose control = new ControlWinLose(this, game0, matchUI);
         this.control = control;
 
         pnlLeft.setOpaque(false);

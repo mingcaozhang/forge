@@ -484,26 +484,6 @@ public enum DeckFormat {
         return card.getRules().getKeywordMagnitude("DeckLimit");
     }
 
-    public static String getPlaneSectionConformanceProblem(final CardPool planes) {
-        // Must contain at least 10 planes/phenomenons, but max 2 phenomenons. Singleton.
-        if (planes == null || planes.countAll() < 10) {
-            return "should have at least 10 planes";
-        }
-        int phenoms = 0;
-        for (Entry<PaperCard, Integer> cp : planes) {
-            if (cp.getKey().getRules().getType().hasType(CardType.CoreType.Phenomenon)) {
-                phenoms++;
-            }
-            if (cp.getValue() > 1) {
-                return "must not contain multiple copies of any Plane or Phenomena";
-            }
-        }
-        if (phenoms > 2) {
-            return "must not contain more than 2 Phenomena";
-        }
-        return null;
-    }
-
     public boolean allowCustomCards() {
         return StaticData.instance().allowCustomCardsInDecksConformance();
     }

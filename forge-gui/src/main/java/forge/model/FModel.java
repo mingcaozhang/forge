@@ -93,7 +93,6 @@ public final class FModel {
     private static final Supplier<IStorage<CardBlock>> blocks = Suppliers.memoize(
             () -> (IStorage<CardBlock>) new StorageBase<CardBlock>("Block definitions", new CardBlock.Reader(
                     ForgeConstants.BLOCK_DATA_DIR + "blocks.txt", getMagicDb().getEditions())));
-    private static final Supplier<IStorage<CardBlock>> fantasyBlocks = Suppliers.memoize(() -> new StorageBase<>("Custom blocks", new CardBlock.Reader(ForgeConstants.BLOCK_DATA_DIR + "fantasyblocks.txt", getMagicDb().getEditions())));
     private static final Supplier<GameFormat.Collection> formats = Suppliers.memoize(() -> new GameFormat.Collection(new GameFormat.Reader( new File(ForgeConstants.FORMATS_DATA_DIR), new File(ForgeConstants.USER_FORMATS_DIR), getPreferences().getPrefBoolean(FPref.LOAD_ARCHIVED_FORMATS))));
     private static final Supplier<ItemPool<PaperCard>> allCards = Suppliers.memoize(() -> ItemPool.createFrom(getMagicDb().getCommonCards().getAllCards(), PaperCard.class));
     private static final Supplier<ItemPool<PaperCard>> planechaseCards = Suppliers.memoize(() -> ItemPool.createFrom(getMagicDb().getVariantCards().getAllCards(PaperCardPredicates.fromRules(CardRulesPredicates.IS_PLANE_OR_PHENOMENON)), PaperCard.class));
@@ -347,7 +346,4 @@ public final class FModel {
         return formats.get();
     }
 
-    public static IStorage<CardBlock> getFantasyBlocks() {
-        return fantasyBlocks.get();
-    }
 }

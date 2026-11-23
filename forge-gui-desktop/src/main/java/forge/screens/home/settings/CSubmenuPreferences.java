@@ -113,9 +113,6 @@ public enum CSubmenuPreferences implements ICDoc {
         lstControls.add(Pair.of(view.getCbOrderHand(), FPref.UI_ORDER_HAND));
         lstControls.add(Pair.of(view.getCbFilteredHands(), FPref.FILTERED_HANDS));
         lstControls.add(Pair.of(view.getCbCloneImgSource(), FPref.UI_CLONE_MODE_SOURCE));
-        lstControls.add(Pair.of(view.getCbRemoveSmall(), FPref.DECKGEN_NOSMALL));
-        lstControls.add(Pair.of(view.getCbRemoveArtifacts(), FPref.DECKGEN_ARTIFACTS));
-        lstControls.add(Pair.of(view.getCbSingletons(), FPref.DECKGEN_SINGLETONS));
         lstControls.add(Pair.of(view.getCbEnableAICheats(), FPref.UI_ENABLE_AI_CHEATS));
         lstControls.add(Pair.of(view.getCbAiFlatMonteCarlo(), FPref.MATCH_AI_FLAT_MONTE_CARLO));
         lstControls.add(Pair.of(view.getCbEnableUnknownCards(), FPref.UI_LOAD_UNKNOWN_CARDS));
@@ -153,7 +150,6 @@ public enum CSubmenuPreferences implements ICDoc {
         lstControls.add(Pair.of(view.getCbLoadCardsLazily(), FPref.LOAD_CARD_SCRIPTS_LAZILY));
         lstControls.add(Pair.of(view.getCbLoadArchivedFormats(), FPref.LOAD_ARCHIVED_FORMATS));
         lstControls.add(Pair.of(view.getCbSmartCardArtSelectionOpt(), FPref.UI_SMART_CARD_ART));
-        lstControls.add(Pair.of(view.getCbShowDraftRanking(), FPref.UI_OVERLAY_DRAFT_RANKING));
         lstControls.add(Pair.of(view.getCbAiPicker(), FPref.UI_ENABLE_AI_PICKER));
 
         for (final Pair<JCheckBox, FPref> kv : lstControls) {
@@ -272,8 +268,6 @@ public enum CSubmenuPreferences implements ICDoc {
         }
         view.getTxtActionableHighlightColor().setText(prefs.getPref(FPref.UI_ACTIONABLE_HIGHLIGHT_COLOR));
         view.reloadShortcuts();
-
-        SwingUtilities.invokeLater(() -> view.getCbRemoveSmall().requestFocusInWindow());
 
         updating = false;
     }

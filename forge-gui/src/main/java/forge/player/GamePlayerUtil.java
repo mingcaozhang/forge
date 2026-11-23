@@ -37,10 +37,6 @@ public final class GamePlayerUtil {
         return new LobbyPlayerHuman(name, sleeveIndex);
     }
 
-    public static LobbyPlayer getQuestPlayer() {
-        return guiPlayer; //TODO: Make this a separate player
-    }
-
     public static LobbyPlayer createAiPlayer() {
         return createAiPlayer(GuiDisplayUtil.getRandomAiName());
     }

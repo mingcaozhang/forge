@@ -73,7 +73,6 @@ public class ForgePreferences extends AbstractPreferences<ForgePreferences.FPref
         UI_OVERLAY_CARD_PERPETUAL_MANA_COST ("true"),
         UI_OVERLAY_CARD_ID ("true"),
         UI_OVERLAY_ABILITY_ICONS("true"),
-        UI_OVERLAY_DRAFT_RANKING("true"),
         UI_ENABLE_ONLINE_IMAGE_FETCHER ("true"),
         UI_CARD_DOWNLOAD_LANG ("en"),
         UI_PREFER_LANG_FOR_UNIQUE_CARDS ("false"),
@@ -201,9 +200,7 @@ public class ForgePreferences extends AbstractPreferences<ForgePreferences.FPref
 
         SUBMENU_CURRENTMENU ("CONSTRUCTED"),
         SUBMENU_SANCTIONED ("true"),
-        SUBMENU_GAUNTLET ("false"),
-        SUBMENU_QUEST ("false"),
-        SUBMENU_PUZZLE("false"),
+
         SUBMENU_SETTINGS ("false"),
         SUBMENU_UTILITIES ("false"),
 
@@ -233,12 +230,8 @@ public class ForgePreferences extends AbstractPreferences<ForgePreferences.FPref
 
         LOAD_CARD_SCRIPTS_LAZILY ("false"),
         LOAD_ARCHIVED_FORMATS ("false"),
-        PRELOAD_CUSTOM_DRAFTS ("false"),
 
         DECK_DEFAULT_CARD_LIMIT ("4"),
-        DECKGEN_SINGLETONS ("false"),
-        DECKGEN_ARTIFACTS ("false"),
-        DECKGEN_NOSMALL ("false"),
 
         PROMPT_FOR_AUTOSELL ("true"),
 
@@ -411,5 +404,4 @@ public class ForgePreferences extends AbstractPreferences<ForgePreferences.FPref
 
     // one for normal mode, one for quest mode
     public static boolean DEV_MODE;
-    public static boolean UPLOAD_DRAFT;
 }

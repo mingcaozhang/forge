@@ -72,20 +72,6 @@ public final class CardEdition implements Comparable<CardEdition> {
 
         public static final EnumSet<Type> REPRINT_SET_TYPES = EnumSet.of(REPRINT, PROMO, COLLECTOR_EDITION);
 
-        public String getBoosterBoxDefault() {
-            return switch (this) {
-                case CORE, EXPANSION -> "36";
-                default -> "0";
-            };
-        }
-
-        public String getFatPackDefault() {
-            return switch (this) {
-                case CORE, EXPANSION -> "10";
-                default -> "0";
-            };
-        }
-
         public String toString(){
             String[] names = TextUtil.splitWithParenthesis(this.name().toLowerCase(), '_');
             for (int i = 0; i < names.length; i++)
@@ -295,9 +281,6 @@ public final class CardEdition implements Comparable<CardEdition> {
 
     // SealedProduct
     private String prerelease = null;
-    private int boosterBoxCount;
-    private int fatPackCount;
-    private String fatPackExtraSlots = "";
 
     // Booster/draft info
     private List<BoosterSlot> boosterSlots = null;
@@ -397,9 +380,6 @@ public final class CardEdition implements Comparable<CardEdition> {
     public String getAlias() { return alias; }
 
     public String getPrerelease() { return prerelease; }
-    public int getBoosterBoxCount() { return boosterBoxCount; }
-    public int getFatPackCount() { return fatPackCount; }
-    public String getFatPackExtraSlots() { return fatPackExtraSlots; }
 
     public FoilType getFoilType() { return foilType; }
     public double getFoilChanceInBooster() { return foilChanceInBooster; }
@@ -846,11 +826,6 @@ public final class CardEdition implements Comparable<CardEdition> {
 
             }
             res.type = enumType;
-            if (res.hasBoosterTemplate()) {
-                res.boosterBoxCount = Integer.parseInt(metadata.get("BoosterBox", enumType.getBoosterBoxDefault()));
-                res.fatPackCount = Integer.parseInt(metadata.get("FatPack", enumType.getFatPackDefault()));
-                res.fatPackExtraSlots = metadata.get("FatPackExtraSlots", "");
-            }
 
             switch (metadata.get("foil", "newstyle").toLowerCase()) {
                 case "oldstyle":
@@ -1076,12 +1051,6 @@ public final class CardEdition implements Comparable<CardEdition> {
             int editionIndex = artPreference.latestFirst ? 0 : selectedEditions.size() - 1;
             return selectedEditions.get(editionIndex);
         }
-
-        public static final Predicate<CardEdition> HAS_TOURNAMENT_PACK = edition -> StaticData.instance().getTournamentPacks().contains(edition.getCode());
-
-        public static final Predicate<CardEdition> HAS_FAT_PACK = edition -> edition.getFatPackCount() > 0;
-
-        public static final Predicate<CardEdition> HAS_BOOSTER_BOX = edition -> edition.getBoosterBoxCount() > 0;
 
         @Deprecated //Use CardEdition::hasBasicLands and a nonnull test.
         public static final Predicate<CardEdition> hasBasicLands = ed -> {

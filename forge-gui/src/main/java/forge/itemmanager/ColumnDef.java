@@ -188,12 +188,6 @@ public enum ColumnDef {
                 return StringUtils.join(IterableUtil.transform(sanctioned, GameFormat::getName), ", ");
             }),
     /**
-     * The Draft ranking column.
-     */
-    RANKING("lblRanking", "lblDraftRanking", 50, true, SortState.ASC,
-            from -> toRanking(from.getKey(), false),
-            from -> toRanking(from.getKey(), true)),
-    /**
      * The quantity column.
      */
     QUANTITY("lblQty", "lblQuantity", 25, true, SortState.ASC,
@@ -400,11 +394,6 @@ public enum ColumnDef {
 
     private static CardRarity toRarity(final InventoryItem i) {
         return i instanceof PaperCard ? ((IPaperCard) i).getRarity() : CardRarity.Unknown;
-    }
-
-    private static Double toRanking(final InventoryItem i, boolean truncate) {
-        // Draft ranking removed with limited modes; column retained for layout compatibility.
-        return 500D;
     }
 
     private static DeckProxy toDeck(final InventoryItem i) {

@@ -8,7 +8,6 @@ import forge.game.GameFormat;
 import forge.game.GameType;
 import forge.item.InventoryItem;
 import forge.item.PaperCard;
-import forge.item.PreconDeck;
 import forge.localinstance.properties.ForgeConstants;
 import forge.model.FModel;
 import forge.util.BinaryUtil;
@@ -87,13 +86,8 @@ public class DeckProxy implements InventoryItem {
     }
 
     public CardEdition getEdition() {
-        if (edition == null) {
-            if (deck instanceof PreconDeck pd) {
-                edition = StaticData.instance().getEditions().get(pd.getEdition());
-            }
-            else if (!isGeneratedDeck()) {
-                edition = StaticData.instance().getEditions().getTheLatestOfAllTheOriginalEditionsOfCardsIn(getDeck().getAllCardsInASinglePool());
-            }
+        if (edition == null && !isGeneratedDeck()) {
+            edition = StaticData.instance().getEditions().getTheLatestOfAllTheOriginalEditionsOfCardsIn(getDeck().getAllCardsInASinglePool());
         }
         return edition;
     }

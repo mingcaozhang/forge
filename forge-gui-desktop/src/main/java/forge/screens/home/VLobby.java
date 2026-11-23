@@ -63,8 +63,6 @@ public class VLobby implements ILobbyView {
 
     // Deck frame elements
     private final JPanel decksFrame = new JPanel(new MigLayout("insets 0, gap 0, wrap, hidemode 3"));
-    private final FCheckBox cbSingletons = new FCheckBox(localizer.getMessage("cbSingletons"));
-    private final FCheckBox cbArtifacts = new FCheckBox(localizer.getMessage("cbRemoveArtifacts"));
     private final Deck[] decks = new Deck[MAX_PLAYERS];
     // Commander variant: each deck as picked in the deck chooser, who may lead it, and the
     // commander(s) the player picked instead of the default. Picks are never saved to the deck.
@@ -444,11 +442,6 @@ public class VLobby implements ILobbyView {
         switch (forGameType) {
         case Constructed:
             decksFrame.add(getDeckChooser(playerWithFocus), "grow, push");
-            if (getDeckChooser(playerWithFocus).getSelectedDeckType().toString().contains(localizer.getMessage("lblRandom"))) {
-                final String strCheckboxConstraints = "h 30px!, gap 0 20px 0 0";
-                decksFrame.add(cbSingletons, strCheckboxConstraints);
-                decksFrame.add(cbArtifacts, strCheckboxConstraints);
-            }
             break;
         case Commander:
             decksFrame.add(getDeckChooser(playerWithFocus), "grow, push");
@@ -474,12 +467,6 @@ public class VLobby implements ILobbyView {
         }
         return choosers;
     }
-
-    /** Gets the random deck checkbox for Singletons. */
-    FCheckBox getCbSingletons() { return cbSingletons; }
-
-    /** Gets the random deck checkbox for Artifacts. */
-    FCheckBox getCbArtifacts() { return cbArtifacts; }
 
     public final List<PlayerPanel> getPlayerPanels() {
         return playerPanels;

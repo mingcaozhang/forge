@@ -93,11 +93,6 @@ public class PlayerView extends GameEntityView {
         set(TrackableProperty.SleeveArtOffset, p.getLobbyPlayer().getSleeveArtOffset());
     }
 
-    public String getCurrentPlaneName() { return get(TrackableProperty.CurrentPlane); }
-    void updateCurrentPlaneName( String plane ) {
-        set(TrackableProperty.CurrentPlane, plane);
-    }
-
     public List<PlayerView> getOpponents() {
         return Objects.requireNonNullElse(get(TrackableProperty.Opponents), List.of());
     }

@@ -368,10 +368,6 @@ public class PlayerPanel extends FPanel {
         }
     }
 
-    public void setDeckSelectorButtonText(final String text) {
-        deckBtn.setText(text);
-    }
-
     public void setCommanderDeckSelectorButtonText(final String text) {
         cmdDeckSelectorBtn.setText(text);
     }

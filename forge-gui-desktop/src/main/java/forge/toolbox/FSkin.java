@@ -1131,9 +1131,9 @@ public class FSkin {
     private static int currentSkinIndex;
     private static String preferredDir;
     private static String preferredName;
-    private static BufferedImage bimDefaultSprite, bimFavIcon, bimPreferredSprite, bimFoils, bimQuestDraftDeck, bimOldFoils,
+    private static BufferedImage bimDefaultSprite, bimFavIcon, bimPreferredSprite, bimFoils, bimOldFoils,
     bimTrophies, bimAbilities, bimManaIcons, bimPhyrexian, bimColorlessHybrid, bimDefaultSleeve,
-            bimDefaultSleeve2, bimDefaultDeckbox, bimPrefferedSetLogo, bimDefaultWatermark, bimDefaultDraftRank, bimAttractionLights,
+            bimDefaultSleeve2, bimDefaultDeckbox, bimPrefferedSetLogo, bimDefaultWatermark, bimAttractionLights,
             bimZoneIcons;
     private static int x0, y0, w0, h0, newW, newH, preferredW, preferredH;
     private static int defaultFontSize = 12;
@@ -1263,7 +1263,6 @@ public class FSkin {
         final File f3 = new File(defaultDir + ForgeConstants.SPRITE_FOILS_FILE);
         final File f6 = new File(defaultDir + ForgeConstants.SPRITE_OLD_FOILS_FILE);
         final File f7 = new File(defaultDir + ForgeConstants.SPRITE_TROPHIES_FILE);
-        final File f8 = new File(defaultDir + ForgeConstants.DRAFT_DECK_IMG_FILE);
         final File f9 = new File(defaultDir + ForgeConstants.SPRITE_FAVICONS_FILE);
         final File f10 = new File(defaultDir + ForgeConstants.SPRITE_ABILITY_FILE);
         final File f11 = new File(defaultDir + ForgeConstants.SPRITE_MANAICONS_FILE);
@@ -1275,7 +1274,6 @@ public class FSkin {
         final File f17 = new File(defaultDir + ForgeConstants.SPRITE_WATERMARK_FILE);
         final File f18 = new File(defaultDir + ForgeConstants.SPRITE_PHYREXIAN_FILE);
         final File f19 = new File(defaultDir + ForgeConstants.SPRITE_COLORLESS_HYBRID_FILE);
-        final File f20 = new File(defaultDir + ForgeConstants.SPRITE_DRAFTRANKS_FILE);
         final File f21 = new File(defaultDir + ForgeConstants.SPRITE_ATTRACTION_LIGHTS_FILE);
         final File f22 = new File(defaultDir + ForgeConstants.SPRITE_ZONE_FILE);
 
@@ -1305,8 +1303,6 @@ public class FSkin {
             FView.SINGLETON_INSTANCE.incrementSplashProgessBar(++p);
             bimDefaultDeckbox = ImageIO.read(f14);
             FView.SINGLETON_INSTANCE.incrementSplashProgessBar(++p);
-            bimDefaultDraftRank = ImageIO.read(f20);
-            FView.SINGLETON_INSTANCE.incrementSplashProgessBar(++p);
             bimPrefferedSetLogo = f16.exists() ? ImageIO.read(f16) : ImageIO.read(f15);
             FView.SINGLETON_INSTANCE.incrementSplashProgessBar(++p);
             bimDefaultWatermark = ImageIO.read(f17);
@@ -1314,8 +1310,6 @@ public class FSkin {
             bimZoneIcons = ImageIO.read(f22);
             FView.SINGLETON_INSTANCE.incrementSplashProgessBar(++p);
             bimTrophies = ImageIO.read(f7);
-            FView.SINGLETON_INSTANCE.incrementSplashProgessBar(++p);
-            bimQuestDraftDeck = ImageIO.read(f8);
             FView.SINGLETON_INSTANCE.incrementSplashProgessBar(++p);
             bimFavIcon = ImageIO.read(f9);
             FView.SINGLETON_INSTANCE.incrementSplashProgessBar(++p);
@@ -1385,9 +1379,6 @@ public class FSkin {
                 case DECKBOX:
                     setImage(prop, bimDefaultDeckbox);
                     break;
-                case DRAFTRANKS:
-                    setImage(prop, bimDefaultDraftRank);
-                    break;
                 case SETLOGO:
                     setImage(prop, bimPrefferedSetLogo);
                     break;
@@ -1417,10 +1408,8 @@ public class FSkin {
         bimDefaultSleeve.flush();
         bimDefaultSleeve2.flush();
         bimDefaultDeckbox.flush();
-        bimDefaultDraftRank.flush();
         bimPrefferedSetLogo.flush();
         bimDefaultWatermark.flush();
-        bimQuestDraftDeck.flush();
         bimTrophies.flush();
         bimAbilities.flush();
         bimPhyrexian.flush();
@@ -1436,10 +1425,8 @@ public class FSkin {
         bimDefaultSleeve = null;
         bimDefaultSleeve2 = null;
         bimDefaultDeckbox = null;
-        bimDefaultDraftRank = null;
         bimPrefferedSetLogo = null;
         bimDefaultWatermark = null;
-        bimQuestDraftDeck = null;
         bimTrophies = null;
         bimAbilities = null;
         bimPhyrexian = null;
@@ -1533,15 +1520,6 @@ public class FSkin {
         y0 = tempCoords[1];
         w0 = tempCoords[2];
         h0 = tempCoords[3];
-
-        if (s0.equals(FSkinProp.IMG_QUEST_DRAFT_DECK)) {
-            if (bimQuestDraftDeck != null) {
-                final Color c = getColorFromPixel(bimQuestDraftDeck.getRGB((x0 + w0 / 2), (y0 + h0 / 2)));
-                if (c.getAlpha() != 0) { return bimQuestDraftDeck; }
-            } else {
-                return null;
-            }
-        }
 
         // Test if requested sub-image in inside bounds of preferred sprite.
         // (Height and width of preferred sprite were set in loadFontAndImages.)
