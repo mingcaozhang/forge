@@ -291,7 +291,7 @@ public class ComputerUtilAbility {
      * (e.g. "FreeSpellAI" returned -1 in both directions) and so could contradict itself.
      */
     public static final class SortKey implements Comparable<SortKey> {
-        private final int activateLast, lowPriorityDie, energyPump, zeroCmcFirst, freeSpellFirst, enablerFirst, score;
+        private final int activateLast, energyPump, zeroCmcFirst, freeSpellFirst, enablerFirst, score;
 
         private SortKey(SpellAbility sa, boolean safeToEvaluateCreatures) {
             // we want the highest costs first
@@ -300,8 +300,6 @@ public class ComputerUtilAbility {
 
             // deprioritize SAs explicitly marked as preferred to be activated last compared to all other SAs
             activateLast = sa.hasParam("AIActivateLast") ? 1 : 0;
-            // deprioritize planar die roll marked with AIRollPlanarDieParams:LowPriority$ True
-            lowPriorityDie = isLowPriorityPlanarDieRoll(sa) ? 1 : 0;
             // deprioritize pump spells with pure energy cost (can be activated last,
             // since energy is generally scarce, plus can benefit e.g. Electrostatic Pummeler)
             energyPump = pureEnergyPumpAmount(sa) > 0 ? 1 : 0;
@@ -324,8 +322,6 @@ public class ComputerUtilAbility {
         @Override
         public int compareTo(SortKey o) {
             int r = Integer.compare(activateLast, o.activateLast);
-            if (r != 0) return r;
-            r = Integer.compare(lowPriorityDie, o.lowPriorityDie);
             if (r != 0) return r;
             r = Integer.compare(energyPump, o.energyPump);
             if (r != 0) return r;
@@ -363,22 +359,6 @@ public class ComputerUtilAbility {
                     }
                 } catch (final NumberFormatException e) {
                     // not a plain number: no preference
-                }
-            }
-            return false;
-        }
-
-        private static boolean isLowPriorityPlanarDieRoll(SpellAbility sa) {
-            if (ApiType.RollPlanarDice != sa.getApi() || sa.getHostCard() == null) {
-                return false;
-            }
-            final Game game = sa.getHostCard().getGame();
-            if (game.getActivePlanes() == null) {
-                return false;
-            }
-            for (Card c : game.getActivePlanes()) {
-                if (c.hasSVar("AIRollPlanarDieParams") && c.getSVar("AIRollPlanarDieParams").toLowerCase().matches(".*lowpriority\\$\\s*true.*")) {
-                    return true;
                 }
             }
             return false;

@@ -71,7 +71,6 @@ public class MessageUtil {
             case Protection:
                 return Localizer.getInstance().getMessage("lblPlayerChooseValue", choser, value);
             case RollDice:
-            case RollPlanarDice:
             case PutCounter:// For Clay Golem cost text
                 return value;
             case Vote:

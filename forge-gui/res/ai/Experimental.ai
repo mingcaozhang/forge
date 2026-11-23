@@ -90,12 +90,6 @@ HOLD_LAND_DROP_FOR_MAIN2_IF_UNUSED=100
 # (usually in this case this accomplishes little but confuses the game a bit; disable for a little bit more unpredictability)
 HOLD_LAND_DROP_ONLY_IF_HAVE_OTHER_PERMS=true
 
-# Planechase logic
-DEFAULT_MAX_PLANAR_DIE_ROLLS_PER_TURN=1
-DEFAULT_MIN_TURN_TO_ROLL_PLANAR_DIE=3
-DEFAULT_PLANAR_DIE_ROLL_CHANCE=50
-PLANAR_DIE_ROLL_HESITATION_CHANCE=10
-
 # Timings for moving equipment to other targets
 MOVE_EQUIPMENT_TO_BETTER_CREATURES=always
 MOVE_EQUIPMENT_CREATURE_EVAL_THRESHOLD=60

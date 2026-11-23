@@ -2731,10 +2731,6 @@ public class AbilityUtils {
             return doXMath(c.getFinalChapterNr(), expr, c, ctb);
         }
 
-        if (sq[0].startsWith("PlanarDiceSpecialActionThisTurn")) {
-            return doXMath(game.getPhaseHandler().getPlanarDiceSpecialActionThisTurn(), expr, c, ctb);
-        }
-
         if (sq[0].equals("TotalTurns")) {
             return doXMath(game.getPhaseHandler().getTurn(), expr, c, ctb);
         }

@@ -26,11 +26,7 @@ package forge.ai;
 public enum AiProps {
     // TODO move file explanations to this single place but provide Javadoc alternative for normal users?
 
-    DEFAULT_MAX_PLANAR_DIE_ROLLS_PER_TURN ("1"),
-    DEFAULT_MIN_TURN_TO_ROLL_PLANAR_DIE ("3"),
-    DEFAULT_PLANAR_DIE_ROLL_CHANCE ("50"),
     MULLIGAN_THRESHOLD ("5"),
-    PLANAR_DIE_ROLL_HESITATION_CHANCE ("10"),
     HOLD_LAND_DROP_FOR_MAIN2_IF_UNUSED ("0"),
     HOLD_LAND_DROP_ONLY_IF_HAVE_OTHER_PERMS ("true"),
     CHEAT_WITH_MANA_ON_SHUFFLE ("false"),

@@ -25,7 +25,6 @@ import com.google.common.collect.MultimapBuilder;
 
 import forge.game.*;
 import forge.game.ability.AbilityKey;
-import forge.game.ability.effects.AddTurnEffect;
 import forge.game.ability.effects.SkipPhaseEffect;
 import forge.game.card.*;
 import forge.game.combat.Combat;
@@ -78,7 +77,6 @@ public class PhaseHandler implements IHasForgeLog {
     private int nCombatsThisTurn = 0;
     private int nMainsThisTurn = 0;
     private int nEndOfTurnsThisTurn = 0;
-    private int planarDiceSpecialActionThisTurn = 0;
 
     private Player playerTurn = null;
     private Player playerPreviousTurn = null;
@@ -334,10 +332,6 @@ public class PhaseHandler implements IHasForgeLog {
                 case MAIN1:
                     nMainsThisTurn++;
 
-                    if (playerTurn.isArchenemy()) {
-                        playerTurn.setSchemeInMotion(null);
-                    }
-
                     GameEntityCounterTable table = new GameEntityCounterTable();
                     // CR 703.4f
                     for (final Player active : getActivePlayers()) {
@@ -571,7 +565,6 @@ public class PhaseHandler implements IHasForgeLog {
                     final Map<AbilityKey, Object> runParams = AbilityKey.mapFromPlayer(playerTurn);
                     game.getTriggerHandler().runTrigger(TriggerType.TurnBegin, runParams, false);
                 }
-                planarDiceSpecialActionThisTurn = 0;
                 // Play the End Turn sound
                 game.fireEvent(new GameEventTurnEnded());
                 game.getUndoManager().barrier("Turn Ended.");
@@ -941,9 +934,6 @@ public class PhaseHandler implements IHasForgeLog {
             }
             if (extraTurn.isSkipUntap()) {
                 SkipPhaseEffect.createSkipPhaseEffect(extraTurn.getSkipUntapSA(), nextPlayer, null, null, "Untap");
-            }
-            if (extraTurn.isCantSetSchemesInMotion()) {
-                AddTurnEffect.createCantSetSchemesInMotionEffect(extraTurn.getCantSetSchemesInMotionSA());
             }
         }
         return nextPlayer;
@@ -1363,13 +1353,6 @@ public class PhaseHandler implements IHasForgeLog {
         setPhase(PhaseType.CLEANUP);
         game.fireEvent(new GameEventTurnPhase(playerTurn, phase, ""));
         onPhaseBegin();
-    }
-
-    public int getPlanarDiceSpecialActionThisTurn() {
-        return planarDiceSpecialActionThisTurn;
-    }
-    public void incPlanarDiceSpecialActionThisTurn() {
-        planarDiceSpecialActionThisTurn++;
     }
 
     public String debugPrintState(boolean hasPriority) {

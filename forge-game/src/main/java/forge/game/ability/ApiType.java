@@ -179,7 +179,6 @@ public enum ApiType {
     ReverseTurnOrder (ReverseTurnOrderEffect.class),
     RingTemptsYou (RingTemptsYouEffect.class),
     RollDice (RollDiceEffect.class),
-    RollPlanarDice (RollPlanarDiceEffect.class),
     RunChaos (RunChaosEffect.class),
     Sacrifice (SacrificeEffect.class),
     SacrificeAll (SacrificeAllEffect.class),

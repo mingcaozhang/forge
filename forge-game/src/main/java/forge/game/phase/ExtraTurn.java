@@ -39,7 +39,6 @@ public class ExtraTurn {
     private Player player = null;
     private List<Trigger> delTrig = Collections.synchronizedList(new ArrayList<>());
     private SpellAbility skipUntapSA;
-    private SpellAbility cantSetSchemesInMotionSA;
     /**
      * TODO: Write javadoc for Constructor.
      * @param player the player
@@ -95,18 +94,6 @@ public class ExtraTurn {
      */
     public void setSkipUntapSA(SpellAbility skipUntapSA) {
         this.skipUntapSA = skipUntapSA;
-    }
-
-    public boolean isCantSetSchemesInMotion() {
-        return cantSetSchemesInMotionSA != null;
-    }
-
-    public SpellAbility getCantSetSchemesInMotionSA() {
-        return cantSetSchemesInMotionSA;
-    }
-
-    public void setCantSetSchemesInMotionSA(SpellAbility cantSetSchemesInMotionSA) {
-        this.cantSetSchemesInMotionSA = cantSetSchemesInMotionSA;
     }
 
 }
