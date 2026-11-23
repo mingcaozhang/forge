@@ -146,10 +146,6 @@ public class FDeckChooser extends JPanel implements IDecksComboBoxListener {
         }
     }
 
-    private void updatePrecons() {
-        updateDecks(DeckProxy.getAllPreconstructedDecks(DeckgenUtil.getPrecons()), ItemManagerConfig.PRECON_DECKS);
-    }
-
     private void updateCommanderPrecons() {
         updateDecks(DeckProxy.getAllCommanderPreconDecks(), ItemManagerConfig.COMMANDER_DECKS);
     }
@@ -577,9 +573,6 @@ public class FDeckChooser extends JPanel implements IDecksComboBoxListener {
                 break;
             case COMMANDER_DECK:
                 updateCustom();
-                break;
-            case PRECONSTRUCTED_DECK:
-                updatePrecons();
                 break;
             case PRECON_COMMANDER_DECK:
                 updateCommanderPrecons();

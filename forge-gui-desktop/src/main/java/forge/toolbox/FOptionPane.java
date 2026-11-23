@@ -74,7 +74,7 @@ public class FOptionPane extends FDialog {
         return showOptionDialog(message, title, icon, comp, options, 0);
     }
     public static int showOptionDialog(final String message, final String title, final SkinImage icon, final List<String> options, final int defaultOption) {
-        // not fully done loading yet, avoid crash when called by colorCheck for random decks (as each item gets selected after another)
+        // not fully done loading yet, avoid crash when a dialog is shown during startup
         if (FView.SINGLETON_INSTANCE.getSplash() != null) {
             return 0;
         }
