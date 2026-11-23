@@ -477,34 +477,6 @@ public class DeckProxy implements InventoryItem {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public static List<DeckProxy> getAllPreconstructedDecks(final IStorage<PreconDeck> iStorage) {
-        final List<DeckProxy> decks = new ArrayList<>();
-        for (final PreconDeck preconDeck : iStorage) {
-            decks.add(new DeckProxy(preconDeck, "Precon", (Function<IHasName, Deck>)(Object) (Function<PreconDeck, Deck>) PreconDeck::getDeck, null, iStorage));
-        }
-        return decks;
-    }
-
-    public static List<DeckProxy> getAllQuestDecks(final IStorage<Deck> storage) {
-        final List<DeckProxy> decks = new ArrayList<>();
-        if (storage != null) {
-            for (final Deck deck : storage) {
-                decks.add(new DeckProxy(deck, "Quest", GameType.Quest, storage));
-            }
-        }
-        return decks;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static List<DeckProxy> getWinstonDecks(final IStorage<DeckGroup> draft) {
-        final List<DeckProxy> decks = new ArrayList<>();
-        for (final DeckGroup d : draft) {
-            decks.add(new DeckProxy(d, "Winston", ((Function<IHasName, Deck>)(Object) (Function<DeckGroup, Deck>) DeckGroup::getHumanDeck), GameType.Winston, draft));
-        }
-        return decks;
-    }
-
     public static CardEdition getDefaultLandSet(Deck deck) {
         List<CardEdition> availableEditions = new ArrayList<>();
 
