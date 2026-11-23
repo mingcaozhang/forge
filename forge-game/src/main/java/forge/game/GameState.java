@@ -62,7 +62,6 @@ public class GameState {
         private String manaPool = "";
         private String persistentMana = "";
         private int landsPlayed = 0;
-        private int numRingTemptedYou = 0;
         private int speed = 0;
         private String precast = null;
         private String putOnStack = null;
@@ -136,7 +135,6 @@ public class GameState {
             String prefix = "p" + playerIndex++;
             sb.append(TextUtil.concatNoSpace(prefix + "life=", String.valueOf(p.life), "\n"));
             sb.append(TextUtil.concatNoSpace(prefix + "landsplayed=", String.valueOf(p.landsPlayed), "\n"));
-            sb.append(TextUtil.concatNoSpace(prefix + "numringtemptedyou=", String.valueOf(p.numRingTemptedYou), "\n"));
             sb.append(TextUtil.concatNoSpace(prefix + "speed=", String.valueOf(p.speed), "\n"));
             if (!p.counters.isEmpty()) {
                 sb.append(TextUtil.concatNoSpace(prefix + "counters=", p.counters, "\n"));
@@ -166,7 +164,6 @@ public class GameState {
             p.landsPlayed = player.getLandsPlayedThisTurn();
             p.counters = countersToString(player.getCounters());
             p.manaPool = processManaPool(player.getManaPool());
-            p.numRingTemptedYou = player.getNumRingTemptedYou();
             p.speed = player.getSpeed();
             playerStates.add(p);
         }
@@ -570,8 +567,6 @@ public class GameState {
             getPlayerState(categoryName).counters = categoryValue;
         } else if (categoryName.endsWith("landsplayed")) {
             getPlayerState(categoryName).landsPlayed = Integer.parseInt(categoryValue);
-        } else if (categoryName.endsWith("numringtemptedyou")) {
-            getPlayerState(categoryName).numRingTemptedYou = Integer.parseInt(categoryValue);
         } else if (categoryName.endsWith("speed")) {
             getPlayerState(categoryName).speed = Integer.parseInt(categoryValue);
         } else if (categoryName.endsWith("play") || categoryName.endsWith("battlefield")) {
@@ -1171,7 +1166,6 @@ public class GameState {
         }
 
         p.getCommanders().clear();
-        p.clearTheRing();
 
         Map<ZoneType, CardCollectionView> playerCards = new EnumMap<>(ZoneType.class);
         for (Entry<ZoneType, String> kv : state.cardTexts.entrySet()) {
@@ -1181,7 +1175,6 @@ public class GameState {
 
         if (state.life >= 0) p.setLife(state.life, null);
         p.setLandsPlayedThisTurn(state.landsPlayed);
-        p.setNumRingTemptedYou(state.numRingTemptedYou);
         p.setSpeed(state.speed);
 
         p.clearPaidForSA();
@@ -1240,14 +1233,6 @@ public class GameState {
             applyCountersToGameEntity(p, state.counters);
         }
 
-        if (state.numRingTemptedYou > 0) {
-            //setup all levels
-            for (int i = 1; i <= state.numRingTemptedYou; i++) {
-                if (i > 4)
-                    break;
-                p.setRingLevel(i);
-            }
-        }
         if (state.speed > 0) p.createSpeedEffect();
     }
 
@@ -1377,9 +1362,6 @@ public class GameState {
                     c.setExiledBy(c.getController());
                 } else if (info.startsWith("IsCommander")) {
                     player.addCommander(c);
-                } else if (info.startsWith("IsRingBearer")) {
-                    c.setRingBearer(true);
-                    player.setRingBearer(c);
                 } else if (info.startsWith("Id:")) {
                     int id = Integer.parseInt(info.substring(3));
                     idToCard.put(id, c);

@@ -42,7 +42,6 @@ import forge.game.replacement.ReplacementEffect;
 import forge.game.replacement.ReplacementHandler;
 import forge.game.replacement.ReplacementResult;
 import forge.game.replacement.ReplacementType;
-import forge.game.spellability.AbilitySub;
 
 import forge.game.spellability.AlternativeCost;
 import forge.game.spellability.SpellAbility;
@@ -118,9 +117,7 @@ public class Player extends GameEntity implements Comparable<Player> {
     private int venturedThisTurn;
     private int attractionsVisitedThisTurn;
     private int descended;
-    private int numRingTemptedYou;
     private int devotionMod;
-    private Card ringBearer, theRing;
     private int speed;
 
     private List<Card> discardedThisTurn = new ArrayList<>();
@@ -161,9 +158,6 @@ public class Player extends GameEntity implements Comparable<Player> {
     private final Map<Long, Integer> adjustLandPlays = Maps.newHashMap();
     private final Set<Long> adjustLandPlaysInfinite = Sets.newHashSet();
     private Map<Card, Card> maingameCardsMap = Maps.newHashMap();
-
-    private CardCollection currentPlanes = new CardCollection();
-    private CardCollection planeswalkedToThisTurn = new CardCollection();
 
     private NavigableMap<Long, Pair<Player, PlayerController>> controlledBy = Maps.newTreeMap();
     private NavigableMap<Long, Player> controlledWhileSearching = Maps.newTreeMap();
@@ -253,29 +247,6 @@ public class Player extends GameEntity implements Comparable<Player> {
     @Override
     public Game getGame() {
         return game;
-    }
-
-    public boolean isArchenemy() {
-        return getZone(ZoneType.SchemeDeck).size() > 0; //Only the archenemy has schemes.
-    }
-
-    public void setSchemeInMotion(SpellAbility cause) {
-        setSchemeInMotion(cause, getZone(ZoneType.SchemeDeck).get(0));
-    }
-    public void setSchemeInMotion(SpellAbility cause, Card scheme) {
-        if (game.getReplacementHandler().run(ReplacementType.SetInMotion, AbilityKey.mapFromAffected(this)) != ReplacementResult.NotReplaced) {
-            return;
-        }
-
-        Map<AbilityKey, Object> moveParams = AbilityKey.newMap();
-        moveParams.put(AbilityKey.LastStateBattlefield, game.getLastStateBattlefield());
-        moveParams.put(AbilityKey.LastStateGraveyard, game.getLastStateGraveyard());
-
-        game.getAction().moveToCommand(scheme, cause);
-
-        final Map<AbilityKey, Object> runParams = AbilityKey.newMap();
-        runParams.put(AbilityKey.Scheme, scheme);
-        game.getTriggerHandler().runTrigger(TriggerType.SetInMotion, runParams, false);
     }
 
     /**
@@ -1749,29 +1720,6 @@ public class Player extends GameEntity implements Comparable<Player> {
         return lastDrawnCard;
     }
 
-    public final Card getRingBearer() {
-        return ringBearer;
-    }
-    public final Card getTheRing() {
-        return theRing;
-    }
-    public final void clearTheRing() {
-        theRing = null;
-    }
-    public final void setRingBearer(Card bearer) {
-        if (bearer == null)
-            return;
-        clearRingBearer();
-        ringBearer = bearer;
-        ringBearer.setRingBearer(true);
-    }
-    public void clearRingBearer() {
-        if (ringBearer == null)
-            return;
-        ringBearer.setRingBearer(false);
-        ringBearer = null;
-    }
-
     public final String getNamedCard() {
         return namedCard;
     }
@@ -2484,8 +2432,6 @@ public class Player extends GameEntity implements Comparable<Player> {
         damageReceivedLastTurn = damageReceivedThisTurn;
         damageReceivedThisTurn = Lists.newArrayList();
 
-        planeswalkedToThisTurn.clear();
-
         elementalBendThisTurn.clear();
 
         // set last turn nr
@@ -2607,87 +2553,6 @@ public class Player extends GameEntity implements Comparable<Player> {
         } finally {
             removeController(ts, false);
         }
-    }
-
-    public final List<Card> getPlaneswalkedToThisTurn() {
-        return planeswalkedToThisTurn;
-    }
-
-    /**
-     * Takes the top plane of the planar deck and put it face up in the command zone.
-     * Then runs triggers.
-     */
-    public void planeswalk(SpellAbility sa) {
-        planeswalkTo(sa, new CardCollection(getZone(ZoneType.PlanarDeck).get(0)));
-    }
-
-    /**
-     * Puts the planes in the argument and puts them face up in the command zone.
-     * Then runs triggers.
-     */
-    public void planeswalkTo(SpellAbility sa, final CardCollectionView destinations) {
-        System.out.println(getName() + " planeswalks to " + destinations.toString());
-        game.getView().updatePlanarPlayer(getView());
-
-        for (Card c : destinations) {
-            currentPlanes.add(game.getAction().moveTo(getZone(ZoneType.Command), c, sa, AbilityKey.newMap()));
-            planeswalkedToThisTurn.add(c);
-        }
-
-        game.setActivePlanes(currentPlanes);
-
-        final Map<AbilityKey, Object> runParams = AbilityKey.newMap();
-        runParams.put(AbilityKey.Cards, destinations);
-        game.getTriggerHandler().runTrigger(TriggerType.PlaneswalkedTo, runParams, false);
-        view.updateCurrentPlaneName(currentPlanes.toString().replaceAll(" \\(.*","").replace("[",""));
-    }
-
-    /**
-     * Puts my currently active planes, if any, at the bottom of my planar deck.
-     */
-    public void leaveCurrentPlane() {
-        final Map<AbilityKey, Object> runParams = AbilityKey.newMap();
-        runParams.put(AbilityKey.Cards, new CardCollection(currentPlanes));
-        game.getTriggerHandler().runTrigger(TriggerType.PlaneswalkedFrom, runParams, false);
-
-        for (final Card plane : currentPlanes) {
-            plane.clearControllers();
-            game.getAction().moveTo(ZoneType.PlanarDeck, plane, -1, null, AbilityKey.newMap());
-        }
-        currentPlanes.clear();
-    }
-
-    /**
-     * Removes a particular plane from the active plane list.
-     */
-    public void removeCurrentPlane(Card c) {
-        currentPlanes.remove(c);
-    }
-
-    /**
-     * Sets up the first plane of a round.
-     */
-    public void initPlane() {
-        if (game.isGameOver())
-            return;
-        Card firstPlane;
-        view.updateCurrentPlaneName("");
-        game.getView().updatePlanarPlayer(getView());
-        PlayerZone planarDeck = getZone(ZoneType.PlanarDeck);
-
-        while (!planarDeck.isEmpty()) {
-            firstPlane = planarDeck.get(0);
-            planarDeck.remove(firstPlane);
-            if (firstPlane.getType().isPhenomenon()) {
-                planarDeck.add(firstPlane);
-            } else {
-                currentPlanes.add(firstPlane);
-                getZone(ZoneType.Command).add(firstPlane);
-                break;
-            }
-        }
-        game.setActivePlanes(currentPlanes);
-        view.updateCurrentPlaneName(currentPlanes.toString().replaceAll(" \\(.*","").replace("[",""));
     }
 
     public CardCollectionView getInboundTokens() {
@@ -2913,41 +2778,6 @@ public class Player extends GameEntity implements Comparable<Player> {
 
         PlayerZone com = getZone(ZoneType.Command);
 
-        // Vanguard
-        if (registeredPlayer.getVanguardAvatars() != null) {
-            for (PaperCard avatar:registeredPlayer.getVanguardAvatars()) {
-                Card c = Card.fromPaperCard(avatar, this);
-                c.setCollectible(true);
-                com.add(c);
-            }
-        }
-
-        // Schemes
-        CardCollection sd = new CardCollection();
-        for (IPaperCard cp : registeredPlayer.getSchemes()) {
-            sd.add(Card.fromPaperCard(cp, this));
-        }
-        if (!sd.isEmpty()) {
-            for (Card c : sd) {
-                c.setCollectible(true);
-                getZone(ZoneType.SchemeDeck).add(c);
-            }
-            getZone(ZoneType.SchemeDeck).shuffle();
-        }
-
-        // Planes
-        CardCollection l = new CardCollection();
-        for (IPaperCard cp : registeredPlayer.getPlanes()) {
-            l.add(Card.fromPaperCard(cp, this));
-        }
-        if (!l.isEmpty()) {
-            for (Card c : l) {
-                c.setCollectible(true);
-                getZone(ZoneType.PlanarDeck).add(c);
-            }
-            getZone(ZoneType.PlanarDeck).shuffle();
-        }
-
         // Commander. A game restarted by Karn Liberated keeps the commanders it has
         final boolean addCommanders = getCommanders().isEmpty();
         if (addCommanders && !registeredPlayer.getCommanders().isEmpty()) {
@@ -2958,13 +2788,6 @@ public class Player extends GameEntity implements Comparable<Player> {
                 com.add(cmd);
                 this.addCommander(cmd);
             }
-        }
-        else if (addCommanders && registeredPlayer.getPlaneswalker() != null) { // Planeswalker
-            Card cmd = Card.fromPaperCard(registeredPlayer.getPlaneswalker(), this);
-            cmd.setCollectible(true);
-            cmd.setCommander(true);
-            com.add(cmd);
-            this.addCommander(cmd);
         }
 
         // Conspiracies
@@ -3225,119 +3048,9 @@ public class Player extends GameEntity implements Comparable<Player> {
         eff.addReplacementEffect(re);
 
         String mayBePlayedAbility = "Mode$ Continuous | EffectZone$ Command | MayPlay$ True | Affected$ Card.IsCommander+YouOwn | AffectedZone$ Command";
-        if (game.getRules().hasAppliedVariant(GameType.Planeswalker)) { //support paying for Planeswalker with any color mana
-            mayBePlayedAbility += " | MayPlayIgnoreColor$ True";
-        }
         eff.addStaticAbility(mayBePlayedAbility);
         this.commanderEffect = eff;
         com.add(eff);
-    }
-
-    public void createPlanechaseEffects(Game game) {
-        final PlayerZone com = getZone(ZoneType.Command);
-        final String name = "Planar Dice";
-        final Card eff = new Card(game.nextCardId(), game);
-        eff.setGameTimestamp(game.getNextTimestamp());
-        eff.setName(name);
-        eff.setOwner(this);
-        eff.setGamePieceType(GamePieceType.EFFECT);
-        String image = ImageKeys.getTokenKey("planechase");
-        eff.setImageKey(image);
-
-        String trigger = "Mode$ PlanarDice | Result$ Planeswalk | TriggerZones$ Command | ValidPlayer$ You | Secondary$ True | " +
-                "TriggerDescription$ Whenever you roll the Planeswalker symbol on the planar die, planeswalk.";
-        String rolledWalk = "DB$ Planeswalk | Cause$ PlanarDie";
-        Trigger planesWalkTrigger = TriggerHandler.parseTrigger(trigger, eff, true);
-        planesWalkTrigger.setOverridingAbility(AbilityFactory.getAbility(rolledWalk, eff));
-        eff.addTrigger(planesWalkTrigger);
-
-        String specialA = "ST$ RollPlanarDice | Cost$ X | SorcerySpeed$ True | Activator$ Player | SpecialAction$ True" +
-                " | ActivationZone$ Command | SpellDescription$ Roll the planar dice. X is equal to the number of " +
-                "times you have previously taken this action this turn. | CostDesc$ {X}: ";
-        SpellAbility planarRoll = AbilityFactory.getAbility(specialA, eff);
-        planarRoll.setSVar("X", "Count$PlanarDiceSpecialActionThisTurn");
-        eff.addSpellAbility(planarRoll);
-
-        eff.updateStateForView();
-        com.add(eff);
-        this.updateZoneForView(com);
-    }
-
-    public void createTheRing(String set) {
-        if (theRing == null) {
-            final PlayerZone com = getZone(ZoneType.Command);
-            theRing = new Card(game.nextCardId(), null, game);
-            theRing.setOwner(this);
-            theRing.setGamePieceType(GamePieceType.EFFECT);
-            theRing.setImageKey(StaticData.instance().getOtherImageKey(ImageKeys.THE_RING_IMAGE, set));
-            if (set != null) {
-                theRing.setSetCode(set);
-            }
-            theRing.setName("The Ring");
-            theRing.updateStateForView();
-            com.add(theRing);
-            this.updateZoneForView(com);
-        }
-    }
-    public void setRingLevel(int level) {
-        if (getTheRing() == null)
-            createTheRing(null);
-        if (level == 1) {
-            String legendary = "Mode$ Continuous | EffectZone$ Command | Affected$ Card.YouCtrl+IsRingbearer | AddType$ Legendary | Description$ Your Ring-bearer is legendary.";
-            String cantBeBlocked = "Mode$ CantBlockBy | EffectZone$ Command | ValidAttacker$ Card.YouCtrl+IsRingbearer | ValidBlockerRelative$ Creature.powerGTX | Description$ Your Ring-bearer can't be blocked by creatures with greater power.";
-            getTheRing().addStaticAbility(legendary);
-            StaticAbility st = getTheRing().addStaticAbility(cantBeBlocked);
-            st.setSVar("X", "Count$CardPower");
-        } else if (level == 2) {
-            final String attackTrig = "Mode$ Attacks | ValidCard$ Card.YouCtrl+IsRingbearer | TriggerDescription$ Whenever your ring-bearer attacks, draw a card, then discard a card. | TriggerZones$ Command";
-            final String drawEffect = "DB$ Draw | Defined$ You | NumCards$ 1";
-            final String discardEffect = "DB$ Discard | Defined$ You | NumCards$ 1 | Mode$ TgtChoose";
-
-            final Trigger attackTrigger = TriggerHandler.parseTrigger(attackTrig, getTheRing(), true);
-
-            SpellAbility drawExecute = AbilityFactory.getAbility(drawEffect, getTheRing());
-            AbilitySub discardExecute = (AbilitySub) AbilityFactory.getAbility(discardEffect, getTheRing());
-
-            drawExecute.setSubAbility(discardExecute);
-            attackTrigger.setOverridingAbility(drawExecute);
-            getTheRing().addTrigger(attackTrigger);
-        } else if (level == 3) {
-            final String becomesBlockedTrig = "Mode$ AttackerBlockedByCreature | ValidCard$ Card.YouCtrl+IsRingbearer| ValidBlocker$ Creature | TriggerZones$ Command | TriggerDescription$ Whenever your Ring-bearer becomes blocked a creature, that creature's controller sacrifices it at the end of combat.";
-            final String endOfCombatTrig = "DB$ DelayedTrigger | Mode$ Phase | Phase$ EndCombat | RememberObjects$ TriggeredBlockerLKICopy | TriggerDescription$ At end of combat, the controller of the creature that blocked CARDNAME sacrifices that creature.";
-            final String sacBlockerEffect = "DB$ SacrificeAll | Defined$ DelayTriggerRememberedLKI";
-
-            final Trigger becomesBlockedTrigger = TriggerHandler.parseTrigger(becomesBlockedTrig, getTheRing(), true);
-
-            SpellAbility endCombatExecute = AbilityFactory.getAbility(endOfCombatTrig, getTheRing());
-            AbilitySub sacExecute = (AbilitySub) AbilityFactory.getAbility(sacBlockerEffect, getTheRing());
-
-            endCombatExecute.setAdditionalAbility("Execute", sacExecute);
-            becomesBlockedTrigger.setOverridingAbility(endCombatExecute);
-            getTheRing().addTrigger(becomesBlockedTrigger);
-        } else if (level == 4) {
-            final String damageTrig = "Mode$ DamageDone | ValidSource$ Card.YouCtrl+IsRingbearer | ValidTarget$ Player | CombatDamage$ True | TriggerZones$ Command | TriggerDescription$ Whenever your Ring-bearer deals combat damage to a player, each opponent loses 3 life.";
-            final String loseEffect = "DB$ LoseLife | Defined$ Opponent | LifeAmount$ 3";
-
-            final Trigger damageTrigger = TriggerHandler.parseTrigger(damageTrig, getTheRing(), true);
-            SpellAbility loseExecute = AbilityFactory.getAbility(loseEffect, getTheRing());
-
-            damageTrigger.setOverridingAbility(loseExecute);
-            getTheRing().addTrigger(damageTrigger);
-        }
-        getTheRing().updateStateForView();
-    }
-
-    public final int getNumRingTemptedYou() {
-        return numRingTemptedYou;
-    }
-    public final void incrementRingTemptedYou() {
-        numRingTemptedYou++;
-    }
-    public final void setNumRingTemptedYou(int value) {
-        numRingTemptedYou = value;
-    }
-    public final void resetRingTemptedYou() {
-        numRingTemptedYou = 0;
     }
 
     public void changeOwnership(Card card) {

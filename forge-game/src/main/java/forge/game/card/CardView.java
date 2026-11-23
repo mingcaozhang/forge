@@ -503,15 +503,6 @@ public class CardView extends GameEntityView {
         updateMarkerText(c);
     }
 
-    public int getRingLevel() {
-        return get(TrackableProperty.RingLevel);
-    }
-    void updateRingLevel(Card c) {
-        Player p = c.getController();
-        if (p != null && p.getTheRing() == c)
-            set(TrackableProperty.RingLevel, p.getNumRingTemptedYou());
-    }
-
     public String getOverlayText() {
         return get(TrackableProperty.OverlayText);
     }
@@ -526,9 +517,6 @@ public class CardView extends GameEntityView {
         }
         if(c.isClassCard() && c.isInZone(ZoneType.Battlefield)) {
             markerItems.add("CL:" + c.getClassLevel());
-        }
-        if(getRingLevel() > 0) {
-            markerItems.add("RL:" + getRingLevel());
         }
 
         if(StringUtils.isNotEmpty(c.getOverlayText())) {
@@ -984,7 +972,6 @@ public class CardView extends GameEntityView {
         updateZoneText(c);
         updateDamage(c);
         updateSpecialize(c);
-        updateRingLevel(c);
         updateMarkerText(c);
 
         if (c.getIntensity(false) > 0) {

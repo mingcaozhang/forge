@@ -3662,25 +3662,8 @@ public class AbilityUtils {
             return doXMath(player.hasBeenDealtCombatDamageSinceLastTurn() ? 1 : 0, m, source, ctb);
         }
 
-        if (value.equals("RingTemptedYou")) {
-            return doXMath(player.getNumRingTemptedYou(), m, source, ctb);
-        }
-
         if (value.equals("AttractionsVisitedThisTurn")) {
             return doXMath(player.getAttractionsVisitedThisTurn(), m, source, ctb);
-        }
-
-        if (value.startsWith("PlaneswalkedToThisTurn")) {
-            int found = 0;
-            String name = value.split(" ")[1];
-            List<Card> pwTo = player.getPlaneswalkedToThisTurn();
-            for (Card c : pwTo) {
-                if (c.getName().equals(name)) {
-                    found++;
-                    break;
-                }
-            }
-            return doXMath(found, m, source, ctb);
         }
 
         return doXMath(0, m, source, ctb);

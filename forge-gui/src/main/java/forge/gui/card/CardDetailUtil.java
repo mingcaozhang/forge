@@ -503,11 +503,6 @@ public class CardDetailUtil {
             area.append("\n\n(Class Level: ").append(card.getClassLevel()).append(")");
         }
 
-        //ring level
-        if (card.getRingLevel() > 0 && card.getZone() == ZoneType.Command) {
-            area.append("\n\n(Ring Level: ").append(card.getRingLevel()).append(")");
-        }
-
         // Text on gameplay trackers (e.g. Speed)
         if (StringUtils.isNotEmpty(card.getOverlayText())) {
             area.append("\n\n(").append(card.getOverlayText()).append(")");

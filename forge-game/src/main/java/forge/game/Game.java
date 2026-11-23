@@ -969,8 +969,6 @@ public class Game {
         p.setHasLost(true);
         // CR 800.4 Losing a Multiplayer game
         CardCollectionView cards = this.getCardsInGame();
-        boolean planarControllerLost = false;
-        boolean planarOwnerLost = false;
         boolean isMultiplayer = getPlayers().size() > 2;
         CardZoneTable triggerList = new CardZoneTable(getLastStateBattlefield(), getLastStateGraveyard());
 
@@ -989,17 +987,6 @@ public class Game {
             // CR 800.4d if card is controlled by opponent, LTB should trigger
             if (c.getOwner().equals(p) && c.getController().equals(p)) {
                 getTriggerHandler().clearActiveTriggers(c, null);
-            }
-        }
-
-        if (getActivePlanes() != null) {
-            for (Card c : getActivePlanes()) {
-                if (c.getController().equals(p)) {
-                    planarControllerLost = true;
-                }
-                if (c.getOwner().equals(p)) {
-                    planarOwnerLost = true;
-                }
             }
         }
 
@@ -1049,37 +1036,6 @@ public class Game {
         }
 
         triggerList.triggerChangesZoneAll(this, null);
-
-        // CR 901.6 If the current planar controller would leave the game, instead the next player
-        // in turn order that wouldn't leave the game becomes the planar controller
-        if (planarControllerLost) {
-            for (Card c : getActivePlanes()) {
-                if (!c.getOwner().equals(p)) {
-                    c.setController(getNextPlayerAfter(p), 0);
-                    getAction().controllerChangeZoneCorrection(c);
-                }
-            }
-        }
-        // CR 901.10 When a player leaves the game, all objects owned by that player except abilities
-        // from phenomena leave the game. (See rule 800.4a.) If that includes a face-up plane card
-        // or phenomenon card, the planar controller turns the top card of his or her planar deck face up
-        if (planarOwnerLost) {
-            Player planarController = getPhaseHandler().getPlayerTurn();
-            if (planarController.equals(p)) {
-                planarController = getNextPlayerAfter(p);
-            }
-            CardCollection planesLeavingGame =  new CardCollection();
-            for (Card c : getActivePlanes()) {
-                if (c.getOwner().equals(p)) {
-                    planesLeavingGame.add(c);
-                    planarController.removeCurrentPlane(c);
-                }
-            }
-            final Map<AbilityKey, Object> runParams = AbilityKey.newMap();
-            runParams.put(AbilityKey.Cards, planesLeavingGame);
-            getTriggerHandler().runTrigger(TriggerType.PlaneswalkedFrom, runParams, false);
-            planarController.planeswalk(null);
-        }
 
         if (p.isMonarch()) {
             // CR 724.4 if the player who lost was the Monarch, someone else will be the monarch

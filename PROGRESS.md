@@ -1,43 +1,20 @@
-# PROGRESS.md — Pre-rewrite cleanup (Part 6: 18.2 done)
+# Forge Commander Refactor — Progress Notes
 
-## Verified baseline facts
-- Branch `dev`, clean tree. Per-item verify: `GATE` = `mvn test -pl forge-gui-desktop -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` (600000 ms). Final gates add `PKG` = `mvn package -DskipTests -T 1C`.
-- Desktop surefire "Results" line is 1 less than TestSuite line (off-by-one) — normal. `Localizer` falls back locale → en-US.
-- `rg --type java` here also matches `.properties` files; use `--glob '*.java'` for accurate Java-only ref checks.
-- Checkstyle runs at `validate` with root `checkstyle.xml` — fails on unused imports; `mvn test-compile` catches it fast.
-- Non-failing noise: "card ... not assigned to any set", "Upcoming set ... dated in the future", WireClassFilter REJECTED ERROR lines in net tests. `AiReportScenarioTest` flaky under full parallel GATE (green in isolation/rerun).
-- Scratch artifacts only under `/tmp/opencode/`. Locale files have no trailing newline; preserve when editing. i18n keys are plain string literals via `Localizer.getMessage` (no I18N enum) — deletion = property lines only.
-- AI profile files (`forge-gui/res/ai/*.ai`) parse via `AiProps.valueOf` (NOT lenient) — removing an `AiProps` const REQUIRES removing its lines from all bundled `.ai` files.
+## Baseline facts (verified)
+- Working branch: `dev`. Never `git push`; keep commits local.
+- `rg --type java` matches `.properties` too — use `--glob '*.java'` for Java-only ref checks.
+- GATE (per AGENTS.md/PLAN.md): `mvn test -pl forge-gui-desktop -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C`. Full final gates add PKG: `mvn package -DskipTests -T 1C`. 600000 ms timeout on Maven runs.
+- `AiReportScenarioTest` is flaky under full-parallel GATE (green in isolation / rerun).
+- `TrackableProperty` ordinals are replay-stable — leave unused enum entries in place.
+- `ApiType.smartValueOf` is a strict lookup at ability-BUILD time, but `CardScriptParser.isAbilityApiLegal` wraps it in try/catch (lenient for unknown `DB$`/`Mode$` names in card data). Cards without a `Set:` line are unassigned/illegal in Commander → unparseable PlanarConquest card files degrade safely at load.
+- `RestartGameEffect` = Karn Liberated core effect (KEEP); only its The-Ring lines are PlanarConquest ripple.
 
 ## Recently completed
-- 18.2: Planes/PlanarDice/Archenemy-scheme machinery — `PhaseHandler` (planar-dice counter + accessors, MAIN1 Archenemy
-  scheme-reset, CantSetSchemesInMotion dispatch + `AddTurnEffect` import), `ExtraTurn.cantSetSchemesInMotionSA`,
-  `AddTurnEffect` (NoSchemes param + `createCantSetSchemesInMotionEffect`). Compile ripple pulled forward:
-  `RollPlanarDiceEffect` + `ApiType.RollPlanarDice` + `SpellApiToAi` mapping + `MessageUtil` case +
-  `RollPlanarDiceAi` + `ComputerUtilAbility` `lowPriorityDie`/`isLowPriorityPlanarDieRoll` + `AbilityUtils`
-  `PlanarDiceSpecialActionThisTurn` keyword + 4 `AiProps` planar-die consts + matching lines in all 6
-  `res/ai/*.ai` (incl. orphaned `# Planechase logic` header). `Player.createPlanechaseEffects` (18.3) still
-  builds `ST$ RollPlanarDice` as strings — inert now (lenient parse). GATE (2687 tests) green.
-- 18.1: `GameAction` dead branches — commander-damage SBA keyed on `GameType.Commander` only (Planeswalker
-  variant check dropped); mulligan unconditional (Puzzle guard dropped); `determineFirstTurnPlayer` no longer
-  early-returns for Puzzle or Archenemy (empty `game != null` wrapper removed too — `game` is used
-  unconditionally in the rest of the method). GATE (2686 tests) green.
-- 17.5: Removed lobby Format selector + Vanguard/Planechase game modes. `GameType` lost `Vanguard`/`Planechase`;
-  `FormatChoices.VARIANTS` is now empty. Stripped their engine blocks (`RegisteredPlayer` plane avatar,
-  `GameAction`/`PhaseHandler` Planechase init, `GameLobby` startGame legality), dev cheats, planar-deck
-  plumbing (`DeckProxy.getAllPlanarDecks`, `RandomDeckGenerator` case), and all lobby UI (format combo, variant
-  checkboxes, planar+vanguard panels; `PlayerPanel` planar/vanguard buttons). Commander stays a variant; kept
-  `Player.getPlanes` (read at 2940) + planes card data (`CardType.Vanguard`, planes cards, `DeckFormat.Vanguard`).
-- 17.4: Fixed deck-editor tab-drag NPE (`SRearrangingUtil.cellTarget` null); drag over non-cell areas now
-  resets the drag. GUI drag not unit-testable; verified by full GATE+PKG.
+- **18.2** — removed PlanarDice roll API + roll effects (432 lines, 3 files).
+- **18.3** — removed Archenemy/planes/"The Ring" engine from `Player.java` (287 lines) + compile ripple: deleted `PlaneswalkEffect`/`SetInMotionEffect`/`RingTemptsYouEffect` + their `ApiType`/`SpellApiToAi` entries (pulled from 18.6), `AbilityUtils` RingTemptedYou/PlaneswalkedToThisTurn X-math, `GameState` ring state (field/save/load/ring-bearer/ring-level), `Game.onPlayerLost` planar loss blocks+locals (pulled from 18.5), `CardView`/`CardDetailUtil` ring display, `RestartGameEffect` 3 ring-reset lines. GATE green (2686 tests, 0 failures). 535 lines deleted, 0 added, 12 files.
 
 ## Active caveats / follow-ups
-- Part 6 order: Phase 18 (engine dead branches, forge-game) → 19 (deckgen) → 20 (storage/net decks/DeckType) →
-  21 (deck editor) → 22 (enum pruning) → 23 (res data) → 24 (i18n) → 25 (final). 18.3/18.4 still hold the
-  `Player`/`RegisteredPlayer` Archenemy/Planeswalker/Puzzle refs. 18.6 list shrunk: `RollPlanarDiceEffect`
-  + its `ApiType` entry gone in 18.2.
-- Deferred (later parts): ante; Puzzle core remnants + `lblPuzzle*` keys (hard-KEEP); `LEGACY_*` prefs;
-  quest/gauntlet/adventure remnants (`res/quest/`, `forge-gui/tools/adventure_i18n.py` + README).
-- 17.1 sweep expected survivors (check at 25.2): kept net transport subset (`FGameClient`/`GameClientHandler`/
-  `NetGameController`/`ReplayClient`/`NetworkLogConfig` + `NETWORK_LOGS_DIR`), card names in card data/docs,
-  `res/quest/**`, `formats/Archived/**`, `org.jupnp` imports (device/display adapters, not multiplayer).
+- 18.5 scope reduced: only `Game.activePlanes` field + `getActivePlanes`/`setActivePlanes` (L81, 1137-1140) + `GameCopier` (forge-ai/simulation L355-360) ripple remain.
+- 18.6 list updated: `PlaneswalkEffect`/`SetInMotionEffect`/`RingTemptsYouEffect` + entries already gone; add `TriggerRingTemptsYou` (+ `TriggerType.RingTemptsYou` entry) and `PlayerControllerAi.choosePDRollToIgnore` (last Java user of `PlanarDice`).
+- Left orphaned (compile-safe, later items): `Card.ringBearer` flag + `CardProperty.IsRingbearer` (→25.2), `TrackableProperty.RingLevel`/`IsRingBearer` (replay stability), `PlayerView.updateCurrentPlaneName` / `GameView.updatePlanarPlayer`, `AbilityKey.Scheme` (still used by `TriggerSetInMotion` → 18.6), `ReplacementType.Planeswalk`/`SetInMotion` + `Replace*` (→18.6), `PlanarDice` class / `ChaosEnsuesEffect` / `RunChaosEffect` (→18.6).
+- `Player.getPlaneswalkersInPlay` is real MTG (Planeswalker-card) code used by AI/combat — KEEP.
