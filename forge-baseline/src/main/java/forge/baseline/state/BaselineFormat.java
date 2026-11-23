@@ -9,17 +9,21 @@ import forge.game.spellability.StackItemView;
 import forge.trackable.TrackableObject;
 
 /**
- * Version and wire-key contract for the baseline state format.
+ * Version and wire-key contract for the baseline format.
  *
  * <p>The key encoding intentionally mirrors the network {@code DeltaPacket} schema so
  * baseline snapshots and deltas stay byte-for-byte compatible with the existing
  * Trackable property protocol: upper 4 bits = type tag, lower 28 bits = object ID
  * (for {@link CardStateView} the composite id is {@code id * 16 + state.ordinal()}).</p>
+ *
+ * <p>Version 2 adds the {@link BaselinePrompt} field to the snapshot envelope and
+ * introduces the {@code BaselineAction} model; the same {@link #VERSION} gates the
+ * action schema, so bump it for any incompatible change to either.</p>
  */
 public final class BaselineFormat {
 
-    /** Current baseline format version. Bump when the snapshot/delta schema changes incompatibly. */
-    public static final int VERSION = 1;
+    /** Current baseline format version. Bump when the snapshot/delta/action schema changes incompatibly. */
+    public static final int VERSION = 2;
 
     public static final int TYPE_CARD_VIEW = 0;
     public static final int TYPE_PLAYER_VIEW = 1;

@@ -3,6 +3,7 @@ package forge.baseline.transport;
 import forge.baseline.TestMatch;
 import forge.baseline.state.BaselineDelta;
 import forge.baseline.state.BaselineFormat;
+import forge.baseline.state.BaselinePrompt;
 import forge.baseline.state.BaselineSnapshot;
 import forge.game.GameView;
 import forge.game.card.CardView;
@@ -26,6 +27,7 @@ import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import org.testng.annotations.Test;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,6 +92,37 @@ public class BaselineTransportShould {
         assertThat(inCard.getName()).isEqualTo("Lightning Bolt");
         assertThat(inCard.getZone()).isEqualTo(ZoneType.Graveyard);
         assertThat(tracker.getObj(TrackableTypes.CardViewType, cardView.getId())).isSameAs(inCard);
+    }
+
+    @Test
+    public void snapshotWithPromptRoundTripsThroughTheKeptCodec() throws Exception {
+        TestMatch match = TestMatch.create();
+        CardView cardView = match.addCard(match.player1, ZoneType.Graveyard, "Lightning Bolt").getView();
+        BaselinePrompt prompt = BaselinePrompt
+                .builder(BaselinePrompt.Kind.SELECT_CARD, match.player1.getView().getId())
+                .message("Choose a target")
+                .cardCandidates(List.of(cardView))
+                .minCount(1)
+                .maxCount(1)
+                .build();
+        BaselineSnapshot out = new BaselineSnapshot(11L, match.game.getView(), prompt);
+
+        BaselineSnapshot in = roundTrip(
+                new GuiGameEvent(ProtocolMethod.setGameView, out), match.game.getTracker(), null);
+
+        assertThat(in).isNotNull();
+        assertThat(in.hasPrompt()).isTrue();
+        BaselinePrompt inPrompt = in.getPrompt();
+        assertThat(inPrompt.getKind()).isEqualTo(BaselinePrompt.Kind.SELECT_CARD);
+        assertThat(inPrompt.getPlayerId()).isEqualTo(match.player1.getView().getId());
+        assertThat(inPrompt.getMessage()).isEqualTo("Choose a target");
+        assertThat(inPrompt.getMinCount()).isEqualTo(1);
+        assertThat(inPrompt.getMaxCount()).isEqualTo(1);
+        // setGameView carries full state (no IdRef replacement), so candidates come back
+        // as fresh instances with the same identity.
+        assertThat(inPrompt.getCardCandidates()).hasSize(1);
+        assertThat(inPrompt.getCardCandidates().get(0).getId()).isEqualTo(cardView.getId());
+        assertThat(inPrompt.getCardCandidates().get(0)).isNotSameAs(cardView);
     }
 
     @Test

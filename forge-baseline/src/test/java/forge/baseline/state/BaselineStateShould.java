@@ -48,7 +48,7 @@ public class BaselineStateShould {
 
     @Test
     public void versionMismatchIsRejected() {
-        BaselineSnapshot future = new BaselineSnapshot(BaselineFormat.VERSION + 1, 1L, TestMatch.create().game.getView());
+        BaselineSnapshot future = new BaselineSnapshot(BaselineFormat.VERSION + 1, 1L, TestMatch.create().game.getView(), null);
 
         assertThatThrownBy(() -> BaselineFormat.checkVersion(future.getVersion()))
                 .isInstanceOf(BaselineVersionException.class)
