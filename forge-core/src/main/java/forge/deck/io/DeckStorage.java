@@ -48,7 +48,11 @@ public class DeckStorage extends StorageReaderFolder<Deck> implements IItemSeria
 
     public DeckStorage(final File deckDir0, final String rootDir0, boolean moveWrongDecks) {
         super(deckDir0, DeckBase::getName);
-        rootDir = rootDir0;
+        String root = rootDir0;
+        while (root.length() > 1 && root.endsWith(File.separator)) {
+            root = root.substring(0, root.length() - 1);
+        }
+        rootDir = root;
         moveWronglyNamedDecks = moveWrongDecks;
     }
 
