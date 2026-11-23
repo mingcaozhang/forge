@@ -648,12 +648,6 @@ public class PlayerControllerAi extends PlayerController {
     }
 
     @Override
-    public PlanarDice choosePDRollToIgnore(List<PlanarDice> rolls) {
-        //TODO create AI logic for this
-        return Aggregates.random(rolls);
-    }
-
-    @Override
     public Integer chooseRollToIgnore(List<Integer> rolls) {
         //TODO create AI logic for this
         return Aggregates.random(rolls);

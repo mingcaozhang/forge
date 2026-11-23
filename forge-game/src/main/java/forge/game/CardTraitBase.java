@@ -234,13 +234,6 @@ public abstract class CardTraitBase implements GameObject, IHasCardView, IHasSVa
             if (ArrayUtils.contains(valids, o)) {
                 return true;
             }
-        } else if (o instanceof PlanarDice pd) {
-            for (String s : valids) {
-                PlanarDice valid = PlanarDice.smartValueOf(s);
-                if (pd.name().equals(valid.name())) {
-                    return true;
-                }
-            }
         } else if (o instanceof GameLossReason glr) {
             for (String s : valids) {
                 GameLossReason valid = GameLossReason.smartValueOf(s);

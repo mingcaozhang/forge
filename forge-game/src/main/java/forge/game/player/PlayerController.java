@@ -272,7 +272,6 @@ public abstract class PlayerController {
         return chooseSprocket(assignee, List.of(1, 2, 3));
     }
 
-    public abstract PlanarDice choosePDRollToIgnore(List<PlanarDice> rolls);
     public abstract Integer chooseRollToIgnore(List<Integer> rolls);
     public abstract List<Integer> chooseDiceToReroll(List<Integer> rolls);
     public abstract Integer chooseRollToModify(List<Integer> rolls);

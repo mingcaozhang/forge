@@ -1,19 +1,9 @@
 package forge.game.event;
 
-import forge.game.PlanarDice;
-
-public record GameEventRollDie(int sides, int result, PlanarDice planar) implements GameEvent {
+public record GameEventRollDie(int sides, int result) implements GameEvent {
 
     public GameEventRollDie() {
-        this(0, 0, null);
-    }
-
-    public GameEventRollDie(int sides, int result) {
-        this(sides, result, null);
-    }
-
-    public GameEventRollDie(PlanarDice planar) {
-        this(6, 0, planar);
+        this(0, 0);
     }
 
     @Override

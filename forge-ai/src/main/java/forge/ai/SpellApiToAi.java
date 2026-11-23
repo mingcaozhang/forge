@@ -176,7 +176,6 @@ public enum SpellApiToAi {
             .put(ApiType.RevealHand, RevealHandAi.class)
             .put(ApiType.ReverseTurnOrder, AlwaysPlayAi.class)
             .put(ApiType.RollDice, RollDiceAi.class)
-            .put(ApiType.RunChaos, AlwaysPlayAi.class)
             .put(ApiType.Sacrifice, SacrificeAi.class)
             .put(ApiType.SacrificeAll, SacrificeAllAi.class)
             .put(ApiType.Scry, ScryAi.class)

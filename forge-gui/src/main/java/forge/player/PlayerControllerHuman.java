@@ -1438,11 +1438,6 @@ public class PlayerControllerHuman extends PlayerController implements IGameCont
     }
 
     @Override
-    public PlanarDice choosePDRollToIgnore(List<PlanarDice> rolls) {
-        return getGui().one(Localizer.getInstance().getMessage("lblChooseRollIgnore"), rolls);
-    }
-
-    @Override
     public Integer chooseRollToIgnore(List<Integer> rolls) {
         return getGui().one(Localizer.getInstance().getMessage("lblChooseRollIgnore"), rolls);
     }

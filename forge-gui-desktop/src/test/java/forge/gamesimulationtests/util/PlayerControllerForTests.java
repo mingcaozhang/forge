@@ -521,11 +521,6 @@ public class PlayerControllerForTests extends PlayerController {
     }
 
     @Override
-    public PlanarDice choosePDRollToIgnore(List<PlanarDice> rolls) {
-        return Aggregates.random(rolls);
-    }
-
-    @Override
     public Integer chooseRollToIgnore(List<Integer> rolls) {
         return Aggregates.random(rolls);
     }
