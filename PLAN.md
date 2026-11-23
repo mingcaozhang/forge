@@ -157,7 +157,7 @@ Separate UI rendering from game/rules/deck/lobby state behind a clean, testable 
 - [x] 28.2 Prompt boundary: pending prompts + legal candidates exposed as state; choices accepted as actions; adapter runs non-interactively (PlayerControllerAi / scripted test controller) off the latch-blocking awaitInput path; CMatchUI path untouched.
 
 ### Phase 29 — Transition & invariant tests
-- [ ] 29.1 Fast deterministic unit tests over BaselineEngine: legal/illegal action handling (illegal → rejected, state unchanged), phase/step progression (mulligan→draw/combat/end), state invariants (zone counts, life, stack, commander in command zone). Seeded MyRandom, no UI.
+- [x] 29.1 Fast deterministic unit tests over BaselineEngine: legal/illegal action handling (illegal → rejected, state unchanged), phase/step progression (mulligan→draw/combat/end), state invariants (zone counts, life, stack, commander in command zone). Seeded MyRandom, no UI.
 
 ### Phase 30 — Golden replay & headless match tests
 - [ ] 30.1 Seeded golden traces: record N small AI-vs-AI Commander games (action sequence + per-step state hashes) as committed golden files; test replays actions on a fresh engine and asserts per-step equality.
