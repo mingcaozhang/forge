@@ -429,15 +429,6 @@ public class DeckProxy implements InventoryItem {
         return result;
     }
 
-    public static Iterable<DeckProxy> getAllSchemeDecks() {
-        return getAllSchemeDecks(null);
-    }
-    public static Iterable<DeckProxy> getAllSchemeDecks(final Predicate<Deck> filter) {
-        final List<DeckProxy> result = new ArrayList<>();
-        addDecksRecursivelly("Scheme", GameType.Archenemy, result, "", FModel.getDecks().getScheme(), filter);
-        return result;
-    }
-
     private static void addDecksRecursivelly(final String deckType, final GameType gameType, final List<DeckProxy> list, final String path, final IStorage<Deck> folder, final Predicate<Deck> filter) {
         for (final IStorage<Deck> f : folder.getFolders()) {
             final String subPath = (StringUtils.isBlank(path) ? "" : path) + "/" + f.getName();
@@ -495,49 +486,12 @@ public class DeckProxy implements InventoryItem {
         return decks;
     }
 
-    public static List<DeckProxy> getAllGeneticAIDecks() {
-        final List<DeckProxy> decks = new ArrayList<>();
-        final IStorage<Deck> genetic = FModel.getDecks().getGeneticAIDecks();
-        addDecksRecursivelly("Constructed", GameType.Constructed, decks, "", genetic, null);
-        return decks;
-    }
-
-    public static List<DeckProxy> getAllCustomStarterDecks() {
-        final List<DeckProxy> decks = new ArrayList<>();
-        final IStorage<Deck> easy = FModel.getDecks().getCustomStarterDecks();
-        addDecksRecursivelly("Constructed", GameType.Constructed, decks, "", easy, null);
-        return decks;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static List<DeckProxy> getAllSealedDecks() {
-        final List<DeckProxy> humanDecks = new ArrayList<>();
-        final IStorage<DeckGroup> sealed = FModel.getDecks().getSealed();
-
-        // Since AI decks are tied directly to the human choice,
-        // they're just mapped in a parallel map and grabbed when the game starts.
-        for (final DeckGroup d : sealed) { //TODO: Simplify the method references used by this constructor.
-            humanDecks.add(new DeckProxy(d, "Sealed", (Function<IHasName, Deck>)(Object) (Function<DeckGroup, Deck>) DeckGroup::getHumanDeck, GameType.Sealed, sealed));
-        }
-        return humanDecks;
-    }
-
     public static List<DeckProxy> getAllQuestDecks(final IStorage<Deck> storage) {
         final List<DeckProxy> decks = new ArrayList<>();
         if (storage != null) {
             for (final Deck deck : storage) {
                 decks.add(new DeckProxy(deck, "Quest", GameType.Quest, storage));
             }
-        }
-        return decks;
-    }
-
-    @SuppressWarnings("unchecked")
-    public static List<DeckProxy> getAllDraftDecks() {
-        final List<DeckProxy> decks = new ArrayList<>();
-        final IStorage<DeckGroup> draft = FModel.getDecks().getDraft();
-        for (final DeckGroup d : draft) {
-            decks.add(new DeckProxy(d, "Draft", ((Function<IHasName, Deck>)(Object) (Function<DeckGroup, Deck>) DeckGroup::getHumanDeck), GameType.Draft, draft));
         }
         return decks;
     }

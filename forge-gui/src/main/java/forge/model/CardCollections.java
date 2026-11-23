@@ -18,8 +18,6 @@
 package forge.model;
 
 import forge.deck.Deck;
-import forge.deck.DeckGroup;
-import forge.deck.io.DeckGroupSerializer;
 import forge.deck.io.DeckStorage;
 import forge.localinstance.properties.ForgeConstants;
 import forge.util.storage.IStorage;
@@ -35,15 +33,8 @@ import java.io.File;
 public class CardCollections {
     // Note: These are loaded lazily.
     private IStorage<Deck> constructed;
-    private IStorage<DeckGroup> draft;
-    private IStorage<DeckGroup> sealed;
-    private IStorage<DeckGroup> winston;
-    private IStorage<Deck> scheme;
-    private IStorage<Deck> plane;
     private IStorage<Deck> commander;
     private IStorage<Deck> commanderPrecons;
-    private IStorage<Deck> genetic;
-    private IStorage<Deck> customStarter;
 
     public CardCollections() {
     }
@@ -55,46 +46,6 @@ public class CardCollections {
                     true);
         }
         return constructed;
-    }
-
-    public final IStorage<DeckGroup> getDraft() {
-        if (draft == null) {
-            draft = new StorageImmediatelySerialized<>("Draft deck sets",
-                    new DeckGroupSerializer(new File(ForgeConstants.DECK_DRAFT_DIR), ForgeConstants.DECK_BASE_DIR));
-        }
-        return draft;
-    }
-
-    public IStorage<DeckGroup> getSealed() {
-        if (sealed == null) {
-            sealed = new StorageImmediatelySerialized<>("Sealed deck sets",
-                    new DeckGroupSerializer(new File(ForgeConstants.DECK_SEALED_DIR), ForgeConstants.DECK_BASE_DIR));
-        }
-        return sealed;
-    }
-
-    public final IStorage<DeckGroup> getWinston() {
-        if (winston == null) {
-            winston = new StorageImmediatelySerialized<>("Winston draft deck sets",
-                    new DeckGroupSerializer(new File(ForgeConstants.DECK_WINSTON_DIR), ForgeConstants.DECK_BASE_DIR));
-        }
-        return winston;
-    }
-
-    public IStorage<Deck> getScheme() {
-        if (scheme == null) {
-            scheme = new StorageImmediatelySerialized<>("Archenemy decks",
-                    new DeckStorage(new File(ForgeConstants.DECK_SCHEME_DIR), ForgeConstants.DECK_BASE_DIR));
-        }
-        return scheme;
-    }
-
-    public IStorage<Deck> getPlane() {
-        if (plane == null) {
-            plane = new StorageImmediatelySerialized<>("Planechase decks",
-                    new DeckStorage(new File(ForgeConstants.DECK_PLANE_DIR), ForgeConstants.DECK_BASE_DIR));
-        }
-        return plane;
     }
 
     public IStorage<Deck> getCommander() {
@@ -110,25 +61,9 @@ public class CardCollections {
         if (commanderPrecons == null) {
             // Read-only: these ship with Forge, and saving one (a sleeve change, say) would rewrite the file in res
             commanderPrecons = new StorageBase<>("Commander Precon decks",
-                    new DeckStorage(new File(ForgeConstants.COMMANDER_PRECON_DIR), ForgeConstants.QUEST_PRECON_DIR));
+                    new DeckStorage(new File(ForgeConstants.COMMANDER_PRECON_DIR), ForgeConstants.COMMANDER_PRECON_DIR));
         }
         return commanderPrecons;
-    }
-
-    public final IStorage<Deck> getGeneticAIDecks() {
-        if (genetic == null) {
-            genetic = new StorageBase<>("Genetic AI decks",
-                    new DeckStorage(new File(ForgeConstants.GENETIC_AI_DECK_DIR), ForgeConstants.RES_DIR));
-        }
-        return genetic;
-    }
-
-    public final IStorage<Deck> getCustomStarterDecks() {
-        if (customStarter == null) {
-            customStarter = new StorageImmediatelySerialized<>("Custom Starter decks",
-                    new DeckStorage(new File(ForgeConstants.CUSTOM_STARTER_DECK_DIR), ForgeConstants.USER_CUSTOM_DIR));
-        }
-        return customStarter;
     }
 
 }

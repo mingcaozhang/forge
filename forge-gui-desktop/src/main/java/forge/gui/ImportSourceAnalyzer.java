@@ -39,10 +39,6 @@ public class ImportSourceAnalyzer {
 
     public enum OpType {
         CONSTRUCTED_DECK,
-        DRAFT_DECK,
-        PLANAR_DECK,
-        SCHEME_DECK,
-        SEALED_DECK,
         UNKNOWN_DECK,
         DEFAULT_CARD_PIC,
         SET_CARD_PIC,
@@ -86,10 +82,6 @@ public class ImportSourceAnalyzer {
 
         if ("res".equalsIgnoreCase(dirname))               { analyzeOldResDir(root);          }
         else if ("constructed".equalsIgnoreCase(dirname))  { analyzeConstructedDeckDir(root); }
-        else if ("draft".equalsIgnoreCase(dirname))        { analyzeDraftDeckDir(root);       }
-        else if ("plane".equalsIgnoreCase(dirname) || "planar".equalsIgnoreCase(dirname)) { analyzePlanarDeckDir(root); }
-        else if ("scheme".equalsIgnoreCase(dirname))       { analyzeSchemeDeckDir(root);      }
-        else if ("sealed".equalsIgnoreCase(dirname))       { analyzeSealedDeckDir(root);      }
         else if (StringUtils.containsIgnoreCase(dirname, "deck")) { analyzeDecksDir(root);    }
         else if ("gauntlet".equalsIgnoreCase(dirname))     { analyzeGauntletDataDir(root);    }
         else if ("layouts".equalsIgnoreCase(dirname))      { analyzeLayoutsDir(root);         }
@@ -181,14 +173,6 @@ public class ImportSourceAnalyzer {
                     analyzeConstructedDeckDir(dir);
                 } else if ("cube".equalsIgnoreCase(dirname)) {
                     return false;
-                } else if ("draft".equalsIgnoreCase(dirname)) {
-                    analyzeDraftDeckDir(dir);
-                } else if ("plane".equalsIgnoreCase(dirname) || "planar".equalsIgnoreCase(dirname)) {
-                    analyzePlanarDeckDir(dir);
-                } else if ("scheme".equalsIgnoreCase(dirname)) {
-                    analyzeSchemeDeckDir(dir);
-                } else if ("sealed".equalsIgnoreCase(dirname)) {
-                    analyzeSealedDeckDir(dir);
                 } else {
                     analyzeKnownDeckDir(dir, null, OpType.UNKNOWN_DECK);
                 }
@@ -199,22 +183,6 @@ public class ImportSourceAnalyzer {
 
     private void analyzeConstructedDeckDir(final File root) {
         analyzeKnownDeckDir(root, ForgeConstants.DECK_CONSTRUCTED_DIR, OpType.CONSTRUCTED_DECK);
-    }
-
-    private void analyzeDraftDeckDir(final File root) {
-        analyzeKnownDeckDir(root, ForgeConstants.DECK_DRAFT_DIR, OpType.DRAFT_DECK);
-    }
-
-    private void analyzePlanarDeckDir(final File root) {
-        analyzeKnownDeckDir(root, ForgeConstants.DECK_PLANE_DIR, OpType.PLANAR_DECK);
-    }
-
-    private void analyzeSchemeDeckDir(final File root) {
-        analyzeKnownDeckDir(root, ForgeConstants.DECK_SCHEME_DIR, OpType.SCHEME_DECK);
-    }
-
-    private void analyzeSealedDeckDir(final File root) {
-        analyzeKnownDeckDir(root, ForgeConstants.DECK_SEALED_DIR, OpType.SEALED_DECK);
     }
 
     private void analyzeKnownDeckDir(final File root, final String targetDir, final OpType opType) {

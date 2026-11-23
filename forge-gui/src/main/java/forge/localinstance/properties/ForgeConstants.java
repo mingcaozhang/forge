@@ -71,11 +71,8 @@ public final class ForgeConstants {
     public static final String SKIN_DIR                     = "skin" + PATH_SEPARATOR;
     public static final String LANG_DIR                     = RES_DIR + "languages" + PATH_SEPARATOR;
     public static final String EFFECTS_DIR                  = RES_DIR + "effects" + PATH_SEPARATOR;
-    public static final String GENETIC_AI_DECK_DIR          = RES_DIR + "geneticaidecks" + PATH_SEPARATOR;
 
     private static final String QUEST_DIR                   = RES_DIR + "quest" + PATH_SEPARATOR;
-    public static final String QUEST_PRECON_DIR             = QUEST_DIR + "precons" + PATH_SEPARATOR;
-    public static final String THEMES_DIR                   = QUEST_DIR + "themes";
 
     public static final String BASE_SKINS_DIR               = RES_DIR + "skins" + PATH_SEPARATOR;
     public static final String COMMON_FONTS_DIR             = RES_DIR + "fonts" + PATH_SEPARATOR;
@@ -193,12 +190,6 @@ public final class ForgeConstants {
     public static final String USER_CUSTOM_CARDS_DIR      = USER_CUSTOM_DIR + "cards" + PATH_SEPARATOR;
     public static final String USER_CUSTOM_TOKENS_DIR     = USER_CUSTOM_DIR + "tokens" + PATH_SEPARATOR;
     public static final String USER_FORMATS_DIR           = USER_CUSTOM_DIR + "formats" + PATH_SEPARATOR;
-    public static final String CUSTOM_STARTER_DECK_DIR    = USER_CUSTOM_DIR + "starterdecks" + PATH_SEPARATOR;
-    public static final String DECK_DRAFT_DIR             = DECK_BASE_DIR + "draft" + PATH_SEPARATOR;
-    public static final String DECK_WINSTON_DIR           = DECK_BASE_DIR + "winston" + PATH_SEPARATOR;
-    public static final String DECK_SEALED_DIR            = DECK_BASE_DIR + "sealed" + PATH_SEPARATOR;
-    public static final String DECK_SCHEME_DIR            = DECK_BASE_DIR + "scheme" + PATH_SEPARATOR;
-    public static final String DECK_PLANE_DIR             = DECK_BASE_DIR + "planar" + PATH_SEPARATOR;
     public static final String DECK_COMMANDER_DIR         = DECK_BASE_DIR + "commander" + PATH_SEPARATOR;
     public static final String COMMANDER_PRECON_DIR       = QUEST_DIR + "commanderprecons" + PATH_SEPARATOR;
     public static final String QUEST_SAVE_DIR             = USER_QUEST_DIR + "saves" + PATH_SEPARATOR;
@@ -243,10 +234,6 @@ public final class ForgeConstants {
             GAUNTLET_DIR.userPrefLoc,
             DB_DIR,
             DECK_CONSTRUCTED_DIR,
-            DECK_DRAFT_DIR,
-            DECK_SEALED_DIR,
-            DECK_SCHEME_DIR,
-            DECK_PLANE_DIR,
             DECK_COMMANDER_DIR,
             QUEST_SAVE_DIR,
             CACHE_TOKEN_PICS_DIR,
