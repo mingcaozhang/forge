@@ -542,83 +542,11 @@ public class DeckProxy implements InventoryItem {
         return decks;
     }
 
-    public static List<DeckProxy> getAllNetworkEventDecks() {
-        final List<DeckProxy> decks = new ArrayList<>();
-        final IStorage<Deck> networkEvent = FModel.getDecks().getNetworkEventDecks();
-        for (final Deck d : networkEvent) {
-            decks.add(new DeckProxy(d, "Event", GameType.Draft, networkEvent));
-        }
-        return decks;
-    }
-
     @SuppressWarnings("unchecked")
     public static List<DeckProxy> getWinstonDecks(final IStorage<DeckGroup> draft) {
         final List<DeckProxy> decks = new ArrayList<>();
         for (final DeckGroup d : draft) {
             decks.add(new DeckProxy(d, "Winston", ((Function<IHasName, Deck>)(Object) (Function<DeckGroup, Deck>) DeckGroup::getHumanDeck), GameType.Winston, draft));
-        }
-        return decks;
-    }
-
-    public static List<DeckProxy> getNetDecks(final NetDeckCategory category) {
-        final List<DeckProxy> decks = new ArrayList<>();
-        if (category != null) {
-            addDecksRecursivelly("Constructed", GameType.Constructed, decks, "", category, null);
-        }
-        return decks;
-    }
-
-    public static List<DeckProxy> getNetArchiveStandardDecks(final NetDeckArchiveStandard category) {
-        final List<DeckProxy> decks = new ArrayList<>();
-        if (category != null) {
-            addDecksRecursivelly("Constructed", GameType.Constructed, decks, "", category, null);
-        }
-        return decks;
-    }
-
-    public static List<DeckProxy> getNetArchiveModernDecks(final NetDeckArchiveModern category) {
-        final List<DeckProxy> decks = new ArrayList<>();
-        if (category != null) {
-            addDecksRecursivelly("Constructed", GameType.Constructed, decks, "", category, null);
-        }
-        return decks;
-    }
-    public static List<DeckProxy> getNetArchivePioneerDecks(final NetDeckArchivePioneer category) {
-        final List<DeckProxy> decks = new ArrayList<>();
-        if (category != null) {
-            addDecksRecursivelly("Constructed", GameType.Constructed, decks, "", category, null);
-        }
-        return decks;
-    }
-
-    public static List<DeckProxy> getNetArchivePauperDecks(final NetDeckArchivePauper category) {
-        final List<DeckProxy> decks = new ArrayList<>();
-        if (category != null) {
-            addDecksRecursivelly("Constructed", GameType.Constructed, decks, "", category, null);
-        }
-        return decks;
-    }
-
-    public static List<DeckProxy> getNetArchiveLegacyDecks(final NetDeckArchiveLegacy category) {
-        final List<DeckProxy> decks = new ArrayList<>();
-        if (category != null) {
-            addDecksRecursivelly("Constructed", GameType.Constructed, decks, "", category, null);
-        }
-        return decks;
-    }
-
-    public static List<DeckProxy> getNetArchiveVintageDecks(final NetDeckArchiveVintage category) {
-        final List<DeckProxy> decks = new ArrayList<>();
-        if (category != null) {
-            addDecksRecursivelly("Constructed", GameType.Constructed, decks, "", category, null);
-        }
-        return decks;
-    }
-
-    public static List<DeckProxy> getNetArchiveBlockDecks(final NetDeckArchiveBlock category) {
-        final List<DeckProxy> decks = new ArrayList<>();
-        if (category != null) {
-            addDecksRecursivelly("Constructed", GameType.Constructed, decks, "", category, null);
         }
         return decks;
     }

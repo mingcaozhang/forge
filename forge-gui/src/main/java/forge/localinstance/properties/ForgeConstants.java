@@ -50,17 +50,9 @@ public final class ForgeConstants {
     public static final String IMAGE_LIST_QUEST_PRECONS_FILE         = LISTS_DIR + "precon-images.txt";
     public static final String IMAGE_LIST_QUEST_TOURNAMENTPACKS_FILE = LISTS_DIR + "tournamentpack-images.txt";
     public static final String IMAGE_LIST_PLANES_IMAGES_FILE         = LISTS_DIR + "planes-images.txt";
-    public static final String NET_DECKS_LIST_FILE                   = LISTS_DIR + "net-decks.txt";
     public static final String CLASSIC_MODULE_CARD_TO_CROP_FILE      = LISTS_DIR + "classicModuleCardtoCrop.txt";
     public static final String SKINS_LIST_FILE                       = LISTS_DIR + "skinsList.txt";
     public static final String CJK_FONTS_LIST_FILE                   = LISTS_DIR + "font-list.txt";
-    public static final String NET_ARCHIVE_STANDARD_DECKS_LIST_FILE  = LISTS_DIR + "net-decks-archive-standard.txt";
-    public static final String NET_ARCHIVE_PIONEER_DECKS_LIST_FILE   = LISTS_DIR + "net-decks-archive-pioneer.txt";
-    public static final String NET_ARCHIVE_MODERN_DECKS_LIST_FILE    = LISTS_DIR + "net-decks-archive-modern.txt";
-    public static final String NET_ARCHIVE_PAUPER_DECKS_LIST_FILE    = LISTS_DIR + "net-decks-archive-pauper.txt";
-    public static final String NET_ARCHIVE_LEGACY_DECKS_LIST_FILE    = LISTS_DIR + "net-decks-archive-legacy.txt";
-    public static final String NET_ARCHIVE_VINTAGE_DECKS_LIST_FILE   = LISTS_DIR + "net-decks-archive-vintage.txt";
-    public static final String NET_ARCHIVE_BLOCK_DECKS_LIST_FILE     = LISTS_DIR + "net-decks-archive-block.txt";
     public static final String COMMANDER_COMBOS_FILE                 = LISTS_DIR + "commander-combos.txt";
     public static final String AI_COMMANDER_COMBOS_FILE              = LISTS_DIR + "ai-commander-combos.txt";
     public static final String AI_CARD_ROLES_FILE                    = LISTS_DIR + "ai-card-roles.txt";
@@ -209,9 +201,6 @@ public final class ForgeConstants {
     public static final String DECK_PLANE_DIR             = DECK_BASE_DIR + "planar" + PATH_SEPARATOR;
     public static final String DECK_COMMANDER_DIR         = DECK_BASE_DIR + "commander" + PATH_SEPARATOR;
     public static final String COMMANDER_PRECON_DIR       = QUEST_DIR + "commanderprecons" + PATH_SEPARATOR;
-    public static final String DECK_NET_DIR               = DECK_BASE_DIR + "net" + PATH_SEPARATOR;
-    public static final String DECK_NET_ARCHIVE_DIR       = DECK_BASE_DIR + "archive" + PATH_SEPARATOR;
-    public static final String DECK_NET_EVENT_DIR         = DECK_BASE_DIR + "network-events" + PATH_SEPARATOR;
     public static final String QUEST_SAVE_DIR             = USER_QUEST_DIR + "saves" + PATH_SEPARATOR;
     public static final String MAIN_PREFS_FILE            = USER_PREFS_DIR + "forge.preferences";
     public static final String CARD_PREFS_FILE            = USER_PREFS_DIR + "card.preferences";
@@ -259,8 +248,6 @@ public final class ForgeConstants {
             DECK_SCHEME_DIR,
             DECK_PLANE_DIR,
             DECK_COMMANDER_DIR,
-            DECK_NET_DIR,
-            DECK_NET_EVENT_DIR,
             QUEST_SAVE_DIR,
             CACHE_TOKEN_PICS_DIR,
             CACHE_ICON_PICS_DIR,

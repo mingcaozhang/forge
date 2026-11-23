@@ -44,7 +44,6 @@ public class CardCollections {
     private IStorage<Deck> commanderPrecons;
     private IStorage<Deck> genetic;
     private IStorage<Deck> customStarter;
-    private IStorage<Deck> networkEvent;
 
     public CardCollections() {
     }
@@ -132,18 +131,4 @@ public class CardCollections {
         return customStarter;
     }
 
-    public final IStorage<Deck> getNetworkEventDecks() {
-        if (networkEvent == null) {
-            networkEvent = new StorageImmediatelySerialized<>("Network event decks",
-                    new DeckStorage(new File(ForgeConstants.DECK_NET_EVENT_DIR),
-                            ForgeConstants.DECK_BASE_DIR));
-        }
-        return networkEvent;
-    }
-
-    /** Drops the cached network-event deck storage so the next
-     *  {@link #getNetworkEventDecks()} re-reads from disk. */
-    public final void reloadNetworkEventDecks() {
-        networkEvent = null;
-    }
 }
