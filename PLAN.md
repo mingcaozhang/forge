@@ -145,7 +145,7 @@ Separate UI rendering from game/rules/deck/lobby state behind a clean, testable 
 - From 27.1 on, GATE includes the new module: `mvn test -pl forge-gui-desktop,forge-baseline -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C`
 
 ### Phase 26 — Coupling audit artifact
-- [ ] 26.1 Write `docs/baseline/Coupling-Audit.md`: all engine↔UI runtime seams (event path, delta engine, prompt/latch contract, action channel, match lifecycle GameLobby→HostedMatch→Match→Game, observer wiring) with file:line refs + the seam list the Phase 28 adapter must own. Doc-only commit.
+- [x] 26.1 Write `docs/baseline/Coupling-Audit.md`: all engine↔UI runtime seams (event path, delta engine, prompt/latch contract, action channel, match lifecycle GameLobby→HostedMatch→Match→Game, observer wiring) with file:line refs + the seam list the Phase 28 adapter must own. Doc-only commit.
 
 ### Phase 27 — State & action contract (forge-baseline)
 - [ ] 27.1 Scaffold `forge-baseline` module (root pom + module pom, depends on forge-gui); versioned state contract: `BaselineSnapshot` (full) + `BaselineDelta` envelopes over the existing TrackableProperty/DeltaPacket schema; explicit format `VERSION` constant; UI-agnostic (no forge-gui/Swing imports in the state package).
