@@ -38,55 +38,11 @@ import java.util.function.Predicate;
 public enum DeckFormat {
     //               Main board: allowed size         SB: restriction  Max distinct non-basic cards
     Constructed    ( Range.of(60, Integer.MAX_VALUE), Range.of(0, 15), 4),
-    QuestDeck      ( Range.of(40, Integer.MAX_VALUE), Range.of(0, 15), 4),
-    Limited        ( Range.of(40, Integer.MAX_VALUE), null, Integer.MAX_VALUE) {
-        @Override
-        public String getAttractionDeckConformanceProblem(Deck deck) {
-            //Limited attraction decks have a minimum size of 3 and no singleton restriction.
-            if (deck.get(DeckSection.Attractions).countAll() < 3)
-                return "must contain at least 3 attractions, or none at all";
-            return null;
-        }
-
-        @Override
-        public String getContraptionDeckConformanceProblem(Deck deck) {
-            //Limited contraption decks have no restrictions.
-            return null;
-        }
-
-        @Override
-        public String getStickerSheetConformanceProblem(Deck deck) {
-            //CR 123.2b
-            if (deck.get(DeckSection.Stickers).countAll() > CHOSEN_STICKER_SHEETS)
-                return TextUtil.concatWithSpace("must contain no more than",
-                        String.valueOf(CHOSEN_STICKER_SHEETS), "sticker sheets");
-            return null;
-        }
-
-        @Override
-        public int getExtraSectionMaxCopies(DeckSection section) {
-            if(section == DeckSection.Attractions || section == DeckSection.Contraptions)
-                return Integer.MAX_VALUE;
-            return super.getExtraSectionMaxCopies(section);
-        }
-    },
     Commander      ( Range.is(99),                         Range.of(0, 10), 1, null,
             card -> StaticData.instance().getCommanderPredicate().test(card)
     ),
-    CommanderDraft ( Range.of(59, 99),                     null, Integer.MAX_VALUE),
     Pauper      ( Range.is(60),                         Range.of(0, 10), 1),
-    PlanarConquest ( Range.of(40, Integer.MAX_VALUE), Range.is(0), 1),
-    Adventure      ( Range.of(40, Integer.MAX_VALUE), Range.of(0, Integer.MAX_VALUE), 4) {
-        @Override
-        public boolean allowCustomCards() {
-            //If the player has them, may as well allow them.
-            return true;
-        }
-    },
-    Vanguard       ( Range.of(60, Integer.MAX_VALUE), Range.is(0), 4),
-    Planechase     ( Range.of(60, Integer.MAX_VALUE), Range.is(0), 4),
-    Archenemy      ( Range.of(60, Integer.MAX_VALUE), Range.is(0), 4),
-    Puzzle         ( Range.of(0, Integer.MAX_VALUE), Range.is(0), 4);
+    Vanguard       ( Range.of(60, Integer.MAX_VALUE), Range.is(0), 4);
 
     // CR 123.2a
     public static final int CHOSEN_STICKER_SHEETS = 3;
@@ -124,7 +80,7 @@ public enum DeckFormat {
     }
 
     public boolean hasCommander() {
-        return this == Commander || this == CommanderDraft;
+        return this == Commander;
     }
 
     /**
@@ -200,10 +156,6 @@ public enum DeckFormat {
      * @return the deck sections used by most decks in this format.
      */
     public EnumSet<DeckSection> getPrimaryDeckSections() {
-        if(this == Planechase)
-            return EnumSet.of(DeckSection.Planes);
-        if(this == Archenemy)
-            return EnumSet.of(DeckSection.Schemes);
         if(this == Vanguard)
             return EnumSet.of(DeckSection.Avatar);
         EnumSet<DeckSection> out = EnumSet.of(DeckSection.Main);
@@ -317,7 +269,6 @@ public enum DeckFormat {
         final int maxCopies = getMaxCardCopies();
         // Must contain no more than 4 of the same card shared among the main deck and sideboard, except
         // basic lands, Shadowborn Apostle, Relentless Rats and Rat Colony.
-        // Seven Dwarves can have 7 in the deck. More than 7 in deck + sb is ok in Limited
 
         final CardPool allCards = deck.getAllCardsInASinglePool(hasCommander(), false);
 
@@ -362,8 +313,7 @@ public enum DeckFormat {
 
     /**
      * Checks only the commander part of a deck: the commander(s) themselves, partnerships,
-     * and that every card in the main deck and sideboard fits their color identity
-     * (the main deck only for Commander Draft).
+     * and that every card in the main deck and sideboard fits their color identity.
      * Deck size and card copies are not checked.
      * @return a description of the problem, or null if the commanders are fine
      */
@@ -440,8 +390,7 @@ public enum DeckFormat {
                 }
             }
         }
-        // A commander draft sideboard holds the rest of the drafted pool
-        if (deck.has(DeckSection.Sideboard) && this != CommanderDraft) {
+        if (deck.has(DeckSection.Sideboard)) {
             for (final Entry<PaperCard, Integer> cp : deck.get(DeckSection.Sideboard)) {
                 if (allowsOffColorIdentity(commanderCIRules, cp.getKey().getRules())) {
                     continue;
