@@ -1,171 +1,92 @@
-# PLAN.md — Pre-Rewrite Cleanup, Iteration 1: Remove Unused Features
+# PLAN.md — Forge Rewrite: Cleanup to JVM Baseline to Rust Backend (REWRITE.md)
 
-## Context & Goal
-Per `REWRITE.md`, this cleanup trims the JVM baseline BEFORE the rewrite phases so less code is ported. End state: a **single-player Commander (EDH)** experience (no Brawl/Oathbreaker/Tiny Leaders/Commander variants.
+## Context
+Per `REWRITE.md`: Phase 1 (decoupled JVM baseline) is **DONE** (Part 7); Phase 2 (direct non-JVM backend port + parity harness) is **ACTIVE** (Part 8). Pre-rewrite cleanup (Parts 1-6) trimmed the baseline to a **single-player Commander (EDH)** experience: no Brawl/Oathbreaker/Tiny Leaders/other variants, no online multiplayer.
 
-**KEEP (do not touch):** core Commander rules/gameplay, AI players, game UI/navigation, preferences for surviving features, deck editor + saved decks, in-turn undo, "Provide Deck URL", Moxfield/Archidekt import, card art fetching, deck validation, audio.
+## Confirmed Decisions (cleanup era, binding)
+1. Removed BOTH the interactive tutorial and the static `howto.txt` doc + its Help-menu entry.
+2. Kept `DialogDownloadCardImages` + first-run bulk-CDN-sync prompt in `FView` (card-art UX).
+3. Lobby slot panels show the selected deck's commander card image, fallback `FSkinProp.ICO_PLAYERS`.
+4. Commander **bracket** (EDHREC skill tiers) kept; per-format **banlist** validation (`GameFormat.bannedCardNames`, `DeckFormat.isLegalCard/isLegalCommander`, `DeckRecognizer.isBannedInFormat`, format data files) is separate and STAYS.
+5. `commander-bracket-combos.txt` renamed to `commander-combos.txt` (AI two-card-combo knowledge; AI is KEEP).
+Part 6 decisions also binding: **D1a** avatar *data* feature kept (`DeckSection.Avatar`, `GamePieceType.AVATAR`, `FSkinProp.IMG_ZONE_AVATAR`, `LobbySlot.AvatarVanguard`, `CEditorConstructed` avatar pool; MomirBasic/MoJhoSto game types gone); **D2** archived/Block legality formats + `FPref.LOAD_ARCHIVED_FORMATS` kept; **D3** Planes/Schemes/Dungeon deck-editor sections kept.
 
-## Confirmed Decisions
-1. Remove BOTH the interactive tutorial and the static `res/howto.txt` doc (stale 1v1-vs-computer intro) + its Help-menu entry.
-2. Keep `DialogDownloadCardImages` + the first-run bulk-CDN-sync prompt in `FView` (card-art UX); reword the prompt text that references the removed section.
-3. Lobby slot panels show the slot's **selected deck's commander card image**, falling back to the generic player icon (`FSkinProp.ICO_PLAYERS`) when no deck is selected.
-4. "Bracket/banlist validation" = the Commander **bracket** (EDHREC-style skill-tier) system. Per-format **banlist** validation (`GameFormat.bannedCardNames`, `DeckFormat.isLegalCard/isLegalCommander`, `DeckRecognizer.isBannedInFormat`, `res/formats/**`) is separate and STAYS (format *data files* for removed modes go with those modes).
-5. `res/lists/commander-bracket-combos.txt` feeds AI two-card-combo knowledge (2,176 pairs via `FModel` → `AiCardLists`); AI is a KEEP feature → keep the data, rename to `commander-combos.txt` (+ constant `COMMANDER_COMBOS_FILE`).
-
-## Hard KEEP Lists (card-art / shared infra)
-- Card art: `ImageFetcher`, `SwingImageFetcher`, `CdnUuidCache`, `ScryfallSetSync`, `ScryfallBulkDataSync`, `ScryfallRateLimiter`, `GuiDownloadFilteredCardImages`, `GuiDownloadService`, `GuiDownloadZipService`, `GuiDownloader` (forge-gui-desktop), `DialogDownloadCardImages`, `FView` first-run prompt (L239-250).
-- App update: `AutoUpdater`, `RSSReader`, `GITHUB_*`/`RELEASE_URL` constants, `FControl`/`FTitleBarBase` updater paths, `CSubmenuPreferences` auto-updater channel combo.
-- Vanguard "avatar" (unrelated feature): `DeckSection.Avatar`, `GamePieceType.AVATAR`, `FSkinProp.IMG_ZONE_AVATAR`, `LobbySlot.AvatarVanguard`, vanguard i18n keys, `CEditorConstructed` avatar pool.
-- Core deck validation (all of it, see decision 4), sleeves (`FPref.UI_SLEEVES` + sleeve UI), audio, `ImportDialog`, `BugReporter`, bundled `README.txt`/`CHANGES.txt` + `git-changelog-maven-plugin` packaging.
-- `NameGenerator` class + auto-naming (`GameLobby.randomName`, `GuiDisplayUtil.getRandomAiName`, `PlayerPanel` auto-fill at L296/L695) + manual `PLAYER_NAME` pref (only the visible generator UI goes).
-- `GameType.Puzzle` core remnants (`GameType`, `DeckFormat.Puzzle`, `GameAction`, `GameState` puzzle parsing, `PuzzleAchievements`, `TotalPuzzlesSolved`, `lblPuzzle*`/`lblRestartPuzzle`/`lblQuitPuzzle` keys) — separate mode, follow-up iteration.
-- Core `Match.startGame(Game, Runnable)` / `GameAction.startGame(...)` / `PhaseHandler.setupFirstTurn/startFirstTurn(..., Runnable)` hook params — generic seam, keep.
-- `IGuiBase.isMatchInProgress()` (used by `ReplayLauncher`).
+## Hard KEEP Lists (card-art / shared infra — do not break)
+- Card art: `ImageFetcher`, `SwingImageFetcher`, `CdnUuidCache`, `Scryfall*` sync/limiter, `GuiDownload*` services, `GuiDownloader`, `DialogDownloadCardImages`, `FView` first-run prompt.
+- App update: `AutoUpdater`, `RSSReader`, `GITHUB_*`/`RELEASE_URL`, `FControl`/`FTitleBarBase` updater paths, `CSubmenuPreferences` auto-updater channel.
+- Core deck validation (all of it), sleeves, audio, `ImportDialog`, `BugReporter`, bundled README/CHANGES + git-changelog packaging.
+- `NameGenerator` + auto-naming + manual `PLAYER_NAME` pref (only the visible generator UI went).
+- `GameType.Puzzle` core remnants (separate mode, follow-up iteration).
+- Generic seams: `Match.startGame(Game, Runnable)` / `GameAction.startGame` / `PhaseHandler.setupFirstTurn/startFirstTurn(…, Runnable)`; `IGuiBase.isMatchInProgress()`.
 
 ## Git & Execution Rules
-- Work locally on **`dev`**.
-- **Atomic local commit per completed `- [ ]` item**: code changes + `PLAN.md` (`[ ]`→`[x]`) + `PROGRESS.md` (≤ 40 lines, next to `PLAN.md`) in ONE commit. Commit style: `chore(commander): <short summary>`.
-- **NEVER** `git push`, **NEVER** `git reset --hard`, no destructive commands outside the workspace.
-- Before deleting/renaming any symbol, file, i18n key, or menu entry, search all references first (`rg`); for i18n keys, `rg -n "<key>" --type java` must show zero remaining references before removal.
-- All Maven commands run with a **600000 ms** timeout (see `forge-test-runner` skill).
-- Scratch/test artifacts only under `/tmp/opencode/` (e.g. `/tmp/opencode/forge-ui-e2e`).
+- **Two local repos**: `forge` (branch `dev`) and `forge-rs` (new, Part 8). NEVER `git push`, NEVER `git reset --hard`, no destructive commands outside the workspace; all commits stay local for review.
+- **Atomic local commit per completed `- [ ]` item.** forge repo: code + `PLAN.md` (`[ ]` to `[x]`) + `PROGRESS.md` (40 lines max) in ONE commit, style `chore(commander): …`. forge-rs repo: code commit first (Conventional Commits, e.g. `feat(engine): …`), then the PLAN/PROGRESS commit in the forge repo (separate repos = two local commits per item).
+- Before deleting/renaming any symbol, file, i18n key, or menu entry, search all references (`rg`).
+- All Maven AND cargo commands: **600000 ms** timeout (see `forge-test-runner` skill).
+- Scratch/test artifacts only under `/tmp/opencode/`.
 
 ## Verification Commands
-- `GATE` — `mvn test -pl forge-gui-desktop -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` (600000 ms; builds+tests forge-core, forge-game, forge-ai, forge-gui, forge-gui-desktop)
+forge repo:
+- `GATE` — `mvn test -pl forge-gui-desktop,forge-baseline -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` (600000 ms)
 - `PKG` — `mvn package -DskipTests -T 1C` (600000 ms)
 - `FULL` — `mvn test -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` (600000 ms)
+forge-rs repo:
+- `RUSTGATE` — `cargo fmt --all --check && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace` (600000 ms)
 
-## Completed Parts (all items `[x]`, committed on `dev`; every item verified `GATE` exit 0 with an atomic commit)
-- Parts 1–4 — team/2HG logic + UI, achievements/stats/match logic, deckgen + Commander deck-selection options (items 1.1–13.1).
-- Part 5 — Oathbreaker/Brawl/TinyLeaders + online multiplayer (items 14.1–17.5).
-- Part 6 — comprehensive post-Commander-only dead-code sweep (items 18.1–25.2).
-- Standalone fix — `DeckStorage` rootDir trailing-separator crash on precon load (e17b8904590).
+## Completed Parts (all done, committed on `dev`)
+### Parts 1-6 — Pre-Rewrite Cleanup: baseline trimmed to single-player Commander
+- 1-4: team/2HG logic + UI, achievements/stats/match logic, deckgen + Commander deck-selection options (items 1.1-13.1).
+- 5: Oathbreaker/Brawl/TinyLeaders (engine/formats/data/storage/editor/lobby/i18n) + online multiplayer (lobby UI, host/join, server, client/reconnect, chat, net prefs, tests). Kept: Option A replay protocol subset (`IRemote` to codec to `ProtocolGuiGame` + `ReplayClient` over Netty `EmbeddedChannel`), generic lobby seams, headless harness (items 14.1-17.5).
+- 6: comprehensive post-Commander dead-code sweep — engine dead branches, deckgen, deck storage/DeckType, editor, enum pruning (`GameType` to Constructed+Commander; `DeckFormat` to Constructed/Commander/Pauper/Vanguard), res data, i18n orphans, final sweep (items 18.1-25.2).
+- Standalone fix: `DeckStorage` rootDir trailing-separator crash (e17b8904590).
 
-### Part 5 — Oathbreaker/Brawl/TinyLeaders + Online Multiplayer
-Scope: remove the 3 Commander variants (engine, formats, data, storage, editor, lobby, i18n) and online multiplayer (lobby UI, host/join, server, client/reconnect, chat, net prefs, tests). KEPT: replay built on the kept slim `forge.gamemodes.net` protocol subset ("Option A": `IRemote` → codec → `ProtocolGuiGame` + `ReplayClient` over netty `EmbeddedChannel`), generic lobby seams (`GameLobby`/`LocalLobby`/`LobbySlot`/`HostingServer`), local headless harness + pure-engine simulation tests. Card-script compat: `ActivationGameTypes` parsing is lenient (unknown names skipped) — removing the GameTypes does not break card parsing.
+### Part 7 — REWRITE.md Phase 1: Decoupled JVM Baseline & State-Machine Testing (26.1-32.2)
+- `forge-baseline` module (reactor after forge-gui): versioned `BaselineSnapshot`/`BaselineDelta` (VERSION=2; key encoding byte-for-byte compatible with `DeltaPacket`: `(type<<28)|(id&0x0FFFFFFF)`, type tags 0-4), `BaselinePrompt` (16 kinds, engine-computed legal candidates), `BaselineAction` (15 sealed variants, 1:1 with `IGameController`/`ProtocolMethod`).
+- `BaselineEngine` headless adapter over the direct Match/Game path: seeded `MyRandom`, pending prompts exposed as snapshot state, choices accepted as actions; the CMatchUI path untouched.
+- Tests: transition/invariant unit tests; 3 seeded golden traces (`golden-3000{1,2,3}.trace`, 57 steps, per-step SHA-256 state hashes); headless full match under a UI-class touch guard; codec round-trips + version-mismatch rejection; `BaselineBatchRunner` + per-decision JSONL trajectory shards.
+- Docs: `docs/baseline/Coupling-Audit.md`, `docs/baseline/StateActionContract.md`, `docs/baseline/TrajectoryShards.md`.
+- Final gate 32.2: GATE 2685 tests green + PKG + UI e2e through untouched CMatchUI. **REWRITE.md Phase 1 complete.**
 
-### Phase 14 — O/B/TL engine + formats + data
-- [x] 14.1 Delete `GameType.Oathbreaker`/`TinyLeaders`/`Brawl` + rebase engine branches (GameRules/Player/RegisteredPlayer/Zone/CardView/MulliganService/GameAction).
-- [x] 14.2 Delete O/B/TL `DeckFormat` entries + `CardRules`/`CardRulesPredicates`/`StaticData`/`Deck`/`DeckSection`/`FModel` plumbing; delete `res/formats/Casual/{Brawl,Oathbreaker}.txt`.
-- [x] 14.3 Delete O/B/TL deck storage + net-deck list files + prefs (`CardCollections`/`ForgeConstants`/`DeckPreferences`/`ItemManagerConfig`).
+## Part 8 — REWRITE.md Phase 2: Direct Non-JVM (Rust) Backend Port & Parity Harness (Unoptimized)
 
-### Phase 15 — O/B/TL lobby + deck editor + i18n + tests
-- [x] 15.1 Delete lobby variant logic (`VLobby`/`GameLobby` applyVariant/removeVariant/startGame).
-- [x] 15.2 Delete O/B/TL editor + deck-manager cases (`CEditorConstructed`/`DeckManager`).
-- [x] 15.3 Delete O/B/TL i18n keys from all 10 locales.
-- [x] 15.4 Delete the 4 mode-specific `DeckRecognizerTest` tests (TinyLeaders-constrained).
+### Context & Goal
+Port the single-player game/rules/AI engine into a **new standalone Rust repo** with 100% functional parity — no optimizations, no logic changes. **Server only**: no UI in Rust. End state of this phase: the forge backend runs on Rust, and the existing Swing UI (Java frontend) connects to it and plays single-player Commander (human vs AI). Out of scope: performance (Phase 3), new frontends (Phase 4), online/multiplayer, ML tensor schemas.
 
-### Phase 16 — Online multiplayer
-- [x] 16.1 Delete online-lobby UI + entry points (home/online package, `FNetOverlay`, `ReconnectModals`, EDocID/EMenuGroup); rebase `CMatchUI` onto `AbstractGuiGame`.
-- [x] 16.2 Delete server + online transport (`FServerManager`/`RemoteClient`/`NetworkGuiGame`/etc.); kept Option A protocol subset; moved the delta engine (`applyDelta`) into `AbstractGuiGame` (fixes replay regression).
-- [x] 16.3 Delete `ForgeNetPreferences` + net prefs UI/model/docs (UPnP/server-port/AFK-timeout; kept `UI_ENABLE_ONLINE_IMAGE_FETCHER`).
-- [x] 16.4 Delete all online i18n keys from all 10 locales.
-- [x] 16.5 Relocate headless harness (`HeadlessGuiDesktop`/`TestUtils`) to test package `forge.headless`.
-- [x] 16.6 Delete net tests; kept protocol-core tests (DeltaSync/AbuseLimits/ProtocolGuiGame*/Wire*/ReplayRecording).
+### Decisions (proposed — confirm before executing 33.x)
+- **P1.** New repo `~/Projects/forge-rs` (own git repo, local commits only). Rust workspace crates: `forge-protocol` (state/action/wire types), `forge-data` (card/deck data), `forge-engine` (rules state machine), `forge-ai` (AI decisions), `forge-server` (TCP transport), `parity` (harness).
+- **P2.** Wire format: **JSON lines over TCP** (one JSON object per line; serde in Rust, Gson in Java). The contract leaves transport/serialization to the backend's choice; the *schema* (`BaselineSnapshot`/`BaselineDelta`/`BaselinePrompt`/`BaselineAction`), `VERSION=2`, and key encoding are NOT the backend's choice. The Java binary codec is NOT reimplemented in this phase.
+- **P3.** Parity surface: `BaselineStateHasher`'s canonical per-step state string (SHA-256), `GoldenActionCodec` action tokens, and the `GoldenTrace` text format are the shared fixture format; first corpus = the 3 committed golden traces.
+- **P4.** Card data: the Rust engine reads forge data files directly from `forge-gui/res/` (34,481 card txt files in `cardsfolder/`, `lists/TypeLists.txt` + combo lists, `formats/`, `editions/`) via a `--data-dir` path — no data reformatting.
+- **P5.** RNG: port `MyRandom` bit-for-bit — `java.util.Random` LCG (seed scramble `^ 0x5DEECE66D`, 64-bit LCG, `nextInt()` = top 32 bits) with the `nextInt() >>> (32-bits)` derivation and thread-local stream semantics; verify against committed RNG vectors (first N draws per seed) emitted by the Java side.
 
-### Phase 17 — Final sweep + verification
-- [x] 17.1 `rg` sweep for removed symbols; removed leftover orphaned i18n keys; final GATE+PKG green.
-- [x] 17.2 Silently skip stale `ItemManagerConfig` item-view prefs from removed modes (+ test).
-- [x] 17.3 Create the user `skins` dir on profile init; dropped the false `FSkin` "resource not found" error.
-- [x] 17.4 Guard null `cellTarget` when dragging a deck-editor tab outside the cell area.
-- [x] 17.5 Remove lobby Format selector + Variant checkboxes AND the Vanguard/Planechase game modes (empty `FormatChoices.VARIANTS`, engine blocks, dev cheats, planar/vanguard lobby plumbing).
+### Phase 33 — Rust Toolchain & Workspace Scaffold
+- [ ] 33.1 Install Rust toolchain (rustup, stable) — verify `cargo --version` / `rustc --version` (currently NOT installed in this environment).
+- [ ] 33.2 Scaffold `~/Projects/forge-rs` per P1 (git init, README, workspace Cargo.toml, six empty crates, `docs/protocol.md` + `docs/parity.md` stubs); RUSTGATE green on the empty scaffold.
 
-### Part 6 — Comprehensive Dead-Code Sweep (post Commander-only)
-Reachability model (verified — do not re-litigate): the only New Game flow is `VSubmenuConstructed` → Commander; base type always `GameType.Constructed`; `setLimitedMode` has zero callers; lobby deck selection is Commander-only. Ordering was dependency-safe: remove dead code *referencing* the enums (18–21) before pruning the enum values (22).
+### Phase 34 — Parity Harness (both sides)
+- [ ] 34.1 Java: `forge.baseline.parity` main class (manual, NOT in GATE): given `(seed, decks, actions|policy)` run `BaselineEngine` and emit a parity report in `GoldenTrace` format (per-step `<action-token> <sha256-of-canonical-state-string>` + final outcome), reusing `BaselineStateHasher`/`GoldenActionCodec`; optional full canonical state strings per step for divergence diffs. GATE green.
+- [ ] 34.2 Rust: `parity` crate — runner (consumes the same inputs, runs the Rust engine, emits the same report) + `parity-check` (compares a committed Java report vs a Rust run line-by-line; on mismatch prints the first divergent step + both canonical state strings). RUSTGATE green.
+- [ ] 34.3 Fixtures + docs: copy the 3 golden traces into `forge-rs` (`fixtures/golden/`); finalize `docs/parity.md` (input spec, report format, how to add corpus entries); pointer note in forge `docs/baseline/StateActionContract.md` 6.2. GATE + RUSTGATE green.
 
-Decisions (binding):
-- **D1 = (a):** keep the avatar *data* feature (`DeckSection.Avatar`, `GamePieceType.AVATAR`, `DeckFormat.Vanguard`, `CEditorConstructed` avatar pool, vanguard i18n); remove the `MomirBasic`/`MoJhoSto` game types + auto-gen wiring + orphaned avatar engine-loading.
-- **D2 = KEEP:** archived/Block legality formats + `FPref.LOAD_ARCHIVED_FORMATS` + `FormatChoices.ARCHIVED`.
-- **D3 = KEEP:** the `Planes`/`Schemes`/`Dungeon` deck-editor sections (`Attractions`/`Contraptions`/`Stickers` always kept).
+### Phase 35 — Core Rules & Zones (golden-trace parity)
+- [ ] 35.1 `forge-protocol`: port the schemas (`BaselineSnapshot`/`BaselineDelta`/`BaselinePrompt`/`BaselineAction`, VERSION=2, key encoding, type tags 0-4) + serde JSONL wire; unit tests with Java-emitted parity vectors (key encoding incl. negative ids, version gate).
+- [ ] 35.2 `forge-data` golden slice: card loader for the traces' card subset + `TypeLists.txt` parsing (the 30.1 gotcha: basic lands need tap-for-mana) + Commander format rules + deck-file parser for harness inputs.
+- [ ] 35.3 `forge-engine` core: mulligan, turn structure (beginning/main/combat/end), priority/pass, zones (hand, battlefield+tap, library, graveyard, exile, command), stack (cast/resolve), mana (pool, payment, `CostPartMana.canPay` stub semantics), the synthetic "Commander Effect" command-zone cast, life totals, win/loss (life zero, milling); bit-for-bit `MyRandom` port (P5) with the committed vector test.
+- [ ] 35.4 Parity: Rust engine replays golden-3000{1,2,3} — per-step SHA-256 equality, 57 steps each; committed test in `parity` runs under RUSTGATE. **Acceptance gate for Phase 35.**
 
-### Phase 18 — Engine dead branches (forge-game)
-- [x] 18.1 `GameAction`: dropped Planeswalker-variant check, Puzzle mulligan guard/early-return, Archenemy first-player branch.
-- [x] 18.2 Planes/PlanarDice/Archenemy-scheme machinery (`PhaseHandler`/`ExtraTurn`/`AddTurnEffect`) + `RollPlanarDiceEffect` ripple (ApiType/SpellApiToAi/AiProps/`.ai` profiles).
-- [x] 18.3 `Player`: Archenemy schemes, planes engine, Planeswalker-as-commander, "The Ring" PlanarConquest, avatar loading block (D1a) + ripple (Planeswalk/SetInMotion/RingTemptsYou effects, GameState ring state, `Game.onPlayerLost`, ring display, `RestartGameEffect` ring resets).
-- [x] 18.4 `RegisteredPlayer`: Archenemy scheme assignment + planes/schemes/vanguardAvatars accessors; `forVariants` reduced to `(appliedVariants, deck)`; SubgameEffect avatar block.
-- [x] 18.5 `Game`: `activePlanes` + accessors; `GameCopier` ripple; `ChaosEnsuesEffect` + `ApiType.ChaosEnsues`.
-- [x] 18.6 Delete dead mechanic classes (PlanarDice/RunChaos/Replace*Planar*/*Trigger* + TriggerType/ReplacementType entries); `GameEventRollDie` reduced to `(sides, result)`.
-- [x] 18.7 SubgameEffect vanguard-avatar block — already pulled forward in 18.4, no remaining work.
+### Phase 36 — Cards, Triggers, Replacement Effects & AI (increments, parity-gated)
+- [ ] 36.1 Java: corpus generator (main class in `forge.baseline.parity`, NOT in GATE): K seeded AI-vs-AI matches via `BaselineBatchRunner` (fixed policy mix) — emit committed corpus inputs + reports under `forge-rs/fixtures/corpus/`. GATE green.
+- [ ] 36.2 `forge-data` full: parse the full card DB (34,481 cards) — fields, types/supertypes/subtypes, abilities (static/activated/instantaneous), triggers, replacement effects, formats, editions, combo lists; count + per-card field-hash spot-checks against a Java-emitted manifest.
+- [ ] 36.3 `forge-engine` abilities: port card ability/script execution + continuous/replacement layers in frequency-ordered increments; each increment adds the corpus games that exercise it and keeps the full corpus green (RUSTGATE).
+- [ ] 36.4 `forge-ai`: port the AI decision logic (`PlayerControllerAi` equivalent, combo knowledge from `commander-combos.txt` etc.) — parity on full AI-vs-AI matches (no scripted policy).
+- [ ] 36.5 Expand corpus to real Commander decks (fixed deck list, fresh seeds) — full corpus green; parity status recorded in PROGRESS.md.
 
-### Phase 19 — Deck generation (forge-gui + forge-core)
-- [x] 19.1 Delete dead generator classes (Random/CardThemed/Archetype/Color/LDA generators + limited builders + IO); rebased `DeckgenUtil`/`DeckProxy`/`FModel`/`FDeckChooser`/`DeckType`.
-- [x] 19.2 Strip dead `DeckgenUtil` methods (kept `randomSelect`, `suggestBasicLandCount`).
-- [x] 19.3 Remove FModel deckgen startup load + `FPref.DECKGEN_CARDBASED` + preferences checkbox.
-- [x] 19.4 Remove `DeckFormat.getCardPool`/`adjustCMCLevels` + forge-core `deck/generation` package + tests.
-- [x] 19.5 Delete `res/deckgendecks/` + EDHREC matrix toolchain + stale deckgen docs.
+### Phase 37 — Server Transport & Swing UI Connection (drop-in backend)
+- [ ] 37.1 `forge-server`: TCP JSONL server — handshake (protocol VERSION), start match `(seed, decks, players)`, stream snapshot/delta lines, accept action lines, terminal outcome line; finalize `docs/protocol.md` (framing, line types, error handling).
+- [ ] 37.2 Java client: bidirectional adapter — `IGameController` actions to JSONL action lines; JSONL snapshot/delta lines to the kept `setGameView`/`applyDelta` `GuiGameEvent`s driving `ProtocolGuiGame`/`AbstractGuiGame.applyDelta` (view-graph reconstruction); `CMatchUI` untouched.
+- [ ] 37.3 UI wiring: lobby option for backend (local JVM / Rust server) — Start Game with Rust selected connects to `localhost:<port>` and plays through the untouched `CMatchUI`. GATE + PKG green.
+- [ ] 37.4 E2E (forge-ui-e2e skill): local Commander match (human vs AI) against the running Rust server — mulligan, land drop, prompts, turn passage, win/loss; screenshots; RUSTGATE + GATE + PKG green.
 
-### Phase 20 — Deck storage, net decks, DeckType (forge-gui)
-- [x] 20.1 Delete `NetDeck*` classes + `res/lists/net-decks*.txt` + `NET_*` constants; rebased `FDeckChooser`/`DeckProxy`/`CardCollections` (kept `ItemManagerConfig.NET_DECKS` for "Provide Deck URL").
-- [x] 20.2 Delete 8 dead `CardCollections` getters (draft/sealed/winston/scheme/plane/geneticAI/customStarter/networkEvent) + dir constants; rebased `ImportSourceAnalyzer`/`ImportDialog`.
-- [x] 20.3 Delete dead `DeckProxy` getAll* methods (preconstructed/quest/winston remainders).
-- [x] 20.4 `DeckType`: only CUSTOM/CONSTRUCTED/COMMANDER/PRECON_COMMANDER/PROVIDED_DECK_URL; rebased `DecksComboBox`/`FDeckChooser`/`VLobby`; removed `FPref.CONSTRUCTED_*_DECK_STATE`.
-- [x] 20.5 Delete `FDeckChooser` dead branches (colors/matrix/themes/precons/net* update + refresh cases).
-- [x] 20.6 Delete `res/quest/precons/`, `res/quest/themes/`, `res/geneticaidecks/` + dir constants + `missingPreconFiles.py` (kept `commanderprecons/` + `precon-images.txt`).
-
-### Phase 21 — Deck editor (forge-gui-desktop)
-- [x] 21.1 Delete 39 orphaned `ItemManagerConfig` pool constants + `CEditorVariant` + orphaned `ColumnDef`/`SColumnUtil` members (17 live constants kept; Avatar/Planes/Schemes/Dungeon sections kept per D1/D3).
-- [x] 21.2 Verified `CAllDecks` "All Decks" Constructed tab REACHABLE (editor default + default layout + import flow) → kept, no removal.
-
-### Phase 22 — Enum pruning (GameType + DeckFormat)
-- [x] 22.1 `GameType`: removed 20 dead values (kept `Constructed` + `Commander`); rebased FormatChoices/GameLobby/CLobby/PlayAi/AiProps/CEditorTokenViewer/ViewWinLose/PlayerPanel/VLobby/DeckManager.
-- [x] 22.2 `DeckFormat`: removed QuestDeck/Limited/CommanderDraft/PlanarConquest/Adventure/Planechase/Archenemy/Puzzle (kept Constructed/Commander/Pauper/Vanguard).
-- [x] 22.3 Verification only: compiler flagged nothing; full enum-name sweep clean.
-
-### Phase 23 — Resource data (res/)
-- [x] 23.1 Delete `res/defaults/gauntlet/` + `GAUNTLET_DIR` + gauntlet branches in ImportSourceAnalyzer/ImportDialog/FView migration.
-- [x] 23.2 Delete zero-ref `res/lists/planes-images.txt` + `classicModuleCardtoCrop.txt` + constants.
-- [x] 23.3 Delete quest/booster image lists + `CACHE_*_PICS_DIR` + booster branches (kept card/token pics, `commanderprecons/`, quest-saves migration).
-
-### Phase 24 — i18n orphan sweep (all 10 locale files)
-- [x] 24.1 Full fresh orphan scan: deleted 81 zero-ref keys across all 10 locales (8 vanguard keys kept per D1a; dynamic-key builders verified).
-
-### Phase 25 — (D2) Archived formats + final verification
-- [x] 25.1 No-op per D2: archived/Block legality formats + `FormatChoices.ARCHIVED` kept.
-- [x] 25.2 Final sweep: deleted 14 orphaned classes (FDraftOverlay/DraftTimerRope/ConstructedGameMenu/DeckGroup*/ChaosBoosterSupplier/product classes) + blockdata txts + draft sprites; rebased CardEdition/StaticData/ItemPredicate/FModel/FSkin*/ForgeConstants/FScreen/FPref + lobby/prefs UI + dead engine methods; removed 31 i18n keys from all 10 locales; GATE+PKG green.
-
-## Part 7 — REWRITE.md Phase 1: Decoupled JVM Baseline & State-Machine Testing
-
-### Goal
-Separate UI rendering from game/rules/deck/lobby state behind a clean, testable single-player state/action contract; the existing Swing app stays runnable as baseline.
-
-### Verified starting point (audit — do not re-litigate)
-- Module graph core→game→ai→gui→desktop; forge-game/forge-ai already Swing-free (zero `java.awt`/EDT imports) — the target is runtime seams, not imports.
-- Engine→UI: `Game.fireEvent` (Guava EventBus) → `FControlGameEventHandler` (ad-hoc `@Subscribe` visitor, forge-gui) → one EDT hop → `IGuiGame.update*` → `CMatchUI`.
-- State: `GameView`/`PlayerView`/`CardView` are `TrackableObject`s (forge-game) kept current by direct engine `update*` calls; per-game `Tracker` (`Game.java:164`).
-- Delta: `DeltaPacket` + `DeltaSyncManager.collectDeltas` + `AbstractGuiGame.applyDelta` — already used by netplay AND replay playback; full state = serialized `GameView` graph (`setGameView`).
-- Actions: `IGameController` + `ProtocolMethod` + `GameProtocolSender` — canonical action channel exists.
-- Prompts: latch-blocking contract (`PlayerControllerHuman.choose*` → `Input*.showAndWait` → `IGuiGame.awaitInput(CountDownLatch)`); `Input*` live in forge-gui `gamemodes/match/input`; legal candidates computed engine-side before the controller call. Biggest seam to boundary.
-- Determinism: `MyRandom` single RNG funnel (`setSeed`/`CountingRandom`, thread-local streams).
-- Headless precedents: `forge.headless` harness, `forge/ai/simulation` (GameSimulator/SimAudit), `gamesimulationtests` (`PlayerControllerForTests`), `FlatMonteCarloCommanderTest` AI-vs-AI recipe (`Match` + `createGame` + `setNoGUIUser` + `startGame` — no GuiBase needed).
-- Gaps: no engine-side observer interface, no versioned snapshot/delta/action contract, no golden-trace or round-trip boundary tests, no trajectory/ML export hook.
-
-### Decisions
-- Contract + adapter + headless runner live in a NEW Maven module **`forge-baseline`** (depends on forge-gui; added to the reactor after forge-gui). The adapter drives `Match`/`Game` directly (forge-game) with `PlayerControllerAi`/scripted controllers — no GuiBase, no Swing.
-- Serialization reuses the kept net codec (`CompatibleObjectEncoder`/`Decoder`, `TrackableSerializer`, `WireClassFilter`, EmbeddedChannel round-trip pattern) rather than inventing a new one.
-- From 27.1 on, GATE includes the new module: `mvn test -pl forge-gui-desktop,forge-baseline -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C`
-
-### Phase 26 — Coupling audit artifact
-- [x] 26.1 Write `docs/baseline/Coupling-Audit.md`: all engine↔UI runtime seams (event path, delta engine, prompt/latch contract, action channel, match lifecycle GameLobby→HostedMatch→Match→Game, observer wiring) with file:line refs + the seam list the Phase 28 adapter must own. Doc-only commit.
-
-### Phase 27 — State & action contract (forge-baseline)
-- [x] 27.1 Scaffold `forge-baseline` module (root pom + module pom, depends on forge-gui); versioned state contract: `BaselineSnapshot` (full) + `BaselineDelta` envelopes over the existing TrackableProperty/DeltaPacket schema; explicit format `VERSION` constant; UI-agnostic (no forge-gui/Swing imports in the state package).
-- [x] 27.2 Canonical action model: `BaselineAction` (select/ok/cancel, concede, yield, next-game decision) + prompt state (pending prompt + engine-computed legal candidates) as a snapshot field; document mapping to IGameController/ProtocolMethod.
-- [x] 27.3 Design doc `docs/baseline/StateActionContract.md`: schemas, versioning rules, threading model (game thread vs consumers), Swing-baseline vs future Phase-2 backend consumption.
-
-### Phase 28 — Engine adapter
-- [x] 28.1 `BaselineEngine` adapter over the direct Match/Game path (FlatMonteCarloCommanderTest recipe): `start(seed, decks, players)`; `feed(BaselineAction)` → emits deterministic Snapshot/Delta (seeded MyRandom, canonical ordering); no UI, no GuiBase.
-- [x] 28.2 Prompt boundary: pending prompts + legal candidates exposed as state; choices accepted as actions; adapter runs non-interactively (PlayerControllerAi / scripted test controller) off the latch-blocking awaitInput path; CMatchUI path untouched.
-
-### Phase 29 — Transition & invariant tests
-- [x] 29.1 Fast deterministic unit tests over BaselineEngine: legal/illegal action handling (illegal → rejected, state unchanged), phase/step progression (mulligan→draw/combat/end), state invariants (zone counts, life, stack, commander in command zone). Seeded MyRandom, no UI.
-
-### Phase 30 — Golden replay & headless match tests
-- [x] 30.1 Seeded golden traces: record N small AI-vs-AI Commander games (action sequence + per-step state hashes) as committed golden files; test replays actions on a fresh engine and asserts per-step equality. (Root-caused the Phase-30 blocker first: the headless baseline never loaded `TypeLists.txt`, so basic lands had no tap-for-mana ability and no spell could ever be cast — added `BaselineEngine.ensureTypeLists()`. Three committed traces (`golden-3000{1,2,3}.trace`, seed 30001/2/3, 57 steps each, scripted land-drop + command-zone commander cast vs `LobbyPlayerAi`); `GoldenTraceReplayShould` replays each on a fresh engine and asserts per-step SHA-256 state-hash equality. Updated the 28.2/29.1 invariants that had assumed the mana-broken behavior: conservation now counts a player's spells on the shared stack, the commander's legal zones include the stack (mid-cast), and the pass-priority candidate set now includes a battlefield land's mana ability.)
-- [x] 30.2 Headless full-match tests through the adapter to completion (no UI windows, no Xvfb); assert outcome + no UI classes touched.
-
-### Phase 31 — Serialization & transport tests
-- [x] 31.1 Round-trip tests: snapshot/delta/action serialize→deserialize→equal via the kept CompatibleObjectEncoder/Decoder + EmbeddedChannel pattern (TrackerLifecycleShould template); include a version-mismatch rejection case. (`BaselineTransportShould`: snapshot ± prompt and delta round-trips with full-envelope equality; VERSION±1 envelopes survive the wire and are rejected by `checkVersion`; `BaselineFixtures` exposes the version-stamped package-private constructors. `canonicalBytes` normalizes through a wire round-trip so values without value-based equals — `CardType`'s resize-history `LinkedHashSet`s — compare by wire state. Action round-trips live in `BaselineActionShould` from 27.2.)
-
-### Phase 32 — Headless simulation & ML trajectory hook
-- [x] 32.1 Headless batch runner (N seeded AI-vs-AI matches, no UI, parallel-safe via MyRandom thread-locals) + state-observer hook on the adapter exporting per-decision shards (state snapshot, legal action candidates, chosen action, match outcome) as JSONL with a documented shard schema; ML tensor schema stays out of the contract. (`BaselineBatchRunner` + `ActionPolicy` + `BaselineObserver` on `BaselineEngine` + `JsonlShardWriter`; shard schema in `docs/baseline/TrajectoryShards.md`. **Id gotcha (root-caused):** the core assigns spell-ability/stack-instance ids from JVM-global static counters (`SpellAbility`/`SpellAbilityStackInstance` `nextId()`), which interleave across concurrent matches — the writer re-bases them to per-match dense ids (first-seen order, per kind) so shards are byte-identical sequential vs parallel. `GameOutcome.getPlayerOutcome(RegisteredPlayer)` added for stable per-player outcome lookup. `BaselineBatchShould`: schema end-to-end, byte-identical seq-vs-par shards, observer hook order/once.)
-- [x] 32.2 Final gate: GATE + PKG (600000 ms) + UI e2e launch (home screen renders + one local Commander match starts against the untouched CMatchUI path); update PROGRESS.md. (GATE `mvn test -pl forge-gui-desktop,forge-baseline -am -DfailIfNoTests=false -Dsurefire.failIfNoSpecifiedTests=false -T 1C` → 2685 tests 0F/0E; PKG `mvn package -DskipTests -T 1C` → BUILD SUCCESS. UI e2e via external javaagent in `/tmp/opencode` (no repo changes) drove the packaged jar: home screen rendered (LOCAL + AI slots), decks applied to both slots, match started through the untouched `CMatchUI` — mulligan prompt (Play→Keep), T:1 human prompt (OK/End Turn), AI turn played a land, T:3 human draw → discard-to-hand-size via card click in `HandArea`, then pass-priority + mana-payment prompts. **Mechanism gotchas (verified):** (1) fresh-profile launch never fires a deck-selection event — `FDeckChooser`'s initial row-0 selection happens inside the `updatingDeckPool`-guarded pool update and `setSelectedIndex(0)` is then a no-op, so slot decks stay null ("Please specify player deck" on Start); a slot's deck only lands when a selection event fires unguarded — e.g. next launch's `restoreSavedState`→`setSelectedStrings` (clear+re-select) or clicking the slot's "Select a Commander deck" label (`setCurrentGameMode`→`update(true)`→per-slot `getSelectCommand().run()`). (2) synthetic clicks on `FLabel` need `MOUSE_ENTERED` (the `hovered` flag gates `onLeftClick`) AND `MouseEvent` with explicit `BUTTON1` (8-arg ctor defaults to NOBUTTON → `mousePressed`/`mouseReleased` bail). (3) hand-card clicks are hit-tested by a plain `MouseAdapter` on the `CardPanelContainer` (`getCardPanel(x,y)`): dispatch PRESSED+RELEASED at card-center in container coordinates. (4) "stuck" game = `Game-0` parked in `IGuiGame.awaitInput` on a latch (jstack shows the exact `Input*` prompt class); AI weak-deck FOptionPane at match start needs OK. Mulligans are non-modal `PromptButton`s — EDT stays live.)
+### Phase 38 — Phase 2 Final Gate
+- [ ] 38.1 Final: full parity corpus green (RUSTGATE) + forge GATE + PKG + e2e vs the Rust backend; docs updated (forge-rs README, `docs/protocol.md`, `docs/parity.md`; forge `docs/baseline/` pointer); PLAN/PROGRESS updated.
