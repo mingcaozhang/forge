@@ -62,7 +62,7 @@ Port the single-player game/rules/AI engine into a **new standalone Rust repo** 
 
 ### Phase 33 — Rust Toolchain & Workspace Scaffold
 - [x] 33.1 Verify Rust toolchain (rustup, stable) — verify `cargo --version` / `rustc --version`.
-- [ ] 33.2 Scaffold `~/Projects/forge-rs` per P1 (git init, README, workspace Cargo.toml, six empty crates, `docs/protocol.md` + `docs/parity.md` stubs); RUSTGATE green on the empty scaffold.
+- [x] 33.2 Scaffold `~/Projects/forge-rs` per P1 (git init, README, workspace Cargo.toml, six empty crates, `docs/protocol.md` + `docs/parity.md` stubs); RUSTGATE green on the empty scaffold.
 
 ### Phase 34 — Parity Harness (both sides)
 - [ ] 34.1 Java: `forge.baseline.parity` main class (manual, NOT in GATE): given `(seed, decks, actions|policy)` run `BaselineEngine` and emit a parity report in `GoldenTrace` format (per-step `<action-token> <sha256-of-canonical-state-string>` + final outcome), reusing `BaselineStateHasher`/`GoldenActionCodec`; optional full canonical state strings per step for divergence diffs. GATE green.
