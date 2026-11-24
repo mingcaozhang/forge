@@ -53,15 +53,15 @@ forge-rs repo:
 ### Context & Goal
 Port the single-player game/rules/AI engine into a **new standalone Rust repo** with 100% functional parity — no optimizations, no logic changes. **Server only**: no UI in Rust. End state of this phase: the forge backend runs on Rust, and the existing Swing UI (Java frontend) connects to it and plays single-player Commander (human vs AI). Out of scope: performance (Phase 3), new frontends (Phase 4), online/multiplayer, ML tensor schemas.
 
-### Decisions (proposed — confirm before executing 33.x)
+### Decisions (confirmed)
 - **P1.** New repo `~/Projects/forge-rs` (own git repo, local commits only). Rust workspace crates: `forge-protocol` (state/action/wire types), `forge-data` (card/deck data), `forge-engine` (rules state machine), `forge-ai` (AI decisions), `forge-server` (TCP transport), `parity` (harness).
 - **P2.** Wire format: **JSON lines over TCP** (one JSON object per line; serde in Rust, Gson in Java). The contract leaves transport/serialization to the backend's choice; the *schema* (`BaselineSnapshot`/`BaselineDelta`/`BaselinePrompt`/`BaselineAction`), `VERSION=2`, and key encoding are NOT the backend's choice. The Java binary codec is NOT reimplemented in this phase.
 - **P3.** Parity surface: `BaselineStateHasher`'s canonical per-step state string (SHA-256), `GoldenActionCodec` action tokens, and the `GoldenTrace` text format are the shared fixture format; first corpus = the 3 committed golden traces.
-- **P4.** Card data: the Rust engine reads forge data files directly from `forge-gui/res/` (34,481 card txt files in `cardsfolder/`, `lists/TypeLists.txt` + combo lists, `formats/`, `editions/`) via a `--data-dir` path — no data reformatting.
+- **P4.** Card data: the Rust engine reads forge data files directly from `forge-gui/res/` (34,481 card txt files in `cardsfolder/`, `lists/TypeLists.txt` + combo lists, `formats/`, `editions/`) via a `--data-dir` path — no data reformatting. (Confirmed for now; migrating the data into `forge-rs` is deferred to later.)
 - **P5.** RNG: port `MyRandom` bit-for-bit — `java.util.Random` LCG (seed scramble `^ 0x5DEECE66D`, 64-bit LCG, `nextInt()` = top 32 bits) with the `nextInt() >>> (32-bits)` derivation and thread-local stream semantics; verify against committed RNG vectors (first N draws per seed) emitted by the Java side.
 
 ### Phase 33 — Rust Toolchain & Workspace Scaffold
-- [ ] 33.1 Install Rust toolchain (rustup, stable) — verify `cargo --version` / `rustc --version` (currently NOT installed in this environment).
+- [ ] 33.1 Verify Rust toolchain (rustup, stable) — verify `cargo --version` / `rustc --version`.
 - [ ] 33.2 Scaffold `~/Projects/forge-rs` per P1 (git init, README, workspace Cargo.toml, six empty crates, `docs/protocol.md` + `docs/parity.md` stubs); RUSTGATE green on the empty scaffold.
 
 ### Phase 34 — Parity Harness (both sides)
