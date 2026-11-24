@@ -5,6 +5,7 @@ import forge.CardStorageReader;
 import forge.LobbyPlayer;
 import forge.StaticData;
 import forge.baseline.action.BaselineAction;
+import forge.card.CardType;
 import forge.baseline.state.BaselineDelta;
 import forge.baseline.state.BaselinePrompt;
 import forge.baseline.state.BaselineSnapshot;
@@ -20,6 +21,8 @@ import forge.game.event.GameEventTurnEnded;
 import forge.game.player.RegisteredPlayer;
 import forge.gamemodes.net.DeltaPacket;
 import forge.gamemodes.net.server.DeltaSyncManager;
+import forge.util.FileSection;
+import forge.util.FileUtil;
 import forge.util.MyRandom;
 
 import java.io.IOException;
@@ -30,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -119,6 +123,8 @@ public final class BaselineEngine {
         }
         started = true;
 
+        ensureTypeLists();
+
         for (LobbyPlayer player : players) {
             if (player instanceof ScriptedLobbyPlayer scripted) {
                 scripted.bind(this);
@@ -166,6 +172,34 @@ public final class BaselineEngine {
         } catch (IOException e) {
             throw new IllegalStateException("failed to bootstrap a minimal StaticData", e);
         }
+    }
+
+    /**
+     * Loads the card-type lists (the basic/land/creature/… subtype vocabulary)
+     * that {@code CardType.sanisfySubtypes} consults to validate subtypes. In
+     * the real game this happens while the card-database model loads; the
+     * headless engine has no such model, so without it every non-core subtype
+     * (for example the "Island" on a basic land) is stripped from card types,
+     * which disables the auto-generated tap-for-mana on basic lands. The list
+     * file is resolved from a res directory that defaults to the sibling
+     * {@code forge-gui/res} (overridable via the {@code forge.baseline.resDir}
+     * system property) and is loaded at most once per JVM.
+     */
+    private static synchronized void ensureTypeLists() {
+        if (CardType.Constant.LOADED.isSet()) {
+            return;
+        }
+        String resDir = System.getProperty("forge.baseline.resDir", "../forge-gui/res");
+        Path typeLists = Path.of(resDir, "lists", "TypeLists.txt");
+        if (!Files.exists(typeLists)) {
+            return;
+        }
+        Map<String, List<String>> sections =
+                FileSection.parseSections(FileUtil.readFile(typeLists.toString()));
+        for (String sectionName : sections.keySet()) {
+            CardType.Helper.parseTypes(sectionName, sections.get(sectionName));
+        }
+        CardType.Constant.LOADED.set();
     }
 
     private void runGame() {

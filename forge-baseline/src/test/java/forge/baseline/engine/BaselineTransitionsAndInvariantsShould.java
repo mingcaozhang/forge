@@ -8,6 +8,7 @@ import forge.game.card.CardView;
 import forge.game.phase.PhaseType;
 import forge.game.player.PlayerView;
 import forge.game.spellability.SpellAbilityView;
+import forge.game.spellability.StackItemView;
 import forge.game.zone.ZoneType;
 import forge.util.collect.FCollectionView;
 import org.testng.annotations.Test;
@@ -29,8 +30,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  *       the game running to a recorded outcome;</li>
  *   <li>state invariants at every emitted envelope: per-player card
  *       conservation (hand + library + battlefield + command + graveyard +
- *       exile), life bounds and the bear-sized life deltas, the commander
- *       staying in a legal zone, and an empty stack at the start of a turn;</li>
+ *       exile, plus the player's spells currently on the shared stack), life
+ *       bounds and the bear-sized life deltas, the commander staying in a
+ *       legal zone, and an empty stack at the start of a turn;</li>
  *   <li>action handling: actions outside the legal candidates are rejected
  *       and leave the scripted player's state unchanged, while a legal
  *       action is applied and visible in the next prompt snapshot.</li>
@@ -256,9 +258,12 @@ public class BaselineTransitionsAndInvariantsShould {
                         .as("card conservation, player %d at envelope %d", p, i).isEqualTo(CARDS_PER_PLAYER);
                 int life = c.lives.get(i)[p];
                 assertThat(life).as("life in range, player %d at envelope %d", p, i).isBetween(0, 40);
+                // the stack is legal while the commander is being cast (a
+                // spell resolves from the stack onto the battlefield)
                 assertThat(c.commanderZones.get(i)[p])
                         .as("commander in a legal zone, player %d at envelope %d", p, i)
-                        .isIn(ZoneType.Command, ZoneType.Battlefield, ZoneType.Graveyard, ZoneType.Exile);
+                        .isIn(ZoneType.Command, ZoneType.Battlefield, ZoneType.Graveyard,
+                                ZoneType.Exile, ZoneType.Stack);
                 if (i > 0) {
                     // the only damage source in the rig is the 2/2 bear in
                     // combat, and at most one combat damage step fits
@@ -379,9 +384,19 @@ public class BaselineTransitionsAndInvariantsShould {
             for (int i = 0; i < 2; i++) {
                 PlayerView p = players.get(i);
                 life[i] = p.getLife();
-                zones[i] = p.getZoneSize(ZoneType.Hand) + p.getZoneSize(ZoneType.Library)
+                int total = p.getZoneSize(ZoneType.Hand) + p.getZoneSize(ZoneType.Library)
                         + p.getZoneSize(ZoneType.Battlefield) + p.getZoneSize(ZoneType.Command)
                         + p.getZoneSize(ZoneType.Graveyard) + p.getZoneSize(ZoneType.Exile);
+                // a spell this player cast sits on the shared stack (not a
+                // per-player zone) until it resolves: add its cards back so
+                // conservation still totals the player's full 20-card deck
+                for (StackItemView item : g.getStack()) {
+                    PlayerView activator = item.getActivatingPlayer();
+                    if (!item.isAbility() && activator != null && activator.getId() == p.getId()) {
+                        total++;
+                    }
+                }
+                zones[i] = total;
                 commanders[i] = p.getCommanders().get(0).getZone();
             }
             lives.add(life);

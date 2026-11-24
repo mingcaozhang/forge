@@ -103,10 +103,16 @@ public class BaselinePromptBoundaryShould {
         // the choice was applied: the land is on the battlefield...
         assertThat(afterView.getBattlefield()).as("the chosen land was played").contains(landToPlay);
         assertThat(afterView.getHand()).doesNotContain(landToPlay);
-        // ...and no land drop is legal any more (one land per turn); the only
-        // remaining candidate is the commander's cast from the command zone.
-        assertThat(next.getAbilityCandidates()).hasSize(1);
-        assertThat(next.getCardCandidates()).containsExactly(afterView.getCommanders().get(0));
+        // ...and no land drop is legal any more (one land per turn). The
+        // commander's cast from the command zone is still offered, and — now
+        // that basic lands produce mana — the battlefield island's mana
+        // ability is too; no candidate comes from the hand.
+        assertThat(next.getCardCandidates())
+                .as("the commander's cast is still a legal candidate")
+                .contains(afterView.getCommanders().get(0));
+        assertThat(next.getCardCandidates())
+                .as("no land drop is legal (one per turn): no candidate is in hand")
+                .noneMatch(c -> afterView.getHand().contains(c));
 
         engine.feed(new BaselineAction.Concede());
         assertThat(engine.awaitCompletion(120, TimeUnit.SECONDS)).as("game finished").isTrue();
