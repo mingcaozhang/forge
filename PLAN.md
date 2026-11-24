@@ -61,7 +61,7 @@ Port the single-player game/rules/AI engine into a **new standalone Rust repo** 
 - **P5.** RNG: port `MyRandom` bit-for-bit — `java.util.Random` LCG (seed scramble `^ 0x5DEECE66D`, 64-bit LCG, `nextInt()` = top 32 bits) with the `nextInt() >>> (32-bits)` derivation and thread-local stream semantics; verify against committed RNG vectors (first N draws per seed) emitted by the Java side.
 
 ### Phase 33 — Rust Toolchain & Workspace Scaffold
-- [ ] 33.1 Verify Rust toolchain (rustup, stable) — verify `cargo --version` / `rustc --version`.
+- [x] 33.1 Verify Rust toolchain (rustup, stable) — verify `cargo --version` / `rustc --version`.
 - [ ] 33.2 Scaffold `~/Projects/forge-rs` per P1 (git init, README, workspace Cargo.toml, six empty crates, `docs/protocol.md` + `docs/parity.md` stubs); RUSTGATE green on the empty scaffold.
 
 ### Phase 34 — Parity Harness (both sides)
