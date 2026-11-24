@@ -53,6 +53,23 @@
                     <includes>
                         <include>**/*Should.java</include>
                     </includes>
+                    <!-- the 30.2 UI-touch guard (UiClassTouchGuard) installs a SecurityManager;
+                         JDK 17+ refuses that unless the JVM is STARTED with
+                         -Djava.security.manager=allow. Surefire's systemPropertyVariables
+                         are applied inside the fork (too late), so the flag has to ride on
+                         the command line. NOTE: this argLine replaces the root pom's one and
+                         must keep the add-opens entries in sync with it. -->
+                    <argLine>
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.time=ALL-UNNAMED
+                        --add-opens java.base/java.text=ALL-UNNAMED
+                        --add-opens java.base/java.util=ALL-UNNAMED
+                        --add-opens java.base/java.util.regex=ALL-UNNAMED
+                        --add-opens java.base/java.util.stream=ALL-UNNAMED
+                        --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+                        --add-opens java.desktop/javax.imageio.spi=ALL-UNNAMED
+                        -Djava.security.manager=allow
+                    </argLine>
                 </configuration>
             </plugin>
         </plugins>

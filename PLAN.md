@@ -161,7 +161,7 @@ Separate UI rendering from game/rules/deck/lobby state behind a clean, testable 
 
 ### Phase 30 — Golden replay & headless match tests
 - [x] 30.1 Seeded golden traces: record N small AI-vs-AI Commander games (action sequence + per-step state hashes) as committed golden files; test replays actions on a fresh engine and asserts per-step equality. (Root-caused the Phase-30 blocker first: the headless baseline never loaded `TypeLists.txt`, so basic lands had no tap-for-mana ability and no spell could ever be cast — added `BaselineEngine.ensureTypeLists()`. Three committed traces (`golden-3000{1,2,3}.trace`, seed 30001/2/3, 57 steps each, scripted land-drop + command-zone commander cast vs `LobbyPlayerAi`); `GoldenTraceReplayShould` replays each on a fresh engine and asserts per-step SHA-256 state-hash equality. Updated the 28.2/29.1 invariants that had assumed the mana-broken behavior: conservation now counts a player's spells on the shared stack, the commander's legal zones include the stack (mid-cast), and the pass-priority candidate set now includes a battlefield land's mana ability.)
-- [ ] 30.2 Headless full-match tests through the adapter to completion (no UI windows, no Xvfb); assert outcome + no UI classes touched.
+- [x] 30.2 Headless full-match tests through the adapter to completion (no UI windows, no Xvfb); assert outcome + no UI classes touched.
 
 ### Phase 31 — Serialization & transport tests
 - [ ] 31.1 Round-trip tests: snapshot/delta/action serialize→deserialize→equal via the kept CompatibleObjectEncoder/Decoder + EmbeddedChannel pattern (TrackerLifecycleShould template); include a version-mismatch rejection case.
