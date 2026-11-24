@@ -1,0 +1,16 @@
+# Parity deck spec for the golden traces: the EngineRig deck
+# (one "Baseline Bear" commander + nineteen "Baseline Island" basic lands).
+# Player 0 — the scripted side of the parity harness.
+version=1
+name=Scripted
+[Commander]
+count=1
+Name:Baseline Bear
+ManaCost:1
+Types:Creature Bear
+PT:2/2
+[Main]
+count=19
+Name:Baseline Island
+ManaCost:no cost
+Types:Basic Land Island

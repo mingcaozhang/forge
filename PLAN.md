@@ -65,7 +65,7 @@ Port the single-player game/rules/AI engine into a **new standalone Rust repo** 
 - [x] 33.2 Scaffold `~/Projects/forge-rs` per P1 (git init, README, workspace Cargo.toml, six empty crates, `docs/protocol.md` + `docs/parity.md` stubs); RUSTGATE green on the empty scaffold.
 
 ### Phase 34 — Parity Harness (both sides)
-- [ ] 34.1 Java: `forge.baseline.parity` main class (manual, NOT in GATE): given `(seed, decks, actions|policy)` run `BaselineEngine` and emit a parity report in `GoldenTrace` format (per-step `<action-token> <sha256-of-canonical-state-string>` + final outcome), reusing `BaselineStateHasher`/`GoldenActionCodec`; optional full canonical state strings per step for divergence diffs. GATE green.
+- [x] 34.1 Java: `forge.baseline.parity` main class (manual, NOT in GATE): given `(seed, decks, actions|policy)` run `BaselineEngine` and emit a parity report in `GoldenTrace` format (per-step `<action-token> <sha256-of-canonical-state-string>` + final outcome), reusing `BaselineStateHasher`/`GoldenActionCodec`; optional full canonical state strings per step for divergence diffs. GATE green.
 - [ ] 34.2 Rust: `parity` crate — runner (consumes the same inputs, runs the Rust engine, emits the same report) + `parity-check` (compares a committed Java report vs a Rust run line-by-line; on mismatch prints the first divergent step + both canonical state strings). RUSTGATE green.
 - [ ] 34.3 Fixtures + docs: copy the 3 golden traces into `forge-rs` (`fixtures/golden/`); finalize `docs/parity.md` (input spec, report format, how to add corpus entries); pointer note in forge `docs/baseline/StateActionContract.md` 6.2. GATE + RUSTGATE green.
 
