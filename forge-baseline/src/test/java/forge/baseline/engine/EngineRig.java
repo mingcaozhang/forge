@@ -19,19 +19,19 @@ import java.util.List;
  * Cards are created from inline script text, so each test states exactly the
  * card characteristics it relies on.
  */
-final class EngineRig {
+public final class EngineRig {
 
-    static final String BEAR_NAME = "Baseline Bear";
-    static final String ISLAND_NAME = "Baseline Island";
+    public static final String BEAR_NAME = "Baseline Bear";
+    public static final String ISLAND_NAME = "Baseline Island";
 
     private EngineRig() {
     }
 
-    record Result(BaselineEngine engine, ScriptedLobbyPlayer scripted, LobbyPlayerAi ai) {
+    public record Result(BaselineEngine engine, ScriptedLobbyPlayer scripted, LobbyPlayerAi ai) {
     }
 
     /** Builds (but does not start) the game; register sinks before calling {@code engine.start()}. */
-    static Result create(long seed) {
+    public static Result create(long seed) {
         // The engine reads localized strings and keyword descriptions from these singletons.
         Localizer.getInstance().initialize("en-US", langDir());
         Lang.createInstance("en-US");
@@ -45,7 +45,7 @@ final class EngineRig {
     }
 
     /** Waits for the initial (turn-1) snapshot; fails if the game thread dies first. */
-    static BaselineSnapshot awaitInitialSnapshot(BaselineEngine engine) {
+    public static BaselineSnapshot awaitInitialSnapshot(BaselineEngine engine) {
         long deadline = System.currentTimeMillis() + 30_000;
         while (engine.getSnapshot() == null) {
             if (engine.getFailure() != null || System.currentTimeMillis() > deadline) {
@@ -86,7 +86,7 @@ final class EngineRig {
     }
 
     /** Two 20-card Commander decks: one scripted commander plus nineteen basic islands. */
-    static Deck commanderDeck() {
+    public static Deck commanderDeck() {
         Deck deck = new Deck();
         deck.getOrCreate(DeckSection.Commander).add(bearCard(), 1);
         deck.getOrCreate(DeckSection.Main).add(islandCard(), 19);

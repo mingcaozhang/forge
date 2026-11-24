@@ -309,6 +309,7 @@ The contract is the parity surface for the ported engine:
 | `BaselineEngineShould` | 28.1/28.2 adapter: a seeded game runs headless over the direct Match/Game path, fed actions drive the scripted player, and the same seed + same actions emit an identical envelope stream (prompt snapshots included) |
 | `BaselinePromptBoundaryShould` | 28.2 prompt boundary: the pending `SELECT_ABILITY` prompt with its engine-computed legal candidates on the snapshot, a choice applied as an action and visible in the next prompt, an out-of-candidates action rejected as a pass |
 | `EnginePackageIsSwingFreeShould` | the engine package's main sources stay headless (no Swing/GUI/download/screens/latch-input imports) |
+| `BaselineBatchShould` | 32.1 batch runner + shards: the line schema end-to-end (header / decision* / outcome), byte-identical sequential-vs-parallel shards for the same seeds, and the observer hook (every decision observed exactly once, in order, with the terminal outcome exactly once) |
 
 Planned (Phases 29–31): transition/invariant tests over `BaselineEngine`
 (29.1), seeded golden-trace replay (30.1), headless full-match tests (30.2),
@@ -337,5 +338,11 @@ round-trip + version-mismatch rejection through the kept codec (31.1).
   adapter.
 - **31.1** — serialization round-trips incl. version-mismatch rejection
   (`TrackerLifecycleShould` template).
-- **32.1** — headless batch runner + state-observer hook exporting per-decision
-  JSONL shards on the same snapshot/prompt/action types.
+- **32.1** — headless batch runner (`BaselineBatchRunner`: N seeded AI-vs-AI
+  matches on a fixed thread pool, each engine's game thread seeding its own
+  `MyRandom` stream) + the state-observer hook on `BaselineEngine`
+  (`BaselineObserver`) exporting per-decision JSONL shards (state snapshot,
+  legal candidates, chosen action, match outcome) on the same
+  snapshot/prompt/action types — the documented shard schema (including the
+  per-match re-basing of the core's global ability/stack ids) is in
+  `docs/baseline/TrajectoryShards.md`.

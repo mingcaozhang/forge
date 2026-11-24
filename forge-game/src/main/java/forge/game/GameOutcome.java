@@ -185,6 +185,10 @@ public final class GameOutcome {
         return playerNames;
     }
 
+    public PlayerOutcome getPlayerOutcome(RegisteredPlayer player) {
+        return playerOutcomes.get(player);
+    }
+
     public List<String> getOutcomeStrings() {
         List<String> outcomes = Lists.newArrayList();
         for (RegisteredPlayer player : playerNames.keySet()) {

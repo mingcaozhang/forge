@@ -81,6 +81,13 @@ import java.util.function.Consumer;
  * driven non-interactively by whatever {@code IGameEntitiesFactory} its
  * {@link LobbyPlayer} implements (for example {@code LobbyPlayerAi}). The
  * CMatchUI path is untouched.
+ *
+ * <p>Observer hook (32.1): {@link #addObserver} registers a
+ * {@link BaselineObserver} that sees every pass-priority decision — the prompt
+ * snapshot (state + legal candidates) paired with the fed action that answered
+ * it ({@link BaselineDecision}) — and the terminal match event
+ * ({@link BaselineMatchOutcome}). This is the seam the headless batch runner
+ * and its JSONL shard writer consume.
  */
 public final class BaselineEngine {
 
@@ -93,8 +100,10 @@ public final class BaselineEngine {
 
     private final CountDownLatch finished = new CountDownLatch(1);
     private final CopyOnWriteArrayList<Consumer<Object>> sinks = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<BaselineObserver> observers = new CopyOnWriteArrayList<>();
     private final List<BaselineDelta> deltas = new ArrayList<>();
     private final List<BaselineSnapshot> promptSnapshots = new ArrayList<>();
+    private volatile BaselineSnapshot pendingPromptSnapshot;
 
     private Game game;
     private Match match;
@@ -152,7 +161,7 @@ public final class BaselineEngine {
      * minimal, card-free instance if needed. Cards are supplied by the decks'
      * inline script data, not by a card database.
      */
-    private static void ensureStaticData() {
+    private static synchronized void ensureStaticData() {
         if (StaticData.instance() != null) {
             return;
         }
@@ -213,6 +222,11 @@ public final class BaselineEngine {
         } finally {
             flushPendingDeltas();
             gameOver = true;
+            // Fire before the latch: awaitCompletion() returning must
+            // happen-after the terminal observer event.
+            for (BaselineObserver observer : observers) {
+                observer.onOutcome(new BaselineMatchOutcome(seed, outcome, failure));
+            }
             finished.countDown();
             synchronized (actionLock) {
                 actionLock.notifyAll();
@@ -251,6 +265,7 @@ public final class BaselineEngine {
      * Used by {@link ScriptedPlayerController}.
      */
     BaselineAction takeAction() {
+        BaselineAction action;
         synchronized (actionLock) {
             while (pendingActions.isEmpty()) {
                 if (gameOver) {
@@ -263,8 +278,18 @@ public final class BaselineEngine {
                     throw new IllegalStateException("interrupted while waiting for an action", e);
                 }
             }
-            return pendingActions.poll();
+            action = pendingActions.poll();
         }
+        // Fire the decision event outside the lock: observer callbacks (the
+        // JSONL shard writer does file I/O) must not block feed().
+        BaselineSnapshot prompt = pendingPromptSnapshot;
+        if (prompt != null) {
+            pendingPromptSnapshot = null;
+            for (BaselineObserver observer : observers) {
+                observer.onDecision(new BaselineDecision(prompt, action));
+            }
+        }
+        return action;
     }
 
     /**
@@ -277,6 +302,7 @@ public final class BaselineEngine {
         flushPendingDeltas();
         BaselineSnapshot snapshot = new BaselineSnapshot(sync.getCurrentSequence(), game.getView(), prompt);
         promptSnapshots.add(snapshot);
+        pendingPromptSnapshot = snapshot;
         emit(snapshot);
     }
 
@@ -309,6 +335,19 @@ public final class BaselineEngine {
      */
     public void onEnvelope(Consumer<Object> sink) {
         sinks.add(sink);
+    }
+
+    /**
+     * Registers a {@link BaselineObserver} for the adapter's decision and
+     * terminal-match events. Callbacks fire on the game thread; see
+     * {@link BaselineObserver} for the threading contract.
+     */
+    public void addObserver(BaselineObserver observer) {
+        observers.add(observer);
+    }
+
+    public void removeObserver(BaselineObserver observer) {
+        observers.remove(observer);
     }
 
     private void emit(Object envelope) {
