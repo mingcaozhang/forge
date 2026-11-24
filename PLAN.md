@@ -164,7 +164,7 @@ Separate UI rendering from game/rules/deck/lobby state behind a clean, testable 
 - [x] 30.2 Headless full-match tests through the adapter to completion (no UI windows, no Xvfb); assert outcome + no UI classes touched.
 
 ### Phase 31 — Serialization & transport tests
-- [ ] 31.1 Round-trip tests: snapshot/delta/action serialize→deserialize→equal via the kept CompatibleObjectEncoder/Decoder + EmbeddedChannel pattern (TrackerLifecycleShould template); include a version-mismatch rejection case.
+- [x] 31.1 Round-trip tests: snapshot/delta/action serialize→deserialize→equal via the kept CompatibleObjectEncoder/Decoder + EmbeddedChannel pattern (TrackerLifecycleShould template); include a version-mismatch rejection case. (`BaselineTransportShould`: snapshot ± prompt and delta round-trips with full-envelope equality; VERSION±1 envelopes survive the wire and are rejected by `checkVersion`; `BaselineFixtures` exposes the version-stamped package-private constructors. `canonicalBytes` normalizes through a wire round-trip so values without value-based equals — `CardType`'s resize-history `LinkedHashSet`s — compare by wire state. Action round-trips live in `BaselineActionShould` from 27.2.)
 
 ### Phase 32 — Headless simulation & ML trajectory hook
 - [ ] 32.1 Headless batch runner (N seeded AI-vs-AI matches, no UI, parallel-safe via MyRandom thread-locals) + state-observer hook on the adapter exporting per-decision shards (state snapshot, legal action candidates, chosen action, match outcome) as JSONL with a documented shard schema; ML tensor schema stays out of the contract.

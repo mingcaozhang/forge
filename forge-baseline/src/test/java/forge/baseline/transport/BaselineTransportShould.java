@@ -2,9 +2,11 @@ package forge.baseline.transport;
 
 import forge.baseline.TestMatch;
 import forge.baseline.state.BaselineDelta;
+import forge.baseline.state.BaselineFixtures;
 import forge.baseline.state.BaselineFormat;
 import forge.baseline.state.BaselinePrompt;
 import forge.baseline.state.BaselineSnapshot;
+import forge.baseline.state.BaselineVersionException;
 import forge.game.GameView;
 import forge.game.card.CardView;
 import forge.game.card.CardView.CardStateView;
@@ -27,10 +29,17 @@ import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import org.testng.annotations.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Proves the baseline envelopes travel through the existing Netty object codec the same
@@ -135,8 +144,12 @@ public class BaselineTransportShould {
         assertThat(baseline.getNewObjects()).as("first walk registers every object").isNotEmpty();
 
         match.player1.setLife(19, null);
+        match.addCard(match.player1, ZoneType.Graveyard, "Shock");
 
         DeltaPacket packet = sync.collectDeltas(match.game.getView());
+        assertThat(packet.getObjectDeltas()).as("life + graveyard changes are dirty").isNotEmpty();
+        assertThat(packet.getNewObjects()).as("the new card is registered").isNotEmpty();
+
         BaselineDelta out = new BaselineDelta(packet.getSequenceNumber(),
                 packet.getObjectDeltas(), packet.getNewObjects(),
                 packet.getChecksum(), packet.getChecksumProperties());
@@ -148,6 +161,11 @@ public class BaselineTransportShould {
         BaselineFormat.checkVersion(in.getVersion());
         assertThat(in.getSequenceNumber()).isEqualTo(packet.getSequenceNumber());
         assertThat(in.getObjectDeltas()).isNotEmpty();
+        // Full-envelope equality: the wire-safe property maps and checksum fields come back intact
+        assertWireMapEqual("objectDeltas", packet.getObjectDeltas(), in.getObjectDeltas());
+        assertWireMapEqual("newObjects", packet.getNewObjects(), in.getNewObjects());
+        assertThat(in.getChecksum()).isEqualTo(packet.getChecksum());
+        assertThat(in.getChecksumProperties()).isEqualTo(packet.getChecksumProperties());
 
         int playerKey = BaselineFormat.makeKey(match.game.getView().getPlayers().get(0));
         Map<TrackableProperty, Object> playerDelta = in.getObjectDeltas().get(playerKey);
@@ -155,6 +173,117 @@ public class BaselineTransportShould {
                 .as("life change for player key %s", Integer.toHexString(playerKey))
                 .isNotNull()
                 .containsEntry(TrackableProperty.Life, 19);
+    }
+
+    // Fails if the version stamp does not survive serialization, or if a deserialized
+    // envelope stamped with another version is not rejected by the format gate
+    @Test
+    public void snapshotWithMismatchedVersionSurvivesTheWireAndIsRejected() throws Exception {
+        for (int version : new int[]{BaselineFormat.VERSION - 1, BaselineFormat.VERSION + 1}) {
+            TestMatch match = TestMatch.create();
+            BaselineSnapshot out = BaselineFixtures.snapshotWithVersion(version, 42L, match.game.getView());
+
+            BaselineSnapshot in = roundTrip(
+                    new GuiGameEvent(ProtocolMethod.setGameView, out), match.game.getTracker(), null);
+
+            assertThat(in)
+                    .as("a snapshot stamped with version %d", version)
+                    .isNotNull();
+            assertThat(in.getVersion()).as("the version stamp is payload and must survive the wire").isEqualTo(version);
+            assertThat(in.getSequenceNumber()).isEqualTo(42L);
+            assertThatThrownBy(() -> BaselineFormat.checkVersion(in.getVersion()))
+                    .as("the deserialized envelope must be rejected")
+                    .isInstanceOf(BaselineVersionException.class)
+                    .hasMessageContaining(String.valueOf(BaselineFormat.VERSION));
+        }
+    }
+
+    @Test
+    public void deltaWithMismatchedVersionSurvivesTheWireAndIsRejected() throws Exception {
+        for (int version : new int[]{BaselineFormat.VERSION - 1, BaselineFormat.VERSION + 1}) {
+            TestMatch match = TestMatch.create();
+            BaselineDelta out = BaselineFixtures.deltaWithVersion(version, 7L, null, null, 0, null);
+
+            BaselineDelta in = roundTrip(
+                    new GuiGameEvent(ProtocolMethod.applyDelta, out), match.game.getTracker(), new Tracker());
+
+            assertThat(in)
+                    .as("a delta stamped with version %d", version)
+                    .isNotNull();
+            assertThat(in.getVersion()).as("the version stamp is payload and must survive the wire").isEqualTo(version);
+            assertThat(in.getSequenceNumber()).isEqualTo(7L);
+            assertThatThrownBy(() -> BaselineFormat.checkVersion(in.getVersion()))
+                    .as("the deserialized envelope must be rejected")
+                    .isInstanceOf(BaselineVersionException.class)
+                    .hasMessageContaining(String.valueOf(BaselineFormat.VERSION));
+        }
+    }
+
+    /**
+     * Field-by-field equality over the wire-safe property maps. Values are
+     * Integer/enum/String/List/primitive-array; int[] has no value-based equals,
+     * so it is compared explicitly.
+     */
+    private static void assertWireMapEqual(String what, Map<Integer, Map<TrackableProperty, Object>> expected,
+                                           Map<Integer, Map<TrackableProperty, Object>> actual) {
+        assertThat(actual).as(what).hasSameSizeAs(expected);
+        for (Map.Entry<Integer, Map<TrackableProperty, Object>> entry : expected.entrySet()) {
+            Map<TrackableProperty, Object> expectedProps = entry.getValue();
+            Map<TrackableProperty, Object> actualProps = actual.get(entry.getKey());
+            assertThat(actualProps)
+                    .as("%s entry 0x%08X", what, entry.getKey())
+                    .isNotNull()
+                    .hasSameSizeAs(expectedProps);
+            for (Map.Entry<TrackableProperty, Object> prop : expectedProps.entrySet()) {
+                assertWireValueEqual(what + " entry 0x" + Integer.toHexString(entry.getKey()) + " " + prop.getKey(),
+                        prop.getValue(), actualProps.get(prop.getKey()));
+            }
+        }
+    }
+
+    private static void assertWireValueEqual(String what, Object expected, Object actual) {
+        if (expected == null) {
+            assertThat(actual).as(what).isNull();
+        } else if (expected instanceof int[]) {
+            assertThat(actual).as(what).isInstanceOf(int[].class);
+            assertThat((int[]) actual).as(what).isEqualTo((int[]) expected);
+        } else {
+            // The wire format is Java serialization itself: Serializable values without
+            // value-based equals (e.g. CardType) round-trip iff their serialized forms
+            // are byte-identical
+            assertThat(actual).as(what).isInstanceOf(expected.getClass());
+            assertThat(canonicalBytes(actual)).as(what).isEqualTo(canonicalBytes(expected));
+        }
+    }
+
+    /**
+     * Canonical wire bytes of a value: serialize it, deserialize the result, and serialize
+     * the fresh copy again. The extra hop normalizes the serialized form of collections
+     * whose internal state depends on mutation history (e.g. a {@code CardType} whose
+     * {@code LinkedHashSet} was resized mid-game), so values without value-based equals
+     * compare by their wire state, not by the object's life on this side of the wire.
+     */
+    private static byte[] canonicalBytes(Object value) {
+        try {
+            return serialize(deserialize(serialize(value)));
+        } catch (IOException | ClassNotFoundException e) {
+            throw new UncheckedIOException(e instanceof IOException io ? io : new IOException(e));
+        }
+    }
+
+    private static byte[] serialize(Object value) throws IOException {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+             ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+            oos.writeObject(value);
+            oos.flush();
+            return bos.toByteArray();
+        }
+    }
+
+    private static Object deserialize(byte[] bytes) throws IOException, ClassNotFoundException {
+        try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes))) {
+            return ois.readObject();
+        }
     }
 
     /** Encodes through a host encoder wired to the game's tracker and decodes into a fresh tracker. */
