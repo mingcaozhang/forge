@@ -7,9 +7,13 @@
   "share": "disabled",
   "autoupdate": "notify",
   "snapshot": true,
-  "instructions": ["WORKFLOW.md"],
+  "instructions": [
+    "WORKFLOW.md"
+  ],
   "skills": {
-    "paths": [".opencode/skills"]
+    "paths": [
+      ".opencode/skills"
+    ]
   },
   "references": {
     "workflow": {
@@ -26,6 +30,13 @@
         "edit": "ask",
         "bash": "allow"
       }
+    }
+  },
+  "permission": {
+    "external_directory": {
+      "*": "deny",
+      "/home/ming/Projects/forge-rs": "allow",
+      "/home/ming/Projects/forge-rs/*": "allow"
     }
   }
 }
